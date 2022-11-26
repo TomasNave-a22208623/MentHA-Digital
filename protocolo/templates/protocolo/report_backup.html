@@ -1,0 +1,105 @@
+<div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <div class="container-fluid">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <p class="text-primary m-0 fw-bold">Relatório {{ resolution.part }} - {{ resolution.patient }}
+                            ({{ resolution.date }})</p>
+                        <div>
+                            {% for area, instrument in report.items %}
+                                <div style="padding-top:15px;">
+                                    <a class="btn btn-primary" data-bs-toggle="collapse" aria-expanded="true"
+                                       aria-controls="collapse-{{ area|cut:" " }}" href="#collapse-{{ area|cut:" " }}"
+                                       role="button"
+                                       style="min-width: 100%;text-align: left;padding-left: 15px"> {{ area }}
+                                    </a>
+                                </div>
+
+                                <div class="collapse" id="collapse-{{ area|cut:" " }}" style="padding-top: 10px">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <tbody>
+                                            {% for inst, dimension in instrument.items %}
+                                                <tr>
+                                                    <td style="width: 50%;margin-bottom: 0px;">
+                                                        <strong>Instrumento: </strong>
+                                                        <a href="#" class="jq-btn no-decor"
+
+                                                            {% for i in instruments %}
+                                                                {% if i.name == inst %}
+                                                                    data-href="{% url 'dimensions' resolution.part.protocol.id resolution.part.id i.area.id i.id resolution.patient.id %}"
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        >
+                                                            {{ inst }}
+                                                            <svg style="margin-top: 0px;"
+                                                                 xmlns="http://www.w3.org/2000/svg"
+                                                                 width="16"
+                                                                 height="16" fill="currentColor"
+                                                                 class="bi bi-link" viewBox="0 0 16 16">
+                                                                <path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9c-.086 0-.17.01-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z"/>
+                                                                <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z"/>
+                                                            </svg>
+                                                        </a>
+
+                                                        ({{ dimension.Total }})
+                                                        <hr style="margin-top: 5px;margin-bottom: 5px;">
+                                                        {% for dim, section in dimension.items %}
+                                                            {% if forloop.counter0 == 0 %}
+                                                                <!-- Nada -->
+                                                            {% elif dim != 'None' and dim != 'Graph' %}
+                                                                <a href="#" class="jq-btn no-decor"
+                                                                        {% for a in answers %}
+                                                                            {% if a.question.section.dimension.name == dim %}
+                                                                   data-href="{% url 'sections' resolution.part.protocol.id resolution.part.id a.question.section.dimension.instrument.area.id a.question.section.dimension.instrument.id a.question.section.dimension.id resolution.patient.id %}"
+                                                                            {% endif %}
+                                                                        {% endfor %}
+                                                                >
+                                                                    {{ dim }}
+                                                                    <svg style="margin-top: 0px;"
+                                                                         xmlns="http://www.w3.org/2000/svg"
+                                                                         width="16"
+                                                                         height="16" fill="currentColor"
+                                                                         class="bi bi-link" viewBox="0 0 16 16">
+                                                                        <path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9c-.086 0-.17.01-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z"/>
+                                                                        <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z"/>
+                                                                    </svg>
+                                                                </a> ({{ section.Total }})
+
+                                                                <br>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </td>
+
+                                                    <td style="width: 50%; vertical-align: middle;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    align: center;">
+                                                        {% if dimension.Graph %}
+                                                            {{ dimension.Graph|safe }}
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% empty %}
+                                                <tr>
+                                                    <td style="width: 50%;margin-bottom: 0px;">Sem Respostas
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+</div>

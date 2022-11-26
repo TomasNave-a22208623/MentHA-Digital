@@ -1,0 +1,19 @@
+{% extends 'diario/base.html' %}
+{% load static %}
+
+
+{% block main %}
+<body>
+
+  <div>
+        {% for escolha in pergunta.escolha_set.all %}
+        <h2>{{escolha}}: {{escolha.votos}}</h2>
+        {% endfor %}
+    </div>
+    <div><img src="data:image/png;base64,{{ grafico }}" style="margin-left:400px;margin-top:150px;" ></div>
+
+  <a href="{% url 'view_abrirQuestionario' pergunta.id idParte sessaoGrupo %}" style="margin-left: 700px">
+      <button class="btn btn-outline-primary">Voltar</button>
+  </a>
+</body>
+{% endblock %}

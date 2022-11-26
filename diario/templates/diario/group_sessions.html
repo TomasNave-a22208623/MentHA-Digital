@@ -1,0 +1,97 @@
+{% extends 'diario/base.html' %}
+{% load static %}
+{% block main %}
+    <div class="container-fluid">
+        <div class="titulo">
+            <div class="card-body" style="padding: 8px">
+                <p class="text-primary m-0 fw-bold"
+                    style="margin: 5px; font-size: 26px">Sessões do
+                    Grupo {{ grupo }}</p>
+            </div>
+            <form action="{% url 'group_sessions' grupo.id %}">
+                <button type="submit" class="btn btn-outline-primary" style="width: 150px">
+                    Anterior
+                </button>
+            </form>
+        </div>
+
+        <div class="container ">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th style="text-align: center;"><strong>Sessão</strong></th>
+                                <th style="text-align: center;"><strong>Nome</strong></th>
+                                <th style="text-align: center;"><strong>Data e hora</strong></th>
+                                <th style="text-align: center;"><strong>Regime</strong></th>
+                                <th style="text-align: center;"><strong>Estado</strong></th>
+                                <th style="text-align: center;"></th>
+                                <th style="text-align: center;"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for sessao_do_grupo in sessoes_do_grupo %}
+                            <tr>
+                                <td style="text-align: center;">Sessão {{ sessao_do_grupo.sessao.numeroSessao }}
+                                </td>
+                                <td style="text-align: center;">{{ sessao_do_grupo.sessao.nome }}</td>
+                                <td style="text-align: center;">
+                                    <a href="{% url 'changeDate' sessao_do_grupo.sessao.id grupo.id %}">
+
+                                        {% if sessao_do_grupo.data == None %}
+                                        <button class="btn btn-link">
+                                            Não agendada
+                                        </button>
+
+                                        {% else %}
+                                        <!--                                            {{ sessao_do_grupo.data }}-->
+                                        <button class="btn btn-link">
+                                            {{ sessao_do_grupo.data }}
+                                        </button>
+
+                                    </a>
+                                    {% endif %}
+
+                                </td>
+                                <td style="text-align: center;">{% if sessao_do_grupo.regime == 'P' %}
+                                    Presencial
+                                    {% endif %}
+                                    {% if sessao_do_grupo.regime == 'O' %}
+                                    Online
+                                    {% endif %}
+                                    {% if sessao_do_grupo.regime == 'M' %}
+                                    Misto
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">{% if sessao_do_grupo.estado == 'PR' %}
+                                    Por realizar
+                                    {% endif %}
+                                    {% if sessao_do_grupo.estado == 'R' %}
+                                    Realizado
+                                    {% endif %}
+                                </td>
+
+                                <td style="text-align: center;">
+                                    <a href="{% url 'sessao' sessao_do_grupo.id grupo.id %}">
+                                        <button class="btn btn-link">Plano da sessão</button>
+                                    </a>
+                                </td>
+
+                                <td style="text-align: center;">
+                                    {% if sessao_do_grupo.id == proxima_sessao %}
+                                    <form action="{% url 'presencas_sessao' sessao_do_grupo.id %}">
+                                        <button class="btn btn-primary">Iniciar</button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}

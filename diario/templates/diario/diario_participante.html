@@ -1,0 +1,142 @@
+<style>
+.atividades {
+  position: absolute;
+  left: 100px;
+  top: 150px;
+}
+</style>
+<div id="notas" style="overflow: auto;">
+    <form id="notaForm" onsubmit='event.preventDefault(); 
+    sendFormParticipante(
+        {{sessaoGrupo.id}}, 
+        {{ participante_id }}, 
+        "notaForm"
+        );' method="post">
+        {% csrf_token %}
+        {{ notaForm.nota }}
+        <input type="hidden" name="cuidador" value={{ participante_id }}>
+
+        <button type="submit" name="nota">Guardar nota</button>
+
+    </form>
+
+    <hr>
+    <h2><b>Notas de {{ participante.nome }}</b></h2>
+    <ul>
+        {% if notas|length > 0 %}
+        {% for nota in notas %}
+        <li>{{ nota }} <span class="data">{{ nota.data }}</span></li>
+        {% endfor %}
+        {% else %}
+        <li>Sem notas</li>
+        {% endif %}
+    </ul>
+
+
+</div>
+
+<div id="partilhas">
+    <form id="partilhaForm" onsubmit='event.preventDefault(); sendFormParticipante({{sessaoGrupo.id}}, {{ participante_id }}, "partilhaForm");' method="post">
+        {% csrf_token %}
+        {{ partilhaForm.partilha }}
+        <input type="hidden" name="participante" value={{ participante_id }}>
+        <button type="submit" name="partilha">Guardar partilha</button>
+    </form>
+
+    <ul>
+        {% if partilhas|length > 0 %}
+        {% for partilha in partilhas %}
+        <li>{{ partilha }} <span class="data">{{ partilha.data }}</span></li>
+        {% endfor %}
+        {% else %}
+        <li>Sem partilhas</li>
+        {% endif %}
+    </ul>
+</div>
+
+<div id="respostas">
+    <div id="escolherAtividade" style = "position:relative; left:380px; top:35px;">
+        <label for="Atividades" >Escolha a atividade:</label>
+      <select name="Atividades" id="Atividades" margin-left=250px>
+        <option value="Atividade 1">Atividade 1</option>
+        <option value="Atividade 2">Atividade 2</option>
+        <option value="Atividade 3">Atividade 3</option>
+        <option value="Atividade 4">Atividade 4</option>
+      </select>
+    </div>
+    <ul>
+        {% if respostas|length > 0 %}
+        {% for no in respostas %}
+        <li>{{ no }} </li>
+        {% endfor %}
+        {% else %}
+        <li>Sem respostas</li>
+        {% endif %}
+    </ul>
+</div>
+
+<div id="informacoes">
+    
+    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+         onmouseout="hideContent1(this)">
+        <div class="titulo">Nome Completo</div>
+        <div class="detalhe">{{participante.nome}}
+        </div>
+    </div>
+
+    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+         onmouseout="hideContent1(this)">
+        <div class="titulo">Idade</div>
+        <div class="detalhe">{{participante.idade}}
+        </div>
+    </div>
+
+    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+         onmouseout="hideContent1(this)">
+        <div class="titulo">Sexo</div>
+        <div class="detalhe">{{participante.sexo}}
+        </div>
+    </div>
+
+    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+         onmouseout="hideContent1(this)">
+        <div class="titulo">Data de Nascimento</div>
+        <div class="detalhe">{{participante.nascimento}}
+        </div>
+    </div>
+
+    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+         onmouseout="hideContent1(this)">
+        <div class="titulo">Nacionalidade</div>
+        <div class="detalhe">{{participante.nacionalidade}}
+        </div>
+    </div>
+
+    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+         onmouseout="hideContent1(this)">
+        <div class="titulo">Diagnósticos</div>
+        <div class="detalhe">{{participante.nacionalidade}}
+        </div>
+    </div>
+
+    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+         onmouseout="hideContent1(this)">
+        <div class="titulo">Telemóvel</div>
+        <div class="detalhe">{{participante.telemovel}}
+        </div>
+    </div>
+
+    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+         onmouseout="hideContent1(this)">
+        <div class="titulo">Email</div>
+        <div class="detalhe">{{participante.email}}
+        </div>
+    </div>
+
+</div>
+
+ <div id="presencas">
+
+     <h1>Presencas do grupo {{ grupo_id }}</h1>
+
+</div>

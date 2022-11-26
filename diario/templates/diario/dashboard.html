@@ -1,0 +1,127 @@
+{% extends 'diario/base.html' %}
+{% block style %}
+{% endblock %}
+{% load static %}
+
+{% block main %}
+    <div class="container-fluid">
+        <div class="card-body" style="padding: 8px">
+            <p class="text-primary m-0 fw-bold"
+            style="margin: 5px; font-size: 26px">MentHA CARE - Lista de
+                Grupos</p>
+        </div>
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th style="text-align: center;"><strong>Grupo</strong></th>
+                            <th style="text-align: center;"><strong>Diagnóstico</strong></th>
+                            <th style="text-align: center;"><strong>Localização</strong></th>
+                            <th style="text-align: center;"><strong>Referenciação</strong></th>
+                            <th style="text-align: center;"><strong>Nº Membros</strong></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for grupo in grupos %}
+                        <tr>
+                            <td style="text-align: center;">{{ grupo }}</td>
+                            <td style="text-align: center;">{{ grupo.diagnostico }}</td>
+                            <td style="text-align: center;">{{ grupo.localizacao }}</td>
+                            <td style="text-align: center;">{{ grupo.referenciacao }}</td>
+                            <td style="text-align: center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                    fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+                                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                    <path fill-rule="evenodd"
+                                        d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
+                                    <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+                                </svg>
+                                {{ grupo.cuidadores.all|length }}
+                            </td>
+                            <td style="text-align: center;">
+                                <form action="{% url 'grupo_details' grupo.id %}">
+                                    <button class="btn btn-primary">Detalhes</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <div class="alert alert-warning" role="alert">
+                            Não tem Grupos associados
+                        </div>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="d-grid gap-3 d-md-flex justify-content-md-end">
+                        <button class="btn btn-outline-primary " type="button" style="border-radius: 8px"
+                                data-bs-toggle="modal" data-bs-target="#Cuidador_grupo">
+                            Cuidadores
+                            sem grupo
+                        </button>
+                        <form action="{% url 'new_group' %}">
+                            <button class="btn btn-outline-primary" style="border-radius: 8px">Criar grupo</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+
+    <!-- The Modal  Cuidador sem grupo -->
+    <div class="modal" id="Cuidador_grupo">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Lista de Candidatos</h4>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Pesquisar por ..."
+                        style="background-position: 10px 12px;width: 100%;font-size: 16px;padding: 12px 20px 12px 40px;border: 1px solid #ddd;margin-bottom: 12px;border-radius: 10px;">
+                    <table class="table table-hover" id="myTable">
+                        <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Escolaridade</th>
+                            <th>Referência</th>
+                        </tr>
+                        </thead>
+                        {% for cuidador in cuidadores %}
+                        <tbody>
+                        <tr>
+                            <td>{{ cuidador }}</td>
+                            <td>{{ cuidador.escolaridade }}</td>
+                            <td>
+                                {% for referencia in cuidador.obter_reference %}
+                                {{ cuidador.referenciacao }}
+                                {% endfor %}
+
+                            </td>
+                            <td>
+                                <form action="{% url 'filter_group' cuidador.id %}">
+                                    <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir
+                                        grupo
+                                    </button>
+                                </form>
+                            </td>
+
+                        </tr>
+                        <tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

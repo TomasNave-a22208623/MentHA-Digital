@@ -1,0 +1,68 @@
+{% extends 'diario/base.html' %}
+{% load static %}
+{% block main %}
+            <div class="container-fluid">
+
+                <div class="container text-start">
+                    <div class="row">
+                        <div class="col align-self-center">
+                            <div class="titulo">
+                                <div class="card-body" style="padding: 8px">
+                                    <p class="text-primary m-0 fw-bold"
+                                       style="margin: 5px; font-size: 26px">Presenças</p>
+                                </div>
+                                <a href="{% url 'dashboard_Care' %}" style="float:right">
+                                    <button class="btn btn-outline-primary" style="border-radius: 8px">Voltar
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+
+                <form action="{% url 'iniciar_sessao' sessao_grupo.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th style="text-align: center;"><strong>Participantes</strong></th>
+                                        <th style="text-align: center;"><strong>Online</strong></th>
+                                        <th style="text-align: center;"><strong>Presencial</strong></th>
+                                        <th style="text-align: center;"><strong>Falta</strong></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for participante in participantes %}
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            {{ participante }}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="radio" data-participante="{{ participante.id }}" value="online"
+                                                   name="{{ participante.id }}">
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="radio" data-participante="{{ participante.id }}"
+                                                   value="presencial"
+                                                   name="{{ participante.id }}" checked>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="radio" data-participante="{{ participante.id }}"
+                                                   value="naoVeio"
+                                                   name="{{ participante.id }}">
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="submit" value="Iniciar sessão" class="btn btn-primary"
+                           style="float:right;margin-top:1ch;border-radius: 8px"></input>
+                </form>
+{% endblock %}

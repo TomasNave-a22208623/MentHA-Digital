@@ -1,0 +1,223 @@
+{% extends 'diario/base.html' %}
+
+{% load static %}
+{% block head %} 
+    <link href="{% static 'diario/diario_de_bordo.css' %}" rel="stylesheet">
+    <script src="{% static 'diario/js/diario_de_bordo.js' %}"></script>
+{% endblock %}
+
+{% block script %}
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".ee button").forEach((button) => {
+      button.onclick = () => {
+        parte_id = button.dataset.parte;
+        fetch("/parte/" + parte_id)
+          .then((response) => response.text())
+          .then((data) => {
+            const div = document.querySelector("div#exercicio");
+            div.innerHTML = data;
+              nav = document.querySelector('#navegacao');
+              const string = "Sessão {{ sessaoGrupo.sessao.numeroSessao}} > Fase";
+              /* NN: NAO ESTÁ A FUNCIONAR PORQUE PARTE.FASE SÓ VEM DA VIEW DA PARTE, E AQUI ESTÁ NA SESSAO */
+              /* ISTO É USADO PARA FAZER O BREADCRUMB, VER MAIS TARDE */
+              /*const fase = {{parte.fase}};
+              if (fase == 'I') {
+                string += 'Inicial';
+              }
+              if (fase == 'D') {
+                string += 'Desenvolvimento';
+              }
+              if (fase == 'F') {
+               string += 'Final';
+              }*/
+              nav.innerHTML = string;
+          })
+          .then((data) => {
+            const div = document.querySelector("div#exercicio");
+            if (div.dataset.estado != "ver") {
+              function startTimer(duration, display) {
+                duration = duration / 60;
+                console.log(duration);
+                setInterval(function () {
+                  var h = Math.floor(duration / 3600);
+                  var m = Math.floor((duration % 3600) / 60);
+                  var s = Math.floor((duration % 3600) % 60);
+  
+                  var hDisplay = h > 0 ? h + (h == 1 ? "h" : "h") : "";
+                  var mDisplay = m > 0 ? m + (m == 1 ? "m" : "m") : "";
+                  var sDisplay = s > 0 ? s + (s == 1 ? "s" : "s") : "";
+  
+                  display.innerHTML = hDisplay + mDisplay;
+  
+                  duration++;
+                }, 1000);
+              }
+              display = document.querySelector("#timer"); // selecionando o timer
+  
+              var duration = parseInt(display.innerHTML, 10) * 60; // Converter para segundos  -  {{ part.duracao }};
+              startTimer(duration, display); // iniciando o timer
+            }
+          });
+      };
+    });
+  });
+{% endblock%}
+
+{% block menu %}
+    <button onclick="mostraDiarioBordo()" class="btn btn-primary">
+        Mostrar diário de bordo
+    </button>
+{% endblock %}
+
+{% block style %}
+ 
+{% endblock %}
+
+{% block main %}
+{% load markdownify %}
+<!--Esquerda-->
+
+<div class="card esquerda" style="width:100%;">
+    <div class="card-body">
+        <div id="exercicio" data-estado="{{estado}}">
+            <div class="titulo">
+                <p class="text-primary m-0 fw-bold">
+                    {{sessaoGrupo.grupo}} - Sessão {{ sessaoGrupo.sessao.numeroSessao}}: {{ sessaoGrupo.sessao.nome }}
+                </p>
+                <div>
+                    <form action="{% url 'group_sessions' sessaoGrupo.grupo.id %}">
+                        <button type="submit" class="btn btn-outline-primary" style="width: 150px">
+                            Sessões
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <br>
+
+            <h5 class="text-primary m-0 fw-bold">
+                Tema
+            </h5>
+            {{ sessaoGrupo.sessao.tema | markdownify }}
+
+            <h5 class="text-primary m-0 fw-bold">
+                Planificação da Sessão </h5>
+            <br>
+            <div style=" border: 1px solid #4886d3; padding:10px;border-radius:10px; ">
+                <table class="table table-hover ee">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Fase</th>
+                        <th scope="col">Objetivo</th>
+                        <th></th>
+                        <th scope="col">Duração</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                    {% for parte_do_grupo in partesGrupo %}
+                    <tr>
+                        <td>
+                            {% if parte_do_grupo.parte.fase == 'I' %}
+                            Inicial
+                            {% endif %}
+                            {% if parte_do_grupo.parte.fase == 'D' %}
+                            Desenvolvimento
+                            {% endif %}
+                            {% if parte_do_grupo.parte.fase == 'F' %}
+                            Final
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ parte_do_grupo.parte.objetivo }}
+                        </td>
+                        <td style="color:dodgerblue">
+                            {% if parte_do_grupo.concluido == True %}
+                            ✔
+                            {% else %}
+                            X
+                            {% endif %}
+
+                        </td>
+                        <td style="text-align:center">
+                            {% if parte_do_grupo.duracao != None %}
+                                {{ parte_do_grupo.duracao_em_horas_minutos }}/{{ parte_do_grupo.parte.duracao }}m
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if parte_do_grupo.parte.id == proxima_parte and parte_do_grupo.inicio == None and pode_iniciar%}
+                            <button type="button" class="btn btn-outline-primary iniciar btn-sessao"
+                                    data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/iniciar/{{proxima_parte}}">
+                                Iniciar
+                            </button>
+                            {% elif parte_do_grupo.parte.id == proxima_parte and parte_do_grupo.inicio != None %}
+                            <button type="button" class="btn btn-outline-primary continuar btn-sessao"
+                                    data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/continuar/{{proxima_parte}}">
+                                Continuar
+                            </button>
+                            {% comment %} {% elif parte_do_grupo.parte.id != proxima_parte %} {% endcomment %}
+                            {% else %}
+                            <button type="button" class="btn btn-outline-secondary ver btn-sessao"
+                                    data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/ver/{{proxima_parte}}">
+                                Ver
+                            </button>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex-buttons">
+            <form action="{% url 'finalizar_sessao' grupo.id sessaoGrupo.id %}" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-primary">Terminar Sessão</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+<!--Direita-->
+<div id="direita" class="card" style="width: 100%; height: 100%; padding:15px; border-color: white; display:none;"> 
+    <div class="card-body" id="diario-de-bordo">
+
+        <!-- Participantes -->
+        <div class="participantes diario">
+            {% for participante in participantes %}
+            <button type="button" class="btn btn-primary" data-participante="{{ participante.id }}" data-sessaogrupo="{{sessaoGrupo.id}}">{{ participante }}
+            </button>
+            {% endfor %}
+        </div>
+        <div >
+            <!-- Grupo -->
+            <div class="grupo">
+                <button type="button" class="btn btn-primary" data-idgrupo="{{ sessaoGrupo.id }}"
+                        style="width:100%;">Grupo
+                </button>
+            </div>
+            <!--class="btn btn-primary" -->
+            <!-- Parte de Baixo da informacao-->
+            <div class="diario">
+                <button class="menu" data-menu="informacoes">Informações
+                </button>
+                <button class="menu" data-menu="presencas" >Presenças
+                </button>
+                <button class="menu" data-menu="respostas" >Respostas
+                </button>
+                <button class="menu" data-menu="notas" >Notas
+                </button>
+                <button class="menu" data-menu="partilhas"
+                        style="color:white;">Partilhas
+                </button>
+
+                <div class="info"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

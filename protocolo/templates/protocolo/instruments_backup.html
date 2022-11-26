@@ -1,0 +1,34 @@
+{% include 'protocolo/tree.html'%}
+<h4>Instrumentos</h4>
+{% for instrument,answered,percentage in instruments %}
+    <a class="btn jq-btn btn-info btn-block text-left"
+       data-href="{% url 'dimensions' protocol.id part.id area.id instrument.id %}">
+
+        <div class="d-flex flex-row">
+            <div class="p-button item">{{ instrument.order }}. {{ instrument.name }}</div>
+            <div class="p-button item align-self-center">
+                {% if percentage == 100 %}
+
+                {% elif percentage > 0 %}
+                    <div class="progress white-border">
+                        <div class="progress-bar bg-success" role="progressbar"
+                             style="width: {{ percentage }}%"
+                             aria-valuenow="{{ answered }}"
+                             aria-valuemin="0"
+                             aria-valuemax="{{ instrument.number_of_questions }}">
+                            {{ percentage }}%
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </a>
+{% empty %}
+    <p>
+        Não existem áreas implementadas.
+    </p>
+{% endfor %}
+
+<a class="btn jq-btn btn-warning btn-sm" data-href="{% url 'areas' protocol.id part.id %}" style="margin-top: 30px">
+    Voltar atrás
+</a>

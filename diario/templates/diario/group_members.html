@@ -1,0 +1,314 @@
+{% extends 'diario/base.html' %}
+{% load static %}
+
+{% block style %}
+#content{
+    flex-direction: column;
+    justify-content: flex-start;
+}
+{% endblock %}
+{% block main %}
+    <div class="container-fluid">
+        <div class="container text-start">
+            <div class="row">
+                <div class="col align-self-center">
+                    <div class="titulo" style="display: flex;flex-direction: row;justify-content: space-between">
+                        <div class="card-body" style="padding: 8px">
+                            <p class="text-primary m-0 fw-bold"
+                                style="margin: 5px; font-size: 26px">Membros do Grupo:
+                                {{grupo}}</p>
+                        </div>
+                        <div>
+                            <form action="{% url 'grupo_details' grupo.id %}">
+                                <button type="submit" class="btn btn-outline-primary" style="width: 150px">
+                                    Anterior
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th style="text-align: center;"><strong>Nome</strong></th>
+                                <th style="text-align: center;"><strong>Escolaridade</strong></th>
+                                <th style="text-align: center;"><strong>Referencia</strong></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for cuidador in cuidadores %}
+                            <tr>
+                                <td style="text-align: center;">
+                                    <a href="{% url 'p_view' cuidador.id grupo.id %}">
+                                        {{ cuidador }}
+                                    </a>
+                                </td>
+                                <td style="text-align: center;">{{ cuidador.escolaridade }}</td>
+                                <td style="text-align: center;">
+                                    {% for referencia in cuidador.obter_reference %}
+                                    {{ referencia }}
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align: center;">
+                                    <form action="{% url 'caregiver_update' cuidador.id grupo.id %}">
+                                        <button class="btn btn-warning">Alterar</button>
+                                    </form>
+                                </td>
+                                <td style="text-align: center;">
+                                    <form action="{% url 'caregiver_delete' cuidador.id grupo.id %}">
+                                        <button class="btn btn-danger">Apagar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="container text-center">
+                <div class="row">
+                    <div class="d-grid gap-4 d-md-flex justify-content-md-center" style="padding: 25px">
+                        <form action="{% url 'create_caregiver' grupo.id %}">
+                            <button class="btn btn-primary" style="border-radius: 8px;margin-right: 30px">Registar Cuidador</button>
+                        </form>
+                        <button type="button" class="btn btn-primary me-md-4" data-bs-toggle="modal"
+                                data-bs-target="#Cuidadores_sem_grupo">
+                            Associar Cuidador
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="container-fluid">
+        <div class="container text-start">
+            <div class="row">
+                <div class="col align-self-center">
+                    <div class="titulo">
+                        <div class="card-body" style="padding: 8px">
+                            <p class="text-primary m-0 fw-bold"
+                                style="margin: 5px; font-size: 26px">Dinamizadores do Grupo:
+                                {{grupo}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+                <div class="container">
+                    <div class="card ">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th style="text-align: center;"><strong>Nome</strong></th>
+                                        <th style="text-align: center;"><strong>Função</strong></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for dinamizador in dinamizadores %}
+                                    <tr>
+                                        <td style="text-align: center;">{{ dinamizador }}</td>
+                                        <td style="text-align: center;">{{ dinamizador.funcao }}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>
+                                            <form action="{% url 'dinamizador_update' dinamizador.id grupo.id %}">
+                                                <button class="btn btn-warning">Alterar</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <form action="{% url 'dinamizador_delete' dinamizador.id grupo.id %}">
+                                                <button class="btn btn-danger">Apagar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container-fluid">
+                    <div class="container text-center">
+                        <div class="row">
+                            <div class="d-grid gap-4 d-md-flex justify-content-md-center" style="padding: 25px">
+                                <button type="button" class="btn btn-primary me-md-4" data-bs-toggle="modal"
+                                        data-bs-target="#Create_dinamizador">
+                                    Registar Dinamizador
+                                </button>
+                                <button type="button" class="btn btn-primary me-md-4" data-bs-toggle="modal"
+                                        data-bs-target="#Dinamizador_sem_grupo">
+                                    Associar Dinamizador
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                </div>
+        </div>
+    </div>
+    
+
+    
+</div>
+</div>
+
+
+
+<!-- Create_dinamizador -->
+<div class="modal" id="Create_dinamizador">
+<div class="modal-dialog modal-lg">
+<div class="modal-content">
+
+    <!-- Modal Header -->
+    <div class="modal-header">
+        <h4 class="modal-title">Criação de um novo Dinamizador</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body">
+        <form action="" method="post">
+            {% csrf_token %}
+            <b>{{ formDinamizador.nome.label }}</b>
+            <p>{{ formDinamizador.nome }}</p>
+            <b>{{ formDinamizador.funcao.label }}</b>
+            <p>{{ formDinamizador.funcao }}</p>
+            <button type="submit" class="btn btn-primary">
+                Guardar
+            </button>
+        </form>
+    </div>
+
+    <!-- Modal footer -->
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+    </div>
+
+</div>
+</div>
+</div>
+
+<!-- Dinamizador_sem_grupo -->
+<div class="modal" id="Dinamizador_sem_grupo">
+<div class="modal-dialog modal-lg modal-dialog-scrollable">
+<div class="modal-content">
+
+    <!-- Modal Header -->
+    <div class="modal-header">
+        <h4 class="modal-title">Lista de Dinamizadores</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body">
+        <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Pesquisar por ..."
+                style="background-position: 10px 12px;width: 100%;font-size: 16px;padding: 12px 20px 12px 40px;border: 1px solid #ddd;margin-bottom: 12px;border-radius: 10px;">
+        <table class="table table-hover" id="myTable">
+            <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Função</th>
+            </tr>
+            </thead>
+            {% for dinamizador in dinami %}
+            <tbody>
+            <tr>
+                <td>{{ dinamizador }}</td>
+                <td>{{ dinamizador.funcao }}</td>
+                <td>
+                    <form action="{% url 'assign_dinamizador' grupo.id dinamizador.id %}">
+                        <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir
+                            grupo
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <tbody>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- Modal footer -->
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+    </div>
+
+</div>
+</div>
+</div>
+
+<!-- Cuidadores_sem_grupo -->
+<div class="modal" id="Cuidadores_sem_grupo">
+<div class="modal-dialog modal-lg modal-dialog-scrollable">
+<div class="modal-content">
+
+    <!-- Modal Header -->
+    <div class="modal-header">
+        <h4 class="modal-title">Lista de Candidatos</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body">
+        <input type="text" id="myInputs" onkeyup="myFunction()" placeholder="Pesquisar por ..."
+                style="background-position: 10px 12px;width: 100%;font-size: 16px;padding: 12px 20px 12px 40px;border: 1px solid #ddd;margin-bottom: 12px;border-radius: 10px;">
+        <table class="table table-hover" id="myTables">
+            <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Escolaridade</th>
+                <th>Referência</th>
+            </tr>
+            </thead>
+            {% for cuidador in caregiver %}
+            <tbody>
+            <tr>
+                <td>{{ cuidador }}</td>
+                <td>{{ cuidador.escolaridade }}</td>
+                <td>
+                    {% for referencia in cuidador.obter_reference %}
+                    {{ cuidador.referenciacao }}
+                    {% endfor %}
+
+                </td>
+                <td>
+                    <form action="{% url 'assign_caregiver' grupo.id cuidador.id %}">
+                        <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir
+                            grupo
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <tbody>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- Modal footer -->
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+    </div>
+{% endblock %}

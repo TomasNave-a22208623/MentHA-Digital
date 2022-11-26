@@ -1,0 +1,36 @@
+<form class="flex-container" id="question-form" action="" method="post">
+<input type="hidden" name="type" value="0">
+    {% csrf_token %}
+    <div class="flex-choices flex-item padding-top-25">
+        {% for answer in question.possible_answers.all %}
+            <label>
+                <input class="" id="{{ answer.id }}" name="choice" type="radio" value="{{ answer.id }}"
+                        {% if answer.id == existing_answer_id %}
+                       checked="checked"
+                        {% endif %}
+                />
+                {{ answer.name }}
+            </label>
+            <br>
+        {% endfor %}
+    </div>
+
+    <div class="flex-textarea flex-item padding-top-25">
+        <label><b>Apontamentos</b></label>
+        <textarea style="white-space: pre-line" class="notes-area form-control" id="notes" name="notes">{{ notes }}</textarea>
+    </div>
+    <br>
+    <div class="flex-buttons">
+        <div class="flex-item flex-right">
+            <input class="btn btn-primary btn-sm btn-submit"
+                   data-href="{% url 'question' protocol.id part.id area.id instrument.id dimension.id section.id %}"
+                   type="submit" value="Submeter">
+        </div>
+        <div class="flex-item flex-left">
+            <a class="btn jq-btn btn-warning btn-sm"
+               data-href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id %}">
+                Voltar atrás
+            </a>
+        </div>
+    </div>
+</form>

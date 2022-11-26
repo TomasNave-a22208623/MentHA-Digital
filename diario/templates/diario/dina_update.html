@@ -1,0 +1,101 @@
+{% extends 'diario/base.html' %}
+{% load static %}
+{% block main %}
+<div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <div class="d-sm-flex justify-content-between align-items-center mb-4">
+            </div>
+            <div class="container-fluid">
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="container text-start">
+                    <div class="row">
+                        <div class="col align-self-center">
+                            <div style="display: flex;flex-direction: row;justify-content: space-between">
+                                <div class="card-body" style="padding: 8px">
+                                    <p class="text-primary m-0 fw-bold"
+                                       style="margin: 5px; font-size: 26px">Atualização do Dinamizador</p>
+                                </div>
+                                <div>
+                                    <form action="{% url 'group_members' grupo_id %}">
+                                        <button type="submit" class="btn btn-outline-primary" style="width: 150px">
+                                            Anterior
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="container text-start">
+                    <div class="row">
+                        <div class="col align-self-center">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <form action="" class="row g-3" method="post" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <div class="col-md-6">
+                                                <b>{{ formDinamizador.nome.label }}</b>
+                                                <p>{{ formDinamizador.nome }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>{{ formDinamizador.sexo.label }}</b>
+                                                <p>{{ formDinamizador.sexo }}</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>{{ formDinamizador.idade.label }}</b>
+                                                <p>{{ formDinamizador.idade }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>{{ formDinamizador.nascimento.label }}</b>
+                                                <p>{{ formDinamizador.nascimento }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>{{ formDinamizador.nacionalidade.label }}</b>
+                                                <p>{{ formDinamizador.nacionalidade }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>{{ formDinamizador.telemovel.label }}</b>
+                                                <p>{{ formDinamizador.telemovel }}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <b>{{ formDinamizador.email.label }}</b>
+                                                <p>{{ formDinamizador.email }}</p>
+                                            </div>
+
+                                            <div class="col-6">
+                                                <b>{{ formDinamizador.funcao.label }}</b>
+                                                <p>{{ formDinamizador.funcao }}</p>
+                                            </div>
+                                            <div style="display: flex;flex-direction: row;justify-content: space-between">
+                                                <div class="card-body" style="padding: 8px">
+                                                    <form action="{% url 'group_members' grupo_id %}">
+                                                        <button type="submit" class="btn btn-outline-primary"
+                                                                style="width: 150px">
+                                                            Cancelar
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                                <div>
+                                                    <input type="submit" value="Guardar" class="btn btn-primary"
+                                                           style="width: 150px">
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

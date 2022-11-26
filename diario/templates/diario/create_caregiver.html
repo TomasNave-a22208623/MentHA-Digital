@@ -1,0 +1,115 @@
+{% extends 'diario/base.html' %}
+{% load static %}
+{% block main %}
+<div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <div class="d-sm-flex justify-content-between align-items-center mb-4">
+            </div>
+            <div class="container-fluid">
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="container text-start">
+                    <div class="row">
+                        <div class="col align-self-center">
+                            <div style="display: flex;flex-direction: row;justify-content: space-between">
+                                <div class="card-body" style="padding: 8px">
+                                    <p class="text-primary m-0 fw-bold"
+                                       style="margin: 5px; font-size: 26px">Registar Cuidador</p>
+                                </div>
+                                <div>
+                                    <form action="{% url 'group_members' grupo_id %}">
+                                        <button type="submit" class="btn btn-outline-primary" style="width: 150px">
+                                            Anterior
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="container text-start">
+                    <div class="row">
+                        <div class="col align-self-center">
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <form action="" class="row g-3" method="post" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <div class="col-md-6">
+                                                <b>{{ formCuidador.nome.label }}</b>
+                                                <p>{{ formCuidador.nome }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>{{ formCuidador.sexo.label }}</b>
+                                                <p>{{ formCuidador.sexo }}</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>{{ formCuidador.idade.label }}</b>
+                                                <p>{{ formCuidador.idade }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>{{ formCuidador.nascimento.label }}</b>
+                                                <p>{{ formCuidador.nascimento }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>{{ formCuidador.nacionalidade.label }}</b>
+                                                <p>{{ formCuidador.nacionalidade }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>{{ formCuidador.telemovel.label }}</b>
+                                                <p>{{ formCuidador.telemovel }}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <b>{{ formCuidador.email.label }}</b>
+                                                <p>{{ formCuidador.email }}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <b>{{ formCuidador.localizacao.label }}</b>
+                                                <p>{{ formCuidador.localizacao }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>{{ formCuidador.escolaridade.label }}</b>
+                                                <p>{{ formCuidador.escolaridade }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>{{ formCuidador.referenciacao.label }}</b>
+                                                <p>{{ formCuidador.referenciacao }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>{{ formCuidador.regime.label }}</b>
+                                                <p>{{ formCuidador.regime }}</p>
+                                            </div>
+                                            <div class="col-12">
+                                                <b>{{ formCuidador.image.label }}</b>
+                                                <p>{{ formCuidador.image }}</p>
+                                            </div>
+                                            <div style="display: flex;flex-direction: row;justify-content: space-between">
+                                                <div class="card-body" style="padding: 8px">
+                                                    <a onclick="history.back()">
+                                                        <button  class="btn btn-outline-primary"
+                                                                style="width: 150px">
+                                                            Cancelar
+                                                        </button>
+                                                    </a>
+                                                </div>
+                                                <div>
+                                                    <input type="submit" value="Guardar" class="btn btn-primary"style="width: 150px">
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

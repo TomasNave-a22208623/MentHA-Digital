@@ -1,0 +1,104 @@
+{% load markdownify %}
+
+{% block navegacao %}
+<div class="titulo">
+    <p class="text-primary m-0 fw-bold">
+        Sessão {{ sessaoGrupo.sessao.numeroSessao}} > Fase
+        {% if parte.fase == 'I' %}
+        Inicial
+        {% endif %}
+        {% if parte.fase == 'D' %}
+        Desenvolvimento
+        {% endif %}
+        {% if parte.fase == 'F' %}
+        Final
+        {% endif %}
+    </p>
+    <div>
+        <form action="{% url 'finalizar_parte' parte.id sessaoGrupo.id 'continuar' %}" method="POST">
+            {% csrf_token %}
+        
+            <button class="btn btn-outline-primary" style="margin-left:400px;">Voltar a Sessão</button>
+    </div>
+</div>
+{% endblock %}
+    {% if estado != "ver" %}
+        (<span id="timer">{{ duracao }}</span>/{{ parte.duracao }}m)
+    {% elif estado == "ver" %}
+        {% if parteGrupo.concluido %} 
+        ({{ parteGrupo.duracao_em_horas_minutos }}/{{ parte.duracao }}m)
+        {% else %}
+        ({{ parte.duracao }}m)
+        {% endif %}
+    {% endif %}
+
+</p>
+<h5 class="text-primary m-0 fw-bold">Objetivo</h5>
+<p>{{ parte.objetivo }}</p>
+
+<h5 class="text-primary m-0 fw-bold">Sumário</h5>
+{{ parte.descrição | markdownify }}
+
+{% if parte.materiais|length > 0 %}
+
+<h5 class="text-primary m-0 fw-bold">Materiais</h5>
+{{ parte.materiais | markdownify }}
+
+{% endif %}
+
+
+{% if parte.apresentacao|length > 0 %}
+
+<h5 class="text-primary m-0 fw-bold">Apresentação</h5>
+
+<ul>
+    <li>
+        <a href="{{ parte.apresentacao.url }}">
+            Descarregar apresentação 📃
+        </a>
+    </li>
+</ul>
+{% endif %}
+
+{% if parte.atividades.all|length > 0 %}
+<h5 class="text-primary m-0 fw-bold">Atividades</h5>
+{% for atividade in parte.atividades.all %}
+<b>
+    Atividade {{ atividade.numero }} - {{ atividade.nome }}
+</b>
+
+
+{{ atividade.descricao | markdownify }}
+
+{% endfor %}
+{% endif %}
+
+{% if parte.questionario.all|length > 0 %}
+<h5 class="text-primary m-0 fw-bold">Questionario</h5>
+
+<ul>
+{% for qu in parte.questionario.all %}
+
+<li>
+
+
+<a href="{% url 'view_abrirQuestionario' qu.id parte.id sessaoGrupo.id  %}">
+    <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{qu.id}}">Questionário {{ qu.numeroOrdem }}</button>
+</a>
+</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None %}
+<form action="{% url 'finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
+    {% csrf_token %}
+    <button class="btn btn-danger" style="margin-left:400px">Terminar Parte</button>
+
+</form>
+{% endif %}
+<br>
+
+
+<br>
+

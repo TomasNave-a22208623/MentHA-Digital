@@ -1,0 +1,142 @@
+<style>
+    .custom-btn {
+        width: 130px;
+        height: 40px;
+        padding: 10px 25px;
+        border: 2px solid #000;
+        font-family: 'Lato', sans-serif;
+        font-weight: 500;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        display: inline-block;
+    }
+
+    /* 10 */
+    .btn-10 {
+        transition: all 0.3s ease;
+        overflow: hidden;
+        height: auto;
+
+    }
+
+    .btn-10:after {
+        position: absolute;
+        content: " ";
+        top: 0;
+        left: 0;
+        z-index: -1;
+        width: 100%;
+        height: 100%;
+        transition: all 0.3s ease;
+        -webkit-transform: scale(.1);
+        transform: scale(.1);
+    }
+
+    .btn-10:hover {
+        color: black;
+    }
+
+    .btn-10:hover:after {
+        background: #000;
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+
+</style>
+<script>
+
+</script>
+
+{% load markdownify %}
+<a href="{% url 'sessao' id grupo %}">
+
+    <button class="btn btn-outline-danger" style="margin-left:400px">Voltar a Sessão</button>
+</a>
+<p>
+    <b>
+        PARTE DETALHES
+        Sessão {{ sessaoGrupo.sessao.numeroSessao}} > Fase
+        {% if parte.fase == 'I' %}
+        Inicial
+        {% endif %}
+        {% if parte.fase == 'D' %}
+        Desenvolvimento
+        {% endif %}
+        {% if parte.fase == 'F' %}
+        Final
+        {% endif %}
+    </b>
+
+    ({{ parte.duracao }} min estatico)
+</p>
+<h5 class="text-primary m-0 fw-bold">Objetivo</h5>
+<p>{{ parte.objetivo }}</p>
+
+<h5 class="text-primary m-0 fw-bold">Sumário</h5>
+{{ parte.descrição | markdownify }}
+
+{% if parte.materiais|length > 0 %}
+
+<h5 class="text-primary m-0 fw-bold">Materiais</h5>
+{{ parte.materiais | markdownify }}
+
+{% endif %}
+
+
+{% if parte.apresentacao|length > 0 %}
+
+<h5 class="text-primary m-0 fw-bold">Apresentação</h5>
+
+<ul>
+    <li>
+        <a href="{{ parte.apresentacao.url }}">
+            Descarregar apresentação 📃
+        </a>
+    </li>
+</ul>
+{% endif %}
+
+{% if parte.atividades.all|length > 0 %}
+<h5 class="text-primary m-0 fw-bold">Atividades</h5>
+{% for atividade in parte.atividades.all %}
+<b>
+    Atividade {{ atividade.numero }} - {{ atividade.nome }}
+</b>
+
+
+{{ atividade.descricao | markdownify }}
+
+{% endfor %}
+{% endif %}
+{% if parte.questionarios.all|length > 0 and numero_sessao != 13 %}
+<h5 class="text-primary m-0 fw-bold">Questionario</h5>
+
+<ul>
+    {% for questionario in parte.questionarios.all %}
+    <li>
+        <a href="{% url 'view_abrirQuestionario' questionario.id parte.id sessaoGrupo.id  %}">
+            <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{questionario.id}}">
+                Questionário {{ questionario.nome }}
+            </button>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% elif parte.questionarios.all|length > 0 and numero_sessao == 13 %}
+<h5 class="text-primary m-0 fw-bold">Questionario</h5>
+
+<ul>
+    <li>
+        <a href="{% url 'view_abrirQuestionario' q.id parte.id sessaoGrupo.id  %}">
+            <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{questionario.id}}">
+                Questionário de Satisfação e Avaliação da Experiencia para com o MentHA-CARE
+            </button>
+        </a>
+    </li>
+</ul>
+{% endif %}
+
+<br>
+

@@ -1,0 +1,72 @@
+from diario import views
+from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+
+# IR: definir app_name = 'people'
+
+urlpatterns = [
+
+                  path('nextSession', views.nextSession, name="nextSession"),
+
+                  path('logout_care_view', views.logout_care_view, name="logout_care_view"),
+                  path('login', views.login_care_view, name="login"),
+                  path('register', views.register_user, name="register"),
+                  path('p_view/<str:cuidador_id>/<str:grupo_id>', views.profile_care_view, name='p_view'),
+                  path('', views.dashboard, name="dashboard_Care"),
+                  path('create_caregiver/<str:grupo_id>', views.create_caregiver, name="create_caregiver"),
+                  path('grupo_details/<int:grupo_id>', views.view_group_details, name="grupo_details"),
+                  path('delete_groups/<str:grupo_id>', views.delete_groups, name='delete_grupos'),
+                  path('update_groups/<str:grupo_id>', views.update_groups, name="update_groups"),
+                  path('filter_group/<int:cuidador_id>', views.filter_group, name='filter_group'),
+                  path('new_group', views.new_group, name="new_group"),
+                  path('assign_group/<int:grupo_id>/<int:cuidador_id>', views.assign_group, name='assign_group'),
+                  path('guarda_grupo', views.guarda_grupo, name="guarda_grupo"),
+                  path('group_members/<int:grupo_id>', views.group_members, name='group_members'),
+                  path('group_sessions/<int:grupo_id>', views.group_sessions, name='group_sessions'),
+                  path('group_notes/<int:grupo_id>', views.group_notes, name='group_notes'),
+                  path('dinamizador_update/<str:dinamizador_id>/<str:grupo_id>', views.dinamizador_update,
+                       name='dinamizador_update'),
+                  path('dinamizador_delete/<str:dinamizador_id>/<str:grupo_id>', views.dinamizador_delete,
+                       name='dinamizador_delete'),
+                  path('caregiver_update/<str:cuidador_id>/<str:grupo_id>', views.caregiver_update,
+                       name='caregiver_update'),
+                  path('caregiver_delete/<str:cuidador_id>/<str:grupo_id>', views.caregiver_delete,
+                       name='caregiver_delete'),
+                  path('assign_dinamizador/<int:grupo_id>/<int:dinamizador_id>', views.assign_dinamizador,
+                       name='assign_dinamizador'),
+                  path('assign_caregiver/<int:grupo_id>/<int:cuidador_id>', views.assign_caregiver,
+                       name='assign_caregiver'),
+                  path('diario/<int:idGrupo>/<int:idSessao>', views.view_diario, name='diario'), 
+                  path('diario_participante/<int:idSessaoGrupo>/<int:idParticipante>', views.view_diario_participante, name='diario_participante'),
+                  path('diario_grupo/<int:idSessaoGrupo>', views.view_diario_grupo, name='diario_grupo'),
+                  path('atualizaPresencasDiario/<int:idSessaoGrupo>', views.view_atualiza_presencas_diario, name='atualiza_presencas_diario'),
+                  
+                  #SE DER MAL METER ISTO PARA DETALHES_SESSAO.HTML
+                  #path('detalhes_sessao/<int:sessao_grupo_id>', views.view_detalhes_sessao, name='detalhes_sessao'),
+                  path('questionario_satisfacao/<int:idPergunta>/<int:idParte>/<int:sessaoGrupo>', views.view_questionario_satisfacao,
+                       name="questionario_satisfacao"),
+                  path('questionario/<int:idPergunta>/<int:idParte>/<int:sessaoGrupo>', views.view_questionario,
+                       name="view_questionario"),
+                  path('abrirQuestionario/<int:idPergunta>/<int:idParte>/<int:sessaoGrupo>',
+                       views.view_abrirQuestionario,
+                       name="view_abrirQuestionario"),
+                  path('resultados/<int:idPergunta>/<int:idParte>/<int:sessaoGrupo>', views.view_resultados,
+                       name='resultados'),
+                  path('parte/<int:parte_do_grupo_id>/<int:sessaoGrupo_id>/<str:estado>/<int:proxima_parte>',
+                       views.view_parte, name="parte"),
+                  path('parteDetalhes/<int:parte_do_grupo_id>/<int:sessaoGrupo_id>/<int:idGrupo>', views.view_parteDetalhes,
+                       name="parteDetalhes"),
+                  path('finalizar_parte/<int:idParte>/<int:sessao_grupo_id>/<str:estado>', views.finalizar_parte,
+                       name='finalizar_parte'),
+                  path('finalizar_sessao/<int:idGrupo>/<int:sessao_grupo_id>', views.finalizar_sessao,
+                       name='finalizar_sessao'),
+                  path('iniciar_sessao/<int:sessao_grupo_id>', views.view_iniciar_sessao, name='iniciar_sessao'),
+                  path('changeDate/<int:sessao_id>/<int:group_id>', views.view_changeDate, name='changeDate'),
+                  path('sessao/<int:sessao_grupo_id>/<int:grupo_id>', views.view_sessao, name='sessao'),
+                  path('presencas_sessao/<int:proxima_id>', views.view_presencas_sessao, name='presencas_sessao'),
+
+                  path('voltar_parte/<int:idParte>/<int:sessao_grupo_id>/<str:estado>', views.voltar_parte,
+                       name='voltar_parte'),
+
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

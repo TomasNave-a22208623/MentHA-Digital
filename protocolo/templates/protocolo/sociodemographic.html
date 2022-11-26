@@ -1,0 +1,140 @@
+<form class="flex-container padding-top-25" id="upl-form" action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-row row-12">
+        <div style ="margin-top:-15px;"class="form-group col-12">
+            <label><b>Sexo {{ patient.sexo }}</b></label><br>
+            <select class="form-select form-select-sm" name="sexo" id="sexo">
+                <option {% if patient.sexo == "Feminino" %}selected{% endif %} value="Feminino">Feminino</option>
+                <option {% if patient.sexo == "Masculino" %}selected{% endif %} value="Masculino">Masculino</option>
+            </select>
+        </div>
+        <div style ="padding-top:15px;"class="form-group col-12">
+            <label><b>Data de Nascimento</b></label><br>
+            <input style="width: 100%" class="form-text" type="date" id="nascimento" name="nascimento" value="{{ patient.nascimento }}" min="1910-01-01" max="2023-01-01">
+        </div>
+    </div>
+    <div class="form-row row-md-12">
+        <div style ="padding-top:15px;"class="form-group col-12">
+            <label><b>Nacionalidade</b></label><br>
+            <input value="{{ patient.nacionalidade }}" style="width: 100%" class="form-text" type="text" name="nacionalidade" id="nacionalidade">
+        </div>
+        <div style ="padding-top:15px;"class="form-group col-12">
+            <label><b>Residência Habitual</b></label><br>
+            <select class="form-select form-select-sm" name="residencia" id="residencia">
+                <option {% if patient.residencia == "Urbana" %}selected{% endif %} value="Urbana">Urbana</option>
+                <option {% if patient.residencia == "Rural" %}selected{% endif %} value="Rural">Rural</option>
+            </select>
+        </div>
+        <div style ="padding-top:15px;"class="form-group col-12">
+            <label><b>Escolaridade</b></label><br>
+            <select class="form-select form-select-sm" name="escolaridade" id="escolaridade">
+                <option {% if patient.escolaridade == "Analfabeto(a)" %}selected{% endif %} value="Analfabeto(a)">Analfabeto(a)</option>
+                <option {% if patient.escolaridade == "1-4" %}selected{% endif %} value="1-4">1-4</option>
+                <option {% if patient.escolaridade == "5-10" %}selected{% endif %} value="5-10">5-10</option>
+                <option {% if patient.escolaridade == "11+" %}selected{% endif %} value="11+">11+</option>
+            </select>
+        </div>
+    <div style ="padding-top:15px;"class="form-group col-12">
+            <label><b>Situação Laboral</b></label><br>
+            <select class="form-select form-select-sm" name="laboral" id="laboral">
+                <option {% if patient.situacaoLaboral == "Empregado(a)" %}selected{% endif %} value="Analfabeto(a)">Analfabeto(a)</option>
+                <option {% if patient.situacaoLaboral == "Desempregado(a)" %}selected{% endif %} value="Desempregado(a)">Desempregado(a)</option>
+                <option {% if patient.situacaoLaboral == "Reformado(a)" %}selected{% endif %} value="Reformado(a)">Reformado(a)</option>
+                <option {% if patient.situacaoLaboral == "Doméstica" %}selected{% endif %} value="Doméstica">Doméstica</option>
+                <option {% if patient.situacaoLaboral == "Estudante" %}selected{% endif %} value="Estudante">Estudante</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-row row-md-12">
+        <div style ="padding-top:15px;"class="form-group col-md-12">
+            <label><b>Qual é a sua profissão principal (ou antiga profissão se reformado ou
+                desempregado)?</b></label><br>
+            <p>Indique com precisão o nome da profissão, por exemplo, em vez de engenheiro, empregado têxtil, professor,
+                seja mais preciso e indique: engenheiro agrónomo, preparador de fibras têxteis, professor do ensino
+                básico do 2º ciclo, etc.</p>
+            <input value="{{ patient.profissao }}" style = "width:100%"class="form-text" type="text" name="profissao">
+        </div>
+    </div>
+    <div class="form-row row-md-12">
+        <div style ="padding-top:15px;"class="form-group col-12">
+            <label><b>Situação económica</b></label><br>
+            <select class="form-select form-select-sm" name="economica" id="economica">
+                <option {% if patient.situacaoEconomica == "Muito satisfatória" %}selected{% endif %} value="Muito satisfatória">Muito satisfatória</option>
+                <option {% if patient.situacaoEconomica == "Satisfatória" %}selected{% endif %} value="Satisfatória">Satisfatória</option>
+                <option {% if patient.situacaoEconomica == "Pouco satisfatória" %}selected{% endif %} value="Pouco satisfatória">Pouco satisfatória</option>
+                <option {% if patient.situacaoEconomica == "Nada satisfatória" %}selected{% endif %} value="Nada satisfatória">Nada satisfatória</option>
+            </select>
+        </div>
+        <div style ="padding-top:15px;"class="form-group col-12">
+            <label><b>Estado Civil</b></label><br>
+            <select class="form-select form-select-sm" name="civil" id="civil">
+                <option {% if patient.estadoCivil == "Solteiro(a)" %}selected{% endif %} value="Solteiro(a)">Solteiro(a)</option>
+                <option {% if patient.estadoCivil == "Casado(a) ou a viver como tal" %}selected{% endif %} value="Casado(a) ou a viver como tal">Casado(a) ou a viver como tal</option>
+                <option {% if patient.estadoCivil == "Viúvo(a)" %}selected{% endif %} value="Viúvo(a)">Viúvo(a)</option>
+                <option {% if patient.estadoCivil == "Divorciado(a) ou separado(a)" %}selected{% endif %} value="Divorciado(a) ou separado(a)">Divorciado(a) ou separado(a)</option>
+            </select>
+        </div>
+        <div style ="padding-top:15px;"class="form-group col-12">
+            <label><b>Agregado Familiar Atual</b></label><br>
+            <select class="form-select form-select-sm" name="agregado" id="agregado">
+                <option {% if patient.agregadoFamiliar == "Vive sozinho(a)" %}selected{% endif %} value="Vive sozinho(a)">Vive sozinho(a)</option>
+                <option {% if patient.agregadoFamiliar == "Vive com o cônjuge" %}selected{% endif %} value="Vive com o cônjuge">Vive com o cônjuge</option>
+                <option {% if patient.agregadoFamiliar == "Vive com os filhos" %}selected{% endif %} value="Vive com os filhos">Vive com os filhos</option>
+                <option {% if patient.agregadoFamiliar == "Vive com terceiros" %}selected{% endif %} value="Vive com terceiros">Vive com terceiros</option>
+                <option {% if patient.agregadoFamiliar == "Vive com o cônjuge e terceiros" %}selected{% endif %} value="Vive com o cônjuge e terceiros">Vive com o cônjuge e terceiros</option>
+                <option {% if patient.agregadoFamiliar == "Vive com os pais" %}selected{% endif %} value="Vive com os pais">Vive com os pais</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-row row-md-12">
+        <div style ="padding-top:15px;"class="form-group col-12">
+            <label><b>Tem filhos?</b></label><br>
+            <select class="form-select form-select-sm" name="filhos" id="filhos">
+                <option {% if patient.temFilhos %}selected{% endif %} value="sim">Sim</option>
+                <option {% if not patient.temFilhos %}selected{% endif %} value="nao">Não</option>
+            </select>
+        </div>
+        <div style ="padding-top:15px;"class="form-group col-12">
+            <label><b>Quantos?</b></label><br>
+            <input name="nrFilhos" value="{{ patient.nrFilhos }}" style ="width:100%" type="number" min="0" max="10">
+        </div>
+    </div>
+<div class="form-row row-md-12">
+        <div style ="padding-top:15px;"class="form-group col-md-12">
+            <label><b>Como avalia o seu estado de saúde?</b></label><br>
+            <select class="form-select form-select-sm" name="saude" id="saude">
+                <option {% if patient.autoAvaliacaoEstadoSaude == 'Muito mau' %}selected{% endif %} value="Muito mau">Muito mau</option>
+                <option {% if patient.autoAvaliacaoEstadoSaude == 'Mau' %}selected{% endif %} value="Mau">Mau</option>
+                <option {% if patient.autoAvaliacaoEstadoSaude == 'Nem mau nem bom' %}selected{% endif %} value="Nem mau nem bom">Nem mau nem bom</option>
+                <option {% if patient.autoAvaliacaoEstadoSaude == 'Bom' %}selected{% endif %} value="Bom">Bom</option>
+                <option {% if patient.autoAvaliacaoEstadoSaude == 'Muito bom' %}selected{% endif %} value="Muito bom">Muito bom</option>
+            </select>
+        </div>
+    </div>
+<div class="form-row row-md-12">
+        <div style ="padding-top:15px;"class="form-group col-md-12">
+            <label><b>Tem atualmente alguma doença do foro físico ou psicológico?</b></label><br>
+            <select class="form-select form-select-sm" name="doenca" id="doenca" multiple>
+                {% for doenca in doencas %}
+                    <option {% if doenca in patient.diagnosticos.all  %}selected{% endif %} value="{{ doenca.id }}">{{ doenca.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div style="padding-top: 15px" class="flex-buttons">
+        <button class="btn jq-btn btn-primary flex-left"
+                {% if question.section.dimension.number_of_questions > 1 %}
+                data-href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id patient.id %}"
+                {% else %}
+                data-href="{% url 'dimensions' protocol.id part.id area.id instrument.id patient.id %}"
+                {% endif %}
+                type="button">
+            <i class="fa fa-chevron-left"></i>&nbsp; Anterior
+        </button>
+        <button class="btn btn-submit-upl btn-primary flex-right"
+                data-href="{% url 'question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}"
+                style="" type="submit">
+            <i class="fa fa-check"></i>&nbsp; Submeter
+        </button>
+    </div>
+</form>

@@ -1,0 +1,176 @@
+{% block script %}
+<script>
+    function sendInput(id, name, checked) {
+        let data = new FormData();
+        data.append('nome', name);
+        data.append('checked',checked);
+        csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        data.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
+        
+        // fazer view para isto 
+        fetch('user/${id}', {
+            method: "POST",
+            body: data
+            })
+            .then(response => response);
+        return false;
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input').forEach(input => {
+                input.onchange = () => {
+                    sendInput(input.dataset.id, input.nome, input.checked);
+                }
+            });
+        });
+
+
+function showContent1(element){
+element.style.display = "block";
+document.querySelector("#" + element.id + " > .detalhe").style.display="block"
+console.log(element.id);
+}
+
+function hideContent1(element){
+document.querySelector("#" + element.id + " > .detalhe").style.display="none"
+}
+
+</script>
+{% endblock %}
+
+<div id="notas" style="overflow: auto;">
+    <!-- https://code-boxx.com/post-form-data-javascript-fetch/ -->
+
+    <form id="notaGrupoForm" onsubmit='return sendForm({{sessaoGrupo.id}}, "notaGrupoForm");' method="post">
+        {% csrf_token %}
+        {{ notaGrupoForm.notaGrupo }}
+        <input type="hidden" name="grupo" value={{ grupo_id }}>
+
+        <button type="submit" name="nota">Guardar nota</button>
+
+    </form>
+
+
+    <h2><b>Notas de {{grupo.nome}}</b></h2>
+
+    <ul>
+        {% if notasGrupo|length > 0 %}
+        {% for nota in notasGrupo %}
+        <li>{{ nota }}</li>
+        {% endfor %}
+        {% else %}
+        <li>Sem notas</li>
+        {% endif %}
+    </ul>
+
+</div>
+
+<div id="partilhas">
+   
+
+    <form id="partilhaGrupoForm" onsubmit='return sendForm({{sessaoGrupo.id}}, "partilhaGrupoForm");' method="post">
+        {% csrf_token %}
+        {{ partilhaGrupoForm.descricao }}
+        <input type="hidden" name="grupo" value={{ grupo_id }}>
+        <button type="submit" name="partilha">Guardar partilha</button>
+    </form>
+
+    <h2>Partilhas de {{ grupo.nome }}</h1>
+    <ul>
+        {% if partilhas|length > 0 %}
+        {% for partilha in partilhas %}
+        <li>{{ partilha }} <span class="data">{{ partilha.data }}</span></li>
+        {% endfor %}
+        {% else %}
+        <li>Sem partilhas</li>
+        {% endif %}
+    </ul>
+</div>
+
+<div id="presencas">
+    <form id="atualizaPresencas" onsubmit="event.preventDefault(); atualizaPresencas({{sessaoGrupo.id}});" method="POST">
+        {% csrf_token %}
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th style="text-align: center;"><strong>Participantes</strong></th>
+                <th style="text-align: center;"><strong>Online</strong></th>
+                <th style="text-align: center;"><strong>Presencial</strong></th>
+                <th style="text-align: center;"><strong>Falta</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for participante in participantes %}
+            <tr>
+                <td style="text-align: center;">
+                    {{ participante }}
+                </td>
+                <td style="text-align: center;">
+                    <input type="radio" data-participante="{{ participante.id }}" value="online"
+                            name="{{ participante.id }}"
+                            {% if participante.id in online_list %}
+                                checked
+                            {% endif %}
+                            >
+                </td>
+                <td style="text-align: center;">
+                    <input type="radio" data-participante="{{ participante.id }}"
+                            value="presencial"
+                            name="{{ participante.id }}"
+                            {% if participante.id in presencial_list %}
+                                checked
+                            {% endif %}
+                            >
+                </td>
+                <td style="text-align: center;">
+                    <input type="radio" data-participante="{{ participante.id }}"
+                            value="naoVeio"
+                            name="{{ participante.id }}"
+                            {% if participante.id in faltou_list %}
+                                checked
+                            {% endif %}
+                            >
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" name="presencas">Atualizar presenças</button>
+    </form>
+
+</div>
+
+<div id="informacoes">
+
+    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+         onmouseout="hideContent1(this)">
+        <div class="titulo">Diagnóstico</div>
+        <div class="detalhe">{{ grupo.diagnostico }}</div>
+    </div>
+    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+         onmouseout="hideContent1(this)">
+        <div class="titulo">Localização</div>
+        <div class="detalhe">{{ grupo.localizacao }}</div>
+    </div>
+        <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+        onmouseout="hideContent1(this)">
+        <div class="titulo">Escolaridade</div>
+        <div class="detalhe">{{ grupo.escolaridade }}</div>
+    </div>
+        <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+        onmouseout="hideContent1(this)">
+        <div class="titulo">Referenciação</div>
+        <div class="detalhe">{{ grupo.referenciacao }}</div>
+    </div>
+
+
+</div>
+
+<!-- As respostas nao fazem parte do grupo -->
+<div id="respostas">
+
+    <h1>Respostas do grupo {{ grupo_id }}</h1>
+
+
+</div>

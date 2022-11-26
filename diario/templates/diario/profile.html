@@ -1,0 +1,369 @@
+{% extends 'diario/base.html' %}
+{% load static %}
+{% block main %}
+<div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <div class="d-sm-flex justify-content-between align-items-center mb-4">
+            </div>
+            <div class="container-fluid">
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="container text-center">
+                    <div class="row">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <form action="{% url 'group_members' grupo.id %}">
+                                <button type="submit" class="btn btn-outline-primary" style="width: 150px">Anterior
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="container text-center">
+                    <div class="row">
+                        <div class="col align-self-center">
+                            <p class="text-primary m-0 fw-bold"
+                               style="margin: 5px; font-size: 23px">Perfil de {{ cuidador }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="container text-start">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="card border-dark " style="width: 13rem;border-radius: 10px">
+                                {% if cuidador.image %}
+                                <img src="{{ cuidador.image.url }}" style="width: 13rem">
+                                {% else %}
+                                <img src="{% static 'diario/img/placeholder-avatar.png' %}" alt="">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="card " style="width: 47rem;margin-left: -20px; border-color: #26376b">
+                                <div class="container text-center">
+                                    <div class="row">
+                                        <div class="col align-self-start">
+                                            <div class="container text-center">
+                                                <div class="col align-self-center">
+                                                    <h1 class=" fw-bold"
+                                                        style="font-size: 18px;color: cornflowerblue;margin-top: 5px">
+                                                        Informações Básicas</h1>
+                                                </div>
+                                            </div>
+                                            <div class="container text-center">
+                                                <div class="row">
+                                                    <div class="col align-self-start" style="margin-top: 5px">
+                                                        <p>Nome Completo</p>
+                                                        <p style="margin-top: -18px;font-size: 15px">
+                                                            <b>{{ cuidador }}</b></p>
+                                                    </div>
+                                                    <div class="col align-self-end"
+                                                         style="margin-bottom: 5px;margin-top: 5px">
+                                                        <p>Idade</p>
+                                                        <p style="margin-top: -18px;font-size: 15px">
+                                                            <b>{{ cuidador.idade }}</b></p>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col align-self-start" style="margin-top: -10px">
+                                                        <p>Sexo</p>
+                                                        <p style="margin-top: -18px;font-size: 15px">
+                                                            <b>{{ cuidador.sexo }}</b></p>
+                                                    </div>
+                                                    <div class="col align-self-end"
+                                                         style="margin-bottom:5px;margin-top: -10px">
+                                                        <p>Nascimento</p>
+                                                        <p style="margin-top: -18px;font-size: 15px">
+                                                            <b>{{ cuidador.nascimento }}</b></p>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col align-self-start" style="margin-top: -10px">
+                                                        <p>Nacionalidade</p>
+                                                        <p style="margin-top: -18px;font-size: 15px">
+                                                            <b>{{ cuidador.nacionalidade }}</b></p>
+                                                    </div>
+                                                    <div class="col align-self-end"
+                                                         style="margin-bottom: 5px;margin-top: -10px">
+                                                        <p>Referenciação</p>
+                                                        {% for referencia in cuidador.obter_reference %}
+                                                        <p style="margin-top: -18px;font-size: 15px">
+                                                            <b>{{ referencia }}</b></p>
+                                                        {% endfor %}
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="container text-center">
+                                                <div class="col align-self-center">
+                                                    <h1 class=" fw-bold"
+                                                        style="font-size: 18px;color: cornflowerblue;">
+                                                        Contactos</h1>
+                                                </div>
+                                            </div>
+                                            <div class="container text-center">
+                                                <div class="row">
+                                                    <div class="col align-self-start" style="margin-top: 5px">
+                                                        <p>Telemóvel</p>
+                                                        <p style="margin-top: -18px;font-size: 15px">
+                                                            <b>{{ cuidador.telemovel }}</b></p>
+                                                    </div>
+                                                    <div class="col align-self-end"
+                                                         style="margin-bottom: 5px;margin-top: 5px">
+                                                        <p>E-mail</p>
+                                                        <p style="margin-top: -18px;font-size: 15px">
+
+                                                            <b>{{ cuidador.email }}</b></p>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col align-self-end">
+                                            <div class="container text-center">
+                                                <div class="col align-self-center">
+                                                    <h1 class=" fw-bold"
+                                                        style="font-size: 18px;color: cornflowerblue;margin-top: 5px">
+                                                        Diagnósticos</h1>
+                                                </div>
+                                            </div>
+                                            <div class="container text-center">
+                                                <div class="row">
+                                                    <div class="col align-self-center" style="margin-top: 5px">
+                                                        {% for diagonstico in cuidador.doencas %}
+                                                        <p style="margin-top: 15px;font-size: 15px">
+                                                            <b>{{ diagonstico }}</b></p>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col align-self-start" style="margin-top: -10px">
+                                                        <p></p>
+                                                        <p style="margin-top: -18px;font-size: 15px"><b></b></p>
+                                                        <p style="margin-top: -18px;font-size: 15px"><b></b></p>
+                                                    </div>
+                                                    <div class="col align-self-end"
+                                                         style="margin-bottom:5px;margin-top: -10px">
+                                                        <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                                                        <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+
+
+                                                        <div class="d-sm-flex justify-content-between align-items-center mb-3"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col align-self-start"
+                                                         style="margin-top: -10px"></div>
+                                                    <div class="col align-self-end"
+                                                         style="margin-bottom: 5px;margin-top: -10px">
+                                                        <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                                                        <div class="d-sm-flex justify-content-between align-items-center mb-3"></div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="container text-center">
+                                                <div class="col align-self-center">
+                                                    <h1 class=" fw-bold"
+                                                        style="font-size: 18px;color: cornflowerblue; margin-top: -15px">
+                                                        Informações Extras</h1>
+                                                </div>
+                                            </div>
+                                            <div class="container text-center">
+                                                <div class="row">
+                                                    <div class="col align-self-start" style="margin-top: 5px">
+                                                        <p>A cuidar de</p>
+
+                                                        {% for nome in cuidador.lista_nomes_participantes %}
+                                                        <p style="margin-top: -18px;font-size: 15px">
+                                                            <b>{{ nome }}</b></p>
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="col align-self-end"
+                                                         style="margin-bottom: 5px;margin-top: 5px">
+                                                        <p>Grupo</p>
+                                                        <p style="margin-top: -18px;font-size: 15px">
+                                                            <b> Grupo - care2</b></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="container ">
+                    <div class="row">
+                        <div class="card">
+                            <div class="container ">
+                                <div class="tabs">
+                                    <div class="tab-2">
+                                        <label for="tab2-1"><b>Ficheiro</b></label>
+                                        <input id="tab2-1" name="tabs-two" type="radio" checked="checked">
+                                        <div>
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                    <tr>
+                                                        <td style="text-align: center;"></td>
+                                                        <th style="text-align: center;"><strong>Nome do
+                                                            Ficheiro</strong>
+                                                        </th>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <th style="text-align: center;"><strong>Descrição</strong>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"><strong>Ficheiro</strong>
+
+                                                        </td>
+                                                        <td style="text-align: center;"></td>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% for document in documents %}
+                                                    <tr>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;">{{ document.name }}</td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;">{{ document.description }}</td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;">
+                                                            {<a
+                                                                href="" download>
+                                                            download
+                                                        </a>}
+                                                        </td>
+                                                        <td style="text-align: center;"></td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                    <tr></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-2">
+                                        <label for="tab2-2"><b>Notas</b></label>
+                                        <input id="tab2-2" name="tabs-two" type="radio">
+                                        <div>
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                    <tr>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <th style="text-align: center;"><strong>Título da
+                                                            Nota</strong>
+                                                        </th>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <th style="text-align: center;"><strong>Tipo</strong>
+                                                        <th style="text-align: center;"><strong>Descrição</strong>
+                                                        </th>
+                                                    </tr>
+                                                    </thead>
+                                                    {% for nota in notas %}
+                                                    <tbody>
+                                                    <tr>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;">{{ nota.tituloNota }}</td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;"></td>
+                                                        <td style="text-align: center;">{{ nota.tipo }}</td>
+                                                        <td style="text-align: center;">{{ nota.nota }}</td>
+                                                    </tr>
+                                                    <tr></tr>
+                                                    </tbody>
+                                                    {% endfor %}
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                <div class="container text-end">
+                    <div class="row">
+                        <div class="col align-self-center">
+                            <button type="button" class="btn btn-primary me-md-4" data-bs-toggle="modal"
+                                    data-bs-target="#Anexar_Ficheiro">
+                                Anexar Ficheiro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% comment %} 
+                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                {% for document in documents %}
+
+
+                <li>{{ document.name }}</li>
+                <li>{{ document.description }}</li>
+
+                <li><a href="{{ document.file }}" download>download</a></li>
+
+
+                {% endfor %}
+            </div>
+            {% endcomment %}
+        </div>
+    </div>
+</div>
+
+
+<!-- Anexar Ficheiro -->
+<div class="modal" id="Anexar_Ficheiro">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Carregar Ficheiro</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form action="{% url 'p_view' cuidador_id grupo_id %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <b>{{ formDocument.name.label }}</b>
+                    <p>{{ formDocument.name }}</p>
+                    <b>{{ formDocument.description.label }}</b>
+                    <p>{{ formDocument.description }}</p>
+                    <b>{{ formDocument.cuidador.label }}</b>
+                    <p>{{ formDocument.cuidador }}</p>
+                    <b>{{ formDocument.file.label }}</b>
+                    <p>{{ formDocument.file }}</p>
+                    <input type="submit" value="Carregar fotografia" class="btn btn-primary" style="margin-left: 300px">
+                </form>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

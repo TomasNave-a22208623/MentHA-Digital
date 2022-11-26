@@ -1,0 +1,168 @@
+<h2>Membros</h2>
+<div class="membros">
+<br>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Escolaridade</th>
+                <th>Referencia</th>
+            </tr>
+        </thead>
+        {% for cuidador  in cuidadores %}
+            <tbody>
+                <tr>
+                    <td>{{ cuidador }}</td>
+                    <td>{{ cuidador.escolaridade }}</td>
+                    <td>{{ cuidador.referenciacao }}</td>
+                    <td>
+                        <form  action="{% url 'update_cuidador' cuidador.id %}">
+                            <button class="btn btn-warning">Update</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form  action="{% url 'delete_cuidador' cuidador.id %}">
+                            <button class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        {% endfor %}
+    </table>
+<br>
+    <div class="ola">
+        <button type="button" class="info" data-bs-toggle="modal" data-bs-target="#Adicionar_membro" >
+            Adicionar Membros
+        </button>
+    </div>
+</div>
+<br>
+<br>
+<div class="dinamizador">
+    <h2>Dinamizadores</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Função</th>
+            </tr>
+        </thead>
+        {% for dinamizador in dinamizadores %}
+            <tbody>
+                <tr>
+                    <td>{{ dinamizador }}</td>
+                    <td>{{ dinamizador.funcao }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+
+                    <td>
+                        <form  action="{% url 'update_dinamizador' dinamizador.id %}">
+                            <button class="btn btn-warning">Update</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form  action="{% url 'delete_dinamizador' dinamizador.id %}">
+                            <button class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        {% endfor %}
+    </table>
+<br>
+        <button type="button" class="info" data-bs-toggle="modal" data-bs-target="#Associar_dinamizador">
+            Associar Dinamizador
+        </button>
+</div>
+
+
+
+
+
+
+
+
+
+<!-- The Modal  Adicionar Membros -->
+<div class="modal" id="Adicionar_membro">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Adicionar Candidato:</h4>
+          <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+              <div class="form-grup">
+                  <div class="grid-container">
+                      <div class="grid-item"><h3>Criterios de inclusao</h3></div>
+                      <div class="grid-item"><h3>Candidatos que correspondem aos critérios</h3></div>
+                      <div class="grid-item" >
+                          <form action="" method="post">
+                    {% csrf_token %}
+                    {{ formGrupo.as_p}}
+
+                    <input type="submit"  class='btninfo' >
+
+                </form>
+                      </div>
+                      <div class="grid-item">4</div>
+                  </div>
+
+
+                  <button class='btninfo'data-toggle="modal" data-target="#Referencia">Adicionar Referencia</button>
+                  </div>
+          </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- The Modal  Associar Dinamizador -->
+<div class="modal" id="Associar_dinamizador">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Adicionar Dinamizadores Convidados</h4>
+          <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+          <br>
+
+      </div>
+
+      <!-- Modal body -->
+
+      <div class="modal-body">
+        <form method="post">
+                {% csrf_token %}
+                {{ formDinamizador.as_p}}
+
+                <input type="submit"  >
+        </form>
+
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
