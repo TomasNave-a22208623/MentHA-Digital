@@ -19,6 +19,7 @@
             {% csrf_token %}
         
             <button class="btn btn-outline-primary" style="margin-left:400px;">Voltar a Sessão</button>
+        </form>
     </div>
 </div>
 {% endblock %}
@@ -26,9 +27,9 @@
         (<span id="timer">{{ duracao }}</span>/{{ parte.duracao }}m)
     {% elif estado == "ver" %}
         {% if parteGrupo.concluido %} 
-        ({{ parteGrupo.duracao_em_horas_minutos }}/{{ parte.duracao }}m)
+            ({{ parteGrupo.duracao_em_horas_minutos }}/{{ parte.duracao }}m)
         {% else %}
-        ({{ parte.duracao }}m)
+            ({{ parte.duracao }}m)
         {% endif %}
     {% endif %}
 
@@ -78,10 +79,7 @@
 
 <ul>
 {% for qu in parte.questionario.all %}
-
 <li>
-
-
 <a href="{% url 'view_abrirQuestionario' qu.id parte.id sessaoGrupo.id  %}">
     <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{qu.id}}">Questionário {{ qu.numeroOrdem }}</button>
 </a>
@@ -90,11 +88,23 @@
 </ul>
 {% endif %}
 
+{% if parte.exercicios.all|length > 0 %}
+<h5 class="text-primary m-0 fw-bold">Exercício{% if parte.exercicios.all|length > 1 %}s{% endif %}</h5>
+<ul>
+    {% for ex in parte.exercicios.all %}
+    <li>
+    <a href="{% url 'exercicio' ex.id parteGrupo.id sessaoGrupo.id  %}">
+        <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{qu.id}}">Exercício {{ ex.ordem }} - {{ex.nome}}</button>
+    </a>
+    </li>
+        {% endfor %}
+</ul>
+{% endif %}
+
 {% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None %}
 <form action="{% url 'finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
     {% csrf_token %}
     <button class="btn btn-danger" style="margin-left:400px">Terminar Parte</button>
-
 </form>
 {% endif %}
 <br>

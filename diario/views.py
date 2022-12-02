@@ -4,9 +4,10 @@ from .models import *
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from .forms import *
-import datetime
+from datetime import datetime
 
 from .functions import *
+from .decorators import * 
 
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -55,7 +56,8 @@ def nextSession(request):
 
     return render(request, 'diario/nextSession.html', contexto)
 
-# @login_required(login_url='login')
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def dashboard(request):
     # doctor = request.user
     formGrupo = GrupoForm(request.POST or None)
@@ -64,10 +66,10 @@ def dashboard(request):
         return redirect('new_group')
 
     contexto = {
-        # 'grupos': GrupoCare.objects.filter(doctor=doctor),
+        # 'grupos': Grupo.objects.filter(doctor=doctor),
         # Apagar a linha de baixo ao descomentar a linha de cima
-        'grupos': GrupoCare.objects.all(),
-        'cuidadores': Cuidador.objects.filter(grupoCare=None),
+        'grupos': Grupo.objects.all(),
+        'cuidadores': Cuidador.objects.filter(grupo=None),
         'formGrupo': formGrupo,
 
     }
@@ -76,6 +78,7 @@ def dashboard(request):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def new_group(request):
     formGrupo = GrupoForm(request.POST or None)
     if formGrupo.is_valid():
@@ -85,7 +88,7 @@ def new_group(request):
     
 
     cuidadores = Cuidador.objects.all()
-    filtrados = cuidadores.filter(grupoCare=None)
+    filtrados = cuidadores.filter(grupo=None)
 
     conjunto_doencas = set()
     for cuidador in cuidadores:
@@ -105,7 +108,7 @@ def new_group(request):
     selecoes = {}
 
     if request.POST:
-        filtrados = Cuidador.objects.filter(grupoCare=None)
+        filtrados = Cuidador.objects.filter(grupo=None)
         for campo, valor in request.POST.items():
             if valor != '':
                 selecoes[campo] = valor
@@ -128,8 +131,8 @@ def new_group(request):
                             filtrados = Cuidador.objects.filter(pk__in=[f.id for f in filtrados])
 
     contexto = {
-        'grupos': GrupoCare.objects.all(),
-        'cuidadores': Cuidador.objects.filter(grupoCare=None),
+        'grupos': Grupo.objects.all(),
+        'cuidadores': Cuidador.objects.filter(grupo=None),
         'formGrupo': formGrupo,
         'lista_pesquisa': lista_pesquisa,
         'filtrados': filtrados,
@@ -139,11 +142,12 @@ def new_group(request):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def guarda_grupo(request):
     if request.method == 'POST':
         nome = request.POST['nome']
 
-        novo_grupo = GrupoCare(nome=nome)
+        novo_grupo = Grupo(nome=nome)
         if 'diagnostico' in request.POST:
             novo_grupo.diagnostico = Doenca.objects.get(doenca=request.POST['diagnostico'])
         if 'localizacao' in request.POST:
@@ -152,22 +156,29 @@ def guarda_grupo(request):
             novo_grupo.escolaridade = request.POST['escolaridade']
         if 'referenciacao' in request.POST:
             novo_grupo.referenciacao = Reference.objects.get(reference=request.POST['referenciacao'])
+        if 'programa' in request.POST:
+            novo_grupo.programa = request.POST['programa']
 
         novo_grupo.save()
 
         # Cria todos os objetos sessaoGrupo e parteGrupo (que registam detalhes das sessoes e partes do grupo)
-        for sessao in Sessao.objects.all():
-            #print("sessao: ", sessao)
+        for sessao in Sessao.objects.filter(programa=novo_grupo.programa).all():
             sessao_grupo = SessaoDoGrupo(grupo=novo_grupo, sessao=sessao)
             sessao_grupo.save()
-            #print(sessao.partes.all())
-            for parte in sessao.partes.all():
-                print("parte: ",parte)
-                parte_grupo = ParteGrupo.objects.create(
-                    sessaoGrupo=sessao_grupo,
-                    parte=parte
-                )
-                parte_grupo.save()
+            if sessao.programa == 'CARE':
+                for parte in sessao.partes.all():
+                    parte_grupo = ParteGrupo.objects.create(
+                        sessaoGrupo=sessao_grupo,
+                        parte=parte
+                    )
+                    parte_grupo.save()
+            elif sessao.programa == 'COG':
+                for parte in sessao.exercicios.all():
+                    parte_grupo = ParteGrupo.objects.create(
+                        sessaoGrupo=sessao_grupo,
+                        parte=parte
+                    )
+                    parte_grupo.save()
 
         for cuidador_id in request.POST.getlist('cuidadores_selecionados[]'):
             #print(f"cuidador selecionado: {cuidador_id}")
@@ -178,13 +189,14 @@ def guarda_grupo(request):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_group_details(request, grupo_id):
-    cuidadores = Cuidador.objects.filter(grupoCare=grupo_id)
-    mentores = Mentor.objects.filter(grupoCare=grupo_id)
-    dinamizadores = DinamizadorConvidado.objects.filter(grupoCare=grupo_id)
+    cuidadores = Cuidador.objects.filter(grupo=grupo_id)
+    mentores = Mentor.objects.filter(grupo=grupo_id)
+    dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
     contexto = {
-        'grupo': GrupoCare.objects.get(id=grupo_id),
+        'grupo': Grupo.objects.get(id=grupo_id),
         'cuidadores': cuidadores,
         'mentores': mentores,
         'dinamizadores': dinamizadores,
@@ -194,10 +206,11 @@ def view_group_details(request, grupo_id):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def group_members(request, grupo_id):
-    cuidadores = Cuidador.objects.filter(grupoCare=grupo_id)
-    mentores = Mentor.objects.filter(grupoCare=grupo_id)
-    dinamizadores = DinamizadorConvidado.objects.filter(grupoCare=grupo_id)
+    cuidadores = Cuidador.objects.filter(grupo=grupo_id)
+    mentores = Mentor.objects.filter(grupo=grupo_id)
+    dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
     formDinamizador = DinamizadorForm(request.POST or None)
     if formDinamizador.is_valid():
@@ -206,22 +219,24 @@ def group_members(request, grupo_id):
 
     contexto = {
         'grupo_id': grupo_id,
-        'grupo': GrupoCare.objects.get(id=grupo_id),
+        'grupo': Grupo.objects.get(id=grupo_id),
         'cuidadores': cuidadores,
         'mentores': mentores,
         'dinamizadores': dinamizadores,
         'formDinamizador': formDinamizador,
-        'dinami': DinamizadorConvidado.objects.filter(grupoCare=None),
-        'caregiver': Cuidador.objects.filter(grupoCare=None)
+        'dinami': DinamizadorConvidado.objects.filter(grupo=None),
+        'caregiver': Cuidador.objects.filter(grupo=None)
     }
     return render(request, "diario/group_members.html", contexto)
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def group_sessions(request, grupo_id):
+    # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
     sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
     sessoes = Sessao.objects.all()
-    grupo = GrupoCare.objects.get(id=grupo_id)
+    grupo = Grupo.objects.get(id=grupo_id)
 
     for sessao in sessoes_do_grupo:
         if sessao.estado == 'PR':
@@ -230,7 +245,7 @@ def group_sessions(request, grupo_id):
     else:
         proxima_sessao = -1
 
-    #    sessoes = GrupoCare.objects.get(id=grupo_id).sessoes.all()
+    #    sessoes = Grupo.objects.get(id=grupo_id).sessoes.all()
 
     contexto = {
         'sessoes_do_grupo': sessoes_do_grupo,
@@ -239,11 +254,32 @@ def group_sessions(request, grupo_id):
     }
     return render(request, "diario/group_sessions.html", contexto)
 
+def group_sessions_cog(request, grupo_id):
+    # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
+    sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
+    grupo = Grupo.objects.get(id=grupo_id)
+
+    for sessao in sessoes_do_grupo:
+        if sessao.estado == 'PR':
+            proxima_sessao = sessao.id
+            break
+    else:
+        proxima_sessao = -1
+
+    #    sessoes = Grupo.objects.get(id=grupo_id).sessoes.all()
+
+    contexto = {
+        'sessoes_do_grupo': sessoes_do_grupo,
+        'grupo': grupo,
+        'proxima_sessao': proxima_sessao
+    }
+    return render(request, "diario/group_sessions.html", contexto)
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def group_notes(request, grupo_id):
     contexto = {
-        'grupo': GrupoCare.objects.get(id=grupo_id),
+        'grupo': Grupo.objects.get(id=grupo_id),
 
         'notasGrupo': NotaGrupo.objects.filter(grupo=grupo_id),
     }
@@ -251,6 +287,7 @@ def group_notes(request, grupo_id):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def caregiver_update(request, cuidador_id, grupo_id):
     cuidador = Cuidador.objects.get(pk=cuidador_id)
     formCuidador = Cuidador_Update_Form(request.POST or None, instance=cuidador)
@@ -268,6 +305,7 @@ def caregiver_update(request, cuidador_id, grupo_id):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def create_caregiver(request, grupo_id):
     formCuidador = CuidadorForm(request.POST or None)
 
@@ -284,6 +322,7 @@ def create_caregiver(request, grupo_id):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def profile_care_view(request, cuidador_id, grupo_id):
     formDocument = Documents_Form(request.POST, request.FILES)
 
@@ -294,7 +333,7 @@ def profile_care_view(request, cuidador_id, grupo_id):
     contexto = {
         'cuidador': Cuidador.objects.get(pk=cuidador_id),
         'documents': Documents.objects.filter(cuidador=cuidador_id),
-        'grupo': GrupoCare.objects.get(id=grupo_id),
+        'grupo': Grupo.objects.get(id=grupo_id),
         'notas': Nota.objects.filter(cuidador=cuidador_id),
         'formDocument': formDocument,
         'cuidador_id': cuidador_id,
@@ -305,15 +344,17 @@ def profile_care_view(request, cuidador_id, grupo_id):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def caregiver_delete(request, cuidador_id, grupo_id):
     cuidador = Cuidador.objects.get(pk=cuidador_id)
-    grupo = GrupoCare.objects.get(pk=grupo_id)
+    grupo = Grupo.objects.get(pk=grupo_id)
     grupo.cuidadores.remove(cuidador)
 
     return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def dinamizador_delete(request, dinamizador_id, grupo_id):
     dinamizador = DinamizadorConvidado.objects.get(pk=dinamizador_id)
     dinamizador.delete()
@@ -322,22 +363,25 @@ def dinamizador_delete(request, dinamizador_id, grupo_id):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def assign_dinamizador(request, grupo_id, dinamizador_id):
     dinamizador = DinamizadorConvidado.objects.get(id=dinamizador_id)
-    grupo = GrupoCare.objects.get(id=grupo_id)
+    grupo = Grupo.objects.get(id=grupo_id)
     grupo.dinamizadores.add(dinamizador)
 
     return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def assign_caregiver(request, grupo_id, cuidador_id):
     cuidador = Cuidador.objects.get(id=cuidador_id)
-    grupo = GrupoCare.objects.get(id=grupo_id)
+    grupo = Grupo.objects.get(id=grupo_id)
     grupo.cuidadores.add(cuidador)
 
     return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def dinamizador_update(request, dinamizador_id, grupo_id):
     dinamizador = DinamizadorConvidado.objects.get(pk=dinamizador_id)
     formDinamizador = DinamizadorForm(request.POST or None, instance=dinamizador)
@@ -356,16 +400,18 @@ def dinamizador_update(request, dinamizador_id, grupo_id):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def delete_groups(request, grupo_id):
-    grupo = GrupoCare.objects.get(pk=grupo_id)
+    grupo = Grupo.objects.get(pk=grupo_id)
     grupo.delete()
 
     return HttpResponseRedirect(reverse('dashboard_Care'))
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def update_groups(request, grupo_id):
-    grupo = GrupoCare.objects.get(pk=grupo_id)
+    grupo = Grupo.objects.get(pk=grupo_id)
     formGrupo = GrupoForm(request.POST or None, instance=grupo)
 
     if formGrupo.is_valid():
@@ -381,11 +427,12 @@ def update_groups(request, grupo_id):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def filter_group(request, cuidador_id):
     cuidador = Cuidador.objects.get(id=cuidador_id)
     filtrados = []
 
-    grupos = GrupoCare.objects.all()
+    grupos = Grupo.objects.all()
 
     lista_pesquisa = {
         'diagnostico': {grupo.diagnostico.nome for grupo in grupos if grupo.diagnostico is not None},
@@ -398,7 +445,7 @@ def filter_group(request, cuidador_id):
     selecoes = {}
 
     if request.POST:
-        filtrados = GrupoCare.objects.all()
+        filtrados = Grupo.objects.all()
         for campo, valor in request.POST.items():
             if valor != '':
                 selecoes[campo] = valor
@@ -425,9 +472,10 @@ def filter_group(request, cuidador_id):
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def assign_group(request, grupo_id, cuidador_id):
     cuidador = Cuidador.objects.get(id=cuidador_id)
-    grupo = GrupoCare.objects.get(id=grupo_id)
+    grupo = Grupo.objects.get(id=grupo_id)
     grupo.cuidadores.add(cuidador)
 
     return HttpResponseRedirect(reverse('dashboard_Care'))
@@ -484,7 +532,7 @@ def logout_care_view(request):
 def view_iniciar_sessao(request, sessao_grupo_id):
     sessao_grupo = SessaoDoGrupo.objects.get(id=sessao_grupo_id)
     grupo_id = sessao_grupo.grupo.id
-    sessao_grupo.inicio = datetime.datetime.now(timezone.utc)
+    sessao_grupo.inicio = datetime.utcnow()
     sessao_grupo.save()
 
     # guardar info das presenças: ir buscar info enviada via formulario. e para cada participante guardar na base de dados atualização do utilizador
@@ -517,16 +565,17 @@ def view_iniciar_sessao(request, sessao_grupo_id):
 
     return HttpResponseRedirect(reverse('sessao', args=[sessao_grupo_id,grupo_id]))
 
-
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_sessao(request, sessao_grupo_id, grupo_id):
-    grupo = GrupoCare.objects.get(id=grupo_id)
+    grupo = Grupo.objects.get(id=grupo_id)
     sessao = SessaoDoGrupo.objects.get(id=sessao_grupo_id, grupo = grupo)
     
     data = sessao.data
     
     pode_iniciar = False
     if data:
-        if data.day == datetime.datetime.today().day or sessao.inicio is not None:
+        if data.day == datetime.utcnow().day or sessao.inicio is not None:
             pode_iniciar = True
             
 
@@ -538,21 +587,26 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
             break
     else:
         proxima_parte = 0
-
+    
+    if grupo.programa == "CARE":
+        participantes = Cuidador.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
+    elif grupo.programa == "COG":
+        participantes = Participante.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
     #print(sessao.sessao.partes)
     contexto = {
         'parte': sessao.sessao.partes,
         'proxima_parte': proxima_parte,
         'sessaoGrupo': sessao,
         'partesGrupo': partes_grupo,
-        'participantes': Cuidador.objects.filter(grupoCare=sessao.grupo.id),
-        'grupo': GrupoCare.objects.get(id=sessao.grupo.id),
+        'participantes': participantes,
+        'grupo': Grupo.objects.get(id=sessao.grupo.id),
         'pode_iniciar' : pode_iniciar,
     }
 
     return render(request, 'diario/sessao.html', contexto)
 
-
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_detalhes_sessao(request, id_sessao_grupo):
     sessao = SessaoDoGrupo.objects.get(sessao=id, grupo=id_sessao_grupo)
     partes_grupo = ParteGrupo.objects.filter(sessaoGrupo=sessao)
@@ -562,22 +616,23 @@ def view_detalhes_sessao(request, id_sessao_grupo):
         'id': id,
         'sessaoGrupo': sessao,
         'partesGrupo': partes_grupo,
-        'participantes': Cuidador.objects.filter(grupoCare=sessao.grupo.id),
-        'grupo': GrupoCare.objects.get(id=sessao.grupo.id),
+        'participantes': Cuidador.objects.filter(grupo=sessao.grupo.id),
+        'grupo': Grupo.objects.get(id=sessao.grupo.id),
 
     }
     return render(request, "diario/detalhes_sessao.html", contexto)
 
-
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_diario(request, idGrupo, idSessao):  # NN: Usar sessao_grupo_id em vez de idSessao
-    grupo = GrupoCare.objects.filter(id=idGrupo).get()
+    grupo = Grupo.objects.filter(id=idGrupo).get()
     sessao = Sessao.objects.get(id=idSessao)
     sessaoGrupo = Sessao.objects.get(sessao = sessao, grupo = grupo)
     parte = sessao.partes.all()
 
     contexto = {
-        'participantes': Cuidador.objects.filter(grupoCare=idGrupo),
-        'grupo': GrupoCare.objects.filter(id=idGrupo),
+        'participantes': Cuidador.objects.filter(grupo=idGrupo),
+        'grupo': Grupo.objects.filter(id=idGrupo),
         'sessao': Sessao.objects.filter(id=idSessao),
         'tipo': parte,
         'sessaoGrupo': sessaoGrupo,
@@ -585,11 +640,17 @@ def view_diario(request, idGrupo, idSessao):  # NN: Usar sessao_grupo_id em vez 
 
     return render(request, "diario/diario.html", contexto)
 
-
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_diario_participante(request, idSessaoGrupo, idParticipante):
     sessao_grupo = SessaoDoGrupo.objects.get(pk=idSessaoGrupo)
-    participante = Cuidador.objects.get(pk=idParticipante)
-    notas = Nota.objects.filter(cuidador=participante).order_by('-data')
+    programa = sessao_grupo.grupo.programa
+    if programa == "CARE":
+        participante = Cuidador.objects.get(pk=idParticipante)
+        notas = Nota.objects.filter(cuidador=participante).order_by('-data')
+    elif programa == "COG":
+        participante = Participante.objects.get(pk=idParticipante)
+        notas = Nota.objects.filter(participante=participante).order_by('-data')
     
     if request.method == "POST":
         form = NotaForm(request.POST or None)
@@ -618,6 +679,8 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
 
     return render(request, "diario/diario_participante.html", context)
 
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_atualiza_presencas_diario(request, idSessaoGrupo):
     sessao_grupo = SessaoDoGrupo.objects.get(pk=idSessaoGrupo)
     grupo = sessao_grupo.grupo
@@ -658,7 +721,7 @@ def view_atualiza_presencas_diario(request, idSessaoGrupo):
             presenca.save()
             
     context = {
-        'participantes': Cuidador.objects.filter(grupoCare=idGrupo).order_by('nome'),
+        'participantes': Cuidador.objects.filter(grupo=idGrupo).order_by('nome'),
         'grupo_id': idGrupo,
         'notasGrupo': NotaGrupo.objects.filter(grupo=idGrupo),
         'partilhas': PartilhaGrupo.objects.filter(grupo=idGrupo),
@@ -671,14 +734,21 @@ def view_atualiza_presencas_diario(request, idSessaoGrupo):
 
     return render(request, "diario/diario_participante.html", context)
 
-
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_diario_grupo(request, idSessaoGrupo):
     sessao_grupo = SessaoDoGrupo.objects.get(id = idSessaoGrupo)
     idGrupo = sessao_grupo.grupo.id
+    programa = sessao_grupo.grupo.programa
+    if programa == "CARE":
+        participantes = Cuidador.objects.filter(grupo=idGrupo).order_by('info_sensivel__nome')
+    elif programa == "COG":
+        participantes = Participante.objects.filter(grupo=idGrupo).order_by('info_sensivel__nome')
+        
     form_list = []
     form_nota_grupo = NotaGrupoForm(request.POST or None)
     form_partilhas_grupo = PartilhaGrupoForm(request.POST or None)
-    participantes = Cuidador.objects.filter(grupoCare=idGrupo).order_by('nome')
+    
     multiple_appends(form_list, form_nota_grupo, form_partilhas_grupo)
     for form in form_list:
         if form.is_valid():
@@ -691,20 +761,24 @@ def view_diario_grupo(request, idSessaoGrupo):
     online_list = []
     presencial_list = []
     faltou_list = []
-    for participante in participantes:
-        presenca = Presenca.objects.filter(participante=participante, sessaoDoGrupo = sessao_grupo)
+    for pessoa in participantes:
+        if programa == "CARE":
+            presenca = Presenca.objects.filter(cuidador=pessoa, sessaoDoGrupo = sessao_grupo)
+        elif programa == "COG":
+            presenca = Presenca.objects.filter(participante=pessoa, sessaoDoGrupo = sessao_grupo)
+        
         if len(presenca) > 0:
             presenca = presenca.get()
             if presenca.present and presenca.mode == "Online":
-                online_list.append(int(participante.id)) 
+                online_list.append(int(pessoa.id)) 
             elif presenca.present and presenca.mode == "Presencial":
-                presencial_list.append(int(participante.id))
+                presencial_list.append(int(pessoa.id))
             else:
-                faltou_list.append(int(participante.id)) 
+                faltou_list.append(int(pessoa.id)) 
     
-    
+    print(participantes)
     context = {
-        'participantes': Cuidador.objects.filter(grupoCare=idGrupo).order_by('nome'),
+        'participantes': participantes,
         'grupo_id': idGrupo,
         'grupo' : SessaoDoGrupo.objects.get(id = idSessaoGrupo).grupo,
         'sessaoGrupo' : sessao_grupo,
@@ -722,19 +796,21 @@ def view_diario_grupo(request, idSessaoGrupo):
     return render(request, "diario/diario_grupo.html", context)
 
 
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_presencas_sessao(request, proxima_id):
     sessao_grupo = SessaoDoGrupo.objects.get(id=proxima_id)
 
     contexto = {
         'sessao_grupo': sessao_grupo,
-        'participantes': Cuidador.objects.filter(grupoCare=sessao_grupo.grupo),
+        'participantes': Cuidador.objects.filter(grupo=sessao_grupo.grupo),
     }
 
     return render(request, "diario/presencas_sessao.html", contexto)
 
 
-
-
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
     parte = Parte.objects.get(id=parte_do_grupo_id)
     sg = SessaoDoGrupo.objects.get(sessao=sessaoGrupo_id, grupo=idGrupo)
@@ -758,13 +834,15 @@ def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
     }
     return render(request, "diario/parteDetalhes.html", contexto)
 
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte):
     parte = Parte.objects.get(id=parte_do_grupo_id)
     sessao = SessaoDoGrupo.objects.get(id=sessaoGrupo_id)
     parte_group = ParteGrupo.objects.get(parte_id=parte_do_grupo_id, sessaoGrupo_id=sessaoGrupo_id)
     
     if estado != "ver" and estado != "continuar":
-        parte_group.inicio = datetime.datetime.now(timezone.utc)
+        parte_group.inicio = datetime.utcnow()
         parte_group.save()
         
     q = parte.questionarios.all()
@@ -790,6 +868,7 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
 
 
 @login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_questionario(request, idPergunta, idParte, sessaoGrupo):
     parte = Parte.objects.get(id=idParte)
     questionario = parte.questionarios.all().filter(id=idPergunta).get()
@@ -837,6 +916,30 @@ def view_questionario(request, idPergunta, idParte, sessaoGrupo):
     }
     return render(request, "diario/questionario.html", contexto)
 
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
+def view_exercicio(request, idExercicio, parteGrupo, sessaoGrupo):
+    parte_grupo = ParteGrupo.objects.get(id=parteGrupo)
+    parte = parte_grupo.parte
+    sessao_grupo = SessaoDoGrupo.objects.get(id=sessaoGrupo)
+    exercicio = Exercicio.objects.get(id=idExercicio)
+    
+    print(idExercicio)
+    
+    if request.method == 'POST':
+        print('post')
+                    
+    contexto = {
+        'request' : request,
+        'exercicio' : exercicio,
+        'parte_grupo': parte_grupo,
+        'sessao_grupo': sessao_grupo,
+
+    }
+    return render(request, "diario/exercicio.html", contexto)
+
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_questionario_satisfacao(request, idPergunta, idParte, sessaoGrupo):
     parte = Parte.objects.get(id=idParte)
     questionarios_satisfacao = parte.questionarios.all().filter(topico="Avaliação de satisfação")
@@ -919,6 +1022,8 @@ def view_questionario_satisfacao(request, idPergunta, idParte, sessaoGrupo):
     
     return render(request, "diario/questionario_satisfacao.html", contexto)
 
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
     factory = qrcode.image.svg.SvgImage
     uri = request.build_absolute_uri('view_questionario') 
@@ -940,7 +1045,8 @@ def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
     }
     return render(request, "diario/abrirQuestionario.html", contexto)
 
-
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_resultados(request, idPergunta,idParte,sessaoGrupo):
     pergunta = Pergunta.objects.get(id=1)
 
@@ -967,59 +1073,57 @@ def view_resultados(request, idPergunta,idParte,sessaoGrupo):
     return render(request, 'diario/resultados.html', context)
 
 
-
-
-
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def finalizar_parte(request, idParte, sessao_grupo_id, estado):
     parte_group = ParteGrupo.objects.get(parte_id=idParte, sessaoGrupo_id=sessao_grupo_id)
     sessao_grupo = SessaoDoGrupo.objects.get(id=sessao_grupo_id)
     grupo_id = sessao_grupo.grupo.id
 
     if estado == "finalizar":
-        parte_group.fim = datetime.datetime.now(timezone.utc)
+        parte_group.fim = datetime.utcnow()
         parte_group.concluido = True
         parte_group.save()
 
     #if estado == "continuar":
-        #parte_group.fim = datetime.now(timezone.utc)
+        #parte_group.fim = datetime.now()
         #parte_group.save()
 
     return HttpResponseRedirect(reverse('sessao', args=[sessao_grupo_id, grupo_id]))
 
 
-
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def voltar_parte(request, idParte, sessao_grupo_id, estado):
     parte_group = ParteGrupo.objects.get(parte_id=idParte, sessaoGrupo_id=sessao_grupo_id)
 
     if estado == "finalizar":
-        parte_group.fim = datetime.datetime.now(timezone.utc)
+        parte_group.fim = datetime.utcnow()
         parte_group.concluido = True
         parte_group.save()
 
     #if estado == "continuar":
-        #parte_group.fim = datetime.now(timezone.utc)
+        #parte_group.fim = datetime.now()
         #parte_group.save()
 
     return HttpResponseRedirect(reverse('detalhes_sessao', args=[sessao_grupo_id]))
 
 
-
-
-
-
-
-
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def finalizar_sessao(request, idGrupo, sessao_grupo_id):
     sessao_group = SessaoDoGrupo.objects.get(id=sessao_grupo_id)
     if request.method == 'POST':
         sessao_group.estado = 'R'
-        sessao_group.fim = datetime.datetime.now(timezone.utc)
+        sessao_group.fim = datetime.utcnow()
         sessao_group.concluido = True
         sessao_group.save()
 
     return HttpResponseRedirect(reverse('group_sessions', args=[idGrupo]))
 
 
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
 def view_changeDate(request, sessao_id, group_id):
     sessao = SessaoDoGrupo.objects.get(sessao_id=sessao_id, grupo_id=group_id)
     formDataSessao = SessaoDataForm(request.POST or None, instance=sessao)

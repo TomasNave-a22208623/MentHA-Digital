@@ -48,6 +48,8 @@ urlpatterns = [
                        name="questionario_satisfacao"),
                   path('questionario/<int:idPergunta>/<int:idParte>/<int:sessaoGrupo>', views.view_questionario,
                        name="view_questionario"),
+                  path('exercicio/<int:idExercicio>/<int:parteGrupo>/<int:sessaoGrupo>', views.view_exercicio,
+                       name="exercicio"),
                   path('abrirQuestionario/<int:idPergunta>/<int:idParte>/<int:sessaoGrupo>',
                        views.view_abrirQuestionario,
                        name="view_abrirQuestionario"),

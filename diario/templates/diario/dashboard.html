@@ -17,6 +17,7 @@
                         <thead>
                         <tr>
                             <th style="text-align: center;"><strong>Grupo</strong></th>
+                            <th style="text-align: center;"><strong>Programa</strong></th>
                             <th style="text-align: center;"><strong>Diagnóstico</strong></th>
                             <th style="text-align: center;"><strong>Localização</strong></th>
                             <th style="text-align: center;"><strong>Referenciação</strong></th>
@@ -28,6 +29,7 @@
                         {% for grupo in grupos %}
                         <tr>
                             <td style="text-align: center;">{{ grupo }}</td>
+                            <td style="text-align: center;">{{ grupo.programa }}</td>
                             <td style="text-align: center;">{{ grupo.diagnostico }}</td>
                             <td style="text-align: center;">{{ grupo.localizacao }}</td>
                             <td style="text-align: center;">{{ grupo.referenciacao }}</td>

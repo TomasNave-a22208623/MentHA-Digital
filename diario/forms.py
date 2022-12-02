@@ -95,7 +95,7 @@ class Documents_Form(ModelForm):
 
 class GrupoForm(ModelForm):
     class Meta:
-        model = GrupoCare
+        model = Grupo
         fields = '__all__'
         widgets = {
             'nome': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva o nome do Grupo ...'}),
@@ -104,6 +104,7 @@ class GrupoForm(ModelForm):
             'localizacao': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a Localização ...'}),
             'escolaridade': Select(attrs={'class': 'form-control'}),
             'referenciacao': Select(attrs={'class': 'form-control'}),
+            'programa': Select(attrs={'class': 'form-control'}),
         }
 
 

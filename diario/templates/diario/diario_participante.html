@@ -21,7 +21,7 @@
     </form>
 
     <hr>
-    <h2><b>Notas de {{ participante.nome }}</b></h2>
+    <h2><b>Notas de {{ participante.info_sensivel.nome }}</b></h2>
     <ul>
         {% if notas|length > 0 %}
         {% for nota in notas %}
@@ -80,7 +80,7 @@
     <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
          onmouseout="hideContent1(this)">
         <div class="titulo">Nome Completo</div>
-        <div class="detalhe">{{participante.nome}}
+        <div class="detalhe">{{participante.info_sensivel.nome}}
         </div>
     </div>
 
@@ -122,14 +122,14 @@
     <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
          onmouseout="hideContent1(this)">
         <div class="titulo">Telemóvel</div>
-        <div class="detalhe">{{participante.telemovel}}
+        <div class="detalhe">{{participante.info_sensivel.telemovel}}
         </div>
     </div>
 
     <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
          onmouseout="hideContent1(this)">
         <div class="titulo">Email</div>
-        <div class="detalhe">{{participante.email}}
+        <div class="detalhe">{{participante.info_sensivel.email}}
         </div>
     </div>
 
