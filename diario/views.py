@@ -165,18 +165,18 @@ def guarda_grupo(request):
         for sessao in Sessao.objects.filter(programa=novo_grupo.programa).all():
             sessao_grupo = SessaoDoGrupo(grupo=novo_grupo, sessao=sessao)
             sessao_grupo.save()
-            if sessao.programa == 'CARE':
+            if novo_grupo.programa == 'CARE':
                 for parte in sessao.partes.all():
                     parte_grupo = ParteGrupo.objects.create(
                         sessaoGrupo=sessao_grupo,
                         parte=parte
                     )
                     parte_grupo.save()
-            elif sessao.programa == 'COG':
-                for parte in sessao.exercicios.all():
+            elif novo_grupo.programa == 'COG':
+                for exercicio in sessao.exercicios.all():
                     parte_grupo = ParteGrupo.objects.create(
                         sessaoGrupo=sessao_grupo,
-                        parte=parte
+                        exercicio=exercicio
                     )
                     parte_grupo.save()
 
@@ -577,17 +577,20 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
     if data:
         if data.day == datetime.utcnow().day or sessao.inicio is not None:
             pode_iniciar = True
-            
 
     partes_grupo = ParteGrupo.objects.filter(sessaoGrupo=sessao_grupo_id)
-
     for parte in partes_grupo:
         if parte.concluido == False:
-            proxima_parte = parte.parte.id
+            if grupo.programa == "CARE":
+                proxima_parte = parte.parte.id
+            elif grupo.programa == "COG":
+                proxima_parte = parte.exercicio.id
             break
     else:
         proxima_parte = 0
-    
+
+    print(partes_grupo)
+
     if grupo.programa == "CARE":
         participantes = Cuidador.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
     elif grupo.programa == "COG":
@@ -812,9 +815,16 @@ def view_presencas_sessao(request, proxima_id):
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')
 def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
-    parte = Parte.objects.get(id=parte_do_grupo_id)
     sg = SessaoDoGrupo.objects.get(sessao=sessaoGrupo_id, grupo=idGrupo)
-    parte_group = ParteGrupo.objects.get(parte_id=parte_do_grupo_id, sessaoGrupo=sg)
+    programa = sg.grupo.programa 
+    if programa == "CARE":
+        parte = Parte.objects.get(id=parte_do_grupo_id)
+        parte_group = ParteGrupo.objects.get(parte_id=parte, sessaoGrupo=sg)
+    elif programa == "COG":
+        exercicio = Exercicio.objects.get(id=parte_do_grupo_id)
+        parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
+    
+    
 
     q = parte.questionarios.all()
     if len(q) > 0:
@@ -837,33 +847,41 @@ def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')
 def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte):
-    parte = Parte.objects.get(id=parte_do_grupo_id)
-    sessao = SessaoDoGrupo.objects.get(id=sessaoGrupo_id)
-    parte_group = ParteGrupo.objects.get(parte_id=parte_do_grupo_id, sessaoGrupo_id=sessaoGrupo_id)
-    
+    sg = SessaoDoGrupo.objects.get(id=sessaoGrupo_id)
+    programa = sg.grupo.programa 
+    print(estado)
+    contexto = {
+        'proxima_parte': proxima_parte,
+        'estado': estado,
+        'sessaoGrupo': sg,
+    }
+    parte_group = None
+    if programa == "CARE":
+        parte = Parte.objects.get(id=parte_do_grupo_id)
+        contexto['parte'] = parte
+        contexto['dura'] = parte.duracao
+        contexto['atividades'] = parte.atividades.all()
+        parte_group = ParteGrupo.objects.get(parte_id=parte, sessaoGrupo=sg)
+        q = parte.questionarios.all()
+        if len(q) > 0:
+            q = parte.questionarios.all()[0]
+        else:
+            q = None
+        contexto['q'] = q
+        
+    elif programa == "COG":
+        exercicio = Exercicio.objects.get(id=parte_do_grupo_id)
+        parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
+        contexto['exercicio'] = exercicio
+        contexto['dura'] = exercicio.duracao
+        
+    contexto['parteGrupo'] = parte_group
+
+        
     if estado != "ver" and estado != "continuar":
         parte_group.inicio = datetime.utcnow()
         parte_group.save()
-        
-    q = parte.questionarios.all()
-    
-    if len(q) > 0:
-        q = parte.questionarios.all()[0]
-    else:
-        q = None
-        
-    # print("\n\n\nduracao: ", parte_group.duracao, parte_group.inicio, parte_group.fim)
 
-    contexto = {
-        'duracao': parte_group.duracao,
-        'proxima_parte': proxima_parte,
-        'estado': estado,
-        'sessaoGrupo': sessao,
-        'parteGrupo': parte_group,
-        'parte': parte,
-        'atividades': parte.atividades.all(),
-        'q': q,
-    }
     return render(request, "diario/parte.html", contexto)
 
 

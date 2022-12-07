@@ -154,6 +154,9 @@ function mostraDiarioBordo() {
   }
 }
 
+function calcula_percentagem(current, max){
+  return Math.trunc(current * 100/max);
+}
 
 
 function atualizaPresencas(id) {
@@ -176,3 +179,5 @@ function atualizaPresencas(id) {
       })
       .then(response => response);
 }
+
+

@@ -1,5 +1,5 @@
 {% extends 'diario/base.html' %}
-
+{% load markdownify %}
 {% load static %}
 {% block head %} 
     <link href="{% static 'diario/diario_de_bordo.css' %}" rel="stylesheet">
@@ -36,25 +36,18 @@ document.addEventListener("DOMContentLoaded", function () {
             const div = document.querySelector("div#exercicio");
             if (div.dataset.estado != "ver") {
               function startTimer(duration, display) {
-                duration = duration / 60;
-                console.log(duration);
                 setInterval(function () {
-                  var h = Math.floor(duration / 3600);
-                  var m = Math.floor((duration % 3600) / 60);
-                  var s = Math.floor((duration % 3600) % 60);
-  
-                  var hDisplay = h > 0 ? h + (h == 1 ? "h" : "h") : "";
-                  var mDisplay = m > 0 ? m + (m == 1 ? "m" : "m") : "";
-                  var sDisplay = s > 0 ? s + (s == 1 ? "s" : "s") : "";
-  
-                  display.innerHTML = hDisplay + mDisplay;
-  
-                  duration++;
+                    duration_minutes = Math.trunc(duration / 60);
+                    max = display.getAttribute('aria-valuemax')
+                    display.innerHTML = duration_minutes + "m";
+                    perc = calcula_percentagem(duration_minutes, max)
+                    display.style.width = perc+'%';
+                    duration++;
                 }, 1000);
               }
               display = document.querySelector("#timer"); // selecionando o timer
-  
               var duration = parseInt(display.innerHTML, 10) * 60; // Converter para segundos  -  {{ part.duracao }};
+              console.log("duration = ", duration);
               startTimer(duration, display); // iniciando o timer
             }
           });
@@ -77,12 +70,12 @@ document.addEventListener("DOMContentLoaded", function () {
 {% load markdownify %}
 <!--Esquerda-->
 
-<div class="card esquerda" style="width:100%;">
+<div class="card esquerda" style="width:100%; border-color:white;">
     <div class="card-body">
         <div id="exercicio" data-estado="{{estado}}">
             <div class="titulo">
                 <p class="text-primary m-0 fw-bold">
-                    {{sessaoGrupo.grupo}} - Sessão {{ sessaoGrupo.sessao.numeroSessao}}: {{ sessaoGrupo.sessao.nome }}
+                    {{sessaoGrupo.grupo}} - Sessão {{ sessaoGrupo.sessao.numeroSessao}}{% if sessaoGrupo.grupo.programa == "CARE"%}: {{ sessaoGrupo.sessao.nome }}{% endif %}
                 </p>
                 <div>
                     <form action="{% url 'group_sessions' sessaoGrupo.grupo.id %}">
@@ -94,12 +87,13 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
             
             <br>
-
+            
+            {% if sessaoGrupo.grupo.programa == "CARE" %}
             <h5 class="text-primary m-0 fw-bold">
                 Tema
             </h5>
             {{ sessaoGrupo.sessao.tema | markdownify }}
-
+            {% endif %}
             <h5 class="text-primary m-0 fw-bold">
                 Planificação da Sessão </h5>
             <br>
@@ -107,8 +101,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 <table class="table table-hover ee">
                     <thead class="table-light">
                     <tr>
-                        <th scope="col">Fase</th>
-                        <th scope="col">Objetivo</th>
+                        {% if sessaoGrupo.grupo.programa ==  'CARE' %}
+                            <th scope="col">Fase</th>
+                            <th scope="col">Objetivo</th>
+                        {% elif sessaoGrupo.grupo.programa ==  'COG'%}
+                            <th scope="col">Domínio</th>
+                            <th scope="col">Atividades</th>
+                        {% endif %}
                         <th></th>
                         <th scope="col">Duração</th>
                         <th scope="col"></th>
@@ -117,20 +116,29 @@ document.addEventListener("DOMContentLoaded", function () {
                     <tbody class="table-group-divider">
                     {% for parte_do_grupo in partesGrupo %}
                     <tr>
+                        {% if sessaoGrupo.grupo.programa == "CARE" %}
+                            <td>
+                                {% if parte_do_grupo.parte.fase == 'I' %}
+                                Inicial
+                                {% endif %}
+                                {% if parte_do_grupo.parte.fase == 'D' %}
+                                Desenvolvimento
+                                {% endif %}
+                                {% if parte_do_grupo.parte.fase == 'F' %}
+                                Final
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ parte_do_grupo.parte.objetivo }}
+                            </td>
+                        {% elif sessaoGrupo.grupo.programa == "COG" %}
                         <td>
-                            {% if parte_do_grupo.parte.fase == 'I' %}
-                            Inicial
-                            {% endif %}
-                            {% if parte_do_grupo.parte.fase == 'D' %}
-                            Desenvolvimento
-                            {% endif %}
-                            {% if parte_do_grupo.parte.fase == 'F' %}
-                            Final
-                            {% endif %}
+                            {{ parte_do_grupo.exercicio.dominio }}
                         </td>
                         <td>
-                            {{ parte_do_grupo.parte.objetivo }}
+                            {{ parte_do_grupo.exercicio.descricao | markdownify}}
                         </td>
+                        {% endif %}
                         <td style="color:dodgerblue">
                             {% if parte_do_grupo.concluido == True %}
                             ✔
@@ -141,24 +149,45 @@ document.addEventListener("DOMContentLoaded", function () {
                         </td>
                         <td style="text-align:center">
                             {% if parte_do_grupo.duracao != None %}
-                                {{ parte_do_grupo.duracao_em_horas_minutos }}/{{ parte_do_grupo.parte.duracao }}m
+                                {% if sessaoGrupo.grupo.programa == "CARE" %}
+                                    {{ parte_do_grupo.duracao_em_horas_minutos }}/{{ parte_do_grupo.parte.duracao }}m
+                                {% elif sessaoGrupo.grupo.programa == "COG"%}
+                                {{ parte_do_grupo.duracao_em_horas_minutos }}/{{ parte_do_grupo.exercicio.duracao }}m
+                                {% endif %}
+                                
                             {% endif %}
                         </td>
                         <td>
-                            {% if parte_do_grupo.parte.id == proxima_parte and parte_do_grupo.inicio == None and pode_iniciar%}
-                            <button type="button" class="btn btn-outline-primary iniciar btn-sessao"
-                                    data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/iniciar/{{proxima_parte}}">
-                                Iniciar
-                            </button>
-                            {% elif parte_do_grupo.parte.id == proxima_parte and parte_do_grupo.inicio != None %}
-                            <button type="button" class="btn btn-outline-primary continuar btn-sessao"
-                                    data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/continuar/{{proxima_parte}}">
-                                Continuar
-                            </button>
-                            {% comment %} {% elif parte_do_grupo.parte.id != proxima_parte %} {% endcomment %}
+                            {% if parte_do_grupo.inicio == None and pode_iniciar %}
+                                {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
+                                    <button type="button" class="btn btn-outline-primary iniciar btn-sessao"
+                                        {% if sessaoGrupo.grupo.programa == "CARE" %}
+                                            data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/iniciar/{{proxima_parte}}">
+                                        {% elif sessaoGrupo.grupo.programa == "COG"%}
+                                            data-parte="{{parte_do_grupo.exercicio.id}}/{{sessaoGrupo.id}}/iniciar/{{proxima_parte}}">
+                                        {% endif %}
+                                        Iniciar
+                                    </button>
+                                {% endif %}
+                            {% elif  parte_do_grupo.inicio != None %}
+                                {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
+                                    <button type="button" class="btn btn-outline-primary continuar btn-sessao"
+                                        {% if sessaoGrupo.grupo.programa == "CARE" %}
+                                            data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/continuar/{{proxima_parte}}">
+                                        {% elif sessaoGrupo.grupo.programa == "COG" %}
+                                            data-parte="{{parte_do_grupo.exercicio.id}}/{{sessaoGrupo.id}}/continuar/{{proxima_parte}}">
+                                        {% endif %}
+                                        Continuar
+                                    </button>
+                                {% endif %}
                             {% else %}
                             <button type="button" class="btn btn-outline-secondary ver btn-sessao"
+                                {% if sessaoGrupo.grupo.programa == "CARE" %}
                                     data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/ver/{{proxima_parte}}">
+                                {% elif sessaoGrupo.grupo.programa == "COG" %}
+                                    data-parte="{{parte_do_grupo.exercicio.id}}/{{sessaoGrupo.id}}/ver/{{proxima_parte}}">
+                                {% endif %}
+                                    
                                 Ver
                             </button>
                             {% endif %}

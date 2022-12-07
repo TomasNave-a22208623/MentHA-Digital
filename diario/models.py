@@ -95,7 +95,7 @@ class Sessao(models.Model):
         ("COG", "COG"),
     )
     
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=100, blank = True)
     numeroSessao = models.IntegerField(null=True, blank=True)
     tema = models.TextField(max_length=1000, null=True, blank=True)
     dinamizadores = models.CharField(max_length=1000, null=True, blank=True)
@@ -112,7 +112,7 @@ class Sessao(models.Model):
         return objetivos_partes
 
     def __str__(self):
-        return f'({self.programa}) {self.numeroSessao}. {self.nome}'
+        return f'({self.programa}) Sessão {self.numeroSessao}. {self.nome}'
 
 class SessaoDoGrupo(models.Model):
     PRESENT = 'P'
@@ -442,7 +442,7 @@ class InfoParte(models.Model):
 
 class ParteGrupo(models.Model):
     sessaoGrupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, blank=True, related_name='partesGrupos')
-    parte = models.ForeignKey(Parte, on_delete=models.CASCADE, blank=True, related_name='partesGrupos')
+    parte = models.ForeignKey(Parte, on_delete=models.CASCADE, default = None, blank=True, null=True, related_name='partesGrupos')
     exercicio = models.ForeignKey(Exercicio, on_delete=models.CASCADE, default = None, blank=True, null = True, related_name='partesGrupos')
 
     inicio = models.DateTimeField(null=True, blank=True)
@@ -461,7 +461,11 @@ class ParteGrupo(models.Model):
             return (datetime.utcnow() - self.inicio).seconds
         else:
             return '-'
-        
+    
+    @property
+    def duracao_minutos(self):
+        return self.duracao // 60
+    
     @property
     def duracao_em_horas_minutos(self):
 

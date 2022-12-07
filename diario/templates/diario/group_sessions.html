@@ -23,7 +23,9 @@
                             <thead>
                             <tr>
                                 <th style="text-align: center;"><strong>Sessão</strong></th>
+                                {% if programa == "CARE" %}
                                 <th style="text-align: center;"><strong>Nome</strong></th>
+                                {% endif %}
                                 <th style="text-align: center;"><strong>Data e hora</strong></th>
                                 <th style="text-align: center;"><strong>Regime</strong></th>
                                 <th style="text-align: center;"><strong>Estado</strong></th>
@@ -34,9 +36,11 @@
                             <tbody>
                             {% for sessao_do_grupo in sessoes_do_grupo %}
                             <tr>
-                                <td style="text-align: center;">Sessão {{ sessao_do_grupo.sessao.numeroSessao }}
+                                <td style="text-align: center;">{{ sessao_do_grupo.sessao.numeroSessao }}
                                 </td>
+                                {% if programa == "CARE" %}
                                 <td style="text-align: center;">{{ sessao_do_grupo.sessao.nome }}</td>
+                                {% endif %}
                                 <td style="text-align: center;">
                                     <a href="{% url 'changeDate' sessao_do_grupo.sessao.id grupo.id %}">
 

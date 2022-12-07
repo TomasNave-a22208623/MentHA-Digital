@@ -15,94 +15,187 @@
         {% endif %}
     </p>
     <div>
-        <form action="{% url 'finalizar_parte' parte.id sessaoGrupo.id 'continuar' %}" method="POST">
+        {% if sessaoGrupo.grupo.programa == "CARE" %}
+            <form action="{% url 'finalizar_parte' parte.id sessaoGrupo.id 'continuar' %}" method="POST">
+        {% elif sessaoGrupo.grupo.programa == "COG" %}
+            <form action="{% url 'finalizar_parte' exercicio.id sessaoGrupo.id 'continuar' %}" method="POST">
+        {% endif %}
             {% csrf_token %}
-        
             <button class="btn btn-outline-primary" style="margin-left:400px;">Voltar a Sessão</button>
         </form>
     </div>
 </div>
 {% endblock %}
+{% comment %}
     {% if estado != "ver" %}
-        (<span id="timer">{{ duracao }}</span>/{{ parte.duracao }}m)
+        (<span id="timer">{{ parteGrupo.duracao }}</span>/{{ dura }}m)
     {% elif estado == "ver" %}
         {% if parteGrupo.concluido %} 
-            ({{ parteGrupo.duracao_em_horas_minutos }}/{{ parte.duracao }}m)
+            ({{ parteGrupo.duracao_em_horas_minutos }}/{{ dura }}m)
         {% else %}
-            ({{ parte.duracao }}m)
+            ({{ dura }}m)
         {% endif %}
     {% endif %}
-
+{% endcomment %}
 </p>
-<h5 class="text-primary m-0 fw-bold">Objetivo</h5>
-<p>{{ parte.objetivo }}</p>
+{% if sessaoGrupo.grupo.programa == "CARE"%}
+    <h5 class="text-primary m-0 fw-bold">Objetivo</h5>
+    <p>{{ parte.objetivo }}</p>
 
-<h5 class="text-primary m-0 fw-bold">Sumário</h5>
-{{ parte.descrição | markdownify }}
+    <h5 class="text-primary m-0 fw-bold">Sumário</h5>
+    {{ parte.descrição | markdownify }}
 
-{% if parte.materiais|length > 0 %}
+    {% if parte.materiais|length > 0 %}
 
-<h5 class="text-primary m-0 fw-bold">Materiais</h5>
-{{ parte.materiais | markdownify }}
+    <h5 class="text-primary m-0 fw-bold">Materiais</h5>
+    {{ parte.materiais | markdownify }}
 
-{% endif %}
-
-
-{% if parte.apresentacao|length > 0 %}
-
-<h5 class="text-primary m-0 fw-bold">Apresentação</h5>
-
-<ul>
-    <li>
-        <a href="{{ parte.apresentacao.url }}">
-            Descarregar apresentação 📃
-        </a>
-    </li>
-</ul>
-{% endif %}
-
-{% if parte.atividades.all|length > 0 %}
-<h5 class="text-primary m-0 fw-bold">Atividades</h5>
-{% for atividade in parte.atividades.all %}
-<b>
-    Atividade {{ atividade.numero }} - {{ atividade.nome }}
-</b>
+    {% endif %}
 
 
-{{ atividade.descricao | markdownify }}
+    {% if parte.apresentacao|length > 0 %}
 
-{% endfor %}
-{% endif %}
+    <h5 class="text-primary m-0 fw-bold">Apresentação</h5>
 
-{% if parte.questionario.all|length > 0 %}
-<h5 class="text-primary m-0 fw-bold">Questionario</h5>
+    <ul>
+        <li>
+            <a href="{{ parte.apresentacao.url }}">
+                Descarregar apresentação 📃
+            </a>
+        </li>
+    </ul>
+    {% endif %}
 
-<ul>
-{% for qu in parte.questionario.all %}
-<li>
-<a href="{% url 'view_abrirQuestionario' qu.id parte.id sessaoGrupo.id  %}">
-    <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{qu.id}}">Questionário {{ qu.numeroOrdem }}</button>
-</a>
-</li>
+    {% if parte.atividades.all|length > 0 %}
+    <h5 class="text-primary m-0 fw-bold">Atividades</h5>
+    {% for atividade in parte.atividades.all %}
+    <b>
+        Atividade {{ atividade.numero }} - {{ atividade.nome }}
+    </b>
+
+
+    {{ atividade.descricao | markdownify }}
+
     {% endfor %}
-</ul>
-{% endif %}
+    {% endif %}
 
-{% if parte.exercicios.all|length > 0 %}
-<h5 class="text-primary m-0 fw-bold">Exercício{% if parte.exercicios.all|length > 1 %}s{% endif %}</h5>
-<ul>
-    {% for ex in parte.exercicios.all %}
+    {% if parte.questionario.all|length > 0 %}
+    <h5 class="text-primary m-0 fw-bold">Questionario</h5>
+
+    <ul>
+    {% for qu in parte.questionario.all %}
     <li>
-    <a href="{% url 'exercicio' ex.id parteGrupo.id sessaoGrupo.id  %}">
-        <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{qu.id}}">Exercício {{ ex.ordem }} - {{ex.nome}}</button>
+    <a href="{% url 'view_abrirQuestionario' qu.id parte.id sessaoGrupo.id  %}">
+        <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{qu.id}}">Questionário {{ qu.numeroOrdem }}</button>
     </a>
     </li>
         {% endfor %}
-</ul>
+    </ul>
+    
+    {% endif %}
+{% elif sessaoGrupo.grupo.programa == "COG" %}
+<div class="side-by-side">
+    <div class="esquerda">
+        <h5 class=" m-0 fw-bold">
+            Exercício {{ exercicio.numero}} - {{exercicio.dominio }}
+        </h5>
+    </div>
+    <div style ="width:25%" class="direita">
+        {% if estado != "ver" %}
+        <h5 class=" m-6 fw-bold">
+            Duração
+            <span class=" m-6 fw-normal text-muted">
+                {{ dura }} minutos
+            </span> 
+        </h5>
+        <div style ="width:100%"class="progress">
+            <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%;" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
+                    {{ parteGrupo.duracao_minutos }}m
+            </div>
+        </div>
+        {% elif estado == "ver" %}
+            {% if parteGrupo.concluido %} 
+            <h5 class=" m-6 fw-bold">
+                Duração
+                <span class=" m-6 fw-normal text-muted">
+                    {{ parteGrupo.duracao_em_horas_minutos }} de {{ dura }} minutos
+                </span> 
+            </h5>
+            {% else %}
+            <h5 class=" m-6 fw-bold">
+                Duração
+                <span class=" m-6 fw-normal text-muted">
+                    {{ dura }} minutos
+                </span> 
+            </h5>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>  
+<div style= "padding-top:15px;" id="accordion">
+    <div class="card">
+      <div class="card-header" id="headingOne">
+        <h5 class="mb-0">
+          <button class="btn btn-link no-decor text-primary m-0 fw-bold" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            Material
+          </button>
+        </h5>
+      </div>
+  
+      <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+        <div class="card-body">
+          {{ exercicio.material | markdownify }}
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header" id="headingTwo">
+        <h5 class="mb-0">
+          <button class="btn btn-link collapsed no-decor text-primary m-0 fw-bold" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            Instrução
+          </button>
+        </h5>
+      </div>
+      <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+        <div class="card-body">
+        {{ exercicio.instrucao | markdownify }}  
+        </div>
+      </div>
+    </div>
+</div>
+<div class="partes-exercicio">
+    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" style="height: 100%;">
+        <div class="carousel-inner">
+        {% for parte in exercicio.partes_do_exercicio.all %}
+            <div class="carousel-item {% if forloop.counter0 == 0 %}active {% endif %}">
+            {% if parte.imagens.all|length > 0 %}
+            <div class = "exercicio-imagens">
+                {% for imagem in parte.imagens.all %}
+                    {{imagem}}
+                {% endfor %}
+            </div>
+            {% endif %}
+            </div>
+        {% endfor %}
+        </div>
+        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+    </div>
+</div>
 {% endif %}
 
 {% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None %}
-<form action="{% url 'finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
+{% if sessaoGrupo.grupo.programa == "CARE" %}
+    <form action="{% url 'finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
+{% elif sessaoGrupo.grupo.programa == "COG" %}
+    <form action="{% url 'finalizar_parte' exercicio.id sessaoGrupo.id 'finalizar'%}" method="POST">
+{% endif %}
     {% csrf_token %}
     <button class="btn btn-danger" style="margin-left:400px">Terminar Parte</button>
 </form>
