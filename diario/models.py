@@ -113,37 +113,6 @@ class Sessao(models.Model):
 
     def __str__(self):
         return f'({self.programa}) Sessão {self.numeroSessao}. {self.nome}'
-
-class SessaoDoGrupo(models.Model):
-    PRESENT = 'P'
-    ONLINE = 'O'
-    MISTO = 'M'
-    REGIME = [
-        (PRESENT, "Presencial"),
-        (ONLINE, "Online"),
-        (MISTO, "Misto")
-    ]
-    PORREALIZAR = 'PR'
-    REALIZADO = 'R'
-    ESTADO = [
-        (PORREALIZAR, "Por realizar"),
-        (REALIZADO, "Realizado"),
-    ]
-
-    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, blank=True)
-    regime = models.CharField(max_length=20, choices=REGIME, null=True, blank=True, default=PRESENT)
-    estado = models.CharField(max_length=20, choices=ESTADO, null=True, blank=True, default=PORREALIZAR)
-    data = models.DateTimeField(null=True)
-    inicio = models.DateTimeField(null=True, blank=True)
-    fim = models.DateTimeField(null=True, blank=True)
-    concluido = models.BooleanField(default=False)
-    sessao = models.ForeignKey(Sessao, on_delete=models.CASCADE, blank=True, null=True, related_name='sessoes')
-
-    def __str__(self):
-        return f'Sessao {self.sessao} do grupo {self.grupo}'
-
-    # class Meta:
-    #     abstract = True
     
 class Opcao(models.Model):
     resposta = models.CharField(max_length=300, default="")
@@ -170,6 +139,68 @@ class Pergunta(models.Model):
 
     def __str__(self):
         return f'{self.texto}'
+
+class Pergunta_Exercicio(models.Model):
+    nome = models.CharField(max_length=100)
+    tipo_resposta = models.CharField(max_length=35)
+
+
+def img_path(instance, filename):
+    return f'img/{filename}'
+
+class Imagem(models.Model):
+    nome = models.CharField(max_length=100)
+    imagem = models.ImageField(upload_to=img_path, blank=True, null=True)
+
+class Parte_Exercicio(models.Model):
+    nome = models.CharField(max_length=100)
+    ordem = models.IntegerField(default = 0)
+    descricao = models.TextField(max_length=1000, null=True, blank=True)
+    imagens = models.ManyToManyField(Imagem, default = None, blank = True)
+    duracao = models.IntegerField(default=0)
+    perguntas = models.ManyToManyField(Pergunta, blank = True, default = None)
+    opDificuldade = (
+        ("A", "A"),
+        ("B", "B"),
+    )
+    dificuldade = models.CharField(max_length=20, choices=opDificuldade, default="A", blank=False, null=False)
+
+    def __str__(self):
+        ex_numeros = []
+        for x in self.exercicios.all():
+            ex_numeros.append(x.numero)
+        return f'Exercício {ex_numeros} - {self.nome}'
+
+class SessaoDoGrupo(models.Model):
+    PRESENT = 'P'
+    ONLINE = 'O'
+    MISTO = 'M'
+    REGIME = [
+        (PRESENT, "Presencial"),
+        (ONLINE, "Online"),
+        (MISTO, "Misto")
+    ]
+    PORREALIZAR = 'PR'
+    REALIZADO = 'R'
+    ESTADO = [
+        (PORREALIZAR, "Por realizar"),
+        (REALIZADO, "Realizado"),
+    ]
+
+    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, blank=True)
+    regime = models.CharField(max_length=20, choices=REGIME, null=True, blank=True, default=PRESENT)
+    estado = models.CharField(max_length=20, choices=ESTADO, null=True, blank=True, default=PORREALIZAR)
+    data = models.DateTimeField(null=True)
+    inicio = models.DateTimeField(null=True, blank=True)
+    fim = models.DateTimeField(null=True, blank=True)
+    concluido = models.BooleanField(default=False)
+    sessao = models.ForeignKey(Sessao, on_delete=models.CASCADE, blank=True, null=True, related_name='sessoes')
+    parte_ativa = models.ForeignKey(Parte_Exercicio, models.CASCADE, blank=True, null=True, related_name='sessoes')
+
+    def __str__(self):
+        return f'Sessao {self.sessao} do grupo {self.grupo}'
+    
+
 
 class Questionario(models.Model):
     nome = models.CharField(max_length=50, default="")
@@ -361,33 +392,6 @@ class Participante(Utilizador):
     def __str__(self):
         return f'{self.info_sensivel.nome}'
 
-def img_path(instance, filename):
-    return f'img/{filename}'
-
-
-
-class Pergunta_Exercicio(models.Model):
-    nome = models.CharField(max_length=100)
-    tipo_resposta = models.CharField(max_length=35)
-
-
-class Imagem(models.Model):
-    nome = models.CharField(max_length=100)
-    imagem = models.ImageField(upload_to=img_path, blank=True, null=True)
-
-class Parte_Exercicio(models.Model):
-    nome = models.CharField(max_length=100)
-    ordem = models.IntegerField(default = 0)
-    descricao = models.TextField(max_length=1000, null=True, blank=True)
-    imagens = models.ManyToManyField(Imagem, default = None, blank = True)
-    duracao = models.IntegerField(default=0)
-    perguntas = models.ManyToManyField(Pergunta, blank = True, default = None)
-    opDificuldade = (
-        ("A", "A"),
-        ("B", "B"),
-    )
-    dificuldade = models.CharField(max_length=20, choices=opDificuldade, default="A", blank=False, null=False)
-
   
 class Exercicio(models.Model):
     dominio = models.CharField(max_length=100, default = '')
@@ -397,7 +401,7 @@ class Exercicio(models.Model):
     instrucao = models.TextField(max_length=2000, null=True, blank=True)
     instrucao_participante = models.TextField(max_length=2000, null=True, blank=True)
     duracao = models.CharField(max_length=10, null=True, blank=True)
-    partes_do_exercico = models.ManyToManyField(Parte_Exercicio, blank = True)
+    partes_do_exercicio = models.ManyToManyField(Parte_Exercicio, blank = True, related_name='exercicios')
     sessao = models.ManyToManyField(Sessao, default = None ,blank = True, related_name='exercicios')  
     
     def __str__(self):

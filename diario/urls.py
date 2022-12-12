@@ -67,8 +67,9 @@ urlpatterns = [
                   path('changeDate/<int:sessao_id>/<int:group_id>', views.view_changeDate, name='changeDate'),
                   path('sessao/<int:sessao_grupo_id>/<int:grupo_id>', views.view_sessao, name='sessao'),
                   path('presencas_sessao/<int:proxima_id>', views.view_presencas_sessao, name='presencas_sessao'),
-
                   path('voltar_parte/<int:idParte>/<int:sessao_grupo_id>/<str:estado>', views.voltar_parte,
                        name='voltar_parte'),
+                  path('partilha_parte/<int:sessaoGrupo>/<int:idParteExercico>', views.partilha_parte,
+                       name='partilha_parte'),
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -849,7 +849,6 @@ def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
 def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte):
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo_id)
     programa = sg.grupo.programa 
-    print(estado)
     contexto = {
         'proxima_parte': proxima_parte,
         'estado': estado,
@@ -876,6 +875,9 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
         contexto['dura'] = exercicio.duracao
         
     contexto['parteGrupo'] = parte_group
+    
+    imagem = Imagem.objects.get(pk=1)
+    print(imagem.imagem.url)
 
         
     if estado != "ver" and estado != "continuar":
@@ -934,6 +936,14 @@ def view_questionario(request, idPergunta, idParte, sessaoGrupo):
     }
     return render(request, "diario/questionario.html", contexto)
 
+
+def partilha_parte(request, sessaoGrupo, idParteExercico):
+    print('partilha parte')
+    sg = SessaoDoGrupo.objects.get(id=sessaoGrupo)
+    sg.parte_ativa = Parte_Exercicio.objects.get(id=idParteExercico)
+    sg.save()
+    return HttpResponse("OK")
+    
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')
 def view_exercicio(request, idExercicio, parteGrupo, sessaoGrupo):

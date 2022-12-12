@@ -158,6 +158,22 @@ function calcula_percentagem(current, max){
   return Math.trunc(current * 100/max);
 }
 
+function ativa_partilha(sessaoGrupo_id){
+  document.querySelectorAll('li').forEach((li) => {
+    li.classList.remove('partilhado');
+  });
+
+  obj = document.querySelector('li.active');
+  id_parte = obj.dataset.parte;
+  console.log(id_parte);
+  obj.classList.add("partilhado");
+
+  fetch('/partilha_parte/'+sessaoGrupo_id+'/'+id_parte, {
+    method: "GET",
+    })
+}
+
+
 
 function atualizaPresencas(id) {
   let data = new FormData();

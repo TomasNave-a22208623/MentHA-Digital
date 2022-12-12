@@ -164,28 +164,37 @@
     </div>
 </div>
 <div class="partes-exercicio">
-    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" style="height: 100%;">
+    
+    <div id="carousel" class="carousel slide" data-ride="carousel" style="height: 100%;">
+        <ol class="carousel-indicators">
+            {% for parte in exercicio.partes_do_exercicio.all %}
+            <li data-target="#carousel" data-parte="{{parte.id}}" data-slide-to="{{forloop.counter0}}" {% if forloop.counter0 == 0 %}class="active"{% endif %}></li>
+            {% endfor %}
+        </ol>
         <div class="carousel-inner">
         {% for parte in exercicio.partes_do_exercicio.all %}
             <div class="carousel-item {% if forloop.counter0 == 0 %}active {% endif %}">
             {% if parte.imagens.all|length > 0 %}
             <div class = "exercicio-imagens">
                 {% for imagem in parte.imagens.all %}
-                    {{imagem}}
+                <br>
+                <a target="_blank" href="{{ imagem.imagem.url }}">
+                    <img class="img-preview" src="{{ imagem.imagem.url }}">
+                </a>
                 {% endfor %}
+            </div>
+            <br>
+            {% endif %}
+
+            {% if parte.descricao|length > 0 %}
+            <div class = "exercicio-descricao center">
+                {{ parte.descricao }}
             </div>
             {% endif %}
             </div>
         {% endfor %}
         </div>
-        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="sr-only">Next</span>
-        </a>
+        <button class = "btn btn-danger botao-partilha" onclick="ativa_partilha({{sessaoGrupo.id}})">Partilhar</button>
     </div>
 </div>
 {% endif %}
