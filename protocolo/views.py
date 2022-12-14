@@ -666,14 +666,38 @@ def participants_view(request):
 
 
 def login_view(request):
+    # if request.method == 'POST':
+    #     username = request.POST['username']
+    #     password = request.POST['password']
+    #     user = authenticate(request, username=username, password=password)
+    #     if user is not None:
+    #         login(request, user)
+    #         return redirect('dashboard')
+    # 
+    print("login protocolo")
+    next = request.GET.get('next')
     if request.method == 'POST':
+        next = request.POST.get('next')
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
-            return redirect('dashboard')
+            #print(request.POST)
+            next_url = request.POST.get('next')
+            if next_url:
+                return HttpResponseRedirect(next_url)
+            elif request.user.groups.filter(name='Avaliador').exists():
+                return redirect('dashboard')
+            elif request.user.groups.filter(name__in=['Dinamizador','Cuidador','Participante']).exists():
+                print('111')
+                return redirect('diario:dashboard_Care')
+            
+           
+    context = {
+        'next': next,
+    }
 
     return render(request, 'protocolo/login.html')
 

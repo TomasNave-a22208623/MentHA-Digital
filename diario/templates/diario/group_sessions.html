@@ -8,7 +8,7 @@
                     style="margin: 5px; font-size: 26px">Sessões do
                     Grupo {{ grupo }}</p>
             </div>
-            <form action="{% url 'group_sessions' grupo.id %}">
+            <form action="{% url 'diario:group_sessions' grupo.id %}">
                 <button type="submit" class="btn btn-outline-primary" style="width: 150px">
                     Anterior
                 </button>
@@ -42,7 +42,7 @@
                                 <td style="text-align: center;">{{ sessao_do_grupo.sessao.nome }}</td>
                                 {% endif %}
                                 <td style="text-align: center;">
-                                    <a href="{% url 'changeDate' sessao_do_grupo.sessao.id grupo.id %}">
+                                    <a href="{% url 'diario:changeDate' sessao_do_grupo.sessao.id grupo.id %}">
 
                                         {% if sessao_do_grupo.data == None %}
                                         <button class="btn btn-link">
@@ -78,14 +78,14 @@
                                 </td>
 
                                 <td style="text-align: center;">
-                                    <a href="{% url 'sessao' sessao_do_grupo.id grupo.id %}">
+                                    <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
                                         <button class="btn btn-link">Plano da sessão</button>
                                     </a>
                                 </td>
 
                                 <td style="text-align: center;">
                                     {% if sessao_do_grupo.id == proxima_sessao %}
-                                    <form action="{% url 'presencas_sessao' sessao_do_grupo.id %}">
+                                    <form action="{% url 'diario:presencas_sessao' sessao_do_grupo.id %}">
                                         <button class="btn btn-primary">Iniciar</button>
                                     </form>
                                     {% endif %}

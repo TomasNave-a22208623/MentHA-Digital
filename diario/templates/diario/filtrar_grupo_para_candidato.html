@@ -131,7 +131,7 @@
                                     <td>
                                         <input form="filtro" type="submit" value="Filtrar">
                                     </td>
-                                    <form id="filtro" action="{% url 'filtrar_grupo_para_candidato' cuidador.id %}" method="POST">
+                                    <form id="filtro" action="{% url 'diario:filtrar_grupo_para_candidato' cuidador.id %}" method="POST">
                                         {% csrf_token %}
                                         {% for campo,opcoes in lista_pesquisa.items %}
                                         <td class="opcao">
@@ -174,7 +174,7 @@
                                 {% for grupo in grupos %}
                                 <tr>
                                     <td>
-                                        <form action="{% url 'grupo' grupo.id %}">
+                                        <form action="{% url 'diario:grupo' grupo.id %}">
                                             <button type="submit">{{ grupo }}</button>
                                         </form>
                                     </td>
@@ -184,7 +184,7 @@
                                     <td>{{ grupo.referenciacao }}</td>
                                     <td>{{ grupo.cuidadores.all|length }}</td>
                                     <td>
-                                        <form action="{% url 'atribui_grupo' grupo.id cuidador.id %}" method="POST">
+                                        <form action="{% url 'diario:atribui_grupo' grupo.id cuidador.id %}" method="POST">
                                             {% csrf_token %}
                                             <button class="button3">Inscrever</button>
                                         </form>
@@ -195,7 +195,7 @@
                         </table>
                     </div>
                 </div>
-                <form  action="{% url 'grupos' %}">
+                <form  action="{% url 'diario:grupos' %}">
                     <button type="submit" class='info_btn'>Voltar</button>
                 </form>
             </div>

@@ -1,0 +1,28 @@
+
+{% extends 'diario/base.html' %}
+{% block main %}
+<input type="hidden" id="sessaoGrupo_id" name="sessaoGrupo_id" value="{{sg.id}}" />
+<div class="partes-exercicio" style="width:auto">
+    <div id="carousel" class="carousel slide" data-ride="carousel" style="height: 100%;">
+        <div class="carousel-inner">
+        {% if parte.imagens.all|length > 0 %}
+            <div class = "exercicio-imagens">
+                {% for imagem in parte.imagens.all %}
+                <br>
+                <a target="_blank" href="{{ imagem.imagem.url }}">
+                    <img class="img-preview" src="{{ imagem.imagem.url }}">
+                </a>
+                {% endfor %}
+            </div>
+            <br>
+            {% endif %}
+
+            {% if parte.descricao|length > 0 %}
+            <div class = "exercicio-descricao center">
+                {{ parte.descricao }}
+            </div>
+        {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

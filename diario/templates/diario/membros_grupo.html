@@ -16,12 +16,12 @@
                     <td>{{ cuidador.escolaridade }}</td>
                     <td>{{ cuidador.referenciacao }}</td>
                     <td>
-                        <form  action="{% url 'update_cuidador' cuidador.id %}">
+                        <form  action="{% url 'diario:update_cuidador' cuidador.id %}">
                             <button class="btn btn-warning">Update</button>
                         </form>
                     </td>
                     <td>
-                        <form  action="{% url 'delete_cuidador' cuidador.id %}">
+                        <form  action="{% url 'diario:delete_cuidador' cuidador.id %}">
                             <button class="btn btn-danger">Delete</button>
                         </form>
                     </td>
@@ -62,12 +62,12 @@
 
 
                     <td>
-                        <form  action="{% url 'update_dinamizador' dinamizador.id %}">
+                        <form  action="{% url 'diario:update_dinamizador' dinamizador.id %}">
                             <button class="btn btn-warning">Update</button>
                         </form>
                     </td>
                     <td>
-                        <form  action="{% url 'delete_dinamizador' dinamizador.id %}">
+                        <form  action="{% url 'diario:delete_dinamizador' dinamizador.id %}">
                             <button class="btn btn-danger">Delete</button>
                         </form>
                     </td>

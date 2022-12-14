@@ -19,7 +19,7 @@
                                 {{grupo}}</p>
                         </div>
                         <div>
-                            <form action="{% url 'grupo_details' grupo.id %}">
+                            <form action="{% url 'diario:grupo_details' grupo.id %}">
                                 <button type="submit" class="btn btn-outline-primary" style="width: 150px">
                                     Anterior
                                 </button>
@@ -45,7 +45,7 @@
                             {% for cuidador in cuidadores %}
                             <tr>
                                 <td style="text-align: center;">
-                                    <a href="{% url 'p_view' cuidador.id grupo.id %}">
+                                    <a href="{% url 'diario:p_view' cuidador.id grupo.id %}">
                                         {{ cuidador }}
                                     </a>
                                 </td>
@@ -56,12 +56,12 @@
                                     {% endfor %}
                                 </td>
                                 <td style="text-align: center;">
-                                    <form action="{% url 'caregiver_update' cuidador.id grupo.id %}">
+                                    <form action="{% url 'diario:caregiver_update' cuidador.id grupo.id %}">
                                         <button class="btn btn-warning">Alterar</button>
                                     </form>
                                 </td>
                                 <td style="text-align: center;">
-                                    <form action="{% url 'caregiver_delete' cuidador.id grupo.id %}">
+                                    <form action="{% url 'diario:caregiver_delete' cuidador.id grupo.id %}">
                                         <button class="btn btn-danger">Apagar</button>
                                     </form>
                                 </td>
@@ -77,7 +77,7 @@
             <div class="container text-center">
                 <div class="row">
                     <div class="d-grid gap-4 d-md-flex justify-content-md-center" style="padding: 25px">
-                        <form action="{% url 'create_caregiver' grupo.id %}">
+                        <form action="{% url 'diario:create_caregiver' grupo.id %}">
                             <button class="btn btn-primary" style="border-radius: 8px;margin-right: 30px">Registar Cuidador</button>
                         </form>
                         <button type="button" class="btn btn-primary me-md-4" data-bs-toggle="modal"
@@ -133,12 +133,12 @@
                                         <td></td>
                                         <td></td>
                                         <td>
-                                            <form action="{% url 'dinamizador_update' dinamizador.id grupo.id %}">
+                                            <form action="{% url 'diario:dinamizador_update' dinamizador.id grupo.id %}">
                                                 <button class="btn btn-warning">Alterar</button>
                                             </form>
                                         </td>
                                         <td>
-                                            <form action="{% url 'dinamizador_delete' dinamizador.id grupo.id %}">
+                                            <form action="{% url 'diario:dinamizador_delete' dinamizador.id grupo.id %}">
                                                 <button class="btn btn-danger">Apagar</button>
                                             </form>
                                         </td>
@@ -239,7 +239,7 @@
                 <td>{{ dinamizador }}</td>
                 <td>{{ dinamizador.funcao }}</td>
                 <td>
-                    <form action="{% url 'assign_dinamizador' grupo.id dinamizador.id %}">
+                    <form action="{% url 'diario:assign_dinamizador' grupo.id dinamizador.id %}">
                         <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir
                             grupo
                         </button>
@@ -295,7 +295,7 @@
 
                 </td>
                 <td>
-                    <form action="{% url 'assign_caregiver' grupo.id cuidador.id %}">
+                    <form action="{% url 'diario:assign_caregiver' grupo.id cuidador.id %}">
                         <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir
                             grupo
                         </button>

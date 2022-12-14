@@ -179,17 +179,17 @@ function myFunction() {
                                     <td>
                                     </td>
                                     <td>
-                                        <form  action="{% url 'presencas_sessao' %}">
+                                        <form  action="{% url 'diario:presencas_sessao' %}">
                                             <button class="btn btn-primary">Detalhes</button>
                                         </form>
                                     </td>
                                     <td>
-                                        <form  action="{% url 'presencas_sessao' %}">
+                                        <form  action="{% url 'diario:presencas_sessao' %}">
                                             <button class="btn btn-warning">Update</button>
                                         </form>
                                     </td>
                                     <td>
-                                        <form  action="{% url 'presencas_sessao'  %}">
+                                        <form  action="{% url 'diario:presencas_sessao'  %}">
                                             <button class="btn btn-danger">Delete</button>
                                         </form>
                                     </td>
@@ -238,7 +238,7 @@ function myFunction() {
           <td>{{ cuidador.escolaridade }}</td>
           <td>{{ cuidador.referenciacao }}</td>
           <td>
-              <form action="{% url 'filtrar_grupo_para_candidato' cuidador.id %}">
+              <form action="{% url 'diario:filtrar_grupo_para_candidato' cuidador.id %}">
                   <button class="button3">Atribuir grupo</button>
                 </form>
           </td>

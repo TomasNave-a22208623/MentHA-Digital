@@ -122,7 +122,7 @@ $(document).ready(function(){
       <td>{{ cuidador.escolaridade }}</td>
       <td>{{ cuidador.referenciacao }}</td>
       <td>
-          <form action="{% url 'filtrar_grupo_para_candidato' cuidador.id %}">
+          <form action="{% url 'diario:filtrar_grupo_para_candidato' cuidador.id %}">
               <button class="button3">Atribuir grupo</button>
             </form>
       </td>
@@ -131,7 +131,7 @@ $(document).ready(function(){
         {% endfor %}
     </table>
 </div>
-    <form  action="{% url 'grupos' %}">
+    <form  action="{% url 'diario:grupos' %}">
         <button class="button" > Voltar </button>
     </form>
 </div>

@@ -31,7 +31,7 @@
 </ul>
 
 <h1>Inscrever no Grupo:</h1>
-<form action="{% url 'atribui_grupo' cuidador.id %}" method="POST">
+<form action="{% url 'diario:atribui_grupo' cuidador.id %}" method="POST">
 {% csrf_token %}
     <select name="grupo" id="">
         {% for grupo in grupos %}

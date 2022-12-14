@@ -35,6 +35,7 @@ MEDIA_URL = "/media/"
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -107,6 +108,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("127.0.0.1", 6379)],
+#         },
+#     },
+# }
+CHANNEL_LAYERS = {
+    'default':{
+        'BACKEND':'channels.layers.InMemoryChannelLayer'
+    }
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -159,3 +174,5 @@ MARKDOWNIFY = {
       "MARKDOWN_EXTENSIONS": ["markdown.extensions.fenced_code", "markdown.extensions.extra",]
    }
 }
+
+ASGI_APPLICATION = "config.asgi.application"

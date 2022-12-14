@@ -3,14 +3,14 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-# IR: definir app_name = 'people'
+app_name = 'diario'
 
 urlpatterns = [
 
                   path('nextSession', views.nextSession, name="nextSession"),
 
                   path('logout_care_view', views.logout_care_view, name="logout_care_view"),
-                  path('login', views.login_care_view, name="login"),
+                  path('login', views.login_care_view, name="login",),
                   path('register', views.register_user, name="register"),
                   path('p_view/<str:cuidador_id>/<str:grupo_id>', views.profile_care_view, name='p_view'),
                   path('', views.dashboard, name="dashboard_Care"),
@@ -42,8 +42,6 @@ urlpatterns = [
                   path('diario_grupo/<int:idSessaoGrupo>', views.view_diario_grupo, name='diario_grupo'),
                   path('atualizaPresencasDiario/<int:idSessaoGrupo>', views.view_atualiza_presencas_diario, name='atualiza_presencas_diario'),
                   
-                  #SE DER MAL METER ISTO PARA DETALHES_SESSAO.HTML
-                  #path('detalhes_sessao/<int:sessao_grupo_id>', views.view_detalhes_sessao, name='detalhes_sessao'),
                   path('questionario_satisfacao/<int:idPergunta>/<int:idParte>/<int:sessaoGrupo>', views.view_questionario_satisfacao,
                        name="questionario_satisfacao"),
                   path('questionario/<int:idPergunta>/<int:idParte>/<int:sessaoGrupo>', views.view_questionario,

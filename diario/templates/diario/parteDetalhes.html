@@ -50,7 +50,7 @@
 </script>
 
 {% load markdownify %}
-<a href="{% url 'sessao' id grupo %}">
+<a href="{% url 'diario:sessao' id grupo %}">
 
     <button class="btn btn-outline-danger" style="margin-left:400px">Voltar a Sessão</button>
 </a>
@@ -116,7 +116,7 @@
 <ul>
     {% for questionario in parte.questionarios.all %}
     <li>
-        <a href="{% url 'view_abrirQuestionario' questionario.id parte.id sessaoGrupo.id  %}">
+        <a href="{% url 'diario:view_abrirQuestionario' questionario.id parte.id sessaoGrupo.id  %}">
             <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{questionario.id}}">
                 Questionário {{ questionario.nome }}
             </button>
@@ -129,7 +129,7 @@
 
 <ul>
     <li>
-        <a href="{% url 'view_abrirQuestionario' q.id parte.id sessaoGrupo.id  %}">
+        <a href="{% url 'diario:view_abrirQuestionario' q.id parte.id sessaoGrupo.id  %}">
             <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{questionario.id}}">
                 Questionário de Satisfação e Avaliação da Experiencia para com o MentHA-CARE
             </button>

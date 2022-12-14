@@ -21,7 +21,7 @@
             {{ exercicio.instrucao | markdownify }}
         {% endif %}
         <div class="card-body">
-            <form class="flex-container" id="question-form" action="{% url 'exercicio' exercicio.id parte_grupo.id sessao_grupo.id %}" method="post">
+            <form class="flex-container" id="question-form" action="{% url 'diario:exercicio' exercicio.id parte_grupo.id sessao_grupo.id %}" method="post">
                 <input type="hidden" name="sessaogrupo-id" value="{{ sessaoGrupo }}">
                 <input type="hidden" name="exercicio-id" value="{{ exercicio.id }}">
                 {% csrf_token %}

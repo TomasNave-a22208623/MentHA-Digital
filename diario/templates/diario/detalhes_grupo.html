@@ -1,12 +1,12 @@
 {% extends 'diario/base.html' %}
-{% load static %}
+{% load static %}detalhes_grupo
 {% block main %}
             <div class="container-fluid">
                 <div class="titulo">
                     <div class="card-body" style="padding: 8px">
                         <p class="text-primary m-0 fw-bold">Grupo: {{grupo.nome}}</p>
                     </div>
-                    <form action="{% url 'dashboard_Care' %}">
+                    <form action="{% url 'diario:dashboard_Care' %}">
                         <button type="submit" class="btn btn-outline-primary" style="width: 150px">
                             Anterior
                         </button>
@@ -56,13 +56,13 @@
                                                     {{ cuidadores|length }}
                                                 </td>
                                                 <!--<td style="text-align: center;">
-                                                    <form action="{% url 'update_groups' grupo.id %}">
+                                                    <form action="{% url 'diario:update_groups' grupo.id %}">
                                                         <button class="btn btn-warning">Alterar</button>
                                                     </form>
                                                 </td>
                                                 -->
                                                 <td style="text-align: center;">
-                                                    <form action="{% url 'delete_grupos' grupo.id %}">
+                                                    <form action="{% url 'diario:delete_grupos' grupo.id %}">
                                                         <button class="btn btn-danger">Apagar</button>
                                                     </form>
                                                 </td>
@@ -86,15 +86,15 @@
 
                             <div class="d-grid gap-2 d-md-flex justify-content-md-center">
 
-                                <form action="{% url 'group_sessions' grupo.id %}">
+                                <form action="{% url 'diario:group_sessions' grupo.id %}">
                                     <button type="submit" class='btn btn-primary' style="width: 200px">Sessões
                                     </button>
                                 </form>
-                                <form action="{% url 'group_members' grupo.id %}">
+                                <form action="{% url 'diario:group_members' grupo.id %}">
                                     <button type="submit" class='btn btn-primary' style="width: 200px">Membros
                                     </button>
                                 </form>
-                                <form action="{% url 'group_notes' grupo.id %}">
+                                <form action="{% url 'diario:group_notes' grupo.id %}">
                                     <button type="submit" class='btn btn-primary' style="width: 200px">Notas
                                     </button>
                                 </form>

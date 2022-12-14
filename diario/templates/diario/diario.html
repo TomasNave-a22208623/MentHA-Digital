@@ -564,7 +564,7 @@ margin:0.4em auto;
         <br><br>
         <div style="border-color:transparent; background-color:rgba(0,0,0,0); color:black">
             {% for grupo in grupo %}
-            <a href="{% url 'group_sessions' grupo.id %}"
+            <a href="{% url 'diario:group_sessions' grupo.id %}"
                style="border-color:transparent; background-color:rgba(0,0,0,0); color:black">
                 <button  style="border-color: #4886d3; background-color: red;color: white;margin-left:520px">Terminar Sessão
                 </button>

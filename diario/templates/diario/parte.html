@@ -16,9 +16,9 @@
     </p>
     <div>
         {% if sessaoGrupo.grupo.programa == "CARE" %}
-            <form action="{% url 'finalizar_parte' parte.id sessaoGrupo.id 'continuar' %}" method="POST">
+            <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'continuar' %}" method="POST">
         {% elif sessaoGrupo.grupo.programa == "COG" %}
-            <form action="{% url 'finalizar_parte' exercicio.id sessaoGrupo.id 'continuar' %}" method="POST">
+            <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'continuar' %}" method="POST">
         {% endif %}
             {% csrf_token %}
             <button class="btn btn-outline-primary" style="margin-left:400px;">Voltar a Sessão</button>
@@ -85,7 +85,7 @@
     <ul>
     {% for qu in parte.questionario.all %}
     <li>
-    <a href="{% url 'view_abrirQuestionario' qu.id parte.id sessaoGrupo.id  %}">
+    <a href="{% url 'diario:view_abrirQuestionario' qu.id parte.id sessaoGrupo.id  %}">
         <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{qu.id}}">Questionário {{ qu.numeroOrdem }}</button>
     </a>
     </li>
@@ -164,7 +164,6 @@
     </div>
 </div>
 <div class="partes-exercicio">
-    
     <div id="carousel" class="carousel slide" data-ride="carousel" style="height: 100%;">
         <ol class="carousel-indicators">
             {% for parte in exercicio.partes_do_exercicio.all %}
@@ -201,9 +200,9 @@
 
 {% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None %}
 {% if sessaoGrupo.grupo.programa == "CARE" %}
-    <form action="{% url 'finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
+    <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
 {% elif sessaoGrupo.grupo.programa == "COG" %}
-    <form action="{% url 'finalizar_parte' exercicio.id sessaoGrupo.id 'finalizar'%}" method="POST">
+    <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'finalizar'%}" method="POST">
 {% endif %}
     {% csrf_token %}
     <button class="btn btn-danger" style="margin-left:400px">Terminar Parte</button>

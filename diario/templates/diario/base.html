@@ -24,6 +24,24 @@
         {% block style %} {% endblock %}
     </style>
 
+    <script type="text/javascript">
+        let url = `ws://${window.location.host}/ws/socket-server/`
+        const chatSocket = new WebSocket(url)
+
+        chatSocket.onmessage = function(e){
+            let data = JSON.parse(e.data)
+            console.log('Data:', data)
+            const value = document.getElementById("sessaoGrupo_id").value;
+            if(data.type === 'chat'){
+                if(value != null){
+                    if (value === data.message){
+                        location.reload()
+            }
+            }
+            }
+        }
+    </script>
+
     <script>
 
         function myFunction() {
@@ -65,14 +83,14 @@
         <div id="navegacao">
         </div>
             <div class="nav-links max-left">
-                <a href="{% url 'dashboard_Care' %}" class="active">
+                <a href="{% url 'diario:dashboard_Care' %}" class="active">
                     <i class="bx bx-home"></i>
                     <span class="links_name">Os Meus Grupos</span>
                 </a>
             </div>
             <div class="nav-links">
                 {% block menu %}
-                <a href="{% url 'nextSession' %}">
+                <a href="{% url 'diario:nextSession' %}">
                     <i class='bx bxl-zoom'></i>
                     <span class="links_name">Próxima Sessão</span>
                 </a>
@@ -90,7 +108,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li>
-                            <a class="dropdown-item" href=" {% url 'logout_care_view' %}"><i class='bx bx-log-out'></i>&nbspEntra/Sair</a>
+                            <a class="dropdown-item" href=" {% url 'diario:logout_care_view' %}"><i class='bx bx-log-out'></i>&nbspEntra/Sair</a>
                         </li>
                     </ul>
                 </li>
@@ -99,7 +117,8 @@
     </div>
 
     <div id="content">
-        {% block main %}{% endblock main %}
+        {% block main %}
+        {% endblock main %}
     </div>
               
 </body>

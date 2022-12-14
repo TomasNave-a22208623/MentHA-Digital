@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     {{sessaoGrupo.grupo}} - Sessão {{ sessaoGrupo.sessao.numeroSessao}}{% if sessaoGrupo.grupo.programa == "CARE"%}: {{ sessaoGrupo.sessao.nome }}{% endif %}
                 </p>
                 <div>
-                    <form action="{% url 'group_sessions' sessaoGrupo.grupo.id %}">
+                    <form action="{% url 'diario:group_sessions' sessaoGrupo.grupo.id %}">
                         <button type="submit" class="btn btn-outline-primary" style="width: 150px">
                             Sessões
                         </button>
@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
 
         <div class="flex-buttons">
-            <form action="{% url 'finalizar_sessao' grupo.id sessaoGrupo.id %}" method="POST">
+            <form action="{% url 'diario:finalizar_sessao' grupo.id sessaoGrupo.id %}" method="POST">
                 {% csrf_token %}
                 <button class="btn btn-primary">Terminar Sessão</button>
             </form>

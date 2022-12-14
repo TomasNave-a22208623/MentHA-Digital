@@ -44,7 +44,7 @@
                                 {{ grupo.cuidadores.all|length }}
                             </td>
                             <td style="text-align: center;">
-                                <form action="{% url 'grupo_details' grupo.id %}">
+                                <form action="{% url 'diario:grupo_details' grupo.id %}">
                                     <button class="btn btn-primary">Detalhes</button>
                                 </form>
                             </td>
@@ -62,7 +62,7 @@
                             Cuidadores
                             sem grupo
                         </button>
-                        <form action="{% url 'new_group' %}">
+                        <form action="{% url 'diario:new_group' %}">
                             <button class="btn btn-outline-primary" style="border-radius: 8px">Criar grupo</button>
                         </form>
                     </div>
@@ -106,7 +106,7 @@
 
                             </td>
                             <td>
-                                <form action="{% url 'filter_group' cuidador.id %}">
+                                <form action="{% url 'diario:filter_group' cuidador.id %}">
                                     <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir
                                         grupo
                                     </button>

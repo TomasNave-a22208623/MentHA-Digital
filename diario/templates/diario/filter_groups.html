@@ -15,7 +15,7 @@
                     <div class="row">
                         <div class="col align-self-center">
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <form action="{% url 'dashboard_Care' %}">
+                                <form action="{% url 'diario:dashboard_Care' %}">
                                     <button type="submit" class="btn btn-outline-primary" style="width: 200px">Anterior
                                     </button>
                                 </form>
@@ -112,7 +112,7 @@
                                                            class="btn btn-primary">
                                                 </td>
                                                 <form id="filtro"
-                                                      action="{% url 'filter_group' cuidador.id %}"
+                                                      action="{% url 'diario:filter_group' cuidador.id %}"
                                                       method="POST">
                                                     {% csrf_token %}
                                                     {% for campo,opcoes in lista_pesquisa.items %}
@@ -215,7 +215,7 @@
                                                 </td>
                                                 <td style="text-align: center;">{{ grupo.cuidadores.all|length }}</td>
                                                 <td>
-                                                    <form action="{% url 'assign_group' grupo.id cuidador.id %}"
+                                                    <form action="{% url 'diario:assign_group' grupo.id cuidador.id %}"
                                                           method="POST">
                                                         {% csrf_token %}
                                                         <button class="btn btn-primary">Inscrever</button>

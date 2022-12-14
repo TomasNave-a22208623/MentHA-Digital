@@ -13,7 +13,7 @@
 
 
 
-    <form action="{% url 'filtrar' %}" method="POST">
+    <form action="{% url 'diario:filtrar' %}" method="POST">
         {% csrf_token %}
         {% for campo,opcoes in lista_pesquisa.items %}
         <div class="opcao">

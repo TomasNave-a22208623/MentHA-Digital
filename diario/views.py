@@ -29,6 +29,11 @@ import io
 import urllib, base64
 import matplotlib
 
+from django.shortcuts import render
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
 matplotlib.use('Agg')
 
 #Para permitir acesso a views por grupo
@@ -51,7 +56,6 @@ def nextSession(request):
     contexto = {
         'proxima': datas,
         'ss': bool(datas)
-
     }
 
     return render(request, 'diario/nextSession.html', contexto)
@@ -71,8 +75,17 @@ def dashboard(request):
         'grupos': Grupo.objects.all(),
         'cuidadores': Cuidador.objects.filter(grupo=None),
         'formGrupo': formGrupo,
-
     }
+    
+    if request.user.groups.filter(name='Participante').exists():
+        participante = Participante.objects.get(user=request.user)
+        sg = SessaoDoGrupo.objects.filter(grupo = participante.grupo).exclude(parte_ativa__isnull=True)
+        if sg.exists():
+            sg = sg.get()
+            contexto['parte'] =  sg.parte_ativa
+            contexto['sg'] =  sg
+            return render(request, 'diario/parte_ativa.html', contexto)
+
 
     return render(request, 'diario/dashboard.html', contexto)
 
@@ -942,6 +955,11 @@ def partilha_parte(request, sessaoGrupo, idParteExercico):
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo)
     sg.parte_ativa = Parte_Exercicio.objects.get(id=idParteExercico)
     sg.save()
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)('test', {
+                'type':'chat_message',
+                'message' : f'{sg.id}',
+            })
     return HttpResponse("OK")
     
 @login_required(login_url='login')

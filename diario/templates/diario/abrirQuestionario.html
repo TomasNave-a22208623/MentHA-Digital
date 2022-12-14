@@ -60,11 +60,11 @@ a.button5:hover{
 <div style="font-size:1.5em;text-align: center;">
      {% for parte in parte %}
         {% for qu in questionario %}
-            <a class="no-decor" href="{% url 'view_questionario' qu.id parte.id sessaoGrupo %}">
+            <a class="no-decor" href="{% url 'diario:view_questionario' qu.id parte.id sessaoGrupo %}">
                 <button class="btn btn-primary">Abrir Questionário</button>
             </a>
 
-            <a class="no-decor" href="{% url 'resultados' qu.id parte.id sessaoGrupo %}">
+            <a class="no-decor" href="{% url 'diario:resultados' qu.id parte.id sessaoGrupo %}">
                 <button class="btn btn-outline-primary">Resultados</button>
             </a>
             <a class="no-decor" onclick="history.back()">

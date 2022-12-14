@@ -20,7 +20,7 @@
                                        style="margin: 5px; font-size: 26px">Atualização do Dinamizador</p>
                                 </div>
                                 <div>
-                                    <form action="{% url 'group_members' grupo_id %}">
+                                    <form action="{% url 'diario:group_members' grupo_id %}">
                                         <button type="submit" class="btn btn-outline-primary" style="width: 150px">
                                             Anterior
                                         </button>
@@ -74,7 +74,7 @@
                                             </div>
                                             <div style="display: flex;flex-direction: row;justify-content: space-between">
                                                 <div class="card-body" style="padding: 8px">
-                                                    <form action="{% url 'group_members' grupo_id %}">
+                                                    <form action="{% url 'diario:group_members' grupo_id %}">
                                                         <button type="submit" class="btn btn-outline-primary"
                                                                 style="width: 150px">
                                                             Cancelar
