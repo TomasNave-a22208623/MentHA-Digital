@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-na$-w8_c3tft+qg_btbia6x^p2z@-d(8d(a*qrhwaq3d%lfxl8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1','jupiter.ulusofona.pt', 'menthadigital.com']
 
 import os
 
@@ -35,7 +35,9 @@ MEDIA_URL = "/media/"
 # Application definition
 
 INSTALLED_APPS = [
+    #Sockets
     'channels',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,8 +45,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_dump_load_utf8',
+    
+    #CARE & COG
     'diario',
+    #Protocolo de Avaliacao
     'protocolo',
+    
+    #Site estático
+    'clients',
+    'mentha',
+    
     'markdownify',
 ]
 

@@ -6,7 +6,7 @@
 <h4>Protocolos:</h4>
 {% for protocolo in protocolos %}
 
-<div id="{{protocolo.id}}" class="btn jq-btn btn-info btn-block text-left" data-href="{% url 'parts' protocolo.id %}">
+<div id="{{protocolo.id}}" class="btn jq-btn btn-info btn-block text-left" data-href="{% url 'protocolo:parts' protocolo.id %}">
     {{protocolo}}
 </div>
 {% empty %}

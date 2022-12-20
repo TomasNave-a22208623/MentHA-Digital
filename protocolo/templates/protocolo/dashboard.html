@@ -40,17 +40,17 @@
             <ul class="navbar-nav text-light" id="accordionSidebar">
                 <!-- Sidebar Link #1 -->
                 <li class="nav-item"><a class="nav-link jq-btn active" href="#"
-                                        data-href="{% url 'dashboard-content' %}"><i
+                                        data-href="{% url 'protocolo:dashboard-content' %}"><i
                         class="fas fa-tachometer-alt"></i><span>&nbsp Dashboard</span></a></li>
                 <!-- Sidebar Link #2 -->
                 <li class="nav-item"><a class="nav-link jq-btn" href="#"
-                                        data-href="{% url 'participants' %}"><i
+                                        data-href="{% url 'protocolo:participants' %}"><i
                         class="fas fa-user"></i><span>&nbsp Participantes</span></a></li>
                 <!-- Sidebar Link #3 -->
                 <li class="nav-item"><a class="nav-link" href="#"><i
                         class="fas fa-table"></i><span>&nbsp Agendamentos</span></a></li>
                 <!-- Sidebar Link #4 -->
-                <li class="nav-item"><a class="nav-link jq-btn" href="#" data-href="{% url 'protocols' %}">
+                <li class="nav-item"><a class="nav-link jq-btn" href="#" data-href="{% url 'protocolo:protocols' %}">
                     <i class="far fa-user-circle"></i>
                     <span>&nbsp Protocolo de Avaliação</span>
                 </a>
@@ -206,7 +206,7 @@
                                         class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Definições</a><a
                                         class="dropdown-item" href="#">
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="{% url 'logout' %}"><i
+                                    <a class="dropdown-item" href="{% url 'protocolo:logout' %}"><i
                                             class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Sair</a>
                                 </div>
                             </div>

@@ -20,28 +20,33 @@ class PartilhaForm(ModelForm):
             'partilha': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma partilha...'}),
         }
 
+class InfoSensivelForm(ModelForm):
+     class Meta:
+        model = InformacaoSensivel
+        fields = {'nome', 'email', 'telemovel', 'imagem'}
+        widgets = {
+            'nome': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva o nome ...'}),
+            'email': EmailInput(attrs={'class': 'form-control', 'placeholder': 'Escreva o email ...'}),
+            'telemovel': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a telemovel ...'}),
+            'image': FileInput(attrs={'class': 'form-control'})
+        }
 
-# class CuidadorForm(ModelForm):
-#     class Meta:
-#         model = Cuidador
-#         fields = {'nome', 'sexo', 'idade', 'email', 'nascimento', 'nacionalidade', 'telemovel', 'escolaridade',
-#                   'referenciacao', 'regime', 'localizacao', 'image'}
-#         widgets = {
-#             'nome': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva o nome ...'}),
-#             'sexo': Select(attrs={'class': 'form-control'}),
-#             'idade': NumberInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a idade ...'}),
-#             'email': EmailInput(attrs={'class': 'form-control', 'placeholder': 'Escreva o email ...'}),
-#             'nascimento': DateInput(
-#                 attrs={'class': 'form-control', 'type': 'date', 'placeholder': 'Escreva a data de nascimento ...'}),
-#             'nacionalidade': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a nacionalidade ...'}),
-#             'telemovel': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a telemovel ...'}),
-#             'escolaridade': Select(attrs={'class': 'form-control'}),
-#             'referenciacao': TextInput(attrs={'class': 'form-control'}),
-#             'regime': Select(attrs={'class': 'form-control'}),
-#             'localizacao': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a localização ...'}),
-#             'image': FileInput(attrs={'class': 'form-control'})
-
-#         }
+class CuidadorForm(ModelForm):
+    class Meta:
+        model = Cuidador
+        fields = {'sexo', 'idade', 'nascimento', 'nacionalidade',  'escolaridade',
+                  'referenciacao', 'regime', 'localizacao' }
+        widgets = {
+            'idade': NumberInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a idade ...'}),
+            'email': EmailInput(attrs={'class': 'form-control', 'placeholder': 'Escreva o email ...'}),
+            'nascimento': DateInput(
+                attrs={'class': 'form-control', 'type': 'date', 'placeholder': 'Escreva a data de nascimento ...'}),
+            'nacionalidade': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a nacionalidade ...'}),
+            'escolaridade': Select(attrs={'class': 'form-control'}),
+            'referenciacao': TextInput(attrs={'class': 'form-control'}),
+            'regime': Select(attrs={'class': 'form-control'}),
+            'localizacao': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a localização ...'}),
+        }
 
 
 # class Cuidador_Update_Form(ModelForm):
@@ -62,24 +67,19 @@ class PartilhaForm(ModelForm):
 #             'image': FileInput(attrs={'class': 'form-control'})
 #         }
 
-
-# class DinamizadorForm(ModelForm):
-#     class Meta:
-#         model = DinamizadorConvidado
-#         fields = {'nome', 'sexo', 'idade', 'nascimento', 'nacionalidade', 'telemovel', 'email', 'funcao'}
-#         widgets = {
-#             'nome': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva o nome ...'}),
-#             'sexo': Select(attrs={'class': 'form-control'}),
-#             'idade': NumberInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a idade ...'}),
-#             'nascimento': DateInput(
-#                 attrs={'class': 'form-control', 'type': 'date', 'placeholder': 'Escreva a data de nascimento ...'}),
-#             'nacionalidade': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a nacionalidade ...'}),
-#             'telemovel': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a telemovel ...'}),
-#             'email': EmailInput(attrs={'class': 'form-control', 'placeholder': 'Escreva o email ...'}),
-#             'funcao': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a função ...'}),
-
-#         }
-
+# NOME, TELEMOVEL E EMAIL AGORA ESTÁ EM INFO_SENSIVEL POR ISSO O FORM NAO FUNCIONA
+class DinamizadorForm(ModelForm):
+    class Meta:
+        model = DinamizadorConvidado
+        fields = {'sexo', 'idade', 'nascimento', 'nacionalidade', 'funcao'}
+        widgets = {
+            'sexo': Select(attrs={'class': 'form-control'}),
+            'idade': NumberInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a idade ...'}),
+            'nascimento': DateInput(
+                attrs={'class': 'form-control', 'type': 'date', 'placeholder': 'Escreva a data de nascimento ...'}),
+            'nacionalidade': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a nacionalidade ...'}),
+            'funcao': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a função ...'}),
+        }
 
 class Documents_Form(ModelForm):
     class Meta:
@@ -91,7 +91,6 @@ class Documents_Form(ModelForm):
             'cuidador': SelectMultiple(attrs={'class': 'form-control'}),
             'file': FileInput(attrs={'class': 'form-control'})
         }
-
 
 class GrupoForm(ModelForm):
     class Meta:
@@ -107,7 +106,6 @@ class GrupoForm(ModelForm):
             'programa': Select(attrs={'class': 'form-control'}),
         }
 
-
 class RespostasForm(ModelForm):
     class Meta:
         model = Respostas
@@ -115,9 +113,6 @@ class RespostasForm(ModelForm):
         widgets = {
             'Respostas': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma resposta...'}),
         }
-
-
-# Joao
 
 class PresencaForm(ModelForm):
     class Meta:
@@ -127,7 +122,6 @@ class PresencaForm(ModelForm):
             'Presenca': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva a Presenca'}),
         }
 
-
 class InformacoesForm(ModelForm):
     class Meta:
         model = Informacoes
@@ -135,7 +129,6 @@ class InformacoesForm(ModelForm):
         widgets = {
             'Informacoes': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma informacao...'}),
         }
-
 
 class PartilhaGrupoForm(ModelForm):
     class Meta:
@@ -145,7 +138,6 @@ class PartilhaGrupoForm(ModelForm):
             'partilhaGrupo': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma partilha sobre o grupo...'}),
         }
 
-
 class NotaGrupoForm(ModelForm):
     class Meta:
         model = NotaGrupo
@@ -153,7 +145,6 @@ class NotaGrupoForm(ModelForm):
         widgets = {
             'notaGrupo': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma nota sobre o grupo...'}),
         }
-
 
 class SessaoDataForm(ModelForm):
     class Meta:

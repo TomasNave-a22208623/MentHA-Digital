@@ -3,7 +3,7 @@
     {% if protocol is not None %}
         <li class="breadcrumb-item">
             <a class="jq-btn btn" style="display: contents;" role="button"
-               data-href="{% url 'parts' protocol.id patient.id %}">
+               data-href="{% url 'protocolo:parts' protocol.id patient.id %}">
                 {{ protocol.name }}
             </a>
         </li>
@@ -12,7 +12,7 @@
     {% if part is not None %}
         <li class="breadcrumb-item">
             <a class="jq-btn btn" style="display: contents;" role="button"
-               data-href="{% url 'areas' protocol.id part.id patient.id %}">
+               data-href="{% url 'protocolo:areas' protocol.id part.id patient.id %}">
                 {{ part.name|truncatechars:9 }}
             </a>
         </li>
@@ -23,12 +23,12 @@
             <a class="jq-btn btn" style="display: contents;" role="button"
                     {% if instrument is not None and instrument.name == "None" %}
                         {% if dimension.name == "None"  and section.name == "None" %}
-               data-href="{% url 'question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}"
+               data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}"
                         {% else %}
-               data-href="{% url 'dimensions' protocol.id part.id area.id instrument.id patient.id %}"
+               data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id instrument.id patient.id %}"
                         {% endif %}
                     {% endif %}
-               data-href="{% url 'instruments' protocol.id part.id area.id patient.id %}">
+               data-href="{% url 'protocolo:instruments' protocol.id part.id area.id patient.id %}">
                 {% truncated_second_word area.name 9 %}
             </a>
         </li>
@@ -37,7 +37,7 @@
     {% if instrument is not None and instrument.name != "None" %}
         <li class="breadcrumb-item">
             <a class="jq-btn btn" style="display: contents;" role="button"
-               data-href="{% url 'dimensions' protocol.id part.id area.id instrument.id patient.id %}">
+               data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id instrument.id patient.id %}">
                 {{ instrument.name|truncatechars:9 }}
             </a>
         </li>
@@ -46,7 +46,7 @@
     {% if dimension is not None and dimension.name != "None" %}
         <li class="breadcrumb-item">
             <a class="jq-btn btn" style="display: contents;" role="button"
-               data-href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id patient.id %}">
+               data-href="{% url 'protocolo:sections' protocol.id part.id area.id instrument.id dimension.id patient.id %}">
                 {% truncated_second_word dimension.name 9 %}
             </a>
         </li>
@@ -55,7 +55,7 @@
     {% if section is not None and section.name != "None" %}
         <li class="breadcrumb-item">
             <a class="jq-btn btn" style="display: contents;" role="button"
-               data-href="{% url 'question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}">
+               data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}">
                 {% truncated_second_word section.name 9 %}
             </a>
         </li>

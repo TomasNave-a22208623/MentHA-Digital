@@ -2,7 +2,7 @@
 <h4>Instrumentos</h4>
 {% for instrument,answered,percentage in instruments %}
     <a class="btn jq-btn btn-info btn-block text-left"
-       data-href="{% url 'dimensions' protocol.id part.id area.id instrument.id %}">
+       data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id instrument.id %}">
 
         <div class="d-flex flex-row">
             <div class="p-button item">{{ instrument.order }}. {{ instrument.name }}</div>
@@ -29,6 +29,6 @@
     </p>
 {% endfor %}
 
-<a class="btn jq-btn btn-warning btn-sm" data-href="{% url 'areas' protocol.id part.id %}" style="margin-top: 30px">
+<a class="btn jq-btn btn-warning btn-sm" data-href="{% url 'protocolo:areas' protocol.id part.id %}" style="margin-top: 30px">
     Voltar atrás
 </a>

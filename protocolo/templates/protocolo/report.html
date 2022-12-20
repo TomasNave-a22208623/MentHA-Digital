@@ -36,7 +36,7 @@
                                                     <span class="fw-bold {% for i in instruments %}{% if i.name == instrument_name and i.tooltip.1%}instrument-tooltip{% endif %}{% endfor %}">
                                                     {% for i in instruments %}
                                                             {% if i.name == instrument_name %}
-                                                <a href="#" class="jq-btn no-decor" data-href="{% url 'dimensions' resolution.part.protocol.id resolution.part.id area_id i.id resolution.patient.id %}">
+                                                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:dimensions' resolution.part.protocol.id resolution.part.id area_id i.id resolution.patient.id %}">
                                                             {% endif %}
                                                     {% endfor %}
                                                     {{ instrument_name }}
@@ -112,7 +112,7 @@
 																	{% get_area_id a.instrument_obj resolution.part as area_id %}
                                                                     <li>
                                                                         <a href="#"
-                                                                           data-href="{% url 'question' resolution.part.protocol.id resolution.part.id area_id a.question.section.dimension.instrument.id a.question.section.dimension.id a.question.section.id resolution.patient.id %}"
+                                                                           data-href="{% url 'protocolo:question' resolution.part.protocol.id resolution.part.id area_id a.question.section.dimension.instrument.id a.question.section.dimension.id a.question.section.id resolution.patient.id %}"
 <<<<<<< HEAD
   
 																		  class="jq-btn no-decor">{{ a.question.name }}
@@ -257,10 +257,10 @@
                                                                                 {% if q.section.dimension.name == dim and instrument_name == q.section.dimension.instrument.name %}
 <<<<<<< HEAD
                                                                        {% comment %}
-                                                                       data-href="{% url 'sections' resolution.part.protocol.id resolution.part.id q.section.dimension.instrument.area.id q.section.dimension.instrument.id q.section.dimension.id resolution.patient.id %}"
+                                                                       data-href="{% url 'protocolo:sections' resolution.part.protocol.id resolution.part.id q.section.dimension.instrument.area.id q.section.dimension.instrument.id q.section.dimension.id resolution.patient.id %}"
                                                                           {% endcomment %}
 =======
-                                                                                        data-href="{% url 'sections' resolution.part.protocol.id resolution.part.id area.id q.section.dimension.instrument.id q.section.dimension.id resolution.patient.id %}"
+                                                                                        data-href="{% url 'protocolo:sections' resolution.part.protocol.id resolution.part.id area.id q.section.dimension.instrument.id q.section.dimension.id resolution.patient.id %}"
 >>>>>>> e3864b1802c51e4e9944478c33445adaad6e0896
                                                                                 {% endif %}
                                                                             {% endfor %}> {{ dim }}

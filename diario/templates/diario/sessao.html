@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".ee button").forEach((button) => {
       button.onclick = () => {
         parte_id = button.dataset.parte;
-        fetch("/parte/" + parte_id)
+        fetch("/diario/parte/" + parte_id)
           .then((response) => response.text())
           .then((data) => {
             const div = document.querySelector("div#exercicio");

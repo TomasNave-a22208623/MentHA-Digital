@@ -67,9 +67,8 @@ function ativaMenu() {
 // }
 
 function descarregaInfoParticipante(idSG, idParticipante) {
-  console.log("entrou")
   /* vai buscar a informação do participante id */
-  fetch('/diario_participante/' + idSG + '/' + idParticipante)
+  fetch('/diario/diario_participante/' + idSG + '/' + idParticipante)
       .then(response => response.text())
       .then(text => document.querySelector('.info').innerHTML = text)
       .then(() => ativaMenu());
@@ -78,7 +77,7 @@ function descarregaInfoParticipante(idSG, idParticipante) {
 //Grupo
 function descarregaInfoGrupo(idSessaoGrupo) {
   /* vai buscar a informação do grupo id */
-  fetch("/diario_grupo/" + idSessaoGrupo)
+  fetch("/diario/diario_grupo/" + idSessaoGrupo)
     .then((response) => response.text())
     .then((text) => {document.querySelector(".info").innerHTML = text;
     //console.log(text)
@@ -123,7 +122,7 @@ e espera por info atualizada do participante */
 function sendFormParticipante(idSG, idPart, formId) {
   console.log("sendFormParticipante");
   let data = new FormData(document.getElementById(formId));
-  fetch(`/diario_participante/${idSG}/${idPart}`, {method: "POST", body: data})
+  fetch(`/diario/diario_participante/${idSG}/${idPart}`, {method: "POST", body: data})
       .then(response => response.text())
       .then(text => {
           document.querySelector('.info').innerHTML = text;
@@ -134,7 +133,7 @@ function sendFormParticipante(idSG, idPart, formId) {
 
 function sendForm(idSG, idPart, formId) {
   let data = new FormData(document.getElementById(formId));
-  fetch(`/diario_grupo/${idSG}/${idPart}`, { method: "POST", body: data })
+  fetch(`/diario/diario_grupo/${idSG}/${idPart}`, { method: "POST", body: data })
     .then((response) => response.text())
     .then((text) => {
       document.querySelector(".info").innerHTML = text;
@@ -168,7 +167,7 @@ function ativa_partilha(sessaoGrupo_id){
   console.log(id_parte);
   obj.classList.add("partilhado");
 
-  fetch('/partilha_parte/'+sessaoGrupo_id+'/'+id_parte, {
+  fetch('/diario/partilha_parte/'+sessaoGrupo_id+'/'+id_parte, {
     method: "GET",
     })
 }
@@ -189,7 +188,7 @@ function atualizaPresencas(id) {
   csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
   data.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
   
-  fetch('/atualizaPresencasDiario/'+id, {
+  fetch('/diario/atualizaPresencasDiario/'+id, {
       method: "POST",
       body: data
       })

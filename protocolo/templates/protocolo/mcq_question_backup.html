@@ -23,12 +23,12 @@
     <div class="flex-buttons">
         <div class="flex-item flex-right">
             <input class="btn btn-primary btn-sm btn-submit"
-                   data-href="{% url 'question' protocol.id part.id area.id instrument.id dimension.id section.id %}"
+                   data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id %}"
                    type="submit" value="Submeter">
         </div>
         <div class="flex-item flex-left">
             <a class="btn jq-btn btn-warning btn-sm"
-               data-href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id %}">
+               data-href="{% url 'protocolo:sections' protocol.id part.id area.id instrument.id dimension.id %}">
                 Voltar atrás
             </a>
         </div>

@@ -22,7 +22,9 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('diario.urls')),
+    path('diario/', include('diario.urls')),
     path('protocolo/', include('protocolo.urls')),
+    path("to-c", include("clients.urls")),
+    path('', include('mentha.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

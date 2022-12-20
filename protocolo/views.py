@@ -666,15 +666,6 @@ def participants_view(request):
 
 
 def login_view(request):
-    # if request.method == 'POST':
-    #     username = request.POST['username']
-    #     password = request.POST['password']
-    #     user = authenticate(request, username=username, password=password)
-    #     if user is not None:
-    #         login(request, user)
-    #         return redirect('dashboard')
-    # 
-    print("login protocolo")
     next = request.GET.get('next')
     if request.method == 'POST':
         next = request.POST.get('next')
@@ -691,10 +682,8 @@ def login_view(request):
             elif request.user.groups.filter(name='Avaliador').exists():
                 return redirect('dashboard')
             elif request.user.groups.filter(name__in=['Dinamizador','Cuidador','Participante']).exists():
-                print('111')
                 return redirect('diario:dashboard_Care')
-            
-           
+                    
     context = {
         'next': next,
     }
@@ -703,7 +692,6 @@ def login_view(request):
 
 
 from django.contrib.auth import logout
-
 
 def logout_view(request):
     logout(request)

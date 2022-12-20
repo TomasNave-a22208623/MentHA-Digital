@@ -217,7 +217,7 @@ class InformacaoSensivel(models.Model):
     nome = models.CharField(max_length=100)
     email = models.EmailField(max_length=100, blank=True, null=True)
     telemovel = models.CharField(max_length=20, default="", blank=True, null=True)
-    image = models.ImageField(null=True, blank=True, upload_to='images/')
+    imagem = models.ImageField(null=True, blank=True, upload_to='images/')
     
     def erase_sensitive_info(self):
         nome = None

@@ -114,7 +114,7 @@
                                         {% if percentage > 0 %}
                                             {% get_part_id_from_resolutions resolutions 1 patient as p_id %}
                                             <a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'areas' 1 p_id patient.id %}">
+                                               data-href="{% url 'protocolo:areas' 1 p_id patient.id %}">
                                                 <p style="margin-top: 10px;">
                                                 <div class="progress"
                                                      style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
@@ -145,7 +145,7 @@
                                     <td class="align-middle" style="width:10%;text-align: center">
                                         {% for r in resolutions %}
                                             {% if r.doctor == request.user and r.patient == p and r.part.order == 1 %}
-                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'report' r.id %}">
+                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'protocolo:report' r.id %}">
                                                     <i style="font-size: 15px" class="fa fa-file"></i>
                                                 </a>
                                             {% endif %}
@@ -159,7 +159,7 @@
                                         {% if percentage > 0 %}
                                             {% get_part_id_from_resolutions resolutions 2 patient as p_id %}
                                             <a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'areas' 1 p_id patient.id %}">
+                                               data-href="{% url 'protocolo:areas' 1 p_id patient.id %}">
                                                 <p style="margin-top: 10px;">
                                                 <div class="progress"
                                                      style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
@@ -190,7 +190,7 @@
                                     <td class="align-middle" style="width:10%;text-align: center">
                                         {% for r in resolutions %}
                                             {% if r.doctor == request.user and r.patient == p and r.part.order == 2 %}
-                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'report' r.id %}">
+                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'protocolo:report' r.id %}">
                                                     <i class="fa fa-file"></i>
                                                 </a>
                                             {% endif %}
@@ -204,7 +204,7 @@
                                         {% if percentage > 0 %}
                                             {% get_part_id_from_resolutions resolutions 3 patient as p_id %}
                                             <a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'areas' 1 p_id patient.id %}">
+                                               data-href="{% url 'protocolo:areas' 1 p_id patient.id %}">
                                                 <p style="margin-top: 10px;">
                                                 <div class="progress"
                                                      style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
@@ -235,7 +235,7 @@
                                     <td class="align-middle" style="width:10%;text-align: center">
                                         {% for r in resolutions %}
                                             {% if r.doctor == request.user and r.patient == p and r.part.order == 3 %}
-                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'report' r.id %}">
+                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'protocolo:report' r.id %}">
                                                     <i class="fa fa-file"></i>
                                                 </a>
                                             {% endif %}
@@ -249,7 +249,7 @@
                                         {% if percentage > 0 %}
                                             {% get_part_id_from_resolutions resolutions 4 patient as p_id %}
                                             <a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'areas' 1 p_id patient.id %}">
+                                               data-href="{% url 'protocolo:areas' 1 p_id patient.id %}">
                                                 <p style="margin-top: 10px;">
                                                 <div class="progress"
                                                      style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
@@ -280,7 +280,7 @@
                                     <td class="align-middle" style="width:10%;text-align: center">
                                         {% for r in resolutions %}
                                             {% if r.doctor == request.user and r.patient == p and r.part.order == 4 %}
-                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'report' r.id %}">
+                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'protocolo:report' r.id %}">
                                                     <i class="fa fa-file"></i>
                                                 </a>
                                             {% endif %}
@@ -295,7 +295,7 @@
                                         {% if percentage > 0 %}
                                             {% get_part_id_from_resolutions resolutions 5 patient as p_id %}
                                             <a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'areas' 1 p_id patient.id %}">
+                                               data-href="{% url 'protocolo:areas' 1 p_id patient.id %}">
                                                 <p style="margin-top: 10px;">
                                                 <div class="progress"
                                                      style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
@@ -326,7 +326,7 @@
                                     <td class="align-middle text-center" style="width:10%;text-align: center">
                                         {% for r in resolutions %}
                                             {% if r.doctor == request.user and r.patient == p and r.part.order == 5 %}
-                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'report' r.id %}">
+                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'protocolo:report' r.id %}">
                                                     <i class="fa fa-file"></i>
                                                 </a>
                                             {% endif %}

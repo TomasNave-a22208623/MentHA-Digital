@@ -36,7 +36,7 @@
                                                  height="45px" style="margin-left: auto;margin-right: auto;display: block;">
                                         </td>
                                         <td><a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'participant' p.id %}">
+                                               data-href="{% url 'protocolo:participant' p.id %}">
                                             {{ p.nome }}
                                             <svg style="margin-top: 0px;"
                                                  xmlns="http://www.w3.org/2000/svg"
@@ -54,7 +54,7 @@
                                             {% if percentage > 0 %}
                                                 {% get_part_id_from_resolutions resolutions 1 p as p_id %}
                                                 <a href="#" class="jq-btn no-decor"
-                                                   data-href="{% url 'areas' 1 p_id p.id %}">
+                                                   data-href="{% url 'protocolo:areas' 1 p_id p.id %}">
                                                     <p style="margin-top: 10px;">
                                                     <div class="progress"
                                                          style="text-align: right;margin-top: 10px;width: 100%">
@@ -86,7 +86,7 @@
                                             {% if percentage > 0 %}
                                                 {% get_part_id_from_resolutions resolutions 2 p as p_id %}
                                                 <a href="#" class="jq-btn no-decor"
-                                                   data-href="{% url 'areas' 1 p_id p.id %}">
+                                                   data-href="{% url 'protocolo:areas' 1 p_id p.id %}">
                                                     <p style="margin-top: 10px;">
                                                     <div class="progress"
                                                          style="text-align: right;margin-top: 10px;width: 100%">
@@ -118,7 +118,7 @@
                                             {% if percentage > 0 %}
                                                 {% get_part_id_from_resolutions resolutions 3 p as p_id %}
                                                 <a href="#" class="jq-btn no-decor"
-                                                   data-href="{% url 'areas' 1 p_id p.id %}">
+                                                   data-href="{% url 'protocolo:areas' 1 p_id p.id %}">
                                                     <p style="margin-top: 10px;">
                                                     <div class="progress"
                                                          style="text-align: right;margin-top: 10px;width: 100%">
@@ -150,7 +150,7 @@
                                             {% if percentage > 0 %}
                                                 {% get_part_id_from_resolutions resolutions 4 p as p_id %}
                                                 <a href="#" class="jq-btn no-decor"
-                                                   data-href="{% url 'areas' 1 p_id p.id %}">
+                                                   data-href="{% url 'protocolo:areas' 1 p_id p.id %}">
                                                     <p style="margin-top: 10px;">
                                                     <div class="progress"
                                                          style="text-align: right;margin-top: 10px;width: 100%">
@@ -182,7 +182,7 @@
                                             {% if percentage > 0 %}
                                                 {% get_part_id_from_resolutions resolutions 5 p as p_id %}
                                                 <a href="#" class="jq-btn no-decor"
-                                                   data-href="{% url 'areas' 1 p_id p.id %}">
+                                                   data-href="{% url 'protocolo:areas' 1 p_id p.id %}">
                                                     <p style="margin-top: 10px;">
                                                     <div class="progress"
                                                          style="text-align: right;margin-top: 10px;width: 100%">

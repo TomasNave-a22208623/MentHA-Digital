@@ -3,7 +3,7 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
-# app_name = "protocolo"
+app_name = "protocolo"
 
 urlpatterns = [
                   path('', views.protocolos_view, name="protocols"),

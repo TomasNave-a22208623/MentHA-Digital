@@ -28,7 +28,7 @@
 
                                                             {% for i in instruments %}
                                                                 {% if i.name == inst %}
-                                                                    data-href="{% url 'dimensions' resolution.part.protocol.id resolution.part.id i.area.id i.id resolution.patient.id %}"
+                                                                    data-href="{% url 'protocolo:dimensions' resolution.part.protocol.id resolution.part.id i.area.id i.id resolution.patient.id %}"
                                                                 {% endif %}
                                                             {% endfor %}
                                                         >
@@ -52,7 +52,7 @@
                                                                 <a href="#" class="jq-btn no-decor"
                                                                         {% for a in answers %}
                                                                             {% if a.question.section.dimension.name == dim %}
-                                                                   data-href="{% url 'sections' resolution.part.protocol.id resolution.part.id a.question.section.dimension.instrument.area.id a.question.section.dimension.instrument.id a.question.section.dimension.id resolution.patient.id %}"
+                                                                   data-href="{% url 'protocolo:sections' resolution.part.protocol.id resolution.part.id a.question.section.dimension.instrument.area.id a.question.section.dimension.instrument.id a.question.section.dimension.id resolution.patient.id %}"
                                                                             {% endif %}
                                                                         {% endfor %}
                                                                 >

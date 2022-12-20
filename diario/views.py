@@ -225,10 +225,10 @@ def group_members(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
-    formDinamizador = DinamizadorForm(request.POST or None)
-    if formDinamizador.is_valid():
-        formDinamizador.save()
-        return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
+    # formDinamizador = DinamizadorForm(request.POST or None)
+    # if formDinamizador.is_valid():
+    #     formDinamizador.save()
+    #     return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
 
     contexto = {
         'grupo_id': grupo_id,
@@ -236,7 +236,7 @@ def group_members(request, grupo_id):
         'cuidadores': cuidadores,
         'mentores': mentores,
         'dinamizadores': dinamizadores,
-        'formDinamizador': formDinamizador,
+        # 'formDinamizador': formDinamizador,
         'dinami': DinamizadorConvidado.objects.filter(grupo=None),
         'caregiver': Cuidador.objects.filter(grupo=None)
     }
@@ -320,14 +320,14 @@ def caregiver_update(request, cuidador_id, grupo_id):
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')
 def create_caregiver(request, grupo_id):
-    formCuidador = CuidadorForm(request.POST or None)
+    # formCuidador = CuidadorForm(request.POST or None)
 
-    if formCuidador.is_valid():
-        formCuidador.save()
-        return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
+    # if formCuidador.is_valid():
+    #     formCuidador.save()
+    #     return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
 
     contexto = {
-        'formCuidador': formCuidador,
+        #'formCuidador': formCuidador,
         'grupo_id': grupo_id,
     }
 
