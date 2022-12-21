@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_dump_load_utf8',
+    #'django_dump_load_utf8',
     
     #CARE & COG
     'diario',

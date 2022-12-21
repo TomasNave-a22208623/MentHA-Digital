@@ -234,19 +234,11 @@
 
                                     document.querySelector('#login .branco .texto').innerHTML = `Seja bem-vindo ao MentHA Digital.<br><br>`;
                                     
-                                    document.querySelector('.app-list').innerHTML = `<ul>
-                                        <a href="{% url 'diario:dashboard_Care' %}">
-                                            <li>MentHA-COG</li>
-                                        </a>
-                                        <a href="{% url 'diario:dashboard_Care' %}">
-                                            <li>MentHA-CARE</li>
-                                        </a>
-                                        <a href="{% url 'protocolo:dashboard' %}">
-                                            <li>Protocolo de Avaliação</li>
-                                        </a>
-                                    </ul>`;
-
-                                    
+                                    fetch("{% url 'mentha:app-list' %}")
+                                    .then(response => response.text())
+                                    .then(text => {
+                                        document.querySelector('.app-list').innerHTML = text;
+                                    })
                                 }
                                 else {
                                     const mensagem = document.querySelector('#login #mensagem')

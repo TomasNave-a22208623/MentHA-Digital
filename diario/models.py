@@ -141,8 +141,12 @@ class Pergunta(models.Model):
         return f'{self.texto}'
 
 class Pergunta_Exercicio(models.Model):
+    TIPOS = [
+        ("APENAS_MOSTRAR", "Apenas Mostrar"),
+        ("UPLOAD_FOTOGRAFIA", "Upload Fotografia"),
+    ]
     nome = models.CharField(max_length=100)
-    tipo_resposta = models.CharField(max_length=35)
+    tipo_resposta = models.CharField(max_length=50, choices=TIPOS)
 
 
 def img_path(instance, filename):
@@ -158,7 +162,7 @@ class Parte_Exercicio(models.Model):
     descricao = models.TextField(max_length=1000, null=True, blank=True)
     imagens = models.ManyToManyField(Imagem, default = None, blank = True)
     duracao = models.IntegerField(default=0)
-    perguntas = models.ManyToManyField(Pergunta, blank = True, default = None)
+    perguntas = models.ManyToManyField(Pergunta_Exercicio, blank = True, default = None)
     opDificuldade = (
         ("A", "A"),
         ("B", "B"),
@@ -394,15 +398,15 @@ class Participante(Utilizador):
 
   
 class Exercicio(models.Model):
+    sessao = models.ManyToManyField(Sessao, default = None ,blank = True, related_name='exercicios')  
     dominio = models.CharField(max_length=100, default = '')
     numero = models.IntegerField(default=0)
+    duracao = models.CharField(max_length=10, null=True, blank=True)
     descricao = models.TextField(max_length=1000, null=True, blank=True)
     material = models.TextField(max_length=1000, null=True, blank=True)
     instrucao = models.TextField(max_length=2000, null=True, blank=True)
     instrucao_participante = models.TextField(max_length=2000, null=True, blank=True)
-    duracao = models.CharField(max_length=10, null=True, blank=True)
     partes_do_exercicio = models.ManyToManyField(Parte_Exercicio, blank = True, related_name='exercicios')
-    sessao = models.ManyToManyField(Sessao, default = None ,blank = True, related_name='exercicios')  
     
     def __str__(self):
         return f'Exercício {self.numero}'

@@ -18,11 +18,11 @@ def login_page_view(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            print("\n\n fez login ok\n\n")
             login(request, user)
             return HttpResponse('ok')
         else:
             return HttpResponse('nok')
+
 
     return render(request, 'mentha/login.html')
 
@@ -94,3 +94,17 @@ def contacto_page_view(request):
     return render (request, 'mentha/contacto.html',{
         'form': form
     })
+
+def app_list_view(request):
+    show = []
+    if request.user.groups.filter(name__in=['Dinamizador','Cuidador','Administrador']).exists():
+        show.append('CARE')
+    if request.user.groups.filter(name__in=['Facilitador','Participante','Administrador']).exists():
+        show.append('COG')
+    if request.user.groups.filter(name__in=['Avaliador','Administrador']).exists():
+        show.append('Protocolo')
+    
+    context= {
+        'show' : show,
+    }
+    return render (request, 'mentha/app-list.html', context)
