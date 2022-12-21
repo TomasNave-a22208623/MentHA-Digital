@@ -16,6 +16,10 @@ urlpatterns = [
     path('mentha-care/', views.mentha_care_page_view, name='mentha-care'),
     path('protocolo-mentha/', views.protocolo_mentha_page_view, name='protocolo-mentha'),
 
+    path('app-list/', views.app_list_view, name='app-list'),
+
+    
+
 
     path('parceiros/', views.parceiros_page_view, name='parceiros'),
     path('equipa/', views.equipa_page_view, name='equipa'),
