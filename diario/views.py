@@ -67,7 +67,7 @@ def dashboard(request):
     formGrupo = GrupoForm(request.POST or None)
     if formGrupo.is_valid():
         formGrupo.save()
-        return redirect('new_group')
+        return redirect('diario:new_group')
 
     contexto = {
         # 'grupos': Grupo.objects.filter(doctor=doctor),
@@ -96,7 +96,7 @@ def new_group(request):
     formGrupo = GrupoForm(request.POST or None)
     if formGrupo.is_valid():
         formGrupo.save()
-        return HttpResponseRedirect(reverse('dashboard_Care'))
+        return HttpResponseRedirect(reverse('diario:dashboard_Care'))
 
     
 
@@ -198,7 +198,7 @@ def guarda_grupo(request):
             c = Cuidador.objects.get(id=int(cuidador_id))
             novo_grupo.cuidadores.add(c)
 
-    return redirect('dashboard_Care')
+    return redirect('diario:dashboard_Care')
 
 
 @login_required(login_url='login')
@@ -228,7 +228,7 @@ def group_members(request, grupo_id):
     # formDinamizador = DinamizadorForm(request.POST or None)
     # if formDinamizador.is_valid():
     #     formDinamizador.save()
-    #     return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
+    #     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
     contexto = {
         'grupo_id': grupo_id,
@@ -307,7 +307,7 @@ def caregiver_update(request, cuidador_id, grupo_id):
 
     if formCuidador.is_valid():
         formCuidador.save()
-        return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
+        return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
     contexto = {
         'grupo_id': grupo_id,
@@ -324,7 +324,7 @@ def create_caregiver(request, grupo_id):
 
     # if formCuidador.is_valid():
     #     formCuidador.save()
-    #     return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
+    #     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
     contexto = {
         #'formCuidador': formCuidador,
@@ -341,7 +341,7 @@ def profile_care_view(request, cuidador_id, grupo_id):
 
     if formDocument.is_valid():
         formDocument.save()
-        return HttpResponseRedirect(reverse('p_view', args=(cuidador_id, grupo_id,)))
+        return HttpResponseRedirect(reverse('diario:p_view', args=(cuidador_id, grupo_id,)))
 
     contexto = {
         'cuidador': Cuidador.objects.get(pk=cuidador_id),
@@ -363,7 +363,7 @@ def caregiver_delete(request, cuidador_id, grupo_id):
     grupo = Grupo.objects.get(pk=grupo_id)
     grupo.cuidadores.remove(cuidador)
 
-    return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
+    return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
 
 @login_required(login_url='login')
@@ -372,7 +372,7 @@ def dinamizador_delete(request, dinamizador_id, grupo_id):
     dinamizador = DinamizadorConvidado.objects.get(pk=dinamizador_id)
     dinamizador.delete()
 
-    return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
+    return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
 
 @login_required(login_url='login')
@@ -382,7 +382,7 @@ def assign_dinamizador(request, grupo_id, dinamizador_id):
     grupo = Grupo.objects.get(id=grupo_id)
     grupo.dinamizadores.add(dinamizador)
 
-    return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
+    return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')
@@ -391,7 +391,7 @@ def assign_caregiver(request, grupo_id, cuidador_id):
     grupo = Grupo.objects.get(id=grupo_id)
     grupo.cuidadores.add(cuidador)
 
-    return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
+    return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')
@@ -401,7 +401,7 @@ def dinamizador_update(request, dinamizador_id, grupo_id):
 
     if formDinamizador.is_valid():
         formDinamizador.save()
-        return HttpResponseRedirect(reverse('group_members', args=(grupo_id,)))
+        return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
     contexto = {
         'grupo_id': grupo_id,
@@ -418,7 +418,7 @@ def delete_groups(request, grupo_id):
     grupo = Grupo.objects.get(pk=grupo_id)
     grupo.delete()
 
-    return HttpResponseRedirect(reverse('dashboard_Care'))
+    return HttpResponseRedirect(reverse('diario:dashboard_Care'))
 
 
 @login_required(login_url='login')
@@ -429,7 +429,7 @@ def update_groups(request, grupo_id):
 
     if formGrupo.is_valid():
         formGrupo.save()
-        return HttpResponseRedirect(reverse('grupo_details', args=(grupo_id,)))
+        return HttpResponseRedirect(reverse('diario:grupo_details', args=(grupo_id,)))
 
     contexto = {
         'grupo_id': grupo_id,
@@ -491,7 +491,7 @@ def assign_group(request, grupo_id, cuidador_id):
     grupo = Grupo.objects.get(id=grupo_id)
     grupo.cuidadores.add(cuidador)
 
-    return HttpResponseRedirect(reverse('dashboard_Care'))
+    return HttpResponseRedirect(reverse('diario:dashboard_Care'))
 
 
 def login_care_view(request):
@@ -509,7 +509,7 @@ def login_care_view(request):
             if next_url:
                 return HttpResponseRedirect(next_url)
             else:
-                return redirect('dashboard_Care')
+                return redirect('diario:dashboard_Care')
             
     context = {
         'next': next,
@@ -527,7 +527,7 @@ def register_user(request):
             password = form.cleaned_data['password1']
             user = authenticate(username=username, password=password)
             login(request, user)
-            return redirect('dashboard_Care')
+            return redirect('diario:dashboard_Care')
     else:
         form = UserCreationForm()
 
@@ -576,7 +576,7 @@ def view_iniciar_sessao(request, sessao_grupo_id):
 
                 presenca.save()
 
-    return HttpResponseRedirect(reverse('sessao', args=[sessao_grupo_id,grupo_id]))
+    return HttpResponseRedirect(reverse('diario:sessao', args=[sessao_grupo_id,grupo_id]))
 
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')
@@ -907,7 +907,7 @@ def view_questionario(request, idPergunta, idParte, sessaoGrupo):
     questionario = parte.questionarios.all().filter(id=idPergunta).get()
     
     if questionario.topico == 'Avaliação de satisfação':
-        return redirect('questionario_satisfacao', idPergunta = idPergunta, idParte = idParte, sessaoGrupo = sessaoGrupo)
+        return redirect('diario:questionario_satisfacao', idPergunta = idPergunta, idParte = idParte, sessaoGrupo = sessaoGrupo)
 
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo)
     sg_anterior = SessaoDoGrupo.objects.filter(sessao=questionario.continuacaoDe, grupo = sg.grupo)
@@ -1135,7 +1135,7 @@ def finalizar_parte(request, idParte, sessao_grupo_id, estado):
         #parte_group.fim = datetime.now()
         #parte_group.save()
 
-    return HttpResponseRedirect(reverse('sessao', args=[sessao_grupo_id, grupo_id]))
+    return HttpResponseRedirect(reverse('diario:sessao', args=[sessao_grupo_id, grupo_id]))
 
 
 @login_required(login_url='login')
@@ -1152,7 +1152,7 @@ def voltar_parte(request, idParte, sessao_grupo_id, estado):
         #parte_group.fim = datetime.now()
         #parte_group.save()
 
-    return HttpResponseRedirect(reverse('detalhes_sessao', args=[sessao_grupo_id]))
+    return HttpResponseRedirect(reverse('diario:detalhes_sessao', args=[sessao_grupo_id]))
 
 
 @login_required(login_url='login')
@@ -1165,7 +1165,7 @@ def finalizar_sessao(request, idGrupo, sessao_grupo_id):
         sessao_group.concluido = True
         sessao_group.save()
 
-    return HttpResponseRedirect(reverse('group_sessions', args=[idGrupo]))
+    return HttpResponseRedirect(reverse('diario:group_sessions', args=[idGrupo]))
 
 
 @login_required(login_url='login')
@@ -1176,7 +1176,7 @@ def view_changeDate(request, sessao_id, group_id):
 
     if formDataSessao.is_valid():
         formDataSessao.save()
-        return HttpResponseRedirect(reverse('group_sessions', args=[group_id]))
+        return HttpResponseRedirect(reverse('diario:group_sessions', args=[group_id]))
 
     contexto = {
         'formDataSessao': formDataSessao,
