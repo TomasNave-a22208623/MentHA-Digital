@@ -144,7 +144,9 @@ class Pergunta_Exercicio(models.Model):
     TIPOS = [
         ("APENAS_MOSTRAR", "Apenas Mostrar"),
         ("UPLOAD_FOTOGRAFIA", "Upload Fotografia"),
+        ("RESPOSTA_ESCRITA", "Resposta Escrita"),
     ]
+    
     nome = models.CharField(max_length=100)
     tipo_resposta = models.CharField(max_length=50, choices=TIPOS)
 
@@ -503,13 +505,16 @@ class ParteGrupo(models.Model):
 def submission_path(instance, filename):
     return f'users/{instance.participante.id}/sg{instance.sessao_grupo.id}/exercicio{instance.exercicio.order}/{filename}'
 
-class Respostas(models.Model):
+class Resposta(models.Model):
     parte_grupo = models.ForeignKey(ParteGrupo, on_delete=models.CASCADE, null = True, blank = True, default = None)
     sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null = True, blank = True, default = None)
     participante = models.ForeignKey(Participante, default=None, blank=True, null=True, on_delete=models.CASCADE)
-    exercicio = models.ForeignKey(Exercicio, default=None, blank=True, null=True, on_delete=models.CASCADE)
-    resposta_escrita = models.TextField(max_length=2000, default=None, blank=True, null=True,)
+    pergunta = models.ForeignKey(Pergunta_Exercicio, default=None, blank=True, null=True, on_delete=models.CASCADE)
+    resposta_escrita = models.TextField(max_length=2000, default=None, blank=True, null=True)
     resposta_submetida = models.ImageField(upload_to=submission_path, blank=True, null=True)
+    
+    # NN Apontamento fica aqui ou noutra tabela só de apontamentos?
+    apontamento = models.TextField(max_length=2000, default=None, blank=True, null=True)
     data = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):

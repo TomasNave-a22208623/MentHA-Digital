@@ -1028,7 +1028,7 @@ def view_questionario_satisfacao(request, idPergunta, idParte, sessaoGrupo):
                     existing = existing[0]
                     existing.opcao = opcao
                     existing.save()
-                    
+                                    
             elif 'text' in str(key):
                 k, pergunta_id = key.split('-')
                 q = Pergunta.objects.get(pk=pergunta_id)
@@ -1041,6 +1041,7 @@ def view_questionario_satisfacao(request, idPergunta, idParte, sessaoGrupo):
                     existing = existing[0]
                     existing.resposta_escrita = r
                     existing.save()
+    
     contexto = {
         'idPergunta':idPergunta,
         'idParte':idParte,
@@ -1184,3 +1185,19 @@ def view_changeDate(request, sessao_id, group_id):
     }
 
     return render(request, "diario/changeDate.html", contexto)
+
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
+def guarda_resposta_view(request, sessaoGrupo_id, utilizador_id, pergunta_id):
+
+    pergunta = Pergunta.object.get(id=pergunta_id)
+    if pergunta.tipo == "RESPOSTA_ESCRITA":
+        form = RespostaForm_RespostaEscrita(request.POST)
+    elif pergunta.tipo == "UPLOAD_FOTOGRAFIA":
+        form = RespostaForm_RespostaSubmetida(request.POST)
+    
+    form.save()
+    
+    return HttpResponse("OK")
+    
+    

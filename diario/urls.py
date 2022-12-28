@@ -68,6 +68,9 @@ urlpatterns = [
                        name='voltar_parte'),
                   path('partilha_parte/<int:sessaoGrupo>/<int:idParteExercico>', views.partilha_parte,
                        name='partilha_parte'),
+                  path('guarda_resposta/<int:sessaoGrupo_id>/<int:utilizador_id>/<int:pergunta_id>', views.guarda_resposta_view, 
+                       name="guarda_resposta"),
+                  
                        
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

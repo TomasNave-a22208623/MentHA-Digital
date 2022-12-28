@@ -108,7 +108,7 @@ class GrupoForm(ModelForm):
 
 class RespostasForm(ModelForm):
     class Meta:
-        model = Respostas
+        model = Resposta
         fields = '__all__'
         widgets = {
             'Respostas': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma resposta...'}),
@@ -158,4 +158,35 @@ class SessaoDataForm(ModelForm):
                        'required': 'true'
                        }
             ),
+        }
+        
+
+class RespostaForm_RespostaEscrita(ModelForm):
+    class Meta:
+        model = Resposta
+        fields = ('resposta_escrita', 'apontamento')
+        widgets = {
+            'resposta_escrita': Textarea(
+                attrs={'rows': 3, 
+                'placeholder': 'Escreva uma nota sobre o grupo...',
+                'class': 'form-control',
+            }),
+            'apontamento': Textarea(
+                attrs={'rows': 3, 
+                'placeholder': 'Escreva uma nota sobre o grupo...',
+                'class': 'form-control',
+            }),
+        }
+
+class RespostaForm_RespostaSubmetida(ModelForm):
+    class Meta:
+        model = Resposta
+        fields = ('resposta_submetida', 'apontamento')
+        widgets = {
+            'resposta_submetida': forms.ImageField(),
+            'apontamento': Textarea(attrs={
+                'rows': 3, 
+                'placeholder': 'Escreva uma nota sobre o grupo...',
+                'class': 'form-control',
+                }),
         }
