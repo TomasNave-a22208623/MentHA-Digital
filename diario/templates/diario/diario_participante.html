@@ -55,24 +55,21 @@
 </div>
 
 <div id="respostas">
-    {% comment %} <div id="escolherAtividade" style = "position:relative; left:380px; top:35px;">
-        <label for="Atividades" >Escolha a atividade:</label>
-      <select name="Atividades" id="Atividades" margin-left=250px>
-        <option value="Atividade 1">Atividade 1</option>
-        <option value="Atividade 2">Atividade 2</option>
-        <option value="Atividade 3">Atividade 3</option>
-        <option value="Atividade 4">Atividade 4</option>
-      </select>
+ {% for pergunta,form in form_list %}
+    <div id="flex-container">
+        <div class="row">
+            <div class="w-50" style="padding-top: 10px;
+            padding-left: 25px;">
+                {{ pergunta.nome }}
+            </div>
+            <div class="w-50" style="padding-top: 10px;
+            padding-right: 25px;">
+                {{ form.as_p }}
+            </div>
+        </div>
     </div>
-    <ul>
-        {% if respostas|length > 0 %}
-        {% for no in respostas %}
-        <li>{{ no }} </li>
-        {% endfor %}
-        {% else %}
-        <li>Sem respostas</li>
-        {% endif %}
-    </ul> {% endcomment %}
+     
+ {% endfor %}
 </div>
 
 <div id="informacoes">

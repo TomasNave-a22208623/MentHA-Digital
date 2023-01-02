@@ -71,6 +71,10 @@ ol.carousel-indicators li{
     gap: 10px;
 }
 
+.margin-l-5{
+    margin-left: 5px;
+}
+
 .exercicio-pergunta{
     gap : 15px;
     display: flex;

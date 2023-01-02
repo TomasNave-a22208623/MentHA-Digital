@@ -667,7 +667,18 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
     elif programa == "COG":
         participante = Participante.objects.get(pk=idParticipante)
         notas = Nota.objects.filter(participante=participante).order_by('-data')
-        respostas = Resposta.objects.filter(participante=participante, sessao_grupo=sessao_grupo)
+        #respostas = Resposta.objects.filter(participante=participante, sessao_grupo=sessao_grupo)
+        exercicios = sessao_grupo.sessao.exercicios.all()
+        form_list = []
+        for ex in exercicios:
+            for parte in ex.partes_do_exercicio.all():
+                for pergunta in parte.perguntas.all():
+                    if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+                        form = RespostaForm_RespostaEscrita_Dinamizador(None, initial={'pergunta':pergunta})
+                    elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
+                        form = RespostaForm_RespostaSubmetida_Dinamizador(None, initial={'pergunta':pergunta})
+                    tuplo = (pergunta,form)
+                    form_list.append(tuplo)
         
     
     if request.method == "POST":
@@ -693,6 +704,8 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         'partilhaForm': PartilhaForm(),
         'participante': participante,
         'sessaoGrupo': sessao_grupo,
+        'exercicios': exercicios,
+        'form_list': form_list
     }
 
     return render(request, "diario/diario_participante.html", context)
@@ -863,11 +876,15 @@ def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
 @check_user_able_to_see_page('Todos')
 def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte):
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo_id)
+    participante = Participante.objects.filter(user=request.user)
+    if len(participante) > 0:
+        participante = participante.get()
     programa = sg.grupo.programa 
     contexto = {
         'proxima_parte': proxima_parte,
         'estado': estado,
         'sessaoGrupo': sg,
+        'participante': participante,
     }
     parte_group = None
     if programa == "CARE":
@@ -1225,16 +1242,27 @@ def view_changeDate(request, sessao_id, group_id):
 
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')
-def guarda_resposta_view(request, sessaoGrupo_id, utilizador_id, pergunta_id):
+def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, pergunta_id):
 
-    pergunta = Pergunta.object.get(id=pergunta_id)
-    if pergunta.tipo == "RESPOSTA_ESCRITA":
-        form = RespostaForm_RespostaEscrita(request.POST)
-    elif pergunta.tipo == "UPLOAD_FOTOGRAFIA":
-        form = RespostaForm_RespostaSubmetida(request.POST)
+    pergunta = Pergunta_Exercicio.objects.get(id=pergunta_id)
+    resposta_existente = Resposta.objects.filter(pergunta__id = pergunta_id, sessao_grupo__id = sessaoGrupo_id, participante__id = utilizador_id)
+    print(resposta_existente)
+    r = None
+    if len(resposta_existente) > 0:
+        r = resposta_existente[0]
+    else:
+        r = Resposta(
+            participante = Participante.objects.get(id = utilizador_id),
+            pergunta = pergunta,
+            sessao_grupo = SessaoDoGrupo.objects.get(id = sessaoGrupo_id))
     
-    form.save()
-    
+    if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+        r.resposta_escrita = request.POST.get('resposta_escrita')
+    elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
+        r.resposta_submetida = request.FILES.get('file') 
+    r.save()
+ 
+    print(request.FILES)
     return HttpResponse("OK")
     
     

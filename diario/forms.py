@@ -172,7 +172,7 @@ class RespostaForm_RespostaEscrita(ModelForm):
             'resposta_escrita': Textarea(
                 attrs={'rows': 1, 
                 'placeholder': '',
-                'class': 'form-control',
+                'class': 'form-control pergunta',
             }),
             # 'apontamento': Textarea(
             #     attrs={'rows': 3, 
@@ -181,6 +181,7 @@ class RespostaForm_RespostaEscrita(ModelForm):
             # }),
         }
         
+
         labels = {
            'resposta_escrita' : '',
         }
@@ -200,7 +201,7 @@ class RespostaForm_RespostaEscrita_Dinamizador(ModelForm):
                 'placeholder': '',
                 'class': 'form-control',
             }),
-            'certo' : forms.CheckboxInput(attrs={'class': 'checkbox form-control'}),   
+            'certo' : forms.CheckboxInput(attrs={'class': 'form-check-input margin-l-5'}),  
             # 'apontamento': Textarea(
             #     attrs={'rows': 3, 
             #     'placeholder': 'Escreva uma nota sobre o grupo...',
@@ -219,13 +220,7 @@ class RespostaForm_RespostaSubmetida(ModelForm):
             'resposta_submetida', 
             #'apontamento'
             )
-        widgets = {
-            # 'apontamento': Textarea(attrs={
-            #     'rows': 3, 
-            #     'placeholder': 'Escreva uma nota sobre o grupo...',
-            #     'class': 'form-control',
-            #     }),
-        }
+        
         
 class RespostaForm_RespostaSubmetida_Dinamizador(ModelForm):
     class Meta:
@@ -236,7 +231,7 @@ class RespostaForm_RespostaSubmetida_Dinamizador(ModelForm):
             'certo'
             )
         widgets = {
-            'certo' : forms.CheckboxInput(attrs={'class': 'checkbox form-control'}),  
+            'certo' : forms.CheckboxInput(attrs={'class': 'form-check-input margin-l-5'}),  
             # 'apontamento': Textarea(attrs={
             #     'rows': 3, 
             #     'placeholder': 'Escreva uma nota sobre o grupo...',

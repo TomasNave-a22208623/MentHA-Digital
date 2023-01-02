@@ -196,3 +196,37 @@ function atualizaPresencas(id) {
 }
 
 
+function submete(sg_id, pg_id, participante_id){
+  
+  document.querySelectorAll("textarea.carousel, input.carousel, input[type='file']").forEach((i) => {
+    let data = new FormData();
+    if (i.value != ''){
+      resposta = i.value;
+      pergunta_id = i.nextElementSibling.innerHTML;
+      //console.log("\nid:",pergunta_id)
+      csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+      data.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
+      data.append('resposta_escrita',resposta)
+      
+      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id, {
+        method: "POST",
+        body: data
+        })
+        .then(response => response);
+      }
+  });
+
+  document.querySelectorAll("input[type='file']").forEach((i) => {
+    let formData = new FormData();           
+    formData.append("file", i.files[0]);
+
+    csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+    formData.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
+
+    fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id, {
+      method: "POST", 
+      body: formData
+    });    
+  });
+}
+

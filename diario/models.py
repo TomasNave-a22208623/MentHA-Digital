@@ -508,7 +508,7 @@ class ParteGrupo(models.Model):
         return f'Parte {self.parte} e sessao {self.sessaoGrupo}'
 
 def submission_path(instance, filename):
-    return f'users/{instance.participante.id}/sg{instance.sessao_grupo.id}/exercicio{instance.exercicio.order}/{filename}'
+    return f'users/{instance.participante.id}/{instance.id}-{filename}'
 
 class Resposta(models.Model):
     parte_grupo = models.ForeignKey(ParteGrupo, on_delete=models.CASCADE, null = True, blank = True, default = None)
@@ -525,7 +525,7 @@ class Resposta(models.Model):
     certo = models.BooleanField(default = None, blank=True, null=True)
 
     def __str__(self):
-        return f'{self.respostas}'
+        return f'{self.id}'
 
 class Escolha(models.Model):
     opcao = models.ForeignKey(Opcao, on_delete=models.CASCADE, null = True, blank = True, default = None)
