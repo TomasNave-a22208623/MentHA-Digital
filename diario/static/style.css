@@ -62,6 +62,10 @@ a {
     width: 40px
 }
 
+.form-control{
+    margin: auto;
+}
+
 .l-navbar {
     position: fixed;
     top: 0;
@@ -177,4 +181,5 @@ a {
         padding-left: calc(var(--nav-width) + 188px)
     }
 }
+
 

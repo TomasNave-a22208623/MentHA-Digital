@@ -667,6 +667,8 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
     elif programa == "COG":
         participante = Participante.objects.get(pk=idParticipante)
         notas = Nota.objects.filter(participante=participante).order_by('-data')
+        respostas = Resposta.objects.filter(participante=participante, sessao_grupo=sessao_grupo)
+        
     
     if request.method == "POST":
         form = NotaForm(request.POST or None)
@@ -686,7 +688,7 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         'notas': notas,
         'partilhas': Partilha.objects.filter(cuidador_id=idParticipante).order_by('-data'),
         'informacoes': Informacoes.objects.filter(participante=idParticipante).order_by('-data'),
-        'respostas': Respostas.objects.filter(participante=idParticipante).order_by('-data'),
+        'respostas': 'aaa',
         'notaForm': NotaForm(),
         'partilhaForm': PartilhaForm(),
         'participante': participante,
@@ -801,7 +803,7 @@ def view_diario_grupo(request, idSessaoGrupo):
         'notasGrupo': NotaGrupo.objects.filter(grupo=idGrupo),
         'partilhas': PartilhaGrupo.objects.filter(grupo=idGrupo),
         'informacoes': Informacoes.objects.all(),
-        'respostas': Respostas.objects.all(),
+        #'respostas': Respostas.objects.all(),
         'notaGrupoForm': NotaGrupoForm(),
         'partilhaGrupoForm': PartilhaGrupoForm(),
         'online_list': online_list,
@@ -887,6 +889,18 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
         contexto['exercicio'] = exercicio
         contexto['dura'] = exercicio.duracao
         
+        form_list = []
+        for parte in exercicio.partes_do_exercicio.all():
+            if parte.perguntas.all():
+                for pergunta in parte.perguntas.all():
+                    if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+                        form = RespostaForm_RespostaEscrita(None, initial={'pergunta':pergunta})
+                    elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
+                        form = RespostaForm_RespostaSubmetida(None, initial={'pergunta':pergunta})
+                    tuplo = (pergunta,form)
+                    form_list.append(tuplo)
+            contexto['form_list'] = form_list 
+                    
     contexto['parteGrupo'] = parte_group
     
     imagem = Imagem.objects.get(pk=1)
@@ -899,6 +913,29 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
 
     return render(request, "diario/parte.html", contexto)
 
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
+def get_respostas_do_participante(request, idSessaoGrupo, idParteGrupo, idParticipante):
+    contexto = {}
+    
+    exercicio = Exercicio.objects.get(id=idParteGrupo)
+    sg = SessaoDoGrupo.objects.get(id=idSessaoGrupo)
+    Participante.objects.get(id=idParticipante)
+    parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
+    
+    form_list = []
+    for parte in exercicio.partes_do_exercicio.all():
+        if parte.perguntas.all():
+            for pergunta in parte.perguntas.all():
+                if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+                    form = RespostaForm_RespostaEscrita(None, initial={'pergunta':pergunta})
+                elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
+                    form = RespostaForm_RespostaSubmetida(None, initial={'pergunta':pergunta})
+                tuplo = (pergunta,form)
+                form_list.append(tuplo)
+        contexto['form_list'] = form_list 
+        
+    return render(request, "diario/respostas.html", contexto)
 
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')

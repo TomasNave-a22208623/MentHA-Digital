@@ -164,29 +164,83 @@ class SessaoDataForm(ModelForm):
 class RespostaForm_RespostaEscrita(ModelForm):
     class Meta:
         model = Resposta
-        fields = ('resposta_escrita', 'apontamento')
+        fields = (
+            'resposta_escrita', 
+            #'apontamento'
+                  )
         widgets = {
             'resposta_escrita': Textarea(
-                attrs={'rows': 3, 
-                'placeholder': 'Escreva uma nota sobre o grupo...',
+                attrs={'rows': 1, 
+                'placeholder': '',
                 'class': 'form-control',
             }),
-            'apontamento': Textarea(
-                attrs={'rows': 3, 
-                'placeholder': 'Escreva uma nota sobre o grupo...',
+            # 'apontamento': Textarea(
+            #     attrs={'rows': 3, 
+            #     'placeholder': 'Escreva uma nota sobre o grupo...',
+            #     'class': 'form-control',
+            # }),
+        }
+        
+        labels = {
+           'resposta_escrita' : '',
+        }
+        
+        
+class RespostaForm_RespostaEscrita_Dinamizador(ModelForm):
+    class Meta:
+        model = Resposta
+        fields = (
+            'resposta_escrita', 
+            #'apontamento',
+            'certo',
+                  )
+        widgets = {
+            'resposta_escrita': Textarea(
+                attrs={'rows': 1, 
+                'placeholder': '',
                 'class': 'form-control',
             }),
+            'certo' : forms.CheckboxInput(attrs={'class': 'checkbox form-control'}),   
+            # 'apontamento': Textarea(
+            #     attrs={'rows': 3, 
+            #     'placeholder': 'Escreva uma nota sobre o grupo...',
+            #     'class': 'form-control',
+            # }),
+        }
+        
+        labels = {
+           'resposta_escrita' : '',
         }
 
 class RespostaForm_RespostaSubmetida(ModelForm):
     class Meta:
         model = Resposta
-        fields = ('resposta_submetida', 'apontamento')
+        fields = (
+            'resposta_submetida', 
+            #'apontamento'
+            )
         widgets = {
-            'resposta_submetida': forms.ImageField(),
-            'apontamento': Textarea(attrs={
-                'rows': 3, 
-                'placeholder': 'Escreva uma nota sobre o grupo...',
-                'class': 'form-control',
-                }),
+            # 'apontamento': Textarea(attrs={
+            #     'rows': 3, 
+            #     'placeholder': 'Escreva uma nota sobre o grupo...',
+            #     'class': 'form-control',
+            #     }),
         }
+        
+class RespostaForm_RespostaSubmetida_Dinamizador(ModelForm):
+    class Meta:
+        model = Resposta
+        fields = (
+            'resposta_submetida', 
+            #'apontamento',
+            'certo'
+            )
+        widgets = {
+            'certo' : forms.CheckboxInput(attrs={'class': 'checkbox form-control'}),  
+            # 'apontamento': Textarea(attrs={
+            #     'rows': 3, 
+            #     'placeholder': 'Escreva uma nota sobre o grupo...',
+            #     'class': 'form-control',
+            #     }),
+        }
+        

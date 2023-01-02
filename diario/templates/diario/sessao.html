@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <!-- Participantes -->
         <div class="participantes diario">
             {% for participante in participantes %}
-            <button type="button" class="btn btn-primary" data-participante="{{ participante.id }}" data-sessaogrupo="{{sessaoGrupo.id}}">{{ participante }}
+                <button type="button" class="btn btn-primary" data-participante="{{ participante.id }}" data-sessaogrupo="{{sessaoGrupo.id}}">{{ participante.info_sensivel.nome }}
             </button>
             {% endfor %}
         </div>

@@ -190,6 +190,26 @@
                 {{ parte.descricao }}
             </div>
             {% endif %}
+            
+            {% if parte.perguntas.all|length > 0%}
+                <form>
+                {% for pergunta in parte.perguntas.all %}
+                <div class = "exercicio-pergunta form-group" style="{%if pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA" %} flex-direction: column {% else %} flex-direction: row {% endif %}">
+                    {% for perg,form in form_list %}
+                        {% if perg == pergunta %}
+                            {% csrf_token %}
+                            {% for field in form %}
+                                
+                                    <label>{{ pergunta.nome }}</label>
+                                    <div>{{ field }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </div> 
+                {% endfor %}
+                </form>
+            {% endif %}
+
             </div>
         {% endfor %}
         </div>

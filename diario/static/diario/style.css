@@ -17,6 +17,10 @@
     justify-content: space-between;
 }
 
+.form-control{
+    margin: auto;
+}
+
 .img-preview {
     border: 1px solid #ddd; /* Gray border */
     border-radius: 4px; /* Rounded border */
@@ -67,6 +71,14 @@ ol.carousel-indicators li{
     gap: 10px;
 }
 
+.exercicio-pergunta{
+    gap : 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    align-content: center;
+}
 .botao-partilha{
     position: absolute;
     bottom: 15px;

@@ -175,7 +175,7 @@ class Parte_Exercicio(models.Model):
         ex_numeros = []
         for x in self.exercicios.all():
             ex_numeros.append(x.numero)
-        return f'Exercício {ex_numeros} - {self.nome}'
+        return f'Exercício {ex_numeros} - parte {self.ordem} - {self.nome}'
 
 class SessaoDoGrupo(models.Model):
     PRESENT = 'P'
@@ -205,6 +205,11 @@ class SessaoDoGrupo(models.Model):
 
     def __str__(self):
         return f'Sessao {self.sessao} do grupo {self.grupo}'
+    
+    def parte_atual(self):
+        for pg in self.parteGrupos:
+            if pg.em_progresso:
+                return pg 
     
 
 
@@ -379,7 +384,7 @@ class Participante(Utilizador):
         ("Bom", "Bom"),
         ("Muito bom", "Muito bom"),
     )
-    escolaridade = models.CharField(max_length=20, choices=opEscolaridade, default="1-4", blank=False, null=False)
+    escolaridade = models.CharField(max_length=20, choices=opEscolaridade, default="1-4", blank=True, null=False)
     residencia = models.CharField(max_length=20, choices=opResidencia, default="Urbana", blank=True, null=True)
     situacaoLaboral = models.CharField(max_length=20, choices=opSituacaoLaboral, default="Reformado(a)", blank=True, null=True)
     profissaoPrincipal = models.CharField(max_length=100, default="", blank=True, null=True)
@@ -389,8 +394,8 @@ class Participante(Utilizador):
     temFilhos = models.BooleanField(default=False, blank= True, null=True)
     nrFilhos = models.IntegerField(default=0, blank= True, null=True)
     autoAvaliacaoEstadoSaude = models.CharField(max_length=30, choices=opEstadoSaude, default="Nem mau nem bom", blank=True, null=True)
-    diagnosticos = models.ManyToManyField(Doenca, related_name='participantes')
-    referenciacao = models.ForeignKey(Reference, on_delete= models.CASCADE)
+    diagnosticos = models.ManyToManyField(Doenca, related_name='participantes',  default = None, null = True, blank=True)
+    referenciacao = models.ForeignKey(Reference, on_delete= models.CASCADE,  blank=True)
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, null=True, blank=True, related_name='participantes')
     cuidadores = models.ManyToManyField(Cuidador, blank=True, related_name='participantes')
     avaliador = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, default=None, blank=True, null=True, related_name='participantes')
@@ -451,7 +456,7 @@ class InfoParte(models.Model):
 
 
 class ParteGrupo(models.Model):
-    sessaoGrupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, blank=True, related_name='partesGrupos')
+    sessaoGrupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, blank=True, related_name='parteGrupos')
     parte = models.ForeignKey(Parte, on_delete=models.CASCADE, default = None, blank=True, null=True, related_name='partesGrupos')
     exercicio = models.ForeignKey(Exercicio, on_delete=models.CASCADE, default = None, blank=True, null = True, related_name='partesGrupos')
 
@@ -516,6 +521,8 @@ class Resposta(models.Model):
     # NN Apontamento fica aqui ou noutra tabela só de apontamentos?
     apontamento = models.TextField(max_length=2000, default=None, blank=True, null=True)
     data = models.DateTimeField(auto_now_add=True, null=True)
+    
+    certo = models.BooleanField(default = None, blank=True, null=True)
 
     def __str__(self):
         return f'{self.respostas}'
