@@ -905,19 +905,43 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
         parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
         contexto['exercicio'] = exercicio
         contexto['dura'] = exercicio.duracao
+        respostas_existentes = {}
+        
+        
         
         form_list = []
         for parte in exercicio.partes_do_exercicio.all():
             if parte.perguntas.all():
                 for pergunta in parte.perguntas.all():
+                    r = Resposta.objects.filter(
+                        participante__user=request.user,
+                        sessao_grupo__id = sessaoGrupo_id,
+                        pergunta = pergunta,
+                        )
+                    if len(r) > 0:
+                        r = r.get()
+                        initial_data = {
+                        'resposta_escrita' : r.resposta_escrita
+                        }
+                        
                     if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
-                        form = RespostaForm_RespostaEscrita(None, initial={'pergunta':pergunta})
+                        form = RespostaForm_RespostaEscrita(None, initial=initial_data)
                     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
-                        form = RespostaForm_RespostaSubmetida(None, initial={'pergunta':pergunta})
+                        form = RespostaForm_RespostaSubmetida(None)
+                    
+                    
+                    
+                    
+                    
                     tuplo = (pergunta,form)
                     form_list.append(tuplo)
-            contexto['form_list'] = form_list 
                     
+                    
+                        
+                    
+            contexto['form_list'] = form_list 
+            
+    contexto['respostas_existentes'] = respostas_existentes          
     contexto['parteGrupo'] = parte_group
     
     imagem = Imagem.objects.get(pk=1)
@@ -1243,10 +1267,9 @@ def view_changeDate(request, sessao_id, group_id):
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')
 def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, pergunta_id):
-
     pergunta = Pergunta_Exercicio.objects.get(id=pergunta_id)
     resposta_existente = Resposta.objects.filter(pergunta__id = pergunta_id, sessao_grupo__id = sessaoGrupo_id, participante__id = utilizador_id)
-    print(resposta_existente)
+    #print(resposta_existente)
     r = None
     if len(resposta_existente) > 0:
         r = resposta_existente[0]
@@ -1254,15 +1277,17 @@ def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, 
         r = Resposta(
             participante = Participante.objects.get(id = utilizador_id),
             pergunta = pergunta,
-            sessao_grupo = SessaoDoGrupo.objects.get(id = sessaoGrupo_id))
+            sessao_grupo = SessaoDoGrupo.objects.get(id = sessaoGrupo_id),
+            parte_grupo = ParteGrupo.objects.get(id = parteGrupo_id),
+            )
     
-    if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+    if pergunta.tipo_resposta == "RESPOSTA_ESCRITA": 
         r.resposta_escrita = request.POST.get('resposta_escrita')
     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
         r.resposta_submetida = request.FILES.get('file') 
+    #print(r)
     r.save()
- 
-    print(request.FILES)
+    #print(request.FILES)
     return HttpResponse("OK")
     
     

@@ -150,7 +150,9 @@ class Pergunta_Exercicio(models.Model):
     nome = models.CharField(max_length=100)
     tipo_resposta = models.CharField(max_length=50, choices=TIPOS)
 
-
+    def __str__(self):
+            return f'{self.nome}'
+        
 def img_path(instance, filename):
     return f'img/{filename}'
 

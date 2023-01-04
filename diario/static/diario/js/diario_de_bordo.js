@@ -195,38 +195,44 @@ function atualizaPresencas(id) {
       .then(response => response);
 }
 
-
-function submete(sg_id, pg_id, participante_id){
-  
-  document.querySelectorAll("textarea.carousel, input.carousel, input[type='file']").forEach((i) => {
-    let data = new FormData();
-    if (i.value != ''){
+function submete_texto(sg_id, pg_id, participante_id){
+  document.querySelectorAll("textarea.pergunta, input.pergunta").forEach((i) => {
+    if (i.value.length > 0) {
+      let data = new FormData();
       resposta = i.value;
       pergunta_id = i.nextElementSibling.innerHTML;
-      //console.log("\nid:",pergunta_id)
       csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
       data.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
-      data.append('resposta_escrita',resposta)
-      
+      data.append('resposta_escrita',resposta);
+      console.log("Fetching: " + '/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id);
       fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id, {
         method: "POST",
-        body: data
+        body: data,
         })
-        .then(response => response);
-      }
+    }
   });
+}
 
+function submete_ficheiros(sg_id, pg_id, participante_id){
   document.querySelectorAll("input[type='file']").forEach((i) => {
-    let formData = new FormData();           
-    formData.append("file", i.files[0]);
+    if (i.value.length > 0) {
+      let formData = new FormData();           
+      formData.append("file", i.files[0]);
+      pergunta_id = i.nextElementSibling.innerHTML;
+      csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+      formData.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
 
-    csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-    formData.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
-
-    fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id, {
-      method: "POST", 
-      body: formData
-    });    
+      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id, {
+        method: "POST", 
+        body: formData
+      });    
+    }
   });
+}
+
+
+function submete(sg_id, pg_id, participante_id){
+  submete_texto(sg_id, pg_id, participante_id);
+  submete_ficheiros(sg_id, pg_id, participante_id);
 }
 

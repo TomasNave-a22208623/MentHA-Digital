@@ -199,7 +199,6 @@
                         {% if perg == pergunta %}
                             {% if pergunta.tipo_resposta == 'UPLOAD_FOTOGRAFIA' %}
                                 <form action="preventDefault()" enctype="multipart/form-data">
-                                    
                                     {% for field in form %}
                                         <label>{{ pergunta.nome }}</label>
                                         <div>
