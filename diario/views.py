@@ -673,10 +673,23 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         for ex in exercicios:
             for parte in ex.partes_do_exercicio.all():
                 for pergunta in parte.perguntas.all():
+                    r = Resposta.objects.filter(
+                        participante__id = idParticipante,
+                        sessao_grupo__id = idSessaoGrupo,
+                        pergunta = pergunta,
+                        )
+                    
+                    if len(r) > 0:
+                        r = r.get()
+                        initial_data = {
+                        'resposta_escrita' : r.resposta_escrita,
+                        'certo' : r.certo,
+                        }
+                        
                     if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
-                        form = RespostaForm_RespostaEscrita_Dinamizador(None, initial={'pergunta':pergunta})
+                        form = RespostaForm_RespostaEscrita_Dinamizador(None, initial=initial_data)
                     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
-                        form = RespostaForm_RespostaSubmetida_Dinamizador(None, initial={'pergunta':pergunta})
+                        form = RespostaForm_RespostaSubmetida_Dinamizador(None)
                     tuplo = (pergunta,form)
                     form_list.append(tuplo)
         
@@ -1289,5 +1302,45 @@ def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, 
     r.save()
     #print(request.FILES)
     return HttpResponse("OK")
+
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
+def respostas_view(request, idSessaoGrupo, idParticipante):
+    #USADO PARA ATUALIZAR SO A PARTE DAS RESPOSTAS DO DIARIO
+    sessao_grupo = SessaoDoGrupo.objects.get(pk=idSessaoGrupo)
+    participante = Participante.objects.get(pk=idParticipante)
+    exercicios = sessao_grupo.sessao.exercicios.all()
     
-    
+    form_list = []
+    for ex in exercicios:
+        for parte in ex.partes_do_exercicio.all():
+            for pergunta in parte.perguntas.all():
+                r = Resposta.objects.filter(
+                    participante__id = idParticipante,
+                    sessao_grupo__id = idSessaoGrupo,
+                    pergunta = pergunta,
+                    )
+                
+                if len(r) > 0:
+                    r = r.get()
+                    initial_data = {
+                    'resposta_escrita' : r.resposta_escrita,
+                    'certo' : r.certo,
+                    }
+                    
+                if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+                    form = RespostaForm_RespostaEscrita_Dinamizador(None, initial=initial_data)
+                elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
+                    form = RespostaForm_RespostaSubmetida_Dinamizador(None)
+                tuplo = (pergunta,form)
+                form_list.append(tuplo)
+        
+    context = {
+        'participante_id': idParticipante,
+        'participante': participante,
+        'participante': participante,
+        'sessaoGrupo': sessao_grupo,
+        'exercicios': exercicios,
+        'form_list': form_list
+    }
+    return render(request, "diario/respostas.html", context)

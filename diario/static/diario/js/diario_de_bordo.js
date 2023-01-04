@@ -236,3 +236,12 @@ function submete(sg_id, pg_id, participante_id){
   submete_ficheiros(sg_id, pg_id, participante_id);
 }
 
+
+// function atualiza_respostas(sg_id){
+//   p_id = document.querySelector("#respostas").dataset.participante
+//   fetch('/diario/respostas/' + sg_id + '/' + p_id, { method: "GET"})
+//   .then((response) => response.text())
+//   .then((text) => {document.querySelector("#respostas").innerHTML = text;
+    
+//   })
+// }
