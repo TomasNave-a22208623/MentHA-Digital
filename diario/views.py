@@ -678,7 +678,7 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
                         sessao_grupo__id = idSessaoGrupo,
                         pergunta = pergunta,
                         )
-                    
+                    initial_data = {}
                     if len(r) > 0:
                         r = r.get()
                         initial_data = {

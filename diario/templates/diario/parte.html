@@ -194,7 +194,13 @@
             {% if parte.perguntas.all|length > 0%}
                 {% csrf_token %}
                 {% for pergunta in parte.perguntas.all %}
-                <div class = "exercicio-pergunta form-group" style="{%if pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA" %} flex-direction: column {% else %} flex-direction: row {% endif %}">
+            <div class = "flex-container">
+                {% if pergunta.dificuldade == "A" or pergunta.dificuldade == "B" %}
+                <div class ="left text-primary h3">
+                    {{ pergunta.dificuldade }}
+                </div>
+                {% endif%}
+                <div class = "exercicio-pergunta form-group right" style="{%if pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA" %} flex-direction: column {% else %} flex-direction: row {% endif %}">
                     {% for perg,form in form_list %}
                         {% if perg == pergunta %}
                             {% if pergunta.tipo_resposta == 'UPLOAD_FOTOGRAFIA' %}
@@ -219,6 +225,7 @@
                         {% endif %}
                     {% endfor %}
                 </div> 
+            </div>
                 {% endfor %}
                 <button onclick="submete({{sessaoGrupo.id}},{{parteGrupo.id}},{{participante.id}})" type="button" class="btn btn-primary">Submeter</button>
             {% endif %}

@@ -149,6 +149,11 @@ class Pergunta_Exercicio(models.Model):
     
     nome = models.CharField(max_length=100)
     tipo_resposta = models.CharField(max_length=50, choices=TIPOS)
+    opDificuldade = (
+        ("A", "A"),
+        ("B", "B"),
+    )
+    dificuldade = models.CharField(max_length=20, choices=opDificuldade, default="A", blank=False, null=False)
 
     def __str__(self):
             return f'{self.nome}'
@@ -167,11 +172,7 @@ class Parte_Exercicio(models.Model):
     imagens = models.ManyToManyField(Imagem, default = None, blank = True)
     duracao = models.IntegerField(default=0)
     perguntas = models.ManyToManyField(Pergunta_Exercicio, blank = True, default = None)
-    opDificuldade = (
-        ("A", "A"),
-        ("B", "B"),
-    )
-    dificuldade = models.CharField(max_length=20, choices=opDificuldade, default="A", blank=False, null=False)
+
 
     def __str__(self):
         ex_numeros = []
