@@ -113,10 +113,21 @@ class Sessao(models.Model):
 
     def __str__(self):
         return f'({self.programa}) Sessão {self.numeroSessao}. {self.nome}'
-    
+
+def img_path(instance, filename):
+    return f'img/{filename}'
+
+class Imagem(models.Model):
+    nome = models.CharField(max_length=100)
+    imagem = models.ImageField(upload_to=img_path, blank=True, null=True)
+
+    def __str__(self):
+        return self.nome
+  
 class Opcao(models.Model):
     resposta = models.CharField(max_length=300, default="")
     cotacao = models.IntegerField(default=0, blank =True, null = True)
+    imagem = models.ForeignKey(Imagem, default=None, null=True, on_delete=models.CASCADE, blank=True)
 
     def __str__(self):
         return f'{self.resposta}'
@@ -145,6 +156,7 @@ class Pergunta_Exercicio(models.Model):
         ("APENAS_MOSTRAR", "Apenas Mostrar"),
         ("UPLOAD_FOTOGRAFIA", "Upload Fotografia"),
         ("RESPOSTA_ESCRITA", "Resposta Escrita"),
+        ("ESCOLHA_MULTIPLA", "Escolha Múltipla"),
     ]
     
     nome = models.CharField(max_length=100)
@@ -152,18 +164,14 @@ class Pergunta_Exercicio(models.Model):
     opDificuldade = (
         ("A", "A"),
         ("B", "B"),
+        ("Indefinido", "Indefinido")
     )
-    dificuldade = models.CharField(max_length=20, choices=opDificuldade, default="A", blank=False, null=False)
+    dificuldade = models.CharField(max_length=20, choices=opDificuldade, default="Indefinido", blank=False, null=False)
+    opcoes = models.ManyToManyField(Opcao, blank=True, default = None)
 
     def __str__(self):
             return f'{self.nome}'
         
-def img_path(instance, filename):
-    return f'img/{filename}'
-
-class Imagem(models.Model):
-    nome = models.CharField(max_length=100)
-    imagem = models.ImageField(upload_to=img_path, blank=True, null=True)
 
 class Parte_Exercicio(models.Model):
     nome = models.CharField(max_length=100)
@@ -520,7 +528,8 @@ class Resposta(models.Model):
     pergunta = models.ForeignKey(Pergunta_Exercicio, default=None, blank=True, null=True, on_delete=models.CASCADE)
     resposta_escrita = models.TextField(max_length=2000, default=None, blank=True, null=True)
     resposta_submetida = models.ImageField(upload_to=submission_path, blank=True, null=True)
-    
+    resposta_escolha = models.ForeignKey(Opcao, on_delete=models.CASCADE, null = True, blank = True, default = None, related_name="resp")
+
     # NN Apontamento fica aqui ou noutra tabela só de apontamentos?
     apontamento = models.TextField(max_length=2000, default=None, blank=True, null=True)
     data = models.DateTimeField(auto_now_add=True, null=True)

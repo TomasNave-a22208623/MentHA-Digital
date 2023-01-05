@@ -97,7 +97,11 @@
 <div class="side-by-side">
     <div class="esquerda">
         <h5 class=" m-0 fw-bold">
+        {% if exercicio.numero > 0 %}
             Exercício {{ exercicio.numero}} - {{exercicio.dominio }}
+        {% else %}
+            {{ exercicio.dominio }}
+        {% endif %}
         </h5>
     </div>
     <div style ="width:25%" class="direita">
@@ -213,6 +217,8 @@
                                         </div>
                                     {% endfor %}
                                 </form>
+                            {% elif pergunta.tipo_resposta == 'ESCOLHA_MULTIPLA' %}
+                                {% include 'diario/escolha_multipla.html' %}
                             {% else %}
                                 {% for field in form %}
                                     <label>{{ pergunta.nome }}</label>

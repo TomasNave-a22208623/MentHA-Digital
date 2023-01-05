@@ -11,7 +11,6 @@ class NotaForm(ModelForm):
             'nota': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma nota...'}),
         }
 
-
 class PartilhaForm(ModelForm):
     class Meta:
         model = Partilha

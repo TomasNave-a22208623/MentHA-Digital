@@ -920,8 +920,6 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
         contexto['dura'] = exercicio.duracao
         respostas_existentes = {}
         
-        
-        
         form_list = []
         for parte in exercicio.partes_do_exercicio.all():
             if parte.perguntas.all():
@@ -941,17 +939,12 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
                         form = RespostaForm_RespostaEscrita(None, initial=initial_data)
                     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
                         form = RespostaForm_RespostaSubmetida(None)
-                    
-                    
-                    
-                    
+                    elif pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+                        form = None
                     
                     tuplo = (pergunta,form)
                     form_list.append(tuplo)
-                    
-                    
-                        
-                    
+
             contexto['form_list'] = form_list 
             
     contexto['respostas_existentes'] = respostas_existentes          
@@ -1298,6 +1291,8 @@ def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, 
         r.resposta_escrita = request.POST.get('resposta_escrita')
     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
         r.resposta_submetida = request.FILES.get('file') 
+    elif pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+        r.resposta_escolha = Opcao.objects.get(id=request.POST.get('choice'))
     #print(r)
     r.save()
     #print(request.FILES)
