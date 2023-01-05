@@ -201,11 +201,12 @@ function submete_texto(sg_id, pg_id, participante_id){
       let data = new FormData();
       resposta = i.value;
       pergunta_id = i.nextElementSibling.innerHTML;
+      parte_id = i.nextElementSibling.nextElementSibling.innerHTML;
       csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
       data.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
       data.append('resposta_escrita',resposta);
-      console.log("Fetching: " + '/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id);
-      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id, {
+      //console.log("Fetching: " + '/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id);
+      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id + '/' + parte_id, {
         method: "POST",
         body: data,
         })
@@ -219,10 +220,11 @@ function submete_ficheiros(sg_id, pg_id, participante_id){
       let formData = new FormData();           
       formData.append("file", i.files[0]);
       pergunta_id = i.nextElementSibling.innerHTML;
+      parte_id = i.nextElementSibling.nextElementSibling.innerHTML;
       csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
       formData.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
 
-      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id, {
+      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id + '/' + parte_id, {
         method: "POST", 
         body: formData
       });    
@@ -232,16 +234,17 @@ function submete_ficheiros(sg_id, pg_id, participante_id){
 
 function submete_radio(sg_id, pg_id, participante_id){
   document.querySelectorAll("input[type='radio']:checked").forEach((i) => {
-    console.log("radio");
+    //console.log("radio");
     if (i.value.length > 0) {
       let formData = new FormData();           
       resposta = i.value
       formData.append('choice', resposta)
       pergunta_id = i.nextElementSibling.innerHTML;
+      parte_id = i.nextElementSibling.nextElementSibling.innerHTML;
       csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
       formData.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
 
-      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id, {
+      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id + '/' + parte_id, {
         method: "POST", 
         body: formData
       });    

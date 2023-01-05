@@ -283,7 +283,8 @@ position: relative;
 }
 
 .carousel-inner{
-    width: 95%;
+    overflow: auto;
+    width: 100%;
 }
 
 .partes-exercicio{

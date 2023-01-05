@@ -673,12 +673,13 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         for ex in exercicios:
             for parte in ex.partes_do_exercicio.all():
                 for pergunta in parte.perguntas.all():
+                    initial_data = {}
                     r = Resposta.objects.filter(
                         participante__id = idParticipante,
                         sessao_grupo__id = idSessaoGrupo,
                         pergunta = pergunta,
+                        parte_exercicio = parte,
                         )
-                    initial_data = {}
                     if len(r) > 0:
                         r = r.get()
                         initial_data = {
@@ -922,15 +923,21 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
         
         form_list = []
         for parte in exercicio.partes_do_exercicio.all():
+            initial_data = {}
             if parte.perguntas.all():
                 for pergunta in parte.perguntas.all():
                     r = Resposta.objects.filter(
                         participante__user=request.user,
                         sessao_grupo__id = sessaoGrupo_id,
                         pergunta = pergunta,
+                        #parte_grupo__id = parte_do_grupo_id,
+                        parte_exercicio = parte,
                         )
+                    
+
                     if len(r) > 0:
                         r = r.get()
+                        print(r)
                         initial_data = {
                         'resposta_escrita' : r.resposta_escrita
                         }
@@ -942,7 +949,7 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
                     elif pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
                         form = None
                     
-                    tuplo = (pergunta,form)
+                    tuplo = (pergunta, parte.ordem ,form)
                     form_list.append(tuplo)
 
             contexto['form_list'] = form_list 
@@ -1272,9 +1279,15 @@ def view_changeDate(request, sessao_id, group_id):
 
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')
-def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, pergunta_id):
+def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, pergunta_id, parte_exercicio_id):
     pergunta = Pergunta_Exercicio.objects.get(id=pergunta_id)
-    resposta_existente = Resposta.objects.filter(pergunta__id = pergunta_id, sessao_grupo__id = sessaoGrupo_id, participante__id = utilizador_id)
+    resposta_existente = Resposta.objects.filter(
+        pergunta__id = pergunta_id, 
+        parte_grupo__id = parteGrupo_id, 
+        sessao_grupo__id = sessaoGrupo_id, 
+        participante__id = utilizador_id,
+        parte_exercicio__id = parte_exercicio_id
+        )
     #print(resposta_existente)
     r = None
     if len(resposta_existente) > 0:
@@ -1285,6 +1298,7 @@ def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, 
             pergunta = pergunta,
             sessao_grupo = SessaoDoGrupo.objects.get(id = sessaoGrupo_id),
             parte_grupo = ParteGrupo.objects.get(id = parteGrupo_id),
+            parte_exercicio = Parte_Exercicio.objects.get(id = parte_exercicio_id)
             )
     
     if pergunta.tipo_resposta == "RESPOSTA_ESCRITA": 

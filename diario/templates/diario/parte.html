@@ -190,23 +190,24 @@
             {% endif %}
 
             {% if parte.descricao|length > 0 %}
-            <div class = "exercicio-descricao center">
+            <div style ="padding-bottom: 3%;"class = "exercicio-descricao center h4">
                 {{ parte.descricao }}
             </div>
             {% endif %}
             
             {% if parte.perguntas.all|length > 0%}
                 {% csrf_token %}
+                <div class = "flex-container">
                 {% for pergunta in parte.perguntas.all %}
-            <div class = "flex-container">
-                {% if pergunta.dificuldade == "A" or pergunta.dificuldade == "B" %}
-                <div class ="left text-primary h3">
-                    {{ pergunta.dificuldade }}
-                </div>
-                {% endif%}
                 <div class = "exercicio-pergunta form-group right" style="{%if pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA" %} flex-direction: column {% else %} flex-direction: row {% endif %}">
-                    {% for perg,form in form_list %}
-                        {% if perg == pergunta %}
+                    {% if pergunta.dificuldade == "A" or pergunta.dificuldade == "B" %}
+                        <div class ="left text-primary h3">
+                            {{ pergunta.dificuldade }}
+                        </div>
+                        {% endif%}
+                   
+                    {% for perg,parte_ordem,form in form_list %}
+                        {% if perg == pergunta and parte_ordem == parte.ordem %}
                             {% if pergunta.tipo_resposta == 'UPLOAD_FOTOGRAFIA' %}
                                 <form action="preventDefault()" enctype="multipart/form-data">
                                     {% for field in form %}
@@ -214,6 +215,7 @@
                                         <div>
                                             {{ field }} 
                                             <span style="display:none">{{perg.id}}</span>
+                                            <span style="display:none">{{parte.id}}</span>
                                         </div>
                                     {% endfor %}
                                 </form>
@@ -225,15 +227,23 @@
                                     <div>
                                         {{ field }} 
                                         <span style="display:none">{{perg.id}}</span>
+                                            <span style="display:none">{{parte.id}}</span>
                                     </div>
+                                    {% if pergunta.postexto %}
+                                    <label>
+                                        {{ pergunta.postexto }}
+                                    </label>
+                                    {% endif %}
                                 {% endfor %}
                             {% endif %}
                         {% endif %}
                     {% endfor %}
                 </div> 
-            </div>
+            
                 {% endfor %}
                 <button onclick="submete({{sessaoGrupo.id}},{{parteGrupo.id}},{{participante.id}})" type="button" class="btn btn-primary">Submeter</button>
+            
+            </div>
             {% endif %}
 
             </div>

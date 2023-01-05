@@ -159,7 +159,8 @@ class Pergunta_Exercicio(models.Model):
         ("ESCOLHA_MULTIPLA", "Escolha Múltipla"),
     ]
     
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=100, default = '', blank = True, null = True)
+    postexto = models.CharField(max_length=100, default = '', blank = True, null = True)
     tipo_resposta = models.CharField(max_length=50, choices=TIPOS)
     opDificuldade = (
         ("A", "A"),
@@ -170,7 +171,11 @@ class Pergunta_Exercicio(models.Model):
     opcoes = models.ManyToManyField(Opcao, blank=True, default = None)
 
     def __str__(self):
-            return f'{self.nome}'
+        if self.dificuldade in ['A','B']:
+            dif = f'({self.dificuldade})'
+        else:
+            dif = ''
+        return f'{dif} {self.nome}'
         
 
 class Parte_Exercicio(models.Model):
@@ -524,6 +529,7 @@ def submission_path(instance, filename):
 class Resposta(models.Model):
     parte_grupo = models.ForeignKey(ParteGrupo, on_delete=models.CASCADE, null = True, blank = True, default = None)
     sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null = True, blank = True, default = None)
+    parte_exercicio = models.ForeignKey(Parte_Exercicio,  on_delete=models.CASCADE, null = True, blank = True, default = None)
     participante = models.ForeignKey(Participante, default=None, blank=True, null=True, on_delete=models.CASCADE)
     pergunta = models.ForeignKey(Pergunta_Exercicio, default=None, blank=True, null=True, on_delete=models.CASCADE)
     resposta_escrita = models.TextField(max_length=2000, default=None, blank=True, null=True)
