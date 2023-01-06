@@ -154,7 +154,7 @@ def dimensions_view(request, protocol_id, part_id, area_id, instrument_id, patie
     patient = Participante.objects.get(pk=patient_id)
 
     if len(dimensions) == 1:
-        return redirect('sections', protocol_id, part_id, area_id, instrument_id, dimensions.get().id, patient_id)
+        return redirect('protocolo:sections', protocol_id, part_id, area_id, instrument_id, dimensions.get().id, patient_id)
 
     # statistics
     r = Resolution.objects.get(patient=patient, doctor=request.user, part=part)
@@ -192,7 +192,7 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
 
     sections = Section.objects.filter(dimension=dimension_id).order_by('order')
     if len(sections) == 1:
-        return redirect('question', protocol_id, part_id, area_id, instrument_id, dimension_id, sections.get().id,
+        return redirect('protocolo:question', protocol_id, part_id, area_id, instrument_id, dimension_id, sections.get().id,
                         patient_id)
 
     # statistics
@@ -543,18 +543,18 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
 
 
         if question.question_type == 3:
-            return redirect('instruments', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
+            return redirect('protocolo:instruments', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
                             patient_id=patient_id)
         elif question.name == "Relação com o Avaliador" or question.name == "Cooperação dada na entrevista" or question.name == "Questionário Sociodemográfico":
-            return redirect('areas', protocol_id=protocol_id, part_id=part_id, patient_id=patient_id)
+            return redirect('protocolo:areas', protocol_id=protocol_id, part_id=part_id, patient_id=patient_id)
         elif question.section.dimension.name == "None" and question.section.name == "None":
-            return redirect('instruments', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
+            return redirect('protocolo:instruments', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
                             patient_id=patient_id)
         elif question.section.name == "None" or question.question_type == 9 or question.section.dimension.number_of_questions == 1:
-            return redirect('dimensions', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
+            return redirect('protocolo:dimensions', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
                             instrument_id=instrument_id, patient_id=patient_id)
         else:
-            return redirect('sections', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
+            return redirect('protocolo:sections', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
                             instrument_id=instrument_id, dimension_id=dimension_id, patient_id=patient_id)
     end = time.time()
     print("Question", (end - start))
@@ -680,9 +680,9 @@ def login_view(request):
             if next_url:
                 return HttpResponseRedirect(next_url)
             elif request.user.groups.filter(name='Avaliador').exists():
-                return redirect('dashboard')
+                return redirect('protocolo:dashboard')
             elif request.user.groups.filter(name__in=['Dinamizador','Cuidador','Participante']).exists():
-                return redirect('diario:dashboard_Care')
+                return redirect('protocolo:diario:dashboard_Care')
                     
     context = {
         'next': next,
