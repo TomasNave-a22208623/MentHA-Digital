@@ -1045,7 +1045,7 @@ def view_questionario(request, idPergunta, idParte, sessaoGrupo):
 
 
 def partilha_parte(request, sessaoGrupo, idParteExercico):
-    print('partilha parte')
+    #print('partilha parte')
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo)
     sg.parte_ativa = Parte_Exercicio.objects.get(id=idParteExercico)
     sg.save()
@@ -1055,6 +1055,23 @@ def partilha_parte(request, sessaoGrupo, idParteExercico):
                 'message' : f'{sg.id}',
             })
     return HttpResponse("OK")
+
+@login_required(login_url='login')
+@check_user_able_to_see_page('Todos')
+def view_avaliacao_participantes(request, sessaoGrupoid):
+    sg = SessaoDoGrupo.objects.get(id = sessaoGrupoid)
+
+    participantes = sg.grupo.participantes.all()
+
+    form = AvaliacaoParticipanteForm(None)
+
+    contexto = {
+        'participantes': participantes,
+        'request' : request,
+        'form' : form,
+        }
+
+    return render(request, "diario/avaliacao_participante.html", contexto)
     
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')

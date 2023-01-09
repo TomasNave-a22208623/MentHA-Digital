@@ -70,6 +70,8 @@ urlpatterns = [
                        name='partilha_parte'),
                   path('guarda_resposta/<int:sessaoGrupo_id>/<int:parteGrupo_id>/<int:utilizador_id>/<int:pergunta_id>/<int:parte_exercicio_id>', views.guarda_resposta_view, 
                        name="guarda_resposta"),
+               path('avaliacao_participantes/<int:sessaoGrupoid>', views.view_avaliacao_participantes, 
+                       name="avaliacao_participantes"),
                #    path('respostas/<int:idSessaoGrupo>/<int:idParticipante>/', views.respostas_view, 
                #         name="respostas"),
                                          

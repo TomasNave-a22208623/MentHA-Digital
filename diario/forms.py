@@ -80,6 +80,26 @@ class DinamizadorForm(ModelForm):
             'funcao': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a função ...'}),
         }
 
+class AvaliacaoParticipanteForm(ModelForm):
+    class Meta:
+        CHOICES= (
+        (1, 1),
+        (2, 2),
+        (3, 3),
+        (4, 4),
+        (5, 5),
+        )
+        model = AvaliacaoParticipante
+        fields = {'interesse', 'comunicacao', 'iniciativa', 'satisfacao', 'humor', 'eficacia_relacional'}
+        widgets = {
+            'interesse': forms.Select(choices=CHOICES),
+            'comunicacao': forms.Select(choices=CHOICES),
+            'iniciativa': forms.Select(choices=CHOICES),
+            'satisfacao': forms.Select(choices=CHOICES),
+            'humor': forms.Select(choices=CHOICES),
+            'eficacia_relacional': forms.Select(choices=CHOICES),
+        }
+
 class Documents_Form(ModelForm):
     class Meta:
         model = Documents

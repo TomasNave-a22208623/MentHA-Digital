@@ -426,7 +426,7 @@ class AvaliacaoParticipante(models.Model):
             MaxValueValidator(5),
             MinValueValidator(1)
         ]
-    participant = models.ForeignKey(Participante,  on_delete= models.CASCADE,  blank=True)
+    participante = models.ForeignKey(Participante,  on_delete= models.CASCADE,  blank=True)
     sessao_grupo = models.ForeignKey(SessaoDoGrupo,  on_delete= models.CASCADE,  blank=True)
     interesse = models.IntegerField(default=1, validators=validators, blank = True, null = True)
     comunicacao = models.IntegerField(default=1, validators=validators, blank = True, null = True)
