@@ -4,6 +4,7 @@ from datetime import datetime
 from django import forms
 from django.conf import settings
 import math
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 ##### Eventos ######################################
@@ -420,6 +421,20 @@ class Participante(Utilizador):
         return f'{self.info_sensivel.nome}'
 
   
+class AvaliacaoParticipante(models.Model):
+    validators = [
+            MaxValueValidator(5),
+            MinValueValidator(1)
+        ]
+    participant = models.ForeignKey(Participante,  on_delete= models.CASCADE,  blank=True)
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo,  on_delete= models.CASCADE,  blank=True)
+    interesse = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    comunicacao = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    iniciativa = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    satisfacao = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    humor = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    eficacia_relacional = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+
 class Exercicio(models.Model):
     sessao = models.ManyToManyField(Sessao, default = None ,blank = True, related_name='exercicios')  
     dominio = models.CharField(max_length=100, default = '')

@@ -190,8 +190,15 @@
             {% endif %}
 
             {% if parte.descricao|length > 0 %}
-            <div style ="padding-bottom: 3%;"class = "exercicio-descricao center h4">
-                {{ parte.descricao }}
+                
+            <div style ="padding-bottom: 3%;"class = "exercicio-descricao center 
+            {% if parte.descricao|length > 150 %}
+            h5
+            {% else %}
+            h4
+            {% endif %}
+            ">
+                {{ parte.descricao|markdownify }}
             </div>
             {% endif %}
             

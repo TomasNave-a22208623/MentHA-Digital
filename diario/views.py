@@ -889,6 +889,7 @@ def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
 @login_required(login_url='login')
 @check_user_able_to_see_page('Todos')
 def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte):
+    respostas_existentes = {}
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo_id)
     participante = Participante.objects.filter(user=request.user)
     if len(participante) > 0:
@@ -913,12 +914,14 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
         else:
             q = None
         contexto['q'] = q
-        
+    
+    
     elif programa == "COG":
         exercicio = Exercicio.objects.get(id=parte_do_grupo_id)
         parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
         contexto['exercicio'] = exercicio
         contexto['dura'] = exercicio.duracao
+
         respostas_existentes = {}
         
         form_list = []
