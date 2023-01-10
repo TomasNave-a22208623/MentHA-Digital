@@ -290,7 +290,7 @@ class Cuidador(Utilizador):
 
     @property
     def lista_nomes_participantes(self):
-        return [participante.nome for participante in self.participantes.all()]
+        return [participante.info_sensivel.nome for participante in self.participantes.all()]
 
     @property
     def lista_nomes_documents(self):
@@ -305,7 +305,7 @@ class Cuidador(Utilizador):
         return set([participante.referenciacao.nome for participante in self.participantes.all()])
 
     def __str__(self):
-        return f'{self.nome}'
+        return f'{self.info_sensivel.nome}'
 
 
 class Mentor(Utilizador):
@@ -320,7 +320,7 @@ class DinamizadorConvidado(Utilizador):
     grupo = models.ManyToManyField(Grupo, blank=True, related_name='dinamizadores')
 
     def __str__(self):
-        return f'{self.nome}'
+        return f'{self.info_sensivel.nome}'
 
 
 class Documents(models.Model):
