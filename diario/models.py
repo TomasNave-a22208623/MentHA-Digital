@@ -275,6 +275,23 @@ class Utilizador(models.Model):
     
     class Meta:
         abstract = True
+
+    @property
+    def nome(self):
+        return self.info_sensivel.nome
+
+    @property
+    def email(self):
+        return self.info_sensivel.email
+
+    @property
+    def telemovel(self):
+        return self.info_sensivel.telemovel
+
+    @property
+    def imagem(self):
+        return self.info_sensivel.imagem
+
     
 
 class Cuidador(Utilizador):
@@ -417,10 +434,17 @@ class Participante(Utilizador):
     cuidadores = models.ManyToManyField(Cuidador, blank=True, related_name='participantes')
     avaliador = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, default=None, blank=True, null=True, related_name='participantes')
 
+ 
     def __str__(self):
         return f'{self.info_sensivel.nome}'
 
-  
+class Facilitador(Utilizador):
+    grupo = models.ManyToManyField(Grupo, blank=True, related_name='facilitadores')
+
+    def __str__(self):
+        return f'{self.nome}'
+
+    
 class AvaliacaoParticipante(models.Model):
     validators = [
             MaxValueValidator(5),
@@ -434,6 +458,34 @@ class AvaliacaoParticipante(models.Model):
     satisfacao = models.IntegerField(default=1, validators=validators, blank = True, null = True)
     humor = models.IntegerField(default=1, validators=validators, blank = True, null = True)
     eficacia_relacional = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+
+    submetido_por = models.ForeignKey(Facilitador,  on_delete= models.CASCADE,  blank=True, null = True, default = None)
+
+    #talvez fazer outra tabela para isto
+    observacao = models.TextField(max_length=550, default = "", blank = True, null = True)
+
+    def __str__(self):
+        return f"Avaliação de {self.participante.nome} na sessao {self.sessao_grupo.sessao.numeroSessao}"
+
+class AvaliacaoSessao(models.Model):
+    validators = [
+            MaxValueValidator(5),
+            MinValueValidator(1)
+        ]    
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo,  on_delete= models.CASCADE,  blank=True)
+    planificacao_conteudos = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    adq_conteudos = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    adq_materiais = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    adq_tempo = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    grau_dominio = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    necessidade_treino = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    apreciacao_global = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    tipo_treino_competencias = models.TextField(max_length=550, default = "", blank = True, null = True)
+    #talvez fazer outra tabela para isto
+
+    submetido_por = models.ForeignKey(Facilitador,  on_delete= models.CASCADE,  blank=True, null = True, default = None)
+
+    observacao = models.TextField(max_length=550, default = "", blank = True, null = True)
 
 class Exercicio(models.Model):
     sessao = models.ManyToManyField(Sessao, default = None ,blank = True, related_name='exercicios')  
@@ -582,12 +634,6 @@ class Partilha(models.Model):
 
 ###################################  COG ########################
 
-
-# class Facilitador(Utilizador):
-#     grupo = models.ManyToManyField(Grupo, blank=True, related_name='facilitadores')
-
-#     def __str__(self):
-#         return f'{self.nome}'
 
 
 # class Auxiliar(Utilizador):

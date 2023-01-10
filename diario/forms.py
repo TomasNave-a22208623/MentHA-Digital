@@ -92,12 +92,34 @@ class AvaliacaoParticipanteForm(ModelForm):
         model = AvaliacaoParticipante
         fields = {'interesse', 'comunicacao', 'iniciativa', 'satisfacao', 'humor', 'eficacia_relacional'}
         widgets = {
-            'interesse': forms.Select(choices=CHOICES),
-            'comunicacao': forms.Select(choices=CHOICES),
-            'iniciativa': forms.Select(choices=CHOICES),
-            'satisfacao': forms.Select(choices=CHOICES),
-            'humor': forms.Select(choices=CHOICES),
-            'eficacia_relacional': forms.Select(choices=CHOICES),
+            'interesse': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_participante'}),
+            'comunicacao': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_participante'}),
+            'iniciativa': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_participante'}),
+            'satisfacao': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_participante'}),
+            'humor': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_participante'}),
+            'eficacia_relacional': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_participante'}),
+        }
+
+class AvaliacaoSessaoForm(ModelForm):
+    class Meta:
+        CHOICES= (
+        (1, 1),
+        (2, 2),
+        (3, 3),
+        (4, 4),
+        (5, 5),
+        )
+        model = AvaliacaoSessao
+        fields = {'planificacao_conteudos', 'adq_conteudos', 'adq_materiais', 'adq_tempo', 'grau_dominio', 'necessidade_treino', 'apreciacao_global', 'tipo_treino_competencias'}
+        widgets = {
+            'planificacao_conteudos': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
+            'adq_conteudos': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
+            'adq_materiais': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
+            'adq_tempo': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
+            'grau_dominio': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
+            'necessidade_treino': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
+            'apreciacao_global': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
+            'tipo_treino_competencias':forms.Textarea(attrs={'rows':1, 'cols':32, 'class' : 'avaliacao_sessao'})
         }
 
 class Documents_Form(ModelForm):

@@ -259,7 +259,60 @@ function submete(sg_id, pg_id, participante_id){
   submete_radio(sg_id, pg_id, participante_id);
 }
 
+function submete_avaliacao(sg_id){
+  event.preventDefault();
+  var participante_list = [];
+  var interesse_list = [];
+  var comunicacao_list = [];
+  var iniciativa_list = [];
+  var satisfacao_list = [];
+  var humor_list = [];
+  var eficacia_relacional_list = [];
+  var observacoes;
+  document.querySelectorAll(".avaliacao_participante").forEach((i) => {
+    if (i.name == "participante"){
+        participante_list.push(i.value);
+    }
+    if (i.name == "interesse"){
+      interesse_list.push(i.value);
+    }
+    if (i.name == "comunicacao"){
+      comunicacao_list.push(i.value);
+    }
+    if (i.name == "iniciativa"){
+      iniciativa_list.push(i.value);
+    }
+    if (i.name == "satisfacao"){
+      satisfacao_list.push(i.value);
+    }
+    if (i.name == "humor"){
+      humor_list.push(i.value);
+    }
+    if (i.name == "eficacia_relacional"){
+        eficacia_relacional_list.push(i.value);
+    }
+  });
 
+  observacao = document.querySelector('#obs_part').value
+  
+    for (let i = 0; i < participante_list.length - 1; i++) {
+      formData = new FormData();
+      csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+      formData.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
+      formData.append('participante', participante_list[i]);
+      formData.append('interesse', interesse_list[i]);
+      formData.append('comunicacao', comunicacao_list[i]);
+      formData.append('iniciativa', iniciativa_list[i]);
+      formData.append('satisfacao', satisfacao_list[i]);
+      formData.append('humor', humor_list[i]);
+      formData.append('eficacia_relacional', eficacia_relacional_list[i]);
+      formData.append('observacao', observacao )
+      fetch('/diario/guarda_avaliacao_participante/' + sg_id, {
+        method: "POST",
+        body: formData,
+      });    
+    }
+}
 // function atualiza_respostas(sg_id){
 //   p_id = document.querySelector("#respostas").dataset.participante
 //   fetch('/diario/respostas/' + sg_id + '/' + p_id, { method: "GET"})

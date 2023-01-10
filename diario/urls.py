@@ -74,6 +74,7 @@ urlpatterns = [
                        name="avaliacao_participantes"),
                #    path('respostas/<int:idSessaoGrupo>/<int:idParticipante>/', views.respostas_view, 
                #         name="respostas"),
-                                         
+               path('guarda_avaliacao_participante/<int:sessaoGrupo_id>', views.guarda_avaliacao_participante, 
+                    name="guarda_avaliacao_participante"),                      
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
