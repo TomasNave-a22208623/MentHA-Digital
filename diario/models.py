@@ -18,7 +18,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 #     class Meta:
 #         abstract = True
 #         Eu CONSEGUI
-# EU JAMES TAMBEM
+#         EU JAMES TAMBEM
+#         O Tiago Silva esteve aqui
 
 class Reference(models.Model):
     nome = models.CharField(max_length=20, default="")
