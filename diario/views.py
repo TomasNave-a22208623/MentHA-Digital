@@ -60,7 +60,7 @@ def nextSession(request):
 
     return render(request, 'diario/nextSession.html', contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def dashboard(request):
     # doctor = request.user
@@ -90,7 +90,7 @@ def dashboard(request):
     return render(request, 'diario/dashboard.html', contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def new_group(request):
     formGrupo = GrupoForm(request.POST or None)
@@ -154,7 +154,7 @@ def new_group(request):
     return render(request, 'diario/new_group.html', contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def guarda_grupo(request):
     if request.method == 'POST':
@@ -201,7 +201,7 @@ def guarda_grupo(request):
     return redirect('diario:dashboard_Care')
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_group_details(request, grupo_id):
     cuidadores = Cuidador.objects.filter(grupo=grupo_id)
@@ -218,7 +218,7 @@ def view_group_details(request, grupo_id):
     return render(request, "diario/detalhes_grupo.html", contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def group_members(request, grupo_id):
     cuidadores = Cuidador.objects.filter(grupo=grupo_id)
@@ -243,7 +243,7 @@ def group_members(request, grupo_id):
     return render(request, "diario/group_members.html", contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def group_sessions(request, grupo_id):
     # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
@@ -288,7 +288,7 @@ def group_sessions_cog(request, grupo_id):
     }
     return render(request, "diario/group_sessions.html", contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def group_notes(request, grupo_id):
     contexto = {
@@ -299,7 +299,7 @@ def group_notes(request, grupo_id):
     return render(request, "diario/group_notes.html", contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def caregiver_update(request, cuidador_id, grupo_id):
     cuidador = Cuidador.objects.get(pk=cuidador_id)
@@ -317,7 +317,7 @@ def caregiver_update(request, cuidador_id, grupo_id):
     return render(request, "diario/caregiver_update.html", contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def create_caregiver(request, grupo_id):
     # formCuidador = CuidadorForm(request.POST or None)
@@ -334,7 +334,7 @@ def create_caregiver(request, grupo_id):
     return render(request, "diario/create_caregiver.html", contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def profile_care_view(request, cuidador_id, grupo_id):
     formDocument = Documents_Form(request.POST, request.FILES)
@@ -356,7 +356,7 @@ def profile_care_view(request, cuidador_id, grupo_id):
     return render(request, "diario/profile.html", contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def caregiver_delete(request, cuidador_id, grupo_id):
     cuidador = Cuidador.objects.get(pk=cuidador_id)
@@ -366,7 +366,7 @@ def caregiver_delete(request, cuidador_id, grupo_id):
     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def dinamizador_delete(request, dinamizador_id, grupo_id):
     dinamizador = DinamizadorConvidado.objects.get(pk=dinamizador_id)
@@ -375,7 +375,7 @@ def dinamizador_delete(request, dinamizador_id, grupo_id):
     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def assign_dinamizador(request, grupo_id, dinamizador_id):
     dinamizador = DinamizadorConvidado.objects.get(id=dinamizador_id)
@@ -384,7 +384,7 @@ def assign_dinamizador(request, grupo_id, dinamizador_id):
 
     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def assign_caregiver(request, grupo_id, cuidador_id):
     cuidador = Cuidador.objects.get(id=cuidador_id)
@@ -393,7 +393,7 @@ def assign_caregiver(request, grupo_id, cuidador_id):
 
     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def dinamizador_update(request, dinamizador_id, grupo_id):
     dinamizador = DinamizadorConvidado.objects.get(pk=dinamizador_id)
@@ -412,7 +412,7 @@ def dinamizador_update(request, dinamizador_id, grupo_id):
     return render(request, "diario/dina_update.html", contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def delete_groups(request, grupo_id):
     grupo = Grupo.objects.get(pk=grupo_id)
@@ -421,7 +421,7 @@ def delete_groups(request, grupo_id):
     return HttpResponseRedirect(reverse('diario:dashboard_Care'))
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def update_groups(request, grupo_id):
     grupo = Grupo.objects.get(pk=grupo_id)
@@ -439,7 +439,7 @@ def update_groups(request, grupo_id):
     return render(request, "diario/update_groups.html", contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def filter_group(request, cuidador_id):
     cuidador = Cuidador.objects.get(id=cuidador_id)
@@ -484,7 +484,7 @@ def filter_group(request, cuidador_id):
     return render(request, "diario/filter_groups.html", contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def assign_group(request, grupo_id, cuidador_id):
     cuidador = Cuidador.objects.get(id=cuidador_id)
@@ -578,7 +578,7 @@ def view_iniciar_sessao(request, sessao_grupo_id):
 
     return HttpResponseRedirect(reverse('diario:sessao', args=[sessao_grupo_id,grupo_id]))
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_sessao(request, sessao_grupo_id, grupo_id):
     grupo = Grupo.objects.get(id=grupo_id)
@@ -621,7 +621,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
 
     return render(request, 'diario/sessao.html', contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_detalhes_sessao(request, id_sessao_grupo):
     sessao = SessaoDoGrupo.objects.get(sessao=id, grupo=id_sessao_grupo)
@@ -638,7 +638,7 @@ def view_detalhes_sessao(request, id_sessao_grupo):
     }
     return render(request, "diario/detalhes_sessao.html", contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_diario(request, idGrupo, idSessao):  # NN: Usar sessao_grupo_id em vez de idSessao
     grupo = Grupo.objects.filter(id=idGrupo).get()
@@ -656,7 +656,7 @@ def view_diario(request, idGrupo, idSessao):  # NN: Usar sessao_grupo_id em vez 
 
     return render(request, "diario/diario.html", contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_diario_participante(request, idSessaoGrupo, idParticipante):
     sessao_grupo = SessaoDoGrupo.objects.get(pk=idSessaoGrupo)
@@ -673,10 +673,24 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         for ex in exercicios:
             for parte in ex.partes_do_exercicio.all():
                 for pergunta in parte.perguntas.all():
+                    initial_data = {}
+                    r = Resposta.objects.filter(
+                        participante__id = idParticipante,
+                        sessao_grupo__id = idSessaoGrupo,
+                        pergunta = pergunta,
+                        parte_exercicio = parte,
+                        )
+                    if len(r) > 0:
+                        r = r.get()
+                        initial_data = {
+                        'resposta_escrita' : r.resposta_escrita,
+                        'certo' : r.certo,
+                        }
+                        
                     if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
-                        form = RespostaForm_RespostaEscrita_Dinamizador(None, initial={'pergunta':pergunta})
+                        form = RespostaForm_RespostaEscrita_Dinamizador(None, initial=initial_data)
                     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
-                        form = RespostaForm_RespostaSubmetida_Dinamizador(None, initial={'pergunta':pergunta})
+                        form = RespostaForm_RespostaSubmetida_Dinamizador(None)
                     tuplo = (pergunta,form)
                     form_list.append(tuplo)
         
@@ -710,7 +724,7 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
 
     return render(request, "diario/diario_participante.html", context)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_atualiza_presencas_diario(request, idSessaoGrupo):
     sessao_grupo = SessaoDoGrupo.objects.get(pk=idSessaoGrupo)
@@ -765,7 +779,7 @@ def view_atualiza_presencas_diario(request, idSessaoGrupo):
 
     return render(request, "diario/diario_participante.html", context)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_diario_grupo(request, idSessaoGrupo):
     sessao_grupo = SessaoDoGrupo.objects.get(id = idSessaoGrupo)
@@ -827,7 +841,7 @@ def view_diario_grupo(request, idSessaoGrupo):
     return render(request, "diario/diario_grupo.html", context)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_presencas_sessao(request, proxima_id):
     sessao_grupo = SessaoDoGrupo.objects.get(id=proxima_id)
@@ -840,7 +854,7 @@ def view_presencas_sessao(request, proxima_id):
     return render(request, "diario/presencas_sessao.html", contexto)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
     sg = SessaoDoGrupo.objects.get(sessao=sessaoGrupo_id, grupo=idGrupo)
@@ -872,9 +886,10 @@ def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
     }
     return render(request, "diario/parteDetalhes.html", contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte):
+    respostas_existentes = {}
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo_id)
     participante = Participante.objects.filter(user=request.user)
     if len(participante) > 0:
@@ -899,25 +914,50 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
         else:
             q = None
         contexto['q'] = q
-        
+    
+    
     elif programa == "COG":
         exercicio = Exercicio.objects.get(id=parte_do_grupo_id)
         parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
         contexto['exercicio'] = exercicio
         contexto['dura'] = exercicio.duracao
+
+        respostas_existentes = {}
         
         form_list = []
         for parte in exercicio.partes_do_exercicio.all():
+            initial_data = {}
             if parte.perguntas.all():
                 for pergunta in parte.perguntas.all():
-                    if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
-                        form = RespostaForm_RespostaEscrita(None, initial={'pergunta':pergunta})
-                    elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
-                        form = RespostaForm_RespostaSubmetida(None, initial={'pergunta':pergunta})
-                    tuplo = (pergunta,form)
-                    form_list.append(tuplo)
-            contexto['form_list'] = form_list 
+                    r = Resposta.objects.filter(
+                        participante__user=request.user,
+                        sessao_grupo__id = sessaoGrupo_id,
+                        pergunta = pergunta,
+                        #parte_grupo__id = parte_do_grupo_id,
+                        parte_exercicio = parte,
+                        )
                     
+
+                    if len(r) > 0:
+                        r = r.get()
+                        print(r)
+                        initial_data = {
+                        'resposta_escrita' : r.resposta_escrita
+                        }
+                        
+                    if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+                        form = RespostaForm_RespostaEscrita(None, initial=initial_data)
+                    elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
+                        form = RespostaForm_RespostaSubmetida(None)
+                    elif pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+                        form = None
+                    
+                    tuplo = (pergunta, parte.ordem ,form)
+                    form_list.append(tuplo)
+
+            contexto['form_list'] = form_list 
+            
+    contexto['respostas_existentes'] = respostas_existentes          
     contexto['parteGrupo'] = parte_group
     
     imagem = Imagem.objects.get(pk=1)
@@ -930,7 +970,7 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
 
     return render(request, "diario/parte.html", contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def get_respostas_do_participante(request, idSessaoGrupo, idParteGrupo, idParticipante):
     contexto = {}
@@ -954,7 +994,7 @@ def get_respostas_do_participante(request, idSessaoGrupo, idParteGrupo, idPartic
         
     return render(request, "diario/respostas.html", contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_questionario(request, idPergunta, idParte, sessaoGrupo):
     parte = Parte.objects.get(id=idParte)
@@ -1005,7 +1045,7 @@ def view_questionario(request, idPergunta, idParte, sessaoGrupo):
 
 
 def partilha_parte(request, sessaoGrupo, idParteExercico):
-    print('partilha parte')
+    #print('partilha parte')
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo)
     sg.parte_ativa = Parte_Exercicio.objects.get(id=idParteExercico)
     sg.save()
@@ -1015,8 +1055,93 @@ def partilha_parte(request, sessaoGrupo, idParteExercico):
                 'message' : f'{sg.id}',
             })
     return HttpResponse("OK")
-    
-@login_required(login_url='login')
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def view_avaliacao_participantes(request, sessaoGrupoid):
+    sg = SessaoDoGrupo.objects.get(id = sessaoGrupoid)
+
+    participantes = sg.grupo.participantes.all()
+
+    obs_part = ""
+
+    participantes_form_list = []
+    for participante in participantes:
+        existente = AvaliacaoParticipante.objects.filter(sessao_grupo = sg, participante = participante, submetido_por = Facilitador.objects.get(user=request.user))
+        if len(existente) > 0:
+            existente = existente.get()
+            obs_part = existente.observacao
+            initial_data = {
+                    'interesse' : existente.interesse,
+                    'comunicacao' : existente.comunicacao,
+                    'iniciativa' : existente.iniciativa,
+                    'satisfacao' : existente.satisfacao,
+                    'humor' : existente.humor,
+                    'eficacia_relacional' : existente.eficacia_relacional,
+                    }
+            form = AvaliacaoParticipanteForm(None, initial = initial_data)
+        else:
+            form = AvaliacaoParticipanteForm(None)
+        tuplo = (participante , form)
+        participantes_form_list.append(tuplo)
+
+    existente = AvaliacaoSessao.objects.filter(sessao_grupo = sg)
+    form_sessao = AvaliacaoSessaoForm(None)
+
+    contexto = {
+        'participantes': participantes,
+        'request' : request,
+        #'form_paciente' : form_paciente,
+        'form_sessao': form_sessao,
+        'sg_id': sg.id,
+        'participantes_form_list': participantes_form_list,
+        'obs_part': obs_part,
+        }
+
+    print(contexto)
+    return render(request, "diario/avaliacao_participante.html", contexto)
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def guarda_avaliacao_participante(request, sessaoGrupo_id):
+    sg = SessaoDoGrupo.objects.get(id=sessaoGrupo_id)
+    participante_id = request.POST.get('participante')
+
+    avaliacao_existente = AvaliacaoParticipante.objects.filter(
+        sessao_grupo__id = sessaoGrupo_id,
+        participante__id = participante_id,
+        submetido_por = Facilitador.objects.get(user=request.user)
+        )
+
+    print(request.POST)
+
+    if len(avaliacao_existente) > 0:
+        avaliacao_existente = avaliacao_existente.get()
+        avaliacao_existente.interesse = request.POST.get('interesse')
+        avaliacao_existente.comunicacao = request.POST.get('comunicacao')
+        avaliacao_existente.iniciativa = request.POST.get('iniciativa')
+        avaliacao_existente.satisfacao = request.POST.get('satisfacao')
+        avaliacao_existente.humor = request.POST.get('humor')
+        avaliacao_existente.eficacia_relacional = request.POST.get('eficacia_relacional')
+        avaliacao_existente.observacao = request.POST.get('observacao')
+        avaliacao_existente.save()
+    else:
+        avaliacao = AvaliacaoParticipante(
+            participante = Participante.objects.get(id = request.POST.get('participante')),
+            sessao_grupo = sg,
+            interesse = request.POST.get('interesse'),
+            comunicacao = request.POST.get('comunicacao'),
+            iniciativa = request.POST.get('iniciativa'),
+            satisfacao = request.POST.get('satisfacao'),
+            humor = request.POST.get('humor'),
+            eficacia_relacional = request.POST.get('eficacia_relacional'),
+            observacao = request.POST.get('observacao'),
+            submetido_por = Facilitador.objects.get(user=request.user)
+            )
+        avaliacao.save()
+
+    return HttpResponse("OK")
+
 @check_user_able_to_see_page('Todos')
 def view_exercicio(request, idExercicio, parteGrupo, sessaoGrupo):
     parte_grupo = ParteGrupo.objects.get(id=parteGrupo)
@@ -1038,7 +1163,7 @@ def view_exercicio(request, idExercicio, parteGrupo, sessaoGrupo):
     }
     return render(request, "diario/exercicio.html", contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_questionario_satisfacao(request, idPergunta, idParte, sessaoGrupo):
     parte = Parte.objects.get(id=idParte)
@@ -1123,7 +1248,7 @@ def view_questionario_satisfacao(request, idPergunta, idParte, sessaoGrupo):
     
     return render(request, "diario/questionario_satisfacao.html", contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
     factory = qrcode.image.svg.SvgImage
@@ -1146,7 +1271,7 @@ def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
     }
     return render(request, "diario/abrirQuestionario.html", contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_resultados(request, idPergunta,idParte,sessaoGrupo):
     pergunta = Pergunta.objects.get(id=1)
@@ -1174,7 +1299,7 @@ def view_resultados(request, idPergunta,idParte,sessaoGrupo):
     return render(request, 'diario/resultados.html', context)
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def finalizar_parte(request, idParte, sessao_grupo_id, estado):
     parte_group = ParteGrupo.objects.get(parte_id=idParte, sessaoGrupo_id=sessao_grupo_id)
@@ -1193,7 +1318,7 @@ def finalizar_parte(request, idParte, sessao_grupo_id, estado):
     return HttpResponseRedirect(reverse('diario:sessao', args=[sessao_grupo_id, grupo_id]))
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def voltar_parte(request, idParte, sessao_grupo_id, estado):
     parte_group = ParteGrupo.objects.get(parte_id=idParte, sessaoGrupo_id=sessao_grupo_id)
@@ -1210,7 +1335,7 @@ def voltar_parte(request, idParte, sessao_grupo_id, estado):
     return HttpResponseRedirect(reverse('diario:detalhes_sessao', args=[sessao_grupo_id]))
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def finalizar_sessao(request, idGrupo, sessao_grupo_id):
     sessao_group = SessaoDoGrupo.objects.get(id=sessao_grupo_id)
@@ -1223,7 +1348,7 @@ def finalizar_sessao(request, idGrupo, sessao_grupo_id):
     return HttpResponseRedirect(reverse('diario:group_sessions', args=[idGrupo]))
 
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_changeDate(request, sessao_id, group_id):
     sessao = SessaoDoGrupo.objects.get(sessao_id=sessao_id, grupo_id=group_id)
@@ -1240,13 +1365,18 @@ def view_changeDate(request, sessao_id, group_id):
 
     return render(request, "diario/changeDate.html", contexto)
 
-@login_required(login_url='login')
+@login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
-def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, pergunta_id):
-
+def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, pergunta_id, parte_exercicio_id):
     pergunta = Pergunta_Exercicio.objects.get(id=pergunta_id)
-    resposta_existente = Resposta.objects.filter(pergunta__id = pergunta_id, sessao_grupo__id = sessaoGrupo_id, participante__id = utilizador_id)
-    print(resposta_existente)
+    resposta_existente = Resposta.objects.filter(
+        pergunta__id = pergunta_id, 
+        parte_grupo__id = parteGrupo_id, 
+        sessao_grupo__id = sessaoGrupo_id, 
+        participante__id = utilizador_id,
+        parte_exercicio__id = parte_exercicio_id
+        )
+    #print(resposta_existente)
     r = None
     if len(resposta_existente) > 0:
         r = resposta_existente[0]
@@ -1254,15 +1384,60 @@ def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, 
         r = Resposta(
             participante = Participante.objects.get(id = utilizador_id),
             pergunta = pergunta,
-            sessao_grupo = SessaoDoGrupo.objects.get(id = sessaoGrupo_id))
+            sessao_grupo = SessaoDoGrupo.objects.get(id = sessaoGrupo_id),
+            parte_grupo = ParteGrupo.objects.get(id = parteGrupo_id),
+            parte_exercicio = Parte_Exercicio.objects.get(id = parte_exercicio_id)
+            )
     
-    if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+    if pergunta.tipo_resposta == "RESPOSTA_ESCRITA": 
         r.resposta_escrita = request.POST.get('resposta_escrita')
     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
         r.resposta_submetida = request.FILES.get('file') 
+    elif pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+        r.resposta_escolha = Opcao.objects.get(id=request.POST.get('choice'))
+    #print(r)
     r.save()
- 
-    print(request.FILES)
+    #print(request.FILES)
     return HttpResponse("OK")
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def respostas_view(request, idSessaoGrupo, idParticipante):
+    #USADO PARA ATUALIZAR SO A PARTE DAS RESPOSTAS DO DIARIO
+    sessao_grupo = SessaoDoGrupo.objects.get(pk=idSessaoGrupo)
+    participante = Participante.objects.get(pk=idParticipante)
+    exercicios = sessao_grupo.sessao.exercicios.all()
     
-    
+    form_list = []
+    for ex in exercicios:
+        for parte in ex.partes_do_exercicio.all():
+            for pergunta in parte.perguntas.all():
+                r = Resposta.objects.filter(
+                    participante__id = idParticipante,
+                    sessao_grupo__id = idSessaoGrupo,
+                    pergunta = pergunta,
+                    )
+                
+                if len(r) > 0:
+                    r = r.get()
+                    initial_data = {
+                    'resposta_escrita' : r.resposta_escrita,
+                    'certo' : r.certo,
+                    }
+                    
+                if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+                    form = RespostaForm_RespostaEscrita_Dinamizador(None, initial=initial_data)
+                elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
+                    form = RespostaForm_RespostaSubmetida_Dinamizador(None)
+                tuplo = (pergunta,form)
+                form_list.append(tuplo)
+        
+    context = {
+        'participante_id': idParticipante,
+        'participante': participante,
+        'participante': participante,
+        'sessaoGrupo': sessao_grupo,
+        'exercicios': exercicios,
+        'form_list': form_list
+    }
+    return render(request, "diario/respostas.html", context)

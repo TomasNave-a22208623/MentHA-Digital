@@ -97,7 +97,11 @@
 <div class="side-by-side">
     <div class="esquerda">
         <h5 class=" m-0 fw-bold">
+        {% if exercicio.numero > 0 %}
             Exercício {{ exercicio.numero}} - {{exercicio.dominio }}
+        {% else %}
+            {{ exercicio.dominio }}
+        {% endif %}
         </h5>
     </div>
     <div style ="width:25%" class="direita">
@@ -186,42 +190,67 @@
             {% endif %}
 
             {% if parte.descricao|length > 0 %}
-            <div class = "exercicio-descricao center">
-                {{ parte.descricao }}
+                
+            <div style ="padding-bottom: 3%;"class = "exercicio-descricao center 
+            {% if parte.descricao|length > 150 %}
+            h5
+            {% else %}
+            h4
+            {% endif %}
+            ">
+                {{ parte.descricao|markdownify }}
             </div>
             {% endif %}
             
             {% if parte.perguntas.all|length > 0%}
                 {% csrf_token %}
+                <div class = "flex-container">
                 {% for pergunta in parte.perguntas.all %}
-                <div class = "exercicio-pergunta form-group" style="{%if pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA" %} flex-direction: column {% else %} flex-direction: row {% endif %}">
-                    {% for perg,form in form_list %}
-                        {% if perg == pergunta %}
+                <div class = "exercicio-pergunta form-group right" style="{%if pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA" %} flex-direction: column {% else %} flex-direction: row {% endif %}">
+                    {% if pergunta.dificuldade == "A" or pergunta.dificuldade == "B" %}
+                        <div class ="left text-primary h3">
+                            {{ pergunta.dificuldade }}
+                        </div>
+                        {% endif%}
+                   
+                    {% for perg,parte_ordem,form in form_list %}
+                        {% if perg == pergunta and parte_ordem == parte.ordem %}
                             {% if pergunta.tipo_resposta == 'UPLOAD_FOTOGRAFIA' %}
                                 <form action="preventDefault()" enctype="multipart/form-data">
-                                    
                                     {% for field in form %}
                                         <label>{{ pergunta.nome }}</label>
                                         <div>
                                             {{ field }} 
                                             <span style="display:none">{{perg.id}}</span>
+                                            <span style="display:none">{{parte.id}}</span>
                                         </div>
                                     {% endfor %}
                                 </form>
+                            {% elif pergunta.tipo_resposta == 'ESCOLHA_MULTIPLA' %}
+                                {% include 'diario/escolha_multipla.html' %}
                             {% else %}
                                 {% for field in form %}
                                     <label>{{ pergunta.nome }}</label>
                                     <div>
                                         {{ field }} 
                                         <span style="display:none">{{perg.id}}</span>
+                                            <span style="display:none">{{parte.id}}</span>
                                     </div>
+                                    {% if pergunta.postexto %}
+                                    <label>
+                                        {{ pergunta.postexto }}
+                                    </label>
+                                    {% endif %}
                                 {% endfor %}
                             {% endif %}
                         {% endif %}
                     {% endfor %}
                 </div> 
+            
                 {% endfor %}
                 <button onclick="submete({{sessaoGrupo.id}},{{parteGrupo.id}},{{participante.id}})" type="button" class="btn btn-primary">Submeter</button>
+            
+            </div>
             {% endif %}
 
             </div>

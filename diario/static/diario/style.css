@@ -10,6 +10,12 @@
     padding-top: 25px;
 }
 
+.imagem-escolha-multipla{
+    max-width:6rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .flex-header{
     display:flex;
     flex-direction: row;
@@ -19,6 +25,11 @@
 
 .form-control{
     margin: auto;
+}
+
+.info{
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .img-preview {
@@ -69,6 +80,19 @@ ol.carousel-indicators li{
     align-items: center;
     flex-direction: row;
     gap: 10px;
+}
+
+.form-check-input {
+position: relative;
+}
+
+.flex-container{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
 }
 
 .margin-l-5{
@@ -259,7 +283,8 @@ ol.carousel-indicators li{
 }
 
 .carousel-inner{
-    width: 95%;
+    overflow: auto;
+    width: 100%;
 }
 
 .partes-exercicio{

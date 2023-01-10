@@ -68,8 +68,13 @@ urlpatterns = [
                        name='voltar_parte'),
                   path('partilha_parte/<int:sessaoGrupo>/<int:idParteExercico>', views.partilha_parte,
                        name='partilha_parte'),
-                  path('guarda_resposta/<int:sessaoGrupo_id>/<int:parteGrupo_id>/<int:utilizador_id>/<int:pergunta_id>', views.guarda_resposta_view, 
+                  path('guarda_resposta/<int:sessaoGrupo_id>/<int:parteGrupo_id>/<int:utilizador_id>/<int:pergunta_id>/<int:parte_exercicio_id>', views.guarda_resposta_view, 
                        name="guarda_resposta"),
-                                         
+               path('avaliacao_participantes/<int:sessaoGrupoid>', views.view_avaliacao_participantes, 
+                       name="avaliacao_participantes"),
+               #    path('respostas/<int:idSessaoGrupo>/<int:idParticipante>/', views.respostas_view, 
+               #         name="respostas"),
+               path('guarda_avaliacao_participante/<int:sessaoGrupo_id>', views.guarda_avaliacao_participante, 
+                    name="guarda_avaliacao_participante"),                      
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

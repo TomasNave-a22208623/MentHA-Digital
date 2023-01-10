@@ -1,5 +1,5 @@
 from django import template
-from datetime import date
+from datetime import datetime
 
 register = template.Library()
 
@@ -435,9 +435,9 @@ def len_dict(dict, key):
 
 @register.simple_tag
 def calculate_age(born):
-    today = date.today()
-    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
-
+    today = datetime.now()
+    #print(today)
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day)) 
 
 
 

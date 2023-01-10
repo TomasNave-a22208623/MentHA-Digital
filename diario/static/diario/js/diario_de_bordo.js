@@ -195,38 +195,129 @@ function atualizaPresencas(id) {
       .then(response => response);
 }
 
-
-function submete(sg_id, pg_id, participante_id){
-  
-  document.querySelectorAll("textarea.carousel, input.carousel, input[type='file']").forEach((i) => {
-    let data = new FormData();
-    if (i.value != ''){
+function submete_texto(sg_id, pg_id, participante_id){
+  document.querySelectorAll("textarea.pergunta, input.pergunta").forEach((i) => {
+    if (i.value.length > 0 && i.type != "radio") {
+      let data = new FormData();
       resposta = i.value;
       pergunta_id = i.nextElementSibling.innerHTML;
-      //console.log("\nid:",pergunta_id)
+      parte_id = i.nextElementSibling.nextElementSibling.innerHTML;
       csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
       data.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
-      data.append('resposta_escrita',resposta)
-      
-      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id, {
+      data.append('resposta_escrita',resposta);
+      //console.log("Fetching: " + '/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id);
+      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id + '/' + parte_id, {
         method: "POST",
-        body: data
+        body: data,
         })
-        .then(response => response);
-      }
-  });
-
-  document.querySelectorAll("input[type='file']").forEach((i) => {
-    let formData = new FormData();           
-    formData.append("file", i.files[0]);
-
-    csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-    formData.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
-
-    fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id, {
-      method: "POST", 
-      body: formData
-    });    
+    }
   });
 }
 
+function submete_ficheiros(sg_id, pg_id, participante_id){
+  document.querySelectorAll("input[type='file']").forEach((i) => {
+    if (i.value.length > 0) {
+      let formData = new FormData();           
+      formData.append("file", i.files[0]);
+      pergunta_id = i.nextElementSibling.innerHTML;
+      parte_id = i.nextElementSibling.nextElementSibling.innerHTML;
+      csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+      formData.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
+
+      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id + '/' + parte_id, {
+        method: "POST", 
+        body: formData
+      });    
+    }
+  });
+}
+
+function submete_radio(sg_id, pg_id, participante_id){
+  document.querySelectorAll("input[type='radio']:checked").forEach((i) => {
+    //console.log("radio");
+    if (i.value.length > 0) {
+      let formData = new FormData();           
+      resposta = i.value
+      formData.append('choice', resposta)
+      pergunta_id = i.nextElementSibling.innerHTML;
+      parte_id = i.nextElementSibling.nextElementSibling.innerHTML;
+      csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+      formData.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
+
+      fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id + '/' + parte_id, {
+        method: "POST", 
+        body: formData
+      });    
+    }
+  });
+}
+
+
+function submete(sg_id, pg_id, participante_id){
+  submete_texto(sg_id, pg_id, participante_id);
+  submete_ficheiros(sg_id, pg_id, participante_id);
+  submete_radio(sg_id, pg_id, participante_id);
+}
+
+function submete_avaliacao(sg_id){
+  event.preventDefault();
+  var participante_list = [];
+  var interesse_list = [];
+  var comunicacao_list = [];
+  var iniciativa_list = [];
+  var satisfacao_list = [];
+  var humor_list = [];
+  var eficacia_relacional_list = [];
+  var observacoes;
+  document.querySelectorAll(".avaliacao_participante").forEach((i) => {
+    if (i.name == "participante"){
+        participante_list.push(i.value);
+    }
+    if (i.name == "interesse"){
+      interesse_list.push(i.value);
+    }
+    if (i.name == "comunicacao"){
+      comunicacao_list.push(i.value);
+    }
+    if (i.name == "iniciativa"){
+      iniciativa_list.push(i.value);
+    }
+    if (i.name == "satisfacao"){
+      satisfacao_list.push(i.value);
+    }
+    if (i.name == "humor"){
+      humor_list.push(i.value);
+    }
+    if (i.name == "eficacia_relacional"){
+        eficacia_relacional_list.push(i.value);
+    }
+  });
+
+  observacao = document.querySelector('#obs_part').value
+  
+    for (let i = 0; i < participante_list.length - 1; i++) {
+      formData = new FormData();
+      csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+      formData.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
+      formData.append('participante', participante_list[i]);
+      formData.append('interesse', interesse_list[i]);
+      formData.append('comunicacao', comunicacao_list[i]);
+      formData.append('iniciativa', iniciativa_list[i]);
+      formData.append('satisfacao', satisfacao_list[i]);
+      formData.append('humor', humor_list[i]);
+      formData.append('eficacia_relacional', eficacia_relacional_list[i]);
+      formData.append('observacao', observacao )
+      fetch('/diario/guarda_avaliacao_participante/' + sg_id, {
+        method: "POST",
+        body: formData,
+      });    
+    }
+}
+// function atualiza_respostas(sg_id){
+//   p_id = document.querySelector("#respostas").dataset.participante
+//   fetch('/diario/respostas/' + sg_id + '/' + p_id, { method: "GET"})
+//   .then((response) => response.text())
+//   .then((text) => {document.querySelector("#respostas").innerHTML = text;
+    
+//   })
+// }

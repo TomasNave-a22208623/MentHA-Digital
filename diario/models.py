@@ -4,6 +4,7 @@ from datetime import datetime
 from django import forms
 from django.conf import settings
 import math
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 ##### Eventos ######################################
@@ -54,9 +55,22 @@ class Grupo(models.Model):
     referenciacao = models.ForeignKey(Reference, on_delete=models.CASCADE, null=True, blank=True)
     nivelGDS = models.IntegerField(default=0)
     programa = models.CharField(max_length=20, choices=opPrograma, default="CARE", blank=True, null=True)
-    
+
+    @property
+    def nr_membros(self):
+        return len(
+            self.cuidadores.all() + 
+            self.participantes.all() + 
+            self.facilitadores.all() +
+            self.dinamizadores.all()
+            )
+        
+
+
     def __str__(self):
         return f'{self.nome}'
+
+    
 
 
 class Evento(models.Model):
@@ -113,10 +127,21 @@ class Sessao(models.Model):
 
     def __str__(self):
         return f'({self.programa}) Sessão {self.numeroSessao}. {self.nome}'
-    
+
+def img_path(instance, filename):
+    return f'img/{filename}'
+
+class Imagem(models.Model):
+    nome = models.CharField(max_length=100)
+    imagem = models.ImageField(upload_to=img_path, blank=True, null=True)
+
+    def __str__(self):
+        return self.nome
+  
 class Opcao(models.Model):
     resposta = models.CharField(max_length=300, default="")
     cotacao = models.IntegerField(default=0, blank =True, null = True)
+    imagem = models.ForeignKey(Imagem, default=None, null=True, on_delete=models.CASCADE, blank=True)
 
     def __str__(self):
         return f'{self.resposta}'
@@ -145,18 +170,27 @@ class Pergunta_Exercicio(models.Model):
         ("APENAS_MOSTRAR", "Apenas Mostrar"),
         ("UPLOAD_FOTOGRAFIA", "Upload Fotografia"),
         ("RESPOSTA_ESCRITA", "Resposta Escrita"),
+        ("ESCOLHA_MULTIPLA", "Escolha Múltipla"),
     ]
     
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=100, default = '', blank = True, null = True)
+    postexto = models.CharField(max_length=100, default = '', blank = True, null = True)
     tipo_resposta = models.CharField(max_length=50, choices=TIPOS)
+    opDificuldade = (
+        ("A", "A"),
+        ("B", "B"),
+        ("Indefinido", "Indefinido")
+    )
+    dificuldade = models.CharField(max_length=20, choices=opDificuldade, default="Indefinido", blank=False, null=False)
+    opcoes = models.ManyToManyField(Opcao, blank=True, default = None)
 
-
-def img_path(instance, filename):
-    return f'img/{filename}'
-
-class Imagem(models.Model):
-    nome = models.CharField(max_length=100)
-    imagem = models.ImageField(upload_to=img_path, blank=True, null=True)
+    def __str__(self):
+        if self.dificuldade in ['A','B']:
+            dif = f'({self.dificuldade})'
+        else:
+            dif = ''
+        return f'{dif} {self.nome}'
+        
 
 class Parte_Exercicio(models.Model):
     nome = models.CharField(max_length=100)
@@ -165,11 +199,7 @@ class Parte_Exercicio(models.Model):
     imagens = models.ManyToManyField(Imagem, default = None, blank = True)
     duracao = models.IntegerField(default=0)
     perguntas = models.ManyToManyField(Pergunta_Exercicio, blank = True, default = None)
-    opDificuldade = (
-        ("A", "A"),
-        ("B", "B"),
-    )
-    dificuldade = models.CharField(max_length=20, choices=opDificuldade, default="A", blank=False, null=False)
+
 
     def __str__(self):
         ex_numeros = []
@@ -258,6 +288,23 @@ class Utilizador(models.Model):
     
     class Meta:
         abstract = True
+
+    @property
+    def nome(self):
+        return self.info_sensivel.nome
+
+    @property
+    def email(self):
+        return self.info_sensivel.email
+
+    @property
+    def telemovel(self):
+        return self.info_sensivel.telemovel
+
+    @property
+    def imagem(self):
+        return self.info_sensivel.imagem
+
     
 
 class Cuidador(Utilizador):
@@ -396,14 +443,62 @@ class Participante(Utilizador):
     autoAvaliacaoEstadoSaude = models.CharField(max_length=30, choices=opEstadoSaude, default="Nem mau nem bom", blank=True, null=True)
     diagnosticos = models.ManyToManyField(Doenca, related_name='participantes',  default = None, null = True, blank=True)
     referenciacao = models.ForeignKey(Reference, on_delete= models.CASCADE,  blank=True)
-    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, null=True, blank=True, related_name='participantes')
+    grupo = models.ManyToManyField(Grupo, blank=True, related_name='participantes')
     cuidadores = models.ManyToManyField(Cuidador, blank=True, related_name='participantes')
     avaliador = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, default=None, blank=True, null=True, related_name='participantes')
 
     def __str__(self):
         return f'{self.info_sensivel.nome}'
 
-  
+class Facilitador(Utilizador):
+    grupo = models.ManyToManyField(Grupo, blank=True, related_name='facilitadores')
+
+    def __str__(self):
+        return f'{self.nome}'
+
+    
+class AvaliacaoParticipante(models.Model):
+    validators = [
+            MaxValueValidator(5),
+            MinValueValidator(1)
+        ]
+    participante = models.ForeignKey(Participante,  on_delete= models.CASCADE,  blank=True)
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo,  on_delete= models.CASCADE,  blank=True)
+    interesse = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    comunicacao = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    iniciativa = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    satisfacao = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    humor = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    eficacia_relacional = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+
+    submetido_por = models.ForeignKey(Facilitador,  on_delete= models.CASCADE,  blank=True, null = True, default = None)
+
+    #talvez fazer outra tabela para isto
+    observacao = models.TextField(max_length=550, default = "", blank = True, null = True)
+
+    def __str__(self):
+        return f"Avaliação de {self.participante.nome} na sessao {self.sessao_grupo.sessao.numeroSessao}"
+
+class AvaliacaoSessao(models.Model):
+    validators = [
+            MaxValueValidator(5),
+            MinValueValidator(1)
+        ]    
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo,  on_delete= models.CASCADE,  blank=True)
+    planificacao_conteudos = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    adq_conteudos = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    adq_materiais = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    adq_tempo = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    grau_dominio = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    necessidade_treino = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    apreciacao_global = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    tipo_treino_competencias = models.TextField(max_length=550, default = "", blank = True, null = True)
+    #talvez fazer outra tabela para isto
+
+    submetido_por = models.ForeignKey(Facilitador,  on_delete= models.CASCADE,  blank=True, null = True, default = None)
+
+    observacao = models.TextField(max_length=550, default = "", blank = True, null = True)
+
 class Exercicio(models.Model):
     sessao = models.ManyToManyField(Sessao, default = None ,blank = True, related_name='exercicios')  
     dominio = models.CharField(max_length=100, default = '')
@@ -513,11 +608,13 @@ def submission_path(instance, filename):
 class Resposta(models.Model):
     parte_grupo = models.ForeignKey(ParteGrupo, on_delete=models.CASCADE, null = True, blank = True, default = None)
     sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null = True, blank = True, default = None)
+    parte_exercicio = models.ForeignKey(Parte_Exercicio,  on_delete=models.CASCADE, null = True, blank = True, default = None)
     participante = models.ForeignKey(Participante, default=None, blank=True, null=True, on_delete=models.CASCADE)
     pergunta = models.ForeignKey(Pergunta_Exercicio, default=None, blank=True, null=True, on_delete=models.CASCADE)
     resposta_escrita = models.TextField(max_length=2000, default=None, blank=True, null=True)
     resposta_submetida = models.ImageField(upload_to=submission_path, blank=True, null=True)
-    
+    resposta_escolha = models.ForeignKey(Opcao, on_delete=models.CASCADE, null = True, blank = True, default = None, related_name="resp")
+
     # NN Apontamento fica aqui ou noutra tabela só de apontamentos?
     apontamento = models.TextField(max_length=2000, default=None, blank=True, null=True)
     data = models.DateTimeField(auto_now_add=True, null=True)
@@ -549,12 +646,6 @@ class Partilha(models.Model):
 
 ###################################  COG ########################
 
-
-# class Facilitador(Utilizador):
-#     grupo = models.ManyToManyField(Grupo, blank=True, related_name='facilitadores')
-
-#     def __str__(self):
-#         return f'{self.nome}'
 
 
 # class Auxiliar(Utilizador):
