@@ -32,7 +32,6 @@
                                             <!-- Instrumentos -->
                                             {% for instrument_name, dimension in instrument.items %}
                                                 {% if instrument_name != 'None' %}
-
                                                     <span class="fw-bold {% for i in instruments %}{% if i.name == instrument_name and i.tooltip.1%}instrument-tooltip{% endif %}{% endfor %}">
                                                     {% for i in instruments %}
                                                             {% if i.name == instrument_name %}
@@ -113,12 +112,7 @@
                                                                     <li>
                                                                         <a href="#"
                                                                            data-href="{% url 'protocolo:question' resolution.part.protocol.id resolution.part.id area_id a.question.section.dimension.instrument.id a.question.section.dimension.id a.question.section.id resolution.patient.id %}"
-<<<<<<< HEAD
-  
-																		  class="jq-btn no-decor">{{ a.question.name }}
-=======
-                                                                           class="jq-btn no-decor">{{ a.question.name }}
->>>>>>> e3864b1802c51e4e9944478c33445adaad6e0896
+  																		  class="jq-btn no-decor">{{ a.question.name }}
                                                                             <svg style="margin-top: 0px;"
                                                                                  xmlns="http://www.w3.org/2000/svg"
                                                                                  width="16"
@@ -255,13 +249,7 @@
                                                                     <a href="#" class="jq-btn no-decor"
                                                                             {% for q in questions %}
                                                                                 {% if q.section.dimension.name == dim and instrument_name == q.section.dimension.instrument.name %}
-<<<<<<< HEAD
-                                                                       {% comment %}
-                                                                       data-href="{% url 'protocolo:sections' resolution.part.protocol.id resolution.part.id q.section.dimension.instrument.area.id q.section.dimension.instrument.id q.section.dimension.id resolution.patient.id %}"
-                                                                          {% endcomment %}
-=======
                                                                                         data-href="{% url 'protocolo:sections' resolution.part.protocol.id resolution.part.id area.id q.section.dimension.instrument.id q.section.dimension.id resolution.patient.id %}"
->>>>>>> e3864b1802c51e4e9944478c33445adaad6e0896
                                                                                 {% endif %}
                                                                             {% endfor %}> {{ dim }}
                                                                         <svg style="margin-top: 0px;"

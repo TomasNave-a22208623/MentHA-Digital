@@ -55,9 +55,22 @@ class Grupo(models.Model):
     referenciacao = models.ForeignKey(Reference, on_delete=models.CASCADE, null=True, blank=True)
     nivelGDS = models.IntegerField(default=0)
     programa = models.CharField(max_length=20, choices=opPrograma, default="CARE", blank=True, null=True)
-    
+
+    @property
+    def nr_membros(self):
+        return len(
+            self.cuidadores.all() + 
+            self.participantes.all() + 
+            self.facilitadores.all() +
+            self.dinamizadores.all()
+            )
+        
+
+
     def __str__(self):
         return f'{self.nome}'
+
+    
 
 
 class Evento(models.Model):
@@ -430,11 +443,10 @@ class Participante(Utilizador):
     autoAvaliacaoEstadoSaude = models.CharField(max_length=30, choices=opEstadoSaude, default="Nem mau nem bom", blank=True, null=True)
     diagnosticos = models.ManyToManyField(Doenca, related_name='participantes',  default = None, null = True, blank=True)
     referenciacao = models.ForeignKey(Reference, on_delete= models.CASCADE,  blank=True)
-    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, null=True, blank=True, related_name='participantes')
+    grupo = models.ManyToManyField(Grupo, blank=True, related_name='participantes')
     cuidadores = models.ManyToManyField(Cuidador, blank=True, related_name='participantes')
     avaliador = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, default=None, blank=True, null=True, related_name='participantes')
 
- 
     def __str__(self):
         return f'{self.info_sensivel.nome}'
 
