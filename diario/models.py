@@ -34,8 +34,6 @@ class Doenca(models.Model):
 
     def __str__(self):
         return f'{self.nome}'
-    
-
 
 
 class Grupo(models.Model):
@@ -61,19 +59,10 @@ class Grupo(models.Model):
 
     @property
     def nr_membros(self):
-        return len(
-            self.cuidadores.all() + 
-            self.participantes.all() + 
-            self.facilitadores.all() +
-            self.dinamizadores.all()
-            )
-        
-
-
+        return len(self.cuidadores.all()) + len(self.participantes.all()) + len(self.facilitadores.all()) + len(self.dinamizadores.all())
+            
     def __str__(self):
         return f'{self.nome}'
-
-    
 
 
 class Evento(models.Model):
@@ -487,13 +476,18 @@ class AvaliacaoSessao(models.Model):
             MaxValueValidator(5),
             MinValueValidator(1)
         ]    
+    CHOICES = (
+        ("SIM", "Sim"),
+        ("NAO", "Não"),
+    )
+
     sessao_grupo = models.ForeignKey(SessaoDoGrupo,  on_delete= models.CASCADE,  blank=True)
     planificacao_conteudos = models.IntegerField(default=1, validators=validators, blank = True, null = True)
     adq_conteudos = models.IntegerField(default=1, validators=validators, blank = True, null = True)
     adq_materiais = models.IntegerField(default=1, validators=validators, blank = True, null = True)
     adq_tempo = models.IntegerField(default=1, validators=validators, blank = True, null = True)
     grau_dominio = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    necessidade_treino = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+    necessidade_treino = models.CharField(max_length=10, default="NAO", choices=CHOICES, blank = True, null = True)
     apreciacao_global = models.IntegerField(default=1, validators=validators, blank = True, null = True)
     tipo_treino_competencias = models.TextField(max_length=550, default = "", blank = True, null = True)
     #talvez fazer outra tabela para isto

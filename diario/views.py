@@ -98,8 +98,6 @@ def new_group(request):
         formGrupo.save()
         return HttpResponseRedirect(reverse('diario:dashboard_Care'))
 
-    
-
     cuidadores = Cuidador.objects.all()
     filtrados = cuidadores.filter(grupo=None)
 
@@ -1064,6 +1062,7 @@ def view_avaliacao_participantes(request, sessaoGrupoid):
     participantes = sg.grupo.participantes.all()
 
     obs_part = ""
+    obs_sessao = ""
 
     participantes_form_list = []
     for participante in participantes:
@@ -1086,7 +1085,24 @@ def view_avaliacao_participantes(request, sessaoGrupoid):
         participantes_form_list.append(tuplo)
 
     existente = AvaliacaoSessao.objects.filter(sessao_grupo = sg)
-    form_sessao = AvaliacaoSessaoForm(None)
+
+    if len(existente) > 0:
+            existente = existente.get()
+            obs_sessao = existente.observacao
+            initial_data = {
+                    'planificacao_conteudos' : existente.planificacao_conteudos,
+                    'adq_conteudos' : existente.adq_conteudos,
+                    'adq_materiais' : existente.adq_materiais,
+                    'adq_tempo' : existente.adq_tempo,
+                    'grau_dominio' : existente.grau_dominio,
+                    'necessidade_treino' : existente.necessidade_treino,
+                    'apreciacao_global' : existente.apreciacao_global,
+                    'tipo_treino_competencias' : existente.tipo_treino_competencias,
+                    }
+            form_sessao = AvaliacaoSessaoForm(None, initial = initial_data)
+    else:
+        form_sessao = AvaliacaoSessaoForm(None)
+    #form_sessao = AvaliacaoSessaoForm(None)
 
     contexto = {
         'participantes': participantes,
@@ -1096,6 +1112,7 @@ def view_avaliacao_participantes(request, sessaoGrupoid):
         'sg_id': sg.id,
         'participantes_form_list': participantes_form_list,
         'obs_part': obs_part,
+        'obs_sessao': obs_sessao,
         }
 
     print(contexto)
@@ -1113,7 +1130,7 @@ def guarda_avaliacao_participante(request, sessaoGrupo_id):
         submetido_por = Facilitador.objects.get(user=request.user)
         )
 
-    print(request.POST)
+    #print(request.POST)
 
     if len(avaliacao_existente) > 0:
         avaliacao_existente = avaliacao_existente.get()
@@ -1137,6 +1154,48 @@ def guarda_avaliacao_participante(request, sessaoGrupo_id):
             eficacia_relacional = request.POST.get('eficacia_relacional'),
             observacao = request.POST.get('observacao'),
             submetido_por = Facilitador.objects.get(user=request.user)
+            )
+        avaliacao.save()
+
+    return HttpResponse("OK")
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def guarda_avaliacao_sessao(request, sessaoGrupo_id):
+    sg = SessaoDoGrupo.objects.get(id=sessaoGrupo_id)
+
+    avaliacao_existente = AvaliacaoSessao.objects.filter(
+        sessao_grupo__id = sessaoGrupo_id,
+        submetido_por = Facilitador.objects.get(user=request.user)
+        )
+
+    print(request.POST)
+
+    if len(avaliacao_existente) > 0:
+        avaliacao_existente = avaliacao_existente.get()
+        avaliacao_existente.planificacao_conteudos = request.POST.get('planificacao_conteudos')
+        avaliacao_existente.adq_conteudos = request.POST.get('adq_conteudos')
+        avaliacao_existente.adq_materiais = request.POST.get('adq_materiais')
+        avaliacao_existente.adq_tempo = request.POST.get('adq_tempo')
+        avaliacao_existente.grau_dominio = request.POST.get('grau_dominio')
+        avaliacao_existente.necessidade_treino = request.POST.get('necessidade_treino')
+        avaliacao_existente.apreciacao_global = request.POST.get('apreciacao_global')
+        avaliacao_existente.tipo_treino_competencias = request.POST.get('tipo_treino_competencias')
+        avaliacao_existente.observacao = request.POST.get('observacao')
+        avaliacao_existente.save()
+    else:
+        avaliacao = AvaliacaoSessao(
+            sessao_grupo = sg,
+            planificacao_conteudos = request.POST.get('planificacao_conteudos'),
+            adq_conteudos = request.POST.get('adq_conteudos'),
+            adq_materiais = request.POST.get('adq_materiais'),
+            adq_tempo = request.POST.get('adq_tempo'),
+            grau_dominio = request.POST.get('grau_dominio'),
+            necessidade_treino = request.POST.get('necessidade_treino'),
+            apreciacao_global = request.POST.get('apreciacao_global'),
+            tipo_treino_competencias = request.POST.get('tipo_treino_competencias'),
+            observacao = request.POST.get('observacao'),
+            submetido_por = Facilitador.objects.get(user=request.user),
             )
         avaliacao.save()
 

@@ -109,6 +109,10 @@ class AvaliacaoSessaoForm(ModelForm):
         (4, 4),
         (5, 5),
         )
+        CHOICES2 = (
+        ("SIM", "Sim"),
+        ("NAO", "Não"),
+        )
         model = AvaliacaoSessao
         fields = {'planificacao_conteudos', 'adq_conteudos', 'adq_materiais', 'adq_tempo', 'grau_dominio', 'necessidade_treino', 'apreciacao_global', 'tipo_treino_competencias'}
         widgets = {
@@ -117,9 +121,9 @@ class AvaliacaoSessaoForm(ModelForm):
             'adq_materiais': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
             'adq_tempo': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
             'grau_dominio': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
-            'necessidade_treino': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
+            'necessidade_treino': forms.Select(choices=CHOICES2, attrs={'class' : 'avaliacao_sessao'}),
             'apreciacao_global': forms.Select(choices=CHOICES, attrs={'class' : 'avaliacao_sessao'}),
-            'tipo_treino_competencias':forms.Textarea(attrs={'rows':1, 'cols':32, 'class' : 'avaliacao_sessao'})
+            'tipo_treino_competencias':forms.Textarea(attrs={'rows':1, 'cols':29, 'class' : 'avaliacao_sessao'})
         }
 
 class Documents_Form(ModelForm):
