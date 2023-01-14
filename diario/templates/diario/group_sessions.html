@@ -8,7 +8,7 @@
                     style="margin: 5px; font-size: 26px">Sessões do
                     Grupo {{ grupo }}</p>
             </div>
-            <form action="{% url 'diario:group_sessions' grupo.id %}">
+            <form action="{% url 'diario:grupo_details' grupo.id %}">
                 <button type="submit" class="btn btn-outline-primary" style="width: 150px">
                     Anterior
                 </button>

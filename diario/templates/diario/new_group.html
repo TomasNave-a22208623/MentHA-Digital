@@ -1,16 +1,15 @@
 {% extends 'diario/base.html' %}
 {% load static %}
+
+{%block head %}
+    <script src="{% static 'diario/js/cria_grupo.js'%}?{% now 'U' %}">
+{% endblock %}
+
 {% block main %}
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                <div class="d-sm-flex justify-content-between align-items-center mb-4">
-                </div>
                 <div class="container-fluid">
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
                     <div class="container text-center">
                     <div class="row">
                         <div class="col align-self-center">
@@ -23,21 +22,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="container text-center">
-                        <div class="row">
-                            <div class="col align-self-center">
-                                <p class="text-primary m-0 fw-bold"
-                                   style="margin: 5px; font-size: 23px">Criterios de inclusão
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
                     <div class="container text-center">
                         <div class="row">
                             <div class="col align-self-center">
                                 <div class="card">
+                                    <p class="text-primary m-0 fw-bold"
+                                    style="margin: 5px; font-size: 23px">Criterios de inclusão
+                                    </p>
                                     <div class="card-body">
                                         <div class="table-responsive">
                                             <table class="table ">
@@ -93,16 +84,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="container text-center">
-                        <div class="row">
-                            <div class="col align-self-center">
-                                <p class="text-primary m-0 fw-bold"
-                                   style="margin: 5px; font-size: 23px">Candidatos
-                                </p>
-                            </div>
-                        </div>
-                    </div>
                     <form method="POST" action="{% url 'diario:guarda_grupo' %}">
                          {% csrf_token %}
                         {% for campo,valor in selecoes.items %}
@@ -116,6 +97,9 @@
                             <div class="row">
                                 <div class="col align-self-center">
                                     <div class="card">
+                                        <p class="text-primary m-0 fw-bold"
+                                    style="margin: 5px; font-size: 23px">Candidatos
+                                        </p>
                                         <div class="card-body">
                                             <div class="table-responsive">
                                                 <table class="table ">
@@ -131,6 +115,9 @@
                                                             <strong>Escolaridade</strong></th>
                                                         <th style="text-align: center;">
                                                             <strong>Referenciação</strong></th>
+                                                            <th style="text-align: center;">
+                                                            <th style="text-align: center;">
+                                                            <strong>Programa</strong></th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -165,8 +152,7 @@
                                 </div>
                             </div>
                         </div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+             
 
                         <input type="text" name="nome" required>
                         <select name="programa" id="programa">
@@ -176,7 +162,7 @@
                         <input type="submit" value="Criar Grupo">
 
                     </form>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+                    
                 </div>
             </div>
         </div>

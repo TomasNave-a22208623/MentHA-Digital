@@ -58,6 +58,17 @@ class Grupo(models.Model):
     programa = models.CharField(max_length=20, choices=opPrograma, default="CARE", blank=True, null=True)
 
     @property
+    def participantes_ou_cuidadores(self):
+        lista = []
+        for p in self.participantes.all():
+            lista.append(p)
+        
+        for c in self.cuidadores.all():
+            lista.append(c)
+
+        return lista
+
+    @property
     def nr_membros(self):
         return len(self.cuidadores.all()) + len(self.participantes.all()) + len(self.facilitadores.all()) + len(self.dinamizadores.all())
             
@@ -277,6 +288,7 @@ class Utilizador(models.Model):
     nascimento = models.DateField(null=True, blank=True)
     data_entrada = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     nacionalidade = models.CharField(max_length=20, default="", blank=True, null=True)
+    localizacao = models.CharField(max_length=20, default="", blank=True, null=True)
     
     class Meta:
         abstract = True
@@ -315,7 +327,6 @@ class Cuidador(Utilizador):
     escolaridade = models.CharField(max_length=20, choices=opEscolaridade, default="1-4", blank=False, null=False)
     referenciacao = models.CharField(max_length=20, default="",null=True, blank=True)
     regime = models.CharField(max_length=20, choices=opRegime, default="Online", blank=False, null=False)
-    localizacao = models.CharField(max_length=20, default="", blank=True, null=True)
     grupo = models.ManyToManyField(Grupo, blank=True, related_name='cuidadores')
 
     @property
@@ -435,9 +446,28 @@ class Participante(Utilizador):
     autoAvaliacaoEstadoSaude = models.CharField(max_length=30, choices=opEstadoSaude, default="Nem mau nem bom", blank=True, null=True)
     diagnosticos = models.ManyToManyField(Doenca, related_name='participantes',  default = None, null = True, blank=True)
     referenciacao = models.ForeignKey(Reference, on_delete= models.CASCADE,  blank=True)
+    nivel_gds = models.IntegerField(default = 1, validators=[
+            MaxValueValidator(7),
+            MinValueValidator(1)
+        ])
     grupo = models.ManyToManyField(Grupo, blank=True, related_name='participantes')
     cuidadores = models.ManyToManyField(Cuidador, blank=True, related_name='participantes')
     avaliador = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, default=None, blank=True, null=True, related_name='participantes')
+
+    	
+    @property
+    def doencas(self):
+        diagnosticos = []
+        diagnosticos += [obj.nome for obj in self.diagnosticos.all()]
+        diagnosticos = set(diagnosticos)  # remove duplicados
+        return diagnosticos
+    
+    def doencas_string(self):
+        d_str = ', '.join(self.doencas)
+        if len(d_str) < 2:
+            return None
+        else: 
+            return d_str
 
     def __str__(self):
         return f'{self.info_sensivel.nome}'
@@ -717,6 +747,24 @@ class Presenca(Evento):
     mode = models.CharField(max_length=20, choices=MODES, null=True, blank=True, default=PRESENT)
     withApp = models.BooleanField(null=True, blank=True)
     descricao = models.TextField(null=True, blank=True)
+
+    @property
+    def set_faltou(self):
+        self.faltou = True
+        self.present = False
+        self.save()
+
+    def set_online(self):
+        self.faltou = False
+        self.present = True
+        self.mode = "Online"
+        self.save()
+
+    def set_presencial(self):
+        self.faltou = False
+        self.present = True
+        self.mode = "Presencial"
+        self.save()
 
     def __str__(self):
         presenca = ""

@@ -98,8 +98,9 @@ def new_group(request):
         formGrupo.save()
         return HttpResponseRedirect(reverse('diario:dashboard_Care'))
 
+    # Obter campos para filtar por (CARE)
     cuidadores = Cuidador.objects.all()
-    filtrados = cuidadores.filter(grupo=None)
+    filtrados_care = cuidadores.filter(grupo=None)
 
     conjunto_doencas = set()
     for cuidador in cuidadores:
@@ -109,12 +110,34 @@ def new_group(request):
     for cuidador in cuidadores:
         conjunto_referencias.update(set(cuidador.obter_reference))
 
-    lista_pesquisa = {
-        'diagnostico': conjunto_doencas,
-        'localizacao': {cuidador.localizacao for cuidador in cuidadores},
-        'escolaridade': {cuidador.escolaridade for cuidador in cuidadores},
-        'referenciacao': conjunto_referencias,
+    lista_pesquisa_cuidadores = {
+        'Diagnósticos': conjunto_doencas,
+        'Localizações': {cuidador.localizacao for cuidador in cuidadores},
+        'Escolaridades': {cuidador.escolaridade for cuidador in cuidadores},
+        'Referenciações': conjunto_referencias,
     }
+
+    #Obter campos para filtrar por (COG)
+    participantes = Participante.objects.all()
+    filtrados_cog = participantes.filter(grupo=None)
+
+    conjunto_doencas = set()
+    for participante in participantes:
+        conjunto_doencas.update(participante.diagnosticos.all())
+
+    # conjunto_referencias = set()
+    # for participante in participantes:
+    #     conjunto_referencias.update(set(cuidador.obter_reference))
+
+    lista_pesquisa_participantes = {
+        #'Diagnósticos': list(dict.fromkeys({diagnostico for diagnostico in participante.diagnosticos.all() for participante in participantes})),
+        'Diagnósticos': conjunto_doencas,
+        'Localizações': list(dict.fromkeys({participante.localizacao for participante in participantes if len(participante.localizacao) > 1})),
+        'Escolaridades': list(dict.fromkeys({participante.escolaridade for participante in participantes})),
+        'Referenciações': list(dict.fromkeys({participante.referenciacao for participante in participantes})),
+        'GDS': list(dict.fromkeys({participante.nivel_gds for participante in participantes})),
+    }
+    
 
     selecoes = {}
 
@@ -123,19 +146,19 @@ def new_group(request):
         for campo, valor in request.POST.items():
             if valor != '':
                 selecoes[campo] = valor
-                if campo == 'diagnostico':
+                if campo == 'Diagnósticos':
                     for cuidador in filtrados:
                         if valor not in cuidador.doencas:
                             filtrados = [c for c in filtrados if c.id != cuidador.id]
                             filtrados = Cuidador.objects.filter(pk__in=[f.id for f in filtrados])
 
-                if campo == 'localizacao':
+                if campo == 'Localizações':
                     filtrados = filtrados.filter(localizacao=valor)
 
-                if campo == 'escolaridade':
+                if campo == 'Escolaridades':
                     filtrados = filtrados.filter(escolaridade=valor)
 
-                if campo == 'referenciacao':
+                if campo == 'Referenciações':
                     for cuidador in filtrados:
                         if valor not in cuidador.obter_reference:
                             filtrados = [c for c in filtrados if c.id != cuidador.id]
@@ -145,12 +168,53 @@ def new_group(request):
         'grupos': Grupo.objects.all(),
         'cuidadores': Cuidador.objects.filter(grupo=None),
         'formGrupo': formGrupo,
-        'lista_pesquisa': lista_pesquisa,
-        'filtrados': filtrados,
+        'lista_pesquisa_cuidadores': lista_pesquisa_cuidadores,
+        'lista_pesquisa_participantes': lista_pesquisa_participantes,
+        'filtrados_care': filtrados_care,
+        'filtrados_cog': filtrados_cog,
         'selecoes': selecoes
     }
-    return render(request, 'diario/new_group.html', contexto)
+    return render(request, 'diario/new_group_remake.html', contexto)
 
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def obter_cadidatos(request):
+    participantes = None
+    if request.method == 'POST':
+        print(request.POST)
+        match(request.POST.get('programa')):
+            case 'CARE':
+                #participantes = Cuidador.objects.filter(grupo=None)
+                participantes = Cuidador.objects.all()
+                if request.POST.get('localizacao') != 'undefined':
+                    participantes = participantes.filter(localizacao=request.POST.get('localizacao'))
+                if request.POST.get('diagnostico') != 'undefined':
+                    participantes = participantes.filter(localizacao=request.POST.get('diagnostico'))
+                if request.POST.get('escolaridade') != 'undefined':
+                    participantes = participantes.filter(localizacao=request.POST.get('escolaridade'))
+                if request.POST.get('referenciacao') != 'undefined':
+                    participantes = participantes.filter(localizacao=request.POST.get('referenciacao'))
+                
+                
+            case 'COG':
+                #participantes = Participante.objects.filter(grupo=None)
+                participantes = Participante.objects.all()
+                if len(request.POST.get('localizacao')) > 0:
+                    participantes = participantes.filter(localizacao=request.POST.get('localizacao'))
+                if len(request.POST.get('diagnostico')) > 0:
+                    participantes = participantes.filter(diagnosticos__in=request.POST.get('diagnostico'))
+                if len(request.POST.get('escolaridade')) > 0:
+                    participantes = participantes.filter(escolaridade=request.POST.get('escolaridade'))
+                if len(request.POST.get('referenciacao')) > 0:
+                    participantes = participantes.filter(referenciacao=Reference.objects.get(id=request.POST.get('referenciacao')))
+                if len(request.POST.get('gds')) > 0:
+                    participantes = participantes.filter(nivel_gds=request.POST.get('gds'))
+    print(participantes)
+    contexto = {
+        'programa': request.POST.get('programa'),
+        'participantes' : participantes,
+    }
+    return render(request, "diario/obter_candidatos.html", contexto)
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
@@ -546,33 +610,36 @@ def view_iniciar_sessao(request, sessao_grupo_id):
     sessao_grupo.inicio = datetime.utcnow()
     sessao_grupo.save()
 
+    
+    print(request.POST)
     # guardar info das presenças: ir buscar info enviada via formulario. e para cada participante guardar na base de dados atualização do utilizador
 
     if request.method == 'POST':
         for participante_id, tipo_presenca in request.POST.items():
-            if participante_id.isdigit() and Cuidador.objects.get(id=participante_id) != None:
+            if participante_id.isdigit():
+                presenca = None
+                if sessao_grupo.grupo.programa == "CARE":
+                    participante = Cuidador.objects.get(id=participante_id)
+                    presenca = Presenca(
+                        cuidador=participante,
+                        sessaoDoGrupo=sessao_grupo)
+                elif sessao_grupo.grupo.programa == "COG":
+                    participante = Participante.objects.get(id=participante_id)
+                    presenca = Presenca(
+                        participante=participante,
+                        sessaoDoGrupo=sessao_grupo)
 
-                presenca = Presenca(
-                    participante=Cuidador.objects.get(id=participante_id),
-                    sessaoDoGrupo=sessao_grupo
-                )
-                #print("objeto Presenca criado", presenca)
-
+            
                 if tipo_presenca == "faltou":
-                    presenca.faltou = True
-                    presenca.present = False
-
+                    presenca.set_faltou
                 elif tipo_presenca == "online":
-                    presenca.faltou = False
-                    presenca.present = True
-                    presenca.mode = "Online"
-
+                    presenca.set_online
                 else:
-                    presenca.faltou = False
-                    presenca.present = True
-                    presenca.mode = "Presencial"
+                    presenca.set_presencial
 
                 presenca.save()
+       
+
 
     return HttpResponseRedirect(reverse('diario:sessao', args=[sessao_grupo_id,grupo_id]))
 
@@ -846,7 +913,7 @@ def view_presencas_sessao(request, proxima_id):
 
     contexto = {
         'sessao_grupo': sessao_grupo,
-        'participantes': Cuidador.objects.filter(grupo=sessao_grupo.grupo),
+        'participantes': sessao_grupo.grupo.participantes_ou_cuidadores,
     }
 
     return render(request, "diario/presencas_sessao.html", contexto)
