@@ -1,4 +1,10 @@
-
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
 
 function atualiza_filtros(){
   const programa = document.getElementById('programa').value;
@@ -17,7 +23,6 @@ function atualiza_filtros(){
 }
 
 function atualiza_candidatos(){
-  console.log("cc")
   form_data = new FormData();
   form_data.append("programa", document.getElementById('programa').value);
   if (document.getElementById('programa').value == "CARE"){
@@ -42,5 +47,29 @@ function atualiza_candidatos(){
     body: form_data,
     })
     .then(response => response.text())
+    .then(document.querySelectorAll('.container-fluid').forEach((c) => {
+      c.style.display = "block";
+    }))
     .then(text => document.querySelector('.container-candidatos').innerHTML = text)
+}
+
+function cria_grupo(){
+  lista_participantes = [];
+  form_data = new FormData();
+  form_data.append("programa", document.getElementById('programa').value);
+  form_data.append('csrfmiddlewaretoken',document.querySelector('input[name="csrfmiddlewaretoken"]').value);
+  form_data.append('nome',document.querySelector('input[name="nome"]').value);
+
+  document.querySelectorAll('input[type="checkbox"]:checked').forEach((i) => {
+    lista_participantes.push(i.value);
+  });
+
+  form_data.append('participantes',lista_participantes);
+
+  fetch('/diario/new_group', {
+    method: "POST",
+    body: form_data,
+    })
+    .then(sleep(500))
+    .then(location.href = '/diario');
 }

@@ -142,27 +142,44 @@ def new_group(request):
     selecoes = {}
 
     if request.POST:
-        filtrados = Cuidador.objects.filter(grupo=None)
-        for campo, valor in request.POST.items():
-            if valor != '':
-                selecoes[campo] = valor
-                if campo == 'Diagnósticos':
-                    for cuidador in filtrados:
-                        if valor not in cuidador.doencas:
-                            filtrados = [c for c in filtrados if c.id != cuidador.id]
-                            filtrados = Cuidador.objects.filter(pk__in=[f.id for f in filtrados])
+        #print(request.POST)
+        if len(request.POST.get('nome')) > 0:
+            g = Grupo(
+                nome=request.POST.get('nome'),
+                programa=request.POST.get('programa'),
+                )
+            g.save()
+            if request.POST.get('programa') == 'CARE':
+                for id in request.POST.get('participantes').split(','):
+                    c = Cuidador.objects.get(id=id)
+                    g.cuidadores.add(c)
+                    
+            elif request.POST.get('programa') == 'COG':
+                for id in request.POST.get('participantes').split(','):
+                    p = Participante.objects.get(id=id)
+                    g.participantes.add(p)
+                    
+            g.save()
 
-                if campo == 'Localizações':
-                    filtrados = filtrados.filter(localizacao=valor)
-
-                if campo == 'Escolaridades':
-                    filtrados = filtrados.filter(escolaridade=valor)
-
-                if campo == 'Referenciações':
-                    for cuidador in filtrados:
-                        if valor not in cuidador.obter_reference:
-                            filtrados = [c for c in filtrados if c.id != cuidador.id]
-                            filtrados = Cuidador.objects.filter(pk__in=[f.id for f in filtrados])
+            #Criar as partes e sessoes para este grupo
+            for sessao in Sessao.objects.filter(programa=g.programa).all():
+                print(sessao)
+                sessao_grupo = SessaoDoGrupo(grupo=g, sessao=sessao)
+                sessao_grupo.save()
+                if g.programa == 'CARE':
+                    for parte in sessao.partes.all():
+                        parte_grupo = ParteGrupo.objects.create(
+                            sessaoGrupo=sessao_grupo,
+                            parte=parte
+                        )
+                        parte_grupo.save()
+                elif g.programa == 'COG':
+                    for exercicio in sessao.exercicios.all():
+                        parte_grupo = ParteGrupo.objects.create(
+                            sessaoGrupo=sessao_grupo,
+                            exercicio=exercicio
+                        )
+                        parte_grupo.save()        
 
     contexto = {
         'grupos': Grupo.objects.all(),
@@ -181,7 +198,7 @@ def new_group(request):
 def obter_cadidatos(request):
     participantes = None
     if request.method == 'POST':
-        print(request.POST)
+        #print(request.POST)
         match(request.POST.get('programa')):
             case 'CARE':
                 #participantes = Cuidador.objects.filter(grupo=None)
@@ -209,7 +226,7 @@ def obter_cadidatos(request):
                     participantes = participantes.filter(referenciacao=Reference.objects.get(id=request.POST.get('referenciacao')))
                 if len(request.POST.get('gds')) > 0:
                     participantes = participantes.filter(nivel_gds=request.POST.get('gds'))
-    print(participantes)
+    #print(participantes)
     contexto = {
         'programa': request.POST.get('programa'),
         'participantes' : participantes,

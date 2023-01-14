@@ -13,10 +13,12 @@
                 <p class="text-primary m-0 fw-bold"
                     style="margin: 5px; font-size: 26px">Criar Novo Grupo
                 </p> 
+                {% csrf_token %}
                 <div class="flex-container" style="flex-direction: row;justify-content: space-between;">
                     <div style="width:45%">
-                    <label for="nome" >Nome:</label>
-                    <input type="text" class="form-control"></div>
+                        <label for="nome" >Nome:</label>
+                        <input type="text" name="nome" class="form-control">
+                    </div>
                 <div style = "width:45%">
                     <label for="programa" >Programa: </label>
                     <select class="form-control" onchange="atualiza_filtros(), atualiza_candidatos()" name="programa" id="programa">
@@ -45,10 +47,6 @@
                 <tbody>
                 
                 <tr class="filtro_care" style="display:none;">
-                    <form id="filtro"
-                            action="{% url 'diario:new_group' %}"
-                            method="POST">
-                        {% csrf_token %}
                         {% for campo,opcoes in lista_pesquisa_cuidadores.items %}
                             <td class="opcao">
                                 <select name="{{ campo }}_care" onchange="atualiza_candidatos()" id="{{ campo }}_care" style="width:100%" class="form-control shadow-on-hover">
@@ -68,14 +66,10 @@
                         {% comment %} <input form="filtro" type="submit" value="Filtrar"
                                 class="btn btn-primary"> {% endcomment %}
                         </td>
-                    </form>
+              
                 </tr>
 
                 <tr class="filtro_cog" style="display:none;">
-                    <form id="filtro"
-                            action="{% url 'diario:new_group' %}"
-                            method="POST">
-                        {% csrf_token %}
                         {% for campo,opcoes in lista_pesquisa_participantes.items %}
                             <td class="opcao">
                                 <select name="{{ campo }}_cog" onchange="atualiza_candidatos()" id="{{ campo }}_cog" style="width:100%" class="form-control shadow-on-hover">
@@ -99,14 +93,28 @@
                         {% comment %} <input form="filtro" type="submit" value="Filtrar"
                                 class="btn btn-primary"> {% endcomment %}
                         </td>
-                    </form>
+                
                 </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-        <div class="container-fluid card container-candidatos" style="margin-top:15px;width:75%">
+        <div class="container-fluid card" style="margin-top:15px;width:75%;display:none">
+            <div class="card-body" style="padding: 8px">
+            
+                <p class="text-primary m-0 fw-bold"
+                    style="margin: 5px; font-size: 26px">Candidatos
+                </p>
+
+                    <div class="table-responsive" style="padding-top:15px">
+                    <table class="table container-candidatos">
+                    
+                    </table>
+                    <input type="submit" onclick="cria_grupo()" style="margin-top:15px;float:right;" value="Criar Grupo" class="left btn btn-primary">
+                    </div>
+
+            </div>
             
         </div>
     
