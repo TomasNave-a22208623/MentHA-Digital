@@ -244,9 +244,9 @@ class RespostaForm_RespostaEscrita_Dinamizador(ModelForm):
             'resposta_escrita': Textarea(
                 attrs={'rows': 1, 
                 'placeholder': '',
-                'class': 'form-control',
+                'class': 'form-control pergunta',
             }),
-            'certo' : forms.CheckboxInput(attrs={'class': 'form-check-input margin-l-5'}),  
+            'certo' : forms.CheckboxInput(attrs={'class': 'pergunta form-check-input margin-l-5'}),  
             # 'apontamento': Textarea(
             #     attrs={'rows': 3, 
             #     'placeholder': 'Escreva uma nota sobre o grupo...',

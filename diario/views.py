@@ -163,7 +163,6 @@ def new_group(request):
 
             #Criar as partes e sessoes para este grupo
             for sessao in Sessao.objects.filter(programa=g.programa).all():
-                print(sessao)
                 sessao_grupo = SessaoDoGrupo(grupo=g, sessao=sessao)
                 sessao_grupo.save()
                 if g.programa == 'CARE':
@@ -627,8 +626,7 @@ def view_iniciar_sessao(request, sessao_grupo_id):
     sessao_grupo.inicio = datetime.utcnow()
     sessao_grupo.save()
 
-    
-    print(request.POST)
+
     # guardar info das presenças: ir buscar info enviada via formulario. e para cada participante guardar na base de dados atualização do utilizador
 
     if request.method == 'POST':
@@ -684,7 +682,6 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
     else:
         proxima_parte = 0
 
-    print(partes_grupo)
 
     if grupo.programa == "CARE":
         participantes = Cuidador.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
@@ -743,6 +740,7 @@ def view_diario(request, idGrupo, idSessao):  # NN: Usar sessao_grupo_id em vez 
 def view_diario_participante(request, idSessaoGrupo, idParticipante):
     sessao_grupo = SessaoDoGrupo.objects.get(pk=idSessaoGrupo)
     programa = sessao_grupo.grupo.programa
+    lista_ids_escolhas_multiplas = []
     if programa == "CARE":
         participante = Cuidador.objects.get(pk=idParticipante)
         notas = Nota.objects.filter(cuidador=participante).order_by('-data')
@@ -755,6 +753,7 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         for ex in exercicios:
             for parte in ex.partes_do_exercicio.all():
                 for pergunta in parte.perguntas.all():
+                    pg = ParteGrupo.objects.filter(sessaoGrupo = sessao_grupo, exercicio = ex).get()
                     initial_data = {}
                     r = Resposta.objects.filter(
                         participante__id = idParticipante,
@@ -762,18 +761,24 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
                         pergunta = pergunta,
                         parte_exercicio = parte,
                         )
+                   
                     if len(r) > 0:
                         r = r.get()
                         initial_data = {
                         'resposta_escrita' : r.resposta_escrita,
                         'certo' : r.certo,
                         }
-                        
+                        if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+                            lista_ids_escolhas_multiplas.append(r.resposta_escolha.id)
+
                     if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
                         form = RespostaForm_RespostaEscrita_Dinamizador(None, initial=initial_data)
                     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
                         form = RespostaForm_RespostaSubmetida_Dinamizador(None)
-                    tuplo = (pergunta,form)
+                    if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+                        form = None
+                       
+                    tuplo = (pergunta,parte,pg,form)
                     form_list.append(tuplo)
         
     
@@ -801,7 +806,8 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         'participante': participante,
         'sessaoGrupo': sessao_grupo,
         'exercicios': exercicios,
-        'form_list': form_list
+        'form_list': form_list,
+        'lista_ids_escolhas_multiplas': lista_ids_escolhas_multiplas,
     }
 
     return render(request, "diario/diario_participante.html", context)
@@ -903,7 +909,6 @@ def view_diario_grupo(request, idSessaoGrupo):
             else:
                 faltou_list.append(int(pessoa.id)) 
     
-    print(participantes)
     context = {
         'participantes': participantes,
         'grupo_id': idGrupo,
@@ -1005,6 +1010,7 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
         contexto['dura'] = exercicio.duracao
 
         respostas_existentes = {}
+        lista_ids_escolhas_multiplas = []
         
         form_list = []
         for parte in exercicio.partes_do_exercicio.all():
@@ -1022,11 +1028,12 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
 
                     if len(r) > 0:
                         r = r.get()
-                        print(r)
                         initial_data = {
                         'resposta_escrita' : r.resposta_escrita
                         }
-                        
+                        if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+                            lista_ids_escolhas_multiplas.append(r.resposta_escolha.id)
+
                     if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
                         form = RespostaForm_RespostaEscrita(None, initial=initial_data)
                     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
@@ -1038,13 +1045,11 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
                     form_list.append(tuplo)
 
             contexto['form_list'] = form_list 
-            
+            contexto['lista_ids_escolhas_multiplas'] = lista_ids_escolhas_multiplas
+
     contexto['respostas_existentes'] = respostas_existentes          
     contexto['parteGrupo'] = parte_group
     
-    imagem = Imagem.objects.get(pk=1)
-    print(imagem.imagem.url)
-
         
     if estado != "ver" and estado != "continuar":
         parte_group.inicio = datetime.utcnow()
@@ -1199,7 +1204,6 @@ def view_avaliacao_participantes(request, sessaoGrupoid):
         'obs_sessao': obs_sessao,
         }
 
-    print(contexto)
     return render(request, "diario/avaliacao_participante.html", contexto)
 
 @login_required(login_url='diario:login')
@@ -1253,7 +1257,6 @@ def guarda_avaliacao_sessao(request, sessaoGrupo_id):
         submetido_por = Facilitador.objects.get(user=request.user)
         )
 
-    print(request.POST)
 
     if len(avaliacao_existente) > 0:
         avaliacao_existente = avaliacao_existente.get()
@@ -1292,10 +1295,8 @@ def view_exercicio(request, idExercicio, parteGrupo, sessaoGrupo):
     sessao_grupo = SessaoDoGrupo.objects.get(id=sessaoGrupo)
     exercicio = Exercicio.objects.get(id=idExercicio)
     
-    print(idExercicio)
-    
-    if request.method == 'POST':
-        print('post')
+    # if request.method == 'POST':
+    #     print('post')
                     
     contexto = {
         'request' : request,

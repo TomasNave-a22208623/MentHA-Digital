@@ -5,7 +5,7 @@ from django import forms
 from django.conf import settings
 import math
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from .functions import *
 
 ##### Eventos ######################################
 
@@ -56,6 +56,56 @@ class Grupo(models.Model):
     referenciacao = models.ForeignKey(Reference, on_delete=models.CASCADE, null=True, blank=True)
     nivelGDS = models.IntegerField(default=0)
     programa = models.CharField(max_length=20, choices=opPrograma, default="CARE", blank=True, null=True)
+
+    @property
+    def localizacao_most_frequent(self):
+        lista = []
+        if self.programa == 'COG':
+            lista = [p.localizacao for p in self.participantes.all()]
+        elif self.programa == 'CARE':
+            lista = [c.localizacao for c in self.cuidadores.all()]
+
+        return most_frequent(lista)
+
+    @property
+    def escolaridade_most_frequent(self):
+        lista = []
+        if self.programa == 'COG':
+            lista = [p.escolaridade for p in self.participantes.all()]
+        elif self.programa == 'CARE':
+            lista = [c.escolaridade for c in self.cuidadores.all()]
+
+        return most_frequent(lista)
+    
+    @property
+    def referenciacao_most_frequent(self):
+        lista = []
+        if self.programa == 'COG':
+            lista = [p.referenciacao for p in self.participantes.all()]
+        elif self.programa == 'CARE':
+            lista = [c.referenciacao for c in self.cuidadores.all()]
+
+        return most_frequent(lista)
+
+    @property
+    def escolaridade_most_frequent(self):
+        lista = []
+        if self.programa == 'COG':
+            lista = [p.escolaridade for p in self.participantes.all()]
+        elif self.programa == 'CARE':
+            lista = [c.escolaridade for c in self.cuidadores.all()]
+
+        return most_frequent(lista)
+
+    @property
+    def diagnostico_most_frequent(self):
+        lista = []
+        if self.programa == 'COG':
+            lista = [p.doencas_string for p in self.participantes.all()]
+        elif self.programa == 'CARE':
+            lista = [c.doencas_string for c in self.cuidadores.all()]
+
+        return most_frequent(lista)
 
     @property
     def participantes_ou_cuidadores(self):
@@ -337,6 +387,13 @@ class Cuidador(Utilizador):
             diagnosticos += [obj.nome for obj in participante.diagnosticos.all()]
         diagnosticos = set(diagnosticos)  # remove duplicados
         return diagnosticos
+    
+    def doencas_string(self):
+        d_str = ', '.join(self.doencas)
+        if len(d_str) < 2:
+            return None
+        else: 
+            return d_str
 
     @property
     def lista_nomes_participantes(self):

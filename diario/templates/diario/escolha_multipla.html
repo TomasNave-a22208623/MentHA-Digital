@@ -7,7 +7,7 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ opcao.resposta}}</h5>
                     <input class="pergunta" id="{{ opcao.id }}" name="choice" type="radio" value="{{ opcao.id }}"
-                        {% if opcao.id in ids_escolhidos %}
+                        {% if opcao.id in lista_ids_escolhas_multiplas %}
                             checked="checked"
                         {% endif %}
                 />

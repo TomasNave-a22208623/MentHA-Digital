@@ -1,3 +1,4 @@
+
 <style>
 .atividades {
   position: absolute;
@@ -5,6 +6,7 @@
   top: 150px;
 }
 </style>
+
 <div id="notas" style="overflow: auto;">
     <form id="notaForm" onsubmit='event.preventDefault(); 
     sendFormParticipante(
@@ -55,7 +57,7 @@
 </div>
 
 <div id="respostas" data-participante="{{ participante.id }}">
- {% for pergunta,form in form_list %}
+ {% for pergunta,parte,pg,form in form_list %}
     <div id="flex-container">
         <div class="row">
             <div class="w-50" style="padding-top: 10px;
@@ -64,12 +66,37 @@
             </div>
             <div class="w-50" style="padding-top: 10px;
             padding-right: 25px;">
-                {{ form.as_p }}
-            </div>
+                {% comment %} {{ form.as_p }} {% endcomment %}
+            {% if pergunta.tipo_resposta == 'UPLOAD_FOTOGRAFIA' %}
+                <form action="preventDefault()" enctype="multipart/form-data">
+                    {% for field in form %}
+                        <div>
+                            {{ field }} 
+                            <span data-parteid="{{parte.id}}" data-partegrupoid="{{pg.id}}" data-perguntaid="{{pergunta.id}}" style="display:none"></span>
+                        </div>
+                    {% endfor %}
+                </form>
+            {% elif pergunta.tipo_resposta == 'ESCOLHA_MULTIPLA' %}
+                {% include 'diario/escolha_multipla.html' %}
+            {% else %}
+                {% for field in form %}
+                    <div>
+                        {{ field }} 
+                       <span data-parteid="{{parte.id}}" data-partegrupoid="{{pg.id}}" data-perguntaid="{{pergunta.id}}" style="display:none"></span>
+                    </div>
+                    {% if pergunta.postexto %}
+                    <label>
+                        {{ pergunta.postexto }}
+                    </label>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
         </div>
+            </div>
+            
     </div>
-     
  {% endfor %}
+    <button style="float:right;margin-top:15px"onclick="submete_diario({{sessaoGrupo.id}}, {{ participante.id }})" class="btn btn-primary">Submeter</button>
 </div>
 
 <div id="informacoes">
