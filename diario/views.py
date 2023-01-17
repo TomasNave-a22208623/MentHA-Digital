@@ -92,6 +92,16 @@ def dashboard(request):
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
+def parte_ativa(request, sg_id):
+    sg = SessaoDoGrupo.objects.get(id=sg_id)
+    contexto = {}
+    contexto['parte'] =  sg.parte_ativa
+    contexto['sg'] =  sg
+    
+    return render(request, 'diario/parte_ativa.html', contexto)
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
 def new_group(request):
     formGrupo = GrupoForm(request.POST or None)
     if formGrupo.is_valid():

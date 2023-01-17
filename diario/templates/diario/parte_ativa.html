@@ -1,6 +1,7 @@
 
 {% extends 'diario/base.html' %}
 {% block main %}
+{% load markdownify %}
 <input type="hidden" id="sessaoGrupo_id" name="sessaoGrupo_id" value="{{sg.id}}" />
 <div class="partes-exercicio">
     <div id="carousel" class="carousel slide" data-ride="carousel" style="height: 100%;">
@@ -86,7 +87,6 @@
             </div>
         {% endfor %}
         </div>
-        <button class = "btn btn-danger botao-partilha" onclick="ativa_partilha({{sessaoGrupo.id}})">Partilhar</button>
     </div>
 </div>
 {% endblock %}

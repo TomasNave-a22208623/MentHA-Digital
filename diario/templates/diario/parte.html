@@ -168,6 +168,9 @@
     </div>
 </div>
 <div class="partes-exercicio">
+    <a href="{% url 'diario:parte_ativa' sessaoGrupo.id %}" target="_blank">
+    <i style="margin-top:15px;margin-right:15px;float:right"class="fas fa-window-restore"></i>
+    </a>
     <div id="carousel" class="carousel slide" data-ride="carousel" style="height: 100%;">
         <ol class="carousel-indicators">
             {% for parte in exercicio.partes_do_exercicio.all %}

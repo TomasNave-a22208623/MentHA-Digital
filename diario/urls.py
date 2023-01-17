@@ -77,6 +77,8 @@ urlpatterns = [
                path('guarda_avaliacao_sessao/<int:sessaoGrupo_id>', views.guarda_avaliacao_sessao, 
                     name="guarda_avaliacao_participante"), 
                path('obter_candidatos', views.obter_cadidatos, 
-                    name="obter_candidatos"),                      
+                    name="obter_candidatos"),       
+               path('parte_ativa/<int:sg_id>', views.parte_ativa, 
+                    name="parte_ativa"),                    
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
