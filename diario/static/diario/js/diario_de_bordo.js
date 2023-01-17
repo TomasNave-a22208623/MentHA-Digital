@@ -261,11 +261,9 @@ function submete(sg_id, pg_id, participante_id){
 
 
 function submete_texto_diario(sg_id, participante_id){
-  console.log("teste")
   document.querySelectorAll("textarea.pergunta, input.pergunta").forEach((i) => {
     if (i.value.length > 0 && i.type != "radio" && i.type !="checkbox") {
-      console.log(i)
-      console.log(i.nextElementSibling)
+      checkbox = i.parentElement.nextElementSibling.children[0].checked;
       let data = new FormData();
       resposta = i.value;
       pergunta_id = i.nextElementSibling.dataset.perguntaid;
@@ -274,6 +272,11 @@ function submete_texto_diario(sg_id, participante_id){
       csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
       data.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
       data.append('resposta_escrita',resposta);
+      if (checkbox) {
+        data.append('certo', 'true');
+      }  else {
+        data.append('certo', 'false');
+      }
       //console.log("Fetching: " + '/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id);
       fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id + '/' + parte_id, {
         method: "POST",
@@ -292,6 +295,12 @@ function submete_ficheiros_diario(sg_id, participante_id){
       parte_id = i.nextElementSibling.innerHTML.dataset.parteid;
       pg_id = i.nextElementSibling.innerHTML.dataset.partegrupoid;
       csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+      checkbox = i.parentElement.nextElementSibling.children[0].checked;
+      if (checkbox) {
+        formData.append('certo', 'true');
+      }  else {
+        formData.append('certo', 'false');
+      }
       formData.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
 
       fetch('/diario/guarda_resposta/' + sg_id + '/' + pg_id + '/' + participante_id + '/' + pergunta_id + '/' + parte_id, {
@@ -307,8 +316,14 @@ function submete_radio_diario(sg_id, participante_id){
     //console.log("radio");
     if (i.value.length > 0) {
       let formData = new FormData();           
-      resposta = i.value
-      formData.append('choice', resposta)
+      resposta = i.value;
+      checkbox = i.parentElement.nextElementSibling.children[0].checked;
+      formData.append('choice', resposta);
+      if (checkbox) {
+        formData.append('certo', 'true');
+      }  else {
+        formData.append('certo', 'false');
+      }
       pergunta_id = i.nextElementSibling.innerHTML.dataset.perguntaid;
       parte_id = i.nextElementSibling.innerHTML.dataset.parteid;
       pg_id = i.nextElementSibling.innerHTML.dataset.partegrupoid;

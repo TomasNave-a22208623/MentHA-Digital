@@ -1539,6 +1539,10 @@ def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, 
         r.resposta_submetida = request.FILES.get('file') 
     elif pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
         r.resposta_escolha = Opcao.objects.get(id=request.POST.get('choice'))
+    
+    if (request.POST.get('certo') == 'true'):
+        r.certo = True
+    
     #print(r)
     r.save()
     #print(request.FILES)
