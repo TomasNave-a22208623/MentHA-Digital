@@ -212,14 +212,14 @@ def obter_cadidatos(request):
             case 'CARE':
                 #participantes = Cuidador.objects.filter(grupo=None)
                 participantes = Cuidador.objects.all()
-                if request.POST.get('localizacao') != 'undefined':
+                if len(request.POST.get('localizacao')) > 0:
                     participantes = participantes.filter(localizacao=request.POST.get('localizacao'))
-                if request.POST.get('diagnostico') != 'undefined':
-                    participantes = participantes.filter(localizacao=request.POST.get('diagnostico'))
-                if request.POST.get('escolaridade') != 'undefined':
-                    participantes = participantes.filter(localizacao=request.POST.get('escolaridade'))
-                if request.POST.get('referenciacao') != 'undefined':
-                    participantes = participantes.filter(localizacao=request.POST.get('referenciacao'))
+                if len(request.POST.get('diagnostico')) > 0:
+                    participantes = participantes.filter(diagnosticos__in=request.POST.get('diagnostico'))
+                if len(request.POST.get('escolaridade')) > 0:
+                    participantes = participantes.filter(escolaridade=request.POST.get('escolaridade'))
+                if len(request.POST.get('referenciacao')) > 0:
+                    participantes = participantes.filter(referenciacao=request.POST.get('referenciacao'))
                 
                 
             case 'COG':
@@ -539,7 +539,7 @@ def filter_group(request, cuidador_id):
         'diagnostico': {grupo.diagnostico.nome for grupo in grupos if grupo.diagnostico is not None},
         'localizacao': {grupo.localizacao for grupo in grupos if grupo.localizacao != ''},
         'escolaridade': {grupo.escolaridade for grupo in grupos if grupo.escolaridade != ''},
-        'referenciacao': {grupo.referenciacao.reference for grupo in grupos if grupo.referenciacao is not None}
+        'referenciacao': {grupo.referenciacao for grupo in grupos if grupo.referenciacao is not None}
     }
 
 
@@ -559,7 +559,7 @@ def filter_group(request, cuidador_id):
                 if campo == 'escolaridade':
                     filtrados = filtrados.filter(escolaridade=valor)
                 if campo == 'referenciacao':
-                    referencia = Reference.objects.get(reference=valor)
+                    referencia = Reference.objects.get(referencia=valor)
                     filtrados = filtrados.filter(referenciacao=referencia)
 
     contexto = {
@@ -751,6 +751,8 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
     sessao_grupo = SessaoDoGrupo.objects.get(pk=idSessaoGrupo)
     programa = sessao_grupo.grupo.programa
     lista_ids_escolhas_multiplas = []
+    exercicios = []
+    form_list = []
     if programa == "CARE":
         participante = Cuidador.objects.get(pk=idParticipante)
         notas = Nota.objects.filter(cuidador=participante).order_by('-data')
@@ -911,10 +913,10 @@ def view_diario_grupo(request, idSessaoGrupo):
             presenca = Presenca.objects.filter(participante=pessoa, sessaoDoGrupo = sessao_grupo)
         
         if len(presenca) > 0:
-            presenca = presenca.get()
-            if presenca.present and presenca.mode == "Online":
+            presenca = presenca.filter()
+            if presenca.exists and presenca.values == "Online":
                 online_list.append(int(pessoa.id)) 
-            elif presenca.present and presenca.mode == "Presencial":
+            elif presenca.exists and presenca.values == "Presencial":
                 presencial_list.append(int(pessoa.id))
             else:
                 faltou_list.append(int(pessoa.id)) 

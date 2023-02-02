@@ -53,9 +53,13 @@
                                     <option value="" disabled selected>{{campo}} disponíveis</option>
                                     <option value="">------</option>
                                     {% for opcao in opcoes %}
-                                    {% if opcao != None %}
-                                        <option value="{{ opcao.id }}">{{ opcao }}</option>
-                                    {% endif %}
+                                        {% if opcao != None %}
+                                            {% if campo == "Referenciações" or campo == "Diagnósticos" %}
+                                                <option value='{{ opcao.id }}'>{{ opcao }}</option>
+                                            {% else %}
+                                                <option value='{{ opcao }}'>{{ opcao }}</option>
+                                            {% endif %}
+                                        {% endif %}
                                     {% empty %}
                                         <option value="">Sem registos</option>
                                     {% endfor %}
