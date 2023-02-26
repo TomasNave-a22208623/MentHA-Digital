@@ -64,7 +64,6 @@ class Grupo(models.Model):
             lista = [p.localizacao for p in self.participantes.all()]
         elif self.programa == 'CARE':
             lista = [c.localizacao for c in self.cuidadores.all()]
-
         return most_frequent(lista)
 
     @property
@@ -84,7 +83,6 @@ class Grupo(models.Model):
             lista = [p.referenciacao for p in self.participantes.all()]
         elif self.programa == 'CARE':
             lista = [c.referenciacao for c in self.cuidadores.all()]
-
         return most_frequent(lista)
 
     @property

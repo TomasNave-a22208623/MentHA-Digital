@@ -234,7 +234,8 @@ def obter_cadidatos(request):
                 if len(request.POST.get('referenciacao')) > 0:
                     participantes = participantes.filter(referenciacao=Reference.objects.get(id=request.POST.get('referenciacao')))
                 if len(request.POST.get('gds')) > 0:
-                    participantes = participantes.filter(nivel_gds=request.POST.get('gds'))
+                    participantes = participantes.filter(nivel_gds=int(request.POST.get('gds')))
+
     #print(participantes)
     contexto = {
         'programa': request.POST.get('programa'),
@@ -536,10 +537,10 @@ def filter_group(request, cuidador_id):
     grupos = Grupo.objects.all()
 
     lista_pesquisa = {
-        'diagnostico': {grupo.diagnostico.nome for grupo in grupos if grupo.diagnostico is not None},
+        'diagnostico': {(grupo.diagnostico.id, grupo.diagnostico.nome) for grupo in grupos if grupo.diagnostico is not None},
         'localizacao': {grupo.localizacao for grupo in grupos if grupo.localizacao != ''},
         'escolaridade': {grupo.escolaridade for grupo in grupos if grupo.escolaridade != ''},
-        'referenciacao': {grupo.referenciacao for grupo in grupos if grupo.referenciacao is not None}
+        'referenciacao': {(grupo.referenciacao.id, grupo.referenciacao) for grupo in grupos if grupo.referenciacao is not None}
     }
 
 
@@ -552,16 +553,16 @@ def filter_group(request, cuidador_id):
                 selecoes[campo] = valor
                     
                 if campo == 'diagnostico':
-                    doenca = Doenca.objects.get(doenca=valor)
+                    doenca = Doenca.objects.get(id=valor)
                     filtrados = filtrados.filter(diagnostico=doenca)
                 if campo == 'localizacao':
                     filtrados = filtrados.filter(localizacao=valor)
                 if campo == 'escolaridade':
                     filtrados = filtrados.filter(escolaridade=valor)
                 if campo == 'referenciacao':
-                    referencia = Reference.objects.get(referencia=valor)
+                    referencia = Reference.objects.get(id=valor)
                     filtrados = filtrados.filter(referenciacao=referencia)
-
+    print(selecoes)
     contexto = {
         'cuidador': cuidador,
         'lista_pesquisa': lista_pesquisa,

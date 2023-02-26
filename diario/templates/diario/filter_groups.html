@@ -120,9 +120,13 @@
                                                         <select name="{{ campo }}" id="">
                                                             <option value=""></option>
                                                             {% for opcao in opcoes %}
-                                                                {% if selecoes|get_item:campo == opcao%}
+                                                                {% if selecoes|get_item:campo == opcao %}
                                                                     <option value="{{ opcao }}" selected>
                                                                         {{ opcao }}
+                                                                    </option>
+                                                                {% elif campo == 'diagnostico' or campo == 'referenciacao' %}
+                                                                    <option value="{{ opcao.0 }}">
+                                                                        {{ opcao.1 }}
                                                                     </option>
                                                                 {% else %}
                                                                     <option value="{{ opcao }}">
@@ -213,7 +217,7 @@
                                                     {% endif %}
 
                                                 </td>
-                                                <td style="text-align: center;">{{ grupo.cuidadores.all|length }}</td>
+                                                <td style="text-align: center;">{{ grupo.nr_membros }}</td>
                                                 <td>
                                                     <form action="{% url 'diario:assign_group' grupo.id cuidador.id %}"
                                                           method="POST">
