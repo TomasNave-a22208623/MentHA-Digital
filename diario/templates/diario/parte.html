@@ -173,12 +173,12 @@
     </a>
     <div id="carousel" class="carousel slide" data-ride="carousel" style="height: 100%;">
         <ol class="carousel-indicators">
-            {% for parte in exercicio.partes_do_exercicio.all %}
+            {% for parte in exercicio_partes %}
             <li data-target="#carousel" data-parte="{{parte.id}}" data-slide-to="{{forloop.counter0}}" {% if forloop.counter0 == 0 %}class="active"{% endif %}></li>
             {% endfor %}
         </ol>
         <div class="carousel-inner">
-        {% for parte in exercicio.partes_do_exercicio.all %}
+        {% for parte in exercicio_partes %}
             <div class="carousel-item {% if forloop.counter0 == 0 %}active {% endif %}">
             {% if parte.imagens.all|length > 0 %}
             <div class = "exercicio-imagens">
