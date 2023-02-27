@@ -89,6 +89,11 @@ def dashboard(request):
 
     return render(request, 'diario/dashboard.html', contexto)
 
+#@login_required(login_url='diario:login')
+#@check_user_able_to_see_page('Todos')
+#def menu_view(request):
+ #   return render(request,'mentha/app-list.html')
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
@@ -626,9 +631,7 @@ def register_user(request):
 
 
 def logout_care_view(request):
-    logout(request)
-
-    return render(request, 'diario/login.html')
+    return render(request,'mentha/base.html')
 
 
 def view_iniciar_sessao(request, sessao_grupo_id):

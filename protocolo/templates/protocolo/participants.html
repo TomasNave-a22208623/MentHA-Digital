@@ -25,6 +25,7 @@
                                     <th style="text-align: center;">Monit II</th>
                                     <th style="text-align: center;">Pós-Teste</th>
                                     <th style="text-align: center;">Referenciação</th>
+                                    <th style="text-align: center;">Agendamentos</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -33,7 +34,8 @@
                                         <td style="text-align: center">
                                             <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
                                                  src="{% static 'protocolo/img/placeholder-avatar.png' %}" width="45px"
-                                                 height="45px" style="margin-left: auto;margin-right: auto;display: block;">
+                                                 height="45px"
+                                                 style="margin-left: auto;margin-right: auto;display: block;">
                                         </td>
                                         <td><a href="#" class="jq-btn no-decor"
                                                data-href="{% url 'protocolo:participant' p.id %}">
@@ -50,7 +52,7 @@
                                         <td style="text-align: center;">{% calculate_age p.nascimento %}</td>
                                         <td style="text-align: center;">{{ p.sexo }}</td>
                                         <td style="text-align: center;">
-                                           {% resolution_filter_get_percentage resolutions 1 p as percentage %}
+                                            {% resolution_filter_get_percentage resolutions 1 p as percentage %}
                                             {% if percentage > 0 %}
                                                 {% get_part_id_from_resolutions resolutions 1 p as p_id %}
                                                 <a href="#" class="jq-btn no-decor"
@@ -82,7 +84,7 @@
                                             {% endif %}
                                         </td>
                                         <td style="text-align: center;">
-                                           {% resolution_filter_get_percentage resolutions 2 p as percentage %}
+                                            {% resolution_filter_get_percentage resolutions 2 p as percentage %}
                                             {% if percentage > 0 %}
                                                 {% get_part_id_from_resolutions resolutions 2 p as p_id %}
                                                 <a href="#" class="jq-btn no-decor"
@@ -146,7 +148,7 @@
                                             {% endif %}
                                         </td>
                                         <td style="text-align: center;">
-                                           {% resolution_filter_get_percentage resolutions 4 p as percentage %}
+                                            {% resolution_filter_get_percentage resolutions 4 p as percentage %}
                                             {% if percentage > 0 %}
                                                 {% get_part_id_from_resolutions resolutions 4 p as p_id %}
                                                 <a href="#" class="jq-btn no-decor"
@@ -178,7 +180,7 @@
                                             {% endif %}
                                         </td>
                                         <td style="text-align: center;">
-                                       {% resolution_filter_get_percentage resolutions 5 p as percentage %}
+                                            {% resolution_filter_get_percentage resolutions 5 p as percentage %}
                                             {% if percentage > 0 %}
                                                 {% get_part_id_from_resolutions resolutions 5 p as p_id %}
                                                 <a href="#" class="jq-btn no-decor"
@@ -210,6 +212,14 @@
                                             {% endif %}
                                         </td>
                                         <td style="text-align: center">{{ p.referenciacao.reference }}</td>
+                                        <td style="text-align: center">
+                                            <button onclick="agendar()">Agendar</button>
+                                           <script>
+                                               const agendar = () => {
+                                                    window.open("{% url 'protocolo:teste' %}")
+                                                }
+                                            </script>
+                                        </td>
                                     </tr>
                                 {% empty %}
                                     Não tem Participantes associados.

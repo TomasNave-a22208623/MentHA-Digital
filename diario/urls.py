@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 app_name = 'diario'
 urlpatterns = [
                   path('nextSession', views.nextSession, name="nextSession"),
+                    #path('app-list',views.menu_view,name='app-list'),
                   path('logout_care_view', views.logout_care_view, name="logout_care_view"),
                   path('login', views.login_care_view, name="login",),
                   path('register', views.register_user, name="register"),

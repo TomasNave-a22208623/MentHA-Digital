@@ -26,12 +26,18 @@ def dashboard_view(request):
 def dashboard_content_view(request):
     return render(request, 'protocolo/dashboardcontent.html')
 
+@login_required(login_url='login')
+def teste(resquest):
+    return render(resquest, 'protocolo/teste.html')
 
 @login_required(login_url='login')
 def protocolos_view(request):
     context = {'protocolos': Protocol.objects.all().order_by('order')}
     return render(request, 'protocolo/protocolos.html', context)
 
+@login_required(login_url='login')
+def menu_protocolo_view(request):
+    return render(request, 'mentha/app-list.html')
 
 @login_required(login_url='login')
 def parts_view(request, protocol_id, patient_id):
@@ -695,8 +701,8 @@ from django.contrib.auth import logout
 
 def logout_view(request):
     logout(request)
-
-    return render(request, 'protocolo/login.html')
+    #Mudei isto de protocolo/login.html
+    return render(request, 'mentha/base.html')
 
 
 @login_required(login_url='login')

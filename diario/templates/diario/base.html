@@ -47,7 +47,7 @@
         function myFunction() {
             // Declare variables
             var input, filter, table, tr, td, i, txtValue;
-            input = document.getElementById("myInput");
+                input = document.getElementById("myInput");
             filter = input.value.toUpperCase();
             table = document.getElementById("myTable");
             tr = table.getElementsByTagName("tr");
@@ -96,11 +96,47 @@
                 </a>
                 {% endblock %}
             </div>
-   
-        
+
             <div class="search-box">
 
             </div>
+      <div class="nav-links">
+                <!--<a href="" data-href="" class="active">
+                    <i class="bx bx-home"></i>
+                    <span class="links_name">Voltar ao menu</span>
+                </a>-->
+          <script>
+              function listar_apps() {
+                  fetch("{% url 'mentha:app-list' %}")
+                    .then(response => response.text())
+                    .then(text => {
+                        document.querySelector('#app-list').innerHTML = text;
+                    })
+              }
+          </script>
+
+           <script>
+            document.addEventListener('DOMContentLoaded', () => {
+              const botao_menu = document.querySelector("#listar-apps")
+              botao_menu.addEventListener("click", () => {
+                  fetch("{% url 'mentha:app-list' %}")
+                    .then(response => response.text())
+                    .then(text => {
+                        document.querySelector('#app-list').innerHTML = text;
+                    })
+              })
+            })
+          </script>
+
+
+          <div onclick="listar_apps()">Voltar ao menu</div>
+
+          <div id="listar-apps" >Listar Apps</div>
+
+          <div id="app-list"></div>
+
+
+      </div>
             <div class="profile-details nav-links">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
@@ -108,8 +144,11 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li>
-                            <a class="dropdown-item" href=" {% url 'diario:logout_care_view' %}"><i class='bx bx-log-out'></i>&nbspEntra/Sair</a>
+                            <a class="dropdown-item" href=" {% url 'diario:logout_care_view' %}"><i class='bx bx-log-out'></i><span>Perfil</span></a>
                         </li>
+                       <!-- <li>
+                            <a class="dropdown-item" href="{% url 'diario:logout_care_view' %}"><span>Sair</span></a>
+                        </li>-->
                     </ul>
                 </li>
             </div>

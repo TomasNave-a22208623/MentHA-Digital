@@ -8,6 +8,8 @@ app_name = "protocolo"
 urlpatterns = [
                   path('', views.protocolos_view, name="protocols"),
                   path('dashboard', views.dashboard_view, name="dashboard"),
+                  path('', views.menu_protocolo_view, name="app-view"),
+                  path('teste', views.teste, name='teste'),
                   path('protocol-participants/<int:protocol_id>', views.protocol_participants_view,
                        name="protocol-participants"),
                   path('participants', views.participants_view, name="participants"),
@@ -31,6 +33,8 @@ urlpatterns = [
                   path('profile/<int:participant_id>/', views.profile_view, name="participant"),
                   path('participant-overview/<int:participant_id>/', views.patient_overview_view,
                        name="participant-overview"),
-                  path('gds-overview/<int:protocol_id>/<int:part_id>/<int:area_id>/<int:instrument_id>/<int:patient_id>', views.gds_overview_view,
-                       name="gds-overview"),
+                  path(
+                      'gds-overview/<int:protocol_id>/<int:part_id>/<int:area_id>/<int:instrument_id>/<int:patient_id>',
+                      views.gds_overview_view,
+                      name="gds-overview"),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
