@@ -1022,14 +1022,16 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
     elif programa == "COG":
         exercicio = Exercicio.objects.get(id=parte_do_grupo_id)
         parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
+        
         contexto['exercicio'] = exercicio
+        contexto['exercicio_partes'] = exercicio.partes_do_exercicio.all().order_by('ordem')
         contexto['dura'] = exercicio.duracao
 
         respostas_existentes = {}
         lista_ids_escolhas_multiplas = []
         
         form_list = []
-        for parte in exercicio.partes_do_exercicio.all():
+        for parte in exercicio.partes_do_exercicio.all().order_by('ordem'):
             initial_data = {}
             if parte.perguntas.all():
                 for pergunta in parte.perguntas.all():
@@ -1060,7 +1062,7 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
                     tuplo = (pergunta, parte.ordem ,form)
                     form_list.append(tuplo)
 
-            contexto['form_list'] = form_list 
+            contexto['form_list'] = form_list
             contexto['lista_ids_escolhas_multiplas'] = lista_ids_escolhas_multiplas
 
     contexto['respostas_existentes'] = respostas_existentes          
@@ -1093,12 +1095,12 @@ def get_respostas_do_participante(request, idSessaoGrupo, idParteGrupo, idPartic
                     form = RespostaForm_RespostaSubmetida(None, initial={'pergunta':pergunta})
                 tuplo = (pergunta,form)
                 form_list.append(tuplo)
-        contexto['form_list'] = form_list 
+        contexto['form_list'] = form_list
         
     return render(request, "diario/respostas.html", contexto)
 
 @login_required(login_url='diario:login')
-@check_user_able_to_see_page('Todos')
+@check_user_able_to_see_page('Todos') 
 def view_questionario(request, idPergunta, idParte, sessaoGrupo):
     parte = Parte.objects.get(id=idParte)
     questionario = parte.questionarios.all().filter(id=idPergunta).get()
