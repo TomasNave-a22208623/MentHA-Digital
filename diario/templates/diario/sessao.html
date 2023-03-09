@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     <button type="button" class="btn btn-outline-primary iniciar btn-sessao"
                                         {% if sessaoGrupo.grupo.programa == "CARE" %}
                                             data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/iniciar/{{proxima_parte}}">
-                                        {% elif sessaoGrupo.grupo.programa == "COG"%}
+                                        {% elif sessaoGrupo.grupo.programa == "COG" %}
                                             data-parte="{{parte_do_grupo.exercicio.id}}/{{sessaoGrupo.id}}/iniciar/{{proxima_parte}}">
                                         {% endif %}
                                         Iniciar
@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <!-- Grupo -->
             <div class="grupo">
                 <button type="button" class="btn btn-primary" data-idgrupo="{{ sessaoGrupo.id }}"
-                        style="width:100%;">Grupo
+                        style="width:100%; margin-top: 10px">Grupo
                 </button>
             </div>
             <!--class="btn btn-primary" -->
