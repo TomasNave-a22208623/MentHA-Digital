@@ -203,10 +203,9 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="flex-buttons">
             <form action="{% url 'diario:finalizar_sessao' grupo.id sessaoGrupo.id %}" method="POST">
                 {% csrf_token %}
-                <button class="btn btn-primary">Terminar Sessão</button>
+                <button class="btn btn-primary" style="margin:10px">Terminar Sessão</button>
             </form>
         </div>
-
     </div>
 </div>
 <!--Direita-->
@@ -234,6 +233,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 </button>
                 <button class="menu" data-menu="presencas" >Presenças
                 </button>
+                <!--{% for sessao in sessaos %}
+                    {% if sessao.programa == 'CARE' %}
+                        <button hidden class="menu" data-menu="respostas">Respostas
+                        </button>
+                    {% elif sessao.programa == 'COG' %}
+                        <button class="menu" data-menu="respostas">Respostas
+                        </button>
+                    {% endif %}
+                {% endfor %}-->
                 <button class="menu" data-menu="respostas">Respostas
                 </button>
                 <button class="menu" data-menu="notas" >Notas
@@ -247,6 +255,4 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
     </div>
 </div>
-
-
 {% endblock %}

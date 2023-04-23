@@ -5,7 +5,10 @@ from django import forms
 from django.conf import settings
 import math
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.http import HttpResponse
+
 from .functions import *
+
 
 ##### Eventos ######################################
 
@@ -43,12 +46,12 @@ class Grupo(models.Model):
         ("10-12", "10-12"),
         ("12+", "12+")
     )
-    
+
     opPrograma = (
         ("CARE", "CARE"),
         ("COG", "COG"),
     )
-    
+
     nome = models.CharField(max_length=20)
     diagnostico = models.ForeignKey(Doenca, on_delete=models.CASCADE, null=True, blank=True)
     localizacao = models.CharField(max_length=20, default="", null=True, blank=True)
@@ -75,7 +78,7 @@ class Grupo(models.Model):
             lista = [c.escolaridade for c in self.cuidadores.all()]
 
         return most_frequent(lista)
-    
+
     @property
     def referenciacao_most_frequent(self):
         lista = []
@@ -110,7 +113,7 @@ class Grupo(models.Model):
         lista = []
         for p in self.participantes.all():
             lista.append(p)
-        
+
         for c in self.cuidadores.all():
             lista.append(c)
 
@@ -118,8 +121,9 @@ class Grupo(models.Model):
 
     @property
     def nr_membros(self):
-        return len(self.cuidadores.all()) + len(self.participantes.all()) + len(self.facilitadores.all()) + len(self.dinamizadores.all())
-            
+        return len(self.cuidadores.all()) + len(self.participantes.all()) + len(self.facilitadores.all()) + len(
+            self.dinamizadores.all())
+
     def __str__(self):
         return f'{self.nome}'
 
@@ -139,6 +143,7 @@ class Atividade(models.Model):
     def __str__(self):
         return f'Atividade {self.numero}: {self.nome}'
 
+
 class Sessao(models.Model):
     PRESENT = 'P'
     ONLINE = 'O'
@@ -154,21 +159,20 @@ class Sessao(models.Model):
         (PORREALIZAR, "Por realizar"),
         (REALIZADO, "Realizado"),
     ]
-    
+
     opPrograma = (
         ("CARE", "CARE"),
         ("COG", "COG"),
     )
-    
-    nome = models.CharField(max_length=100, blank = True)
+
+    nome = models.CharField(max_length=100, blank=True)
     numeroSessao = models.IntegerField(null=True, blank=True)
     tema = models.TextField(max_length=1000, null=True, blank=True)
     dinamizadores = models.CharField(max_length=1000, null=True, blank=True)
     componentes = models.CharField(max_length=1000, null=True, blank=True)
     instrumentoAvaliacao = models.TextField(max_length=1000, null=True, blank=True)
     programa = models.CharField(max_length=20, choices=opPrograma, default="CARE", blank=True, null=True)
-    
-    
+
     @property
     def objetivos(self):
         objetivos_partes = ""
@@ -179,8 +183,10 @@ class Sessao(models.Model):
     def __str__(self):
         return f'({self.programa}) Sessão {self.numeroSessao}. {self.nome}'
 
+
 def img_path(instance, filename):
     return f'img/{filename}'
+
 
 class Imagem(models.Model):
     nome = models.CharField(max_length=100)
@@ -188,10 +194,11 @@ class Imagem(models.Model):
 
     def __str__(self):
         return self.nome
-  
+
+
 class Opcao(models.Model):
     resposta = models.CharField(max_length=300, default="")
-    cotacao = models.IntegerField(default=0, blank =True, null = True)
+    cotacao = models.IntegerField(default=0, blank=True, null=True)
     imagem = models.ForeignKey(Imagem, default=None, null=True, on_delete=models.CASCADE, blank=True)
 
     def __str__(self):
@@ -207,14 +214,15 @@ class Pergunta(models.Model):
         (DESENVOLVIMENTO, "Desenvolvimento"),
         (FINAL, "Final")
     ]
-    fase = models.CharField(max_length=10, choices=FASE, null=True, blank=True, default = 'I')
-    sessao_numero = models.IntegerField(default=0, blank =True, null = True)
+    fase = models.CharField(max_length=10, choices=FASE, null=True, blank=True, default='I')
+    sessao_numero = models.IntegerField(default=0, blank=True, null=True)
     ordem = models.IntegerField(default=0)
     texto = models.CharField(max_length=200)
-    opcoes = models.ManyToManyField(Opcao, blank=True, default = None)
+    opcoes = models.ManyToManyField(Opcao, blank=True, default=None)
 
     def __str__(self):
         return f'{self.texto}'
+
 
 class Pergunta_Exercicio(models.Model):
     TIPOS = [
@@ -223,9 +231,9 @@ class Pergunta_Exercicio(models.Model):
         ("RESPOSTA_ESCRITA", "Resposta Escrita"),
         ("ESCOLHA_MULTIPLA", "Escolha Múltipla"),
     ]
-    
-    nome = models.CharField(max_length=100, default = '', blank = True, null = True)
-    postexto = models.CharField(max_length=100, default = '', blank = True, null = True)
+
+    nome = models.CharField(max_length=100, default='', blank=True, null=True)
+    postexto = models.CharField(max_length=100, default='', blank=True, null=True)
     tipo_resposta = models.CharField(max_length=50, choices=TIPOS)
     opDificuldade = (
         ("A", "A"),
@@ -233,30 +241,30 @@ class Pergunta_Exercicio(models.Model):
         ("Indefinido", "Indefinido")
     )
     dificuldade = models.CharField(max_length=20, choices=opDificuldade, default="Indefinido", blank=False, null=False)
-    opcoes = models.ManyToManyField(Opcao, blank=True, default = None)
+    opcoes = models.ManyToManyField(Opcao, blank=True, default=None)
 
     def __str__(self):
-        if self.dificuldade in ['A','B']:
+        if self.dificuldade in ['A', 'B']:
             dif = f'({self.dificuldade})'
         else:
             dif = ''
         return f'{dif} {self.nome}'
-        
+
 
 class Parte_Exercicio(models.Model):
     nome = models.CharField(max_length=100)
-    ordem = models.IntegerField(default = 0)
+    ordem = models.IntegerField(default=0)
     descricao = models.TextField(max_length=1000, null=True, blank=True)
-    imagens = models.ManyToManyField(Imagem, default = None, blank = True)
+    imagens = models.ManyToManyField(Imagem, default=None, blank=True)
     duracao = models.IntegerField(default=0)
-    perguntas = models.ManyToManyField(Pergunta_Exercicio, blank = True, default = None)
-
+    perguntas = models.ManyToManyField(Pergunta_Exercicio, blank=True, default=None)
 
     def __str__(self):
         ex_numeros = []
         for x in self.exercicios.all():
             ex_numeros.append(x.numero)
         return f'Exercício {ex_numeros} - parte {self.ordem} - {self.nome}'
+
 
 class SessaoDoGrupo(models.Model):
     PRESENT = 'P'
@@ -286,23 +294,21 @@ class SessaoDoGrupo(models.Model):
 
     def __str__(self):
         return f'Sessao {self.sessao} do grupo {self.grupo}'
-    
+
     def parte_atual(self):
         for pg in self.parteGrupos:
             if pg.em_progresso:
-                return pg 
-    
+                return pg
 
 
 class Questionario(models.Model):
     nome = models.CharField(max_length=50, default="")
-    topico = models.CharField(max_length=300, default="", blank = True, null = True)
-    perguntas = models.ManyToManyField(Pergunta, blank=True, default = None)
-    continuacaoDe = models.ForeignKey(Sessao ,blank=True, on_delete=models.CASCADE, null = True, default = None )
-     
+    topico = models.CharField(max_length=300, default="", blank=True, null=True)
+    perguntas = models.ManyToManyField(Pergunta, blank=True, default=None)
+    continuacaoDe = models.ForeignKey(Sessao, blank=True, on_delete=models.CASCADE, null=True, default=None)
+
     def __str__(self):
         return f'{self.nome}'
-    
 
 
 class InformacaoSensivel(models.Model):
@@ -310,7 +316,7 @@ class InformacaoSensivel(models.Model):
     email = models.EmailField(max_length=100, blank=True, null=True)
     telemovel = models.CharField(max_length=20, default="", blank=True, null=True)
     imagem = models.ImageField(null=True, blank=True, upload_to='images/')
-    
+
     def erase_sensitive_info(self):
         nome = None
         email = None
@@ -318,26 +324,25 @@ class InformacaoSensivel(models.Model):
         image = None
         self.save()
 
-    
-    
+
 class Utilizador(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, blank=True,
-                                   null=True)
+                             null=True)
     info_sensivel = models.ForeignKey(InformacaoSensivel, on_delete=models.CASCADE, default=None, blank=True, null=True)
-    
+
     opSexo = (
         ("Feminino", "Feminino"),
         ("Masculino", "Masculino"),
         ("Outros", "Outros")
     )
-    
+
     sexo = models.CharField(max_length=20, choices=opSexo, default="", blank=False, null=False)
     idade = models.CharField(max_length=20, default="", blank=True, null=True)
     nascimento = models.DateField(null=True, blank=True)
     data_entrada = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     nacionalidade = models.CharField(max_length=20, default="", blank=True, null=True)
     localizacao = models.CharField(max_length=20, default="", blank=True, null=True)
-    
+
     class Meta:
         abstract = True
 
@@ -357,7 +362,6 @@ class Utilizador(models.Model):
     def imagem(self):
         return self.info_sensivel.imagem
 
-    
 
 class Cuidador(Utilizador):
     opEscolaridade = (
@@ -373,7 +377,8 @@ class Cuidador(Utilizador):
         ("Misto", "Misto")
     )
     escolaridade = models.CharField(max_length=20, choices=opEscolaridade, default="1-4", blank=False, null=False)
-    referenciacao = models.CharField(max_length=20, default="",null=True, blank=True)
+    referenciacao = models.CharField(max_length=20, default="", null=True, blank=True)
+    # referenciacao é um charfield, devia ser um ManyToManyField
     regime = models.CharField(max_length=20, choices=opRegime, default="Online", blank=False, null=False)
     grupo = models.ManyToManyField(Grupo, blank=True, related_name='cuidadores')
 
@@ -385,12 +390,12 @@ class Cuidador(Utilizador):
             diagnosticos += [obj.nome for obj in participante.diagnosticos.all()]
         diagnosticos = set(diagnosticos)  # remove duplicados
         return diagnosticos
-    
+
     def doencas_string(self):
         d_str = ', '.join(self.doencas)
         if len(d_str) < 2:
             return None
-        else: 
+        else:
             return d_str
 
     @property
@@ -417,7 +422,7 @@ class Mentor(Utilizador):
     grupo = models.ManyToManyField(Grupo, blank=True, related_name='mentores')
 
     def __str__(self):
-        return f'{self.nome}'
+        return f'{self.info_sensivel.nome}'
 
 
 class DinamizadorConvidado(Utilizador):
@@ -431,14 +436,14 @@ class DinamizadorConvidado(Utilizador):
 class Documents(models.Model):
     name = models.CharField(max_length=200, default="")
     description = models.CharField(max_length=200, default="", blank=True, null=True)
-    cuidador = models.ManyToManyField(Cuidador, blank=True,  related_name='documents')
+    cuidador = models.ManyToManyField(Cuidador, blank=True, related_name='documents')
     file = models.FileField(null=True, blank=True, upload_to='files/')
 
     def __str__(self):
         return f'{self.name}'
 
-
     ####################
+
 
 # Grupo(Grupo):
 #     def __str__(self):
@@ -491,41 +496,46 @@ class Participante(Utilizador):
     )
     escolaridade = models.CharField(max_length=20, choices=opEscolaridade, default="1-4", blank=True, null=False)
     residencia = models.CharField(max_length=20, choices=opResidencia, default="Urbana", blank=True, null=True)
-    situacaoLaboral = models.CharField(max_length=20, choices=opSituacaoLaboral, default="Reformado(a)", blank=True, null=True)
+    situacaoLaboral = models.CharField(max_length=20, choices=opSituacaoLaboral, default="Reformado(a)", blank=True,
+                                       null=True)
     profissaoPrincipal = models.CharField(max_length=100, default="", blank=True, null=True)
-    situacaoEconomica = models.CharField(max_length=20, choices=opSituacaoEconomica, default="Satisfatória", blank=True, null=True)
+    situacaoEconomica = models.CharField(max_length=20, choices=opSituacaoEconomica, default="Satisfatória", blank=True,
+                                         null=True)
     estadoCivil = models.CharField(max_length=30, choices=opEstadoCivil, default="Solteiro(a)", blank=True, null=True)
-    agregadoFamiliar = models.CharField(max_length=35, choices=opAgregadoFamiliar, default="Vive sozinho(a)", blank=True, null=True)
-    temFilhos = models.BooleanField(default=False, blank= True, null=True)
-    nrFilhos = models.IntegerField(default=0, blank= True, null=True)
-    autoAvaliacaoEstadoSaude = models.CharField(max_length=30, choices=opEstadoSaude, default="Nem mau nem bom", blank=True, null=True)
-    diagnosticos = models.ManyToManyField(Doenca, related_name='participantes',  default = None, null = True, blank=True)
-    referenciacao = models.ForeignKey(Reference, on_delete= models.CASCADE,  blank=True)
-    nivel_gds = models.IntegerField(default = 1, validators=[
-            MaxValueValidator(7),
-            MinValueValidator(1)
-        ])
+    agregadoFamiliar = models.CharField(max_length=35, choices=opAgregadoFamiliar, default="Vive sozinho(a)",
+                                        blank=True, null=True)
+    temFilhos = models.BooleanField(default=False, blank=True, null=True)
+    nrFilhos = models.IntegerField(default=0, blank=True, null=True)
+    autoAvaliacaoEstadoSaude = models.CharField(max_length=30, choices=opEstadoSaude, default="Nem mau nem bom",
+                                                blank=True, null=True)
+    diagnosticos = models.ManyToManyField(Doenca, related_name='participantes', default=None, null=True, blank=True)
+    referenciacao = models.ForeignKey(Reference, on_delete=models.CASCADE, blank=True)
+    nivel_gds = models.IntegerField(default=1, validators=[
+        MaxValueValidator(7),
+        MinValueValidator(1)
+    ])
     grupo = models.ManyToManyField(Grupo, blank=True, related_name='participantes')
     cuidadores = models.ManyToManyField(Cuidador, blank=True, related_name='participantes')
-    avaliador = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, default=None, blank=True, null=True, related_name='participantes')
+    avaliador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, blank=True,
+                                  null=True, related_name='participantes')
 
-    	
     @property
     def doencas(self):
         diagnosticos = []
         diagnosticos += [obj.nome for obj in self.diagnosticos.all()]
         diagnosticos = set(diagnosticos)  # remove duplicados
         return diagnosticos
-    
+
     def doencas_string(self):
         d_str = ', '.join(self.doencas)
         if len(d_str) < 2:
             return None
-        else: 
+        else:
             return d_str
 
     def __str__(self):
         return f'{self.info_sensivel.nome}'
+
 
 class Facilitador(Utilizador):
     grupo = models.ManyToManyField(Grupo, blank=True, related_name='facilitadores')
@@ -533,65 +543,67 @@ class Facilitador(Utilizador):
     def __str__(self):
         return f'{self.nome}'
 
-    
+
 class AvaliacaoParticipante(models.Model):
     validators = [
-            MaxValueValidator(5),
-            MinValueValidator(1)
-        ]
-    participante = models.ForeignKey(Participante,  on_delete= models.CASCADE,  blank=True)
-    sessao_grupo = models.ForeignKey(SessaoDoGrupo,  on_delete= models.CASCADE,  blank=True)
-    interesse = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    comunicacao = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    iniciativa = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    satisfacao = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    humor = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    eficacia_relacional = models.IntegerField(default=1, validators=validators, blank = True, null = True)
+        MaxValueValidator(5),
+        MinValueValidator(1)
+    ]
+    participante = models.ForeignKey(Participante, on_delete=models.CASCADE, blank=True)
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, blank=True)
+    interesse = models.IntegerField(default=1, validators=validators, blank=True, null=True)
+    comunicacao = models.IntegerField(default=1, validators=validators, blank=True, null=True)
+    iniciativa = models.IntegerField(default=1, validators=validators, blank=True, null=True)
+    satisfacao = models.IntegerField(default=1, validators=validators, blank=True, null=True)
+    humor = models.IntegerField(default=1, validators=validators, blank=True, null=True)
+    eficacia_relacional = models.IntegerField(default=1, validators=validators, blank=True, null=True)
 
-    submetido_por = models.ForeignKey(Facilitador,  on_delete= models.CASCADE,  blank=True, null = True, default = None)
+    submetido_por = models.ForeignKey(Facilitador, on_delete=models.CASCADE, blank=True, null=True, default=None)
 
-    #talvez fazer outra tabela para isto
-    observacao = models.TextField(max_length=550, default = "", blank = True, null = True)
+    # talvez fazer outra tabela para isto
+    observacao = models.TextField(max_length=550, default="", blank=True, null=True)
 
     def __str__(self):
         return f"Avaliação de {self.participante.nome} na sessao {self.sessao_grupo.sessao.numeroSessao}"
 
+
 class AvaliacaoSessao(models.Model):
     validators = [
-            MaxValueValidator(5),
-            MinValueValidator(1)
-        ]    
+        MaxValueValidator(5),
+        MinValueValidator(1)
+    ]
     CHOICES = (
         ("SIM", "Sim"),
         ("NAO", "Não"),
     )
 
-    sessao_grupo = models.ForeignKey(SessaoDoGrupo,  on_delete= models.CASCADE,  blank=True)
-    planificacao_conteudos = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    adq_conteudos = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    adq_materiais = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    adq_tempo = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    grau_dominio = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    necessidade_treino = models.CharField(max_length=10, default="NAO", choices=CHOICES, blank = True, null = True)
-    apreciacao_global = models.IntegerField(default=1, validators=validators, blank = True, null = True)
-    tipo_treino_competencias = models.TextField(max_length=550, default = "", blank = True, null = True)
-    #talvez fazer outra tabela para isto
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, blank=True)
+    planificacao_conteudos = models.IntegerField(default=1, validators=validators, blank=True, null=True)
+    adq_conteudos = models.IntegerField(default=1, validators=validators, blank=True, null=True)
+    adq_materiais = models.IntegerField(default=1, validators=validators, blank=True, null=True)
+    adq_tempo = models.IntegerField(default=1, validators=validators, blank=True, null=True)
+    grau_dominio = models.IntegerField(default=1, validators=validators, blank=True, null=True)
+    necessidade_treino = models.CharField(max_length=10, default="NAO", choices=CHOICES, blank=True, null=True)
+    apreciacao_global = models.IntegerField(default=1, validators=validators, blank=True, null=True)
+    tipo_treino_competencias = models.TextField(max_length=550, default="", blank=True, null=True)
+    # talvez fazer outra tabela para isto
 
-    submetido_por = models.ForeignKey(Facilitador,  on_delete= models.CASCADE,  blank=True, null = True, default = None)
+    submetido_por = models.ForeignKey(Facilitador, on_delete=models.CASCADE, blank=True, null=True, default=None)
 
-    observacao = models.TextField(max_length=550, default = "", blank = True, null = True)
+    observacao = models.TextField(max_length=550, default="", blank=True, null=True)
+
 
 class Exercicio(models.Model):
-    sessao = models.ManyToManyField(Sessao, default = None ,blank = True, related_name='exercicios')  
-    dominio = models.CharField(max_length=100, default = '')
+    sessao = models.ManyToManyField(Sessao, default=None, blank=True, related_name='exercicios')
+    dominio = models.CharField(max_length=100, default='')
     numero = models.IntegerField(default=0)
     duracao = models.CharField(max_length=10, null=True, blank=True)
     descricao = models.TextField(max_length=1000, null=True, blank=True)
     material = models.TextField(max_length=1000, null=True, blank=True)
     instrucao = models.TextField(max_length=2000, null=True, blank=True)
     instrucao_participante = models.TextField(max_length=2000, null=True, blank=True)
-    partes_do_exercicio = models.ManyToManyField(Parte_Exercicio, blank = True, related_name='exercicios')
-    
+    partes_do_exercicio = models.ManyToManyField(Parte_Exercicio, blank=True, related_name='exercicios')
+
     def __str__(self):
         return f'Exercício {self.numero}'
 
@@ -612,9 +624,10 @@ class Parte(models.Model):
     duracao = models.IntegerField(null=True, blank=True)
     atividades = models.ManyToManyField(Atividade, blank=True)
     apresentacao = models.FileField(upload_to='apresentacoes/', null=True, blank=True)
-    #observacoes = models.TextField(max_length=1000, null=True, blank=True)
-    sessao = models.ForeignKey(Sessao, blank=True, related_name = 'partes', on_delete=models.CASCADE, null = True, default = None)
-    questionarios = models.ManyToManyField(Questionario, blank = True)
+    # observacoes = models.TextField(max_length=1000, null=True, blank=True)
+    sessao = models.ForeignKey(Sessao, blank=True, related_name='partes', on_delete=models.CASCADE, null=True,
+                               default=None)
+    questionarios = models.ManyToManyField(Questionario, blank=True)
 
     # para apagar mas rever como fazer ao certo
     # tempo = models.IntegerField(null=True, blank=True, default=0)
@@ -622,9 +635,10 @@ class Parte(models.Model):
     @property
     def numeroSessao(self):
         return self.sessao.numeroSessao
-    
+
     def __str__(self):
         return f'Sessao n°:{self.numeroSessao}, {self.fase}, objetivo: {self.objetivo}'
+
 
 class InfoParte(models.Model):
     parte = models.ForeignKey(Parte, on_delete=models.CASCADE)
@@ -634,8 +648,10 @@ class InfoParte(models.Model):
 
 class ParteGrupo(models.Model):
     sessaoGrupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, blank=True, related_name='parteGrupos')
-    parte = models.ForeignKey(Parte, on_delete=models.CASCADE, default = None, blank=True, null=True, related_name='partesGrupos')
-    exercicio = models.ForeignKey(Exercicio, on_delete=models.CASCADE, default = None, blank=True, null = True, related_name='partesGrupos')
+    parte = models.ForeignKey(Parte, on_delete=models.CASCADE, default=None, blank=True, null=True,
+                              related_name='partesGrupos')
+    exercicio = models.ForeignKey(Exercicio, on_delete=models.CASCADE, default=None, blank=True, null=True,
+                                  related_name='partesGrupos')
 
     inicio = models.DateTimeField(null=True, blank=True)
     fim = models.DateTimeField(null=True, blank=True)
@@ -644,7 +660,7 @@ class ParteGrupo(models.Model):
     @property
     def em_progresso(self):
         return not self.concluido
-    
+
     @property
     def duracao(self):
         if self.fim != None and self.inicio != None:
@@ -653,21 +669,21 @@ class ParteGrupo(models.Model):
             return (datetime.utcnow() - self.inicio).seconds
         else:
             return '-'
-    
+
     @property
     def duracao_minutos(self):
         return self.duracao // 60
-    
+
     @property
     def duracao_em_horas_minutos(self):
 
         if self.fim != None and self.inicio != None:
-            seconds =  (self.fim - self.inicio).seconds
+            seconds = (self.fim - self.inicio).seconds
         elif self.fim == None and self.inicio != None:
             seconds = (datetime.utcnow() - self.inicio).seconds
         else:
-            seconds =  0
-        
+            seconds = 0
+
         h = math.floor(seconds / 3600)
         m = math.floor(seconds % 3600 / 60)
         s = math.floor(seconds % 3600 % 60)
@@ -684,50 +700,53 @@ class ParteGrupo(models.Model):
     def __str__(self):
         return f'Parte {self.parte} e sessao {self.sessaoGrupo}'
 
+
 def submission_path(instance, filename):
     return f'users/{instance.participante.id}/{instance.id}-{filename}'
 
+
 class Resposta(models.Model):
-    parte_grupo = models.ForeignKey(ParteGrupo, on_delete=models.CASCADE, null = True, blank = True, default = None)
-    sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null = True, blank = True, default = None)
-    parte_exercicio = models.ForeignKey(Parte_Exercicio,  on_delete=models.CASCADE, null = True, blank = True, default = None)
+    parte_grupo = models.ForeignKey(ParteGrupo, on_delete=models.CASCADE, null=True, blank=True, default=None)
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null=True, blank=True, default=None)
+    parte_exercicio = models.ForeignKey(Parte_Exercicio, on_delete=models.CASCADE, null=True, blank=True, default=None)
     participante = models.ForeignKey(Participante, default=None, blank=True, null=True, on_delete=models.CASCADE)
     pergunta = models.ForeignKey(Pergunta_Exercicio, default=None, blank=True, null=True, on_delete=models.CASCADE)
     resposta_escrita = models.TextField(max_length=2000, default=None, blank=True, null=True)
     resposta_submetida = models.ImageField(upload_to=submission_path, blank=True, null=True)
-    resposta_escolha = models.ForeignKey(Opcao, on_delete=models.CASCADE, null = True, blank = True, default = None, related_name="resp")
+    resposta_escolha = models.ForeignKey(Opcao, on_delete=models.CASCADE, null=True, blank=True, default=None,
+                                         related_name="resp")
 
     # NN Apontamento fica aqui ou noutra tabela só de apontamentos?
     apontamento = models.TextField(max_length=2000, default=None, blank=True, null=True)
     data = models.DateTimeField(auto_now_add=True, null=True)
-    
-    certo = models.BooleanField(default = None, blank=True, null=True)
+
+    certo = models.BooleanField(default=None, blank=True, null=True)
 
     def __str__(self):
         return f'{self.id}'
 
+
 class Escolha(models.Model):
-    opcao = models.ForeignKey(Opcao, on_delete=models.CASCADE, null = True, blank = True, default = None)
-    pergunta = models.ForeignKey(Pergunta, on_delete=models.CASCADE, null = True, default = None)
-    resposta_escrita = models.CharField(max_length=750, default=None, null = True, blank= True)
+    opcao = models.ForeignKey(Opcao, on_delete=models.CASCADE, null=True, blank=True, default=None)
+    pergunta = models.ForeignKey(Pergunta, on_delete=models.CASCADE, null=True, default=None)
+    resposta_escrita = models.CharField(max_length=750, default=None, null=True, blank=True)
     utilizador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, blank=True,
                                    null=True)
-    parte_grupo = models.ForeignKey(ParteGrupo, on_delete=models.CASCADE, null = True, blank = True, default = 18)
-    sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null = True, default = None)
-    
-    
+    parte_grupo = models.ForeignKey(ParteGrupo, on_delete=models.CASCADE, null=True, blank=True, default=18)
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null=True, default=None)
+
 
 class Partilha(models.Model):
-    participante = models.ForeignKey(Participante, on_delete=models.CASCADE, blank = True, null = True)
-    cuidador = models.ForeignKey(Cuidador, on_delete=models.CASCADE, blank = True, null = True)
+    participante = models.ForeignKey(Participante, on_delete=models.CASCADE, blank=True, null=True)
+    cuidador = models.ForeignKey(Cuidador, on_delete=models.CASCADE, blank=True, null=True)
     partilha = models.TextField()
     data = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return f'{self.partilha}'
 
-###################################  COG ########################
 
+###################################  COG ########################
 
 
 # class Auxiliar(Utilizador):
@@ -791,11 +810,12 @@ class Presenca(Evento):
         (CARE, "Care")
     ]
     cuidador = models.ForeignKey(Cuidador, on_delete=models.CASCADE, null=True, blank=True,
-                                     related_name='presencas')
+                                 related_name='presencas')
     participante = models.ForeignKey(Participante, on_delete=models.CASCADE, null=True, blank=True,
                                      related_name='presencas')
     tipoSessao = models.CharField(choices=SESSAO, null=True, blank=True, default=CARE, max_length=20)
-    sessaoDoGrupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null=True, blank=True, related_name='sessao_grupo')
+    sessaoDoGrupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null=True, blank=True,
+                                      related_name='sessao_grupo')
     # info a recolher no formulário, com checkboxes
     present = models.BooleanField(default=False)
     faltou = models.BooleanField(default=False)

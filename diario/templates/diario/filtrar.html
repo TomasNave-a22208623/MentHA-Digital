@@ -10,9 +10,6 @@
 
     <h1>Filtro de grupos</h1>
 
-
-
-
     <form action="{% url 'diario:filtrar' %}" method="POST">
         {% csrf_token %}
         {% for campo,opcoes in lista_pesquisa.items %}
