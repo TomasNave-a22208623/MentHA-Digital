@@ -79,8 +79,9 @@ def dashboard(request):
     
     if request.user.groups.filter(name='Participante').exists():
         participante = Participante.objects.get(user=request.user)
-        sg = SessaoDoGrupo.objects.filter(grupo = participante.grupo).exclude(parte_ativa__isnull=True)
+        sg = SessaoDoGrupo.objects.filter(grupo__in = participante.grupo.all()).exclude(parte_ativa__isnull=True)
         if sg.exists():
+            print(sg)
             sg = sg.get()
             contexto['parte'] =  sg.parte_ativa
             contexto['sg'] =  sg
@@ -1505,7 +1506,9 @@ def finalizar_sessao(request, idGrupo, sessao_grupo_id):
         sessao_group.estado = 'R'
         sessao_group.fim = datetime.utcnow()
         sessao_group.concluido = True
+        sessao_group.parte_ativa = None
         sessao_group.save()
+        
 
     return HttpResponseRedirect(reverse('diario:group_sessions', args=[idGrupo]))
 
