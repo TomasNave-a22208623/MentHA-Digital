@@ -18,7 +18,7 @@
         {{ notaForm.nota }}
         <input type="hidden" name="cuidador" value={{ participante_id }}>
 
-        <button type="submit" name="nota">Guardar nota</button>
+        <button type="submit" class="btn btn-primary" name="nota">Guardar nota</button>
 
     </form>
 
@@ -42,7 +42,7 @@
         {% csrf_token %}
         {{ partilhaForm.partilha }}
         <input type="hidden" name="participante" value={{ participante_id }}>
-        <button type="submit" name="partilha">Guardar partilha</button>
+        <button type="submit" class="btn btn-primary" name="partilha">Guardar partilha</button>
     </form>
 
     <ul>

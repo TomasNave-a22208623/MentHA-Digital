@@ -72,10 +72,10 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
         {% csrf_token %}
         {{ partilhaGrupoForm.descricao }}
         <input type="hidden" name="grupo" value={{ grupo_id }}>
-        <button type="submit" name="partilha">Guardar partilha</button>
+        <button type="submit" class="btn btn-primary" name="partilha">Guardar partilha</button>
     </form>
 
-    <h2>Partilhas de {{ grupo.nome }}</h1>
+    <h2>Partilhas de {{ grupo.nome }}</h2>
     <ul>
         {% if partilhas|length > 0 %}
         {% for partilha in partilhas %}
@@ -135,7 +135,7 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
             {% endfor %}
             </tbody>
         </table>
-        <button type="submit" name="presencas">Atualizar presenças</button>
+        <button type="submit" class="btn btn-primary" name="presencas">Atualizar presenças</button>
     </form>
 
 </div>
