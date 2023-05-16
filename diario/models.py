@@ -832,18 +832,19 @@ class Presenca(Evento):
     def set_faltou(self):
         self.faltou = True
         self.present = False
+        self.mode = None
         self.save()
 
     def set_online(self):
         self.faltou = False
         self.present = True
-        self.mode = "Online"
+        self.mode = Presenca.ONLINE
         self.save()
 
     def set_presencial(self):
         self.faltou = False
         self.present = True
-        self.mode = "Presencial"
+        self.mode = Presenca.PRESENT
         self.save()
 
     def __str__(self):
