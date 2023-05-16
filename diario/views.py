@@ -669,22 +669,38 @@ def view_iniciar_sessao(request, sessao_grupo_id):
             if participante_id.isdigit():
                 presenca = None
                 if sessao_grupo.grupo.programa == "CARE":
-                    participante = Cuidador.objects.get(id=participante_id)
-                    presenca = Presenca(
-                        cuidador=participante,
-                        sessaoDoGrupo=sessao_grupo)
+                    cuidador = Cuidador.objects.get(id=participante_id)
+                    presencas = Presenca.objects.filter(cuidador=cuidador, sessaoDoGrupo=sessao_grupo)
+                    if not presencas.exists():
+                        # Se não houver nenhuma instância, cria uma nova
+                        presenca = Presenca.objects.create(
+                            cuidador=cuidador,
+                            sessaoDoGrupo=sessao_grupo,
+                            tipoSessao=Presenca.CARE,
+                        )
+                    else:
+                        # Se houver pelo menos uma instância, atualiza a primeira encontrada
+                        presenca = presencas.first()
                 elif sessao_grupo.grupo.programa == "COG":
                     participante = Participante.objects.get(id=participante_id)
-                    presenca = Presenca(
-                        participante=participante,
-                        sessaoDoGrupo=sessao_grupo)
+                    presencas = Presenca.objects.filter(participante=participante, sessaoDoGrupo=sessao_grupo)
+                    if not presencas.exists():
+                        # Se não houver nenhuma instância, cria uma nova
+                        presenca = Presenca.objects.create(
+                            participante=participante,
+                            sessaoDoGrupo=sessao_grupo,
+                            tipoSessao=Presenca.CARE,
+                        )
+                    else:
+                        # Se houver pelo menos uma instância, atualiza a primeira encontrada
+                        presenca = presencas.first()
 
-                if tipo_presenca == "faltou":
-                    presenca.set_faltou
-                elif tipo_presenca == "online":
-                    presenca.set_online
+                if tipo_presenca in ["naoVeio", "n"]:
+                    presenca.set_faltou()
+                elif tipo_presenca in ["online", "o"]:
+                    presenca.set_online()
                 else:
-                    presenca.set_presencial
+                    presenca.set_presencial()
 
                 presenca.save()
 
@@ -860,45 +876,38 @@ def view_atualiza_presencas_diario(request, idSessaoGrupo):
     nomes = request.POST.getlist("nome")
     valores = request.POST.getlist("valor")
     for participante_id, tipo_presenca in zip(nomes, valores):
-        presenca = Presenca.objects.filter(participante=Cuidador.objects.get(id=participante_id),
-                                           sessaoDoGrupo=sessao_grupo)
-        if len(presenca) > 0:
-            presenca = presenca.get()
-            if tipo_presenca in ["naoVeio", "n"]:
-                presenca.faltou = True
-                presenca.present = False
-                presenca.mode = ""
-            elif tipo_presenca in ["online", "o"]:
-                presenca.faltou = False
-                presenca.present = True
-                presenca.mode = "Online"
+        presenca = None
+        if sessao_grupo.grupo.programa == "CARE":
+            presenca = Presenca.objects.filter(cuidador=Cuidador.objects.get(id=participante_id),
+                                               sessaoDoGrupo=sessao_grupo)
+            if len(presenca) > 0:
+                presenca = presenca.first()
             else:
-                presenca.faltou = False
-                presenca.present = True
-                presenca.mode = "Presencial"
-            presenca.save()
+                # este else pode nao fazer muito sentido visto que nuca vai entrar
+                presenca = Presenca(cuidador=Cuidador.objects.get(id=participante_id), sessaoDoGrupo=sessao_grupo)
+        elif sessao_grupo.grupo.programa == "COG":
+            presenca = Presenca.objects.filter(participante=Participante.objects.get(id=participante_id),
+                                               sessaoDoGrupo=sessao_grupo)
+            if len(presenca) > 0:
+                presenca = presenca.first()
+            else:
+                # este else pode nao fazer muito sentido visto que nunca vai entrar
+                presenca = Presenca(participante=Participante.objects.get(id=participante_id),
+                                    sessaoDoGrupo=sessao_grupo)
+        if tipo_presenca in ["naoVeio", "n"]:
+            presenca.set_faltou()
+        elif tipo_presenca in ["online", "o"]:
+            presenca.set_online()
         else:
-            presenca = Presenca(participante=Cuidador.objects.get(id=participante_id), sessaoDoGrupo=sessao_grupo)
-            if tipo_presenca in ["naoVeio", "n"]:
-                presenca.faltou = True
-                presenca.present = False
-            elif tipo_presenca in ["online", "o"]:
-                presenca.faltou = False
-                presenca.present = True
-                presenca.mode = "Online"
-            else:
-                presenca.faltou = False
-                presenca.present = True
-                presenca.mode = "Presencial"
-            presenca.save()
+            presenca.set_presencial()
 
     context = {
-        'participantes': Cuidador.objects.filter(grupo=idGrupo).order_by('nome'),
+        'participantes': Cuidador.objects.filter(grupo=idGrupo).order_by('user'),
         'grupo_id': idGrupo,
         'notasGrupo': NotaGrupo.objects.filter(grupo=idGrupo),
         'partilhas': PartilhaGrupo.objects.filter(grupo=idGrupo),
         'informacoes': Informacoes.objects.all(),
-        'respostas': Respostas.objects.all(),
+        'respostas': Resposta.objects.all(),
         'notaGrupoForm': NotaGrupoForm(),
         'partilhaGrupoForm': PartilhaGrupoForm()
 
@@ -941,14 +950,13 @@ def view_diario_grupo(request, idSessaoGrupo):
             presenca = Presenca.objects.filter(participante=pessoa, sessaoDoGrupo=sessao_grupo)
 
         if len(presenca) > 0:
-            presenca = presenca.filter()
-            if presenca.exists and presenca.values == "Online":
+            presenca = presenca.get()
+            if presenca is not None and presenca.mode == Presenca.ONLINE:
                 online_list.append(int(pessoa.id))
-            elif presenca.exists and presenca.values == "Presencial":
+            elif presenca is not None and presenca.mode == Presenca.PRESENT:
                 presencial_list.append(int(pessoa.id))
             else:
                 faltou_list.append(int(pessoa.id))
-
     context = {
         'participantes': participantes,
         'grupo_id': idGrupo,
