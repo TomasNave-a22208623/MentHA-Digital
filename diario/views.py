@@ -357,20 +357,24 @@ def group_sessions(request, grupo_id):
     sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
     sessoes = Sessao.objects.all()
     grupo = Grupo.objects.get(id=grupo_id)
+    sessao_em_curso = None
+    proxima_sessao = None
 
     for sessao in sessoes_do_grupo:
+        if sessao.estado == 'EC':
+            sessao_em_curso = sessao.id
+            break
         if sessao.estado == 'PR':
             proxima_sessao = sessao.id
             break
-    else:
-        proxima_sessao = -1
 
     #    sessoes = Grupo.objects.get(id=grupo_id).sessoes.all()
 
     contexto = {
         'sessoes_do_grupo': sessoes_do_grupo,
         'grupo': grupo,
-        'proxima_sessao': proxima_sessao
+        'proxima_sessao': proxima_sessao,
+        'sessao_em_curso': sessao_em_curso
     }
     return render(request, "diario/group_sessions.html", contexto)
 
@@ -968,6 +972,8 @@ def view_diario_grupo(request, idSessaoGrupo):
 @check_user_able_to_see_page('Todos')
 def view_presencas_sessao(request, proxima_id):
     sessao_grupo = SessaoDoGrupo.objects.get(id=proxima_id)
+    sessao_grupo.estado = SessaoDoGrupo.EMCURSO
+    sessao_grupo.save()
 
     contexto = {
         'sessao_grupo': sessao_grupo,

@@ -276,9 +276,11 @@ class SessaoDoGrupo(models.Model):
         (MISTO, "Misto")
     ]
     PORREALIZAR = 'PR'
+    EMCURSO = 'EC'
     REALIZADO = 'R'
     ESTADO = [
         (PORREALIZAR, "Por realizar"),
+        (EMCURSO, "Em curso"),
         (REALIZADO, "Realizado"),
     ]
 
@@ -323,6 +325,9 @@ class InformacaoSensivel(models.Model):
         telemovel = None
         image = None
         self.save()
+
+    def __str__(self):
+        return self.nome
 
 
 class Utilizador(models.Model):

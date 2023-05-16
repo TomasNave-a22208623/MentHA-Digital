@@ -12,7 +12,7 @@
             <div class="card-body" style="padding: 8px">
                 <p class="text-primary m-0 fw-bold"
                     style="margin: 5px; font-size: 26px">Criar Novo Grupo
-                </p> 
+                </p>
                 {% csrf_token %}
                 <div class="flex-container" style="flex-direction: row;justify-content: space-between;">
                     <div style="width:45%">
@@ -45,7 +45,7 @@
                 </tr> {% endcomment %}
                 </thead>
                 <tbody>
-                
+
                 <tr class="filtro_care" style="display:none;">
                         {% for campo,opcoes in lista_pesquisa_cuidadores.items %}
                             <td class="opcao">
@@ -70,7 +70,7 @@
                         {% comment %} <input form="filtro" type="submit" value="Filtrar"
                                 class="btn btn-primary"> {% endcomment %}
                         </td>
-              
+
                 </tr>
 
                 <tr class="filtro_cog" style="display:none;">
@@ -97,7 +97,7 @@
                         {% comment %} <input form="filtro" type="submit" value="Filtrar"
                                 class="btn btn-primary"> {% endcomment %}
                         </td>
-                
+
                 </tr>
                 </tbody>
             </table>
@@ -106,21 +106,21 @@
 
         <div class="container-fluid card" style="margin-top:15px;width:75%;display:none">
             <div class="card-body" style="padding: 8px">
-            
+
                 <p class="text-primary m-0 fw-bold"
                     style="margin: 5px; font-size: 26px">Candidatos
                 </p>
 
                     <div class="table-responsive" style="padding-top:15px">
                     <table class="table container-candidatos">
-                    
+
                     </table>
                     <input type="submit" onclick="cria_grupo()" style="margin-top:15px;float:right;" value="Criar Grupo" class="left btn btn-primary">
                     </div>
 
             </div>
-            
+
         </div>
-    
+
 </div>
 {% endblock %}

@@ -90,6 +90,7 @@ function descarregaInfoGrupo(idSessaoGrupo) {
 /***************************************************************************/
 document.addEventListener("DOMContentLoaded", function () {
   menuAtivo = document.querySelector("[data-menu='notas']");
+
   document.querySelector("[data-menu='respostas']").style.display = "none";
   // onclick num participante
   document

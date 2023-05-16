@@ -1,42 +1,57 @@
 {% load markdownify %}
 
 {% block navegacao %}
-<div class="titulo">
+<div class="titulo" style="padding-top: 1.25rem;margin-top: 5px;">
     <p class="text-primary m-0 fw-bold">
         Sessão {{ sessaoGrupo.sessao.numeroSessao}} > Fase
         {% if parte.fase == 'I' %}
-        Inicial
+        Inicial ({{ dura }}m)
         {% endif %}
         {% if parte.fase == 'D' %}
-        Desenvolvimento
+        Desenvolvimento ({{ dura }}m)
         {% endif %}
         {% if parte.fase == 'F' %}
-        Final
+        Final ({{ dura }}m)
         {% endif %}
     </p>
-    <div>
+    <div style="display: flex;gap: 10px;">
         {% if sessaoGrupo.grupo.programa == "CARE" %}
             <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'continuar' %}" method="POST">
         {% elif sessaoGrupo.grupo.programa == "COG" %}
             <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'continuar' %}" method="POST">
         {% endif %}
             {% csrf_token %}
-            <button class="btn btn-outline-primary" style="margin-left:400px;">Voltar a Sessão</button>
+            <button class="btn btn-outline-primary">Voltar à Sessão</button>
         </form>
+
+        {% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase != parte.FINAL %}
+            {% if sessaoGrupo.grupo.programa == "CARE" %}
+                <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
+            {% elif sessaoGrupo.grupo.programa == "COG" %}
+                <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'finalizar'%}" method="POST">
+            {% endif %}
+            {% csrf_token %}
+                <button class="btn btn-danger">Terminar Parte</button>
+                </form>
+        {% else %}
+        <form action="{% url 'diario:finalizar_sessao' sessaoGrupo.grupo.id sessaoGrupo.id %}" method="POST">
+            {% csrf_token %}
+            <button class="btn btn-danger">Terminar Sessão</button>
+        </form>
+        {% endif %}
+
     </div>
 </div>
 {% endblock %}
-{% comment %}
-    {% if estado != "ver" %}
-        (<span id="timer">{{ parteGrupo.duracao }}</span>/{{ dura }}m)
-    {% elif estado == "ver" %}
-        {% if parteGrupo.concluido %} 
-            ({{ parteGrupo.duracao_em_horas_minutos }}/{{ dura }}m)
-        {% else %}
-            ({{ dura }}m)
-        {% endif %}
-    {% endif %}
-{% endcomment %}
+{% if estado != "ver" %}
+    <span id="timer">{{ parteGrupo.duracao }}</span>
+ {% elif estado == "ver" %}
+     {% if parteGrupo.concluido %}
+         ({{ parteGrupo.duracao_em_horas_minutos }}/{{ dura }}m)
+     {% else %}
+         ({{ dura }}m)
+     {% endif %}
+{% endif %}
 </p>
 {% if sessaoGrupo.grupo.programa == "CARE"%}
     <h5 class="text-primary m-0 fw-bold">Objetivo</h5>
@@ -79,17 +94,17 @@
     {% endfor %}
     {% endif %}
 
-    {% if parte.questionario.all|length > 0 %}
+    {% if parte.questionarios.all|length > 0 %}
     <h5 class="text-primary m-0 fw-bold">Questionario</h5>
 
     <ul>
-    {% for qu in parte.questionario.all %}
+    {% for qu in parte.questionarios.all %}
     <li>
     <a href="{% url 'diario:view_abrirQuestionario' qu.id parte.id sessaoGrupo.id  %}">
         <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{qu.id}}">Questionário {{ qu.numeroOrdem }}</button>
     </a>
     </li>
-        {% endfor %}
+    {% endfor %}
     </ul>
     
     {% endif %}
@@ -264,16 +279,7 @@
 </div>
 {% endif %}
 
-{% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None %}
-{% if sessaoGrupo.grupo.programa == "CARE" %}
-    <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
-{% elif sessaoGrupo.grupo.programa == "COG" %}
-    <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'finalizar'%}" method="POST">
-{% endif %}
-    {% csrf_token %}
-    <button class="btn btn-danger" style="margin-left:400px">Terminar Parte</button>
-</form>
-{% endif %}
+
 <br>
 
 

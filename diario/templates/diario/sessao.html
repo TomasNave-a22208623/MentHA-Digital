@@ -37,17 +37,15 @@ document.addEventListener("DOMContentLoaded", function () {
             if (div.dataset.estado != "ver") {
               function startTimer(duration, display) {
                 setInterval(function () {
-                    duration_minutes = Math.trunc(duration / 60);
-                    max = display.getAttribute('aria-valuemax')
-                    display.innerHTML = duration_minutes + "m";
-                    perc = calcula_percentagem(duration_minutes, max)
-                    display.style.width = perc+'%';
+                    duration_minutes = Math.floor(duration / 60);
+                    duration_seconds_remaining = duration % 60
+                    display.innerHTML = duration_minutes + 'm ' + duration_seconds_remaining + 's &#8986;';
                     duration++;
                 }, 1000);
               }
               display = document.querySelector("#timer"); // selecionando o timer
-              var duration = parseInt(display.innerHTML, 10) * 60; // Converter para segundos  -  {{ part.duracao }};
-              console.log("duration = ", duration);
+                var duration = parseInt(display.innerHTML); // Converter para segundos  -  {{ part.duracao }};
+               display.innerHTML = ''
               startTimer(duration, display); // iniciando o timer
             }
           });
@@ -73,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
 <div class="card esquerda" style="width:100%; border-color:white;">
     <div class="card-body">
         <div id="exercicio" data-estado="{{estado}}">
-            <div class="titulo">
+            <div class="titulo" style="padding-top: 1.25rem;margin-top: 5px;">
                 <p class="text-primary m-0 fw-bold">
                     {{sessaoGrupo.grupo}} - Sessão {{ sessaoGrupo.sessao.numeroSessao}}{% if sessaoGrupo.grupo.programa == "CARE"%}: {{ sessaoGrupo.sessao.nome }}{% endif %}
                 </p>
@@ -199,13 +197,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 </table>
             </div>
         </div>
-
+        {% if sessaoGrupo.id == proxima_sessao %}
         <div class="flex-buttons">
             <form action="{% url 'diario:finalizar_sessao' grupo.id sessaoGrupo.id %}" method="POST">
                 {% csrf_token %}
                 <button class="btn btn-primary" style="margin:10px">Terminar Sessão</button>
             </form>
         </div>
+        {% endif %}
     </div>
 </div>
 <!--Direita-->
@@ -233,17 +232,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 </button>
                 <button class="menu" data-menu="presencas" >Presenças
                 </button>
-                <!--{% for sessao in sessaos %}
-                    {% if sessao.programa == 'CARE' %}
-                        <button hidden class="menu" data-menu="respostas">Respostas
-                        </button>
-                    {% elif sessao.programa == 'COG' %}
-                        <button class="menu" data-menu="respostas">Respostas
-                        </button>
-                    {% endif %}
-                {% endfor %}-->
-                <button class="menu" data-menu="respostas">Respostas
-                </button>
+                {% if sessaoGrupo.grupo.programa == 'CARE' %}
+                     <button class="menu" data-menu="respostas" hidden>Respostas
+                     </button>
+                 {% else %}
+                     <button class="menu" data-menu="respostas">Respostas
+                     </button>
+                 {% endif %}
                 <button class="menu" data-menu="notas" >Notas
                 </button>
                 <button class="menu" data-menu="partilhas"
