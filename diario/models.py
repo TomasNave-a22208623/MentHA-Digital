@@ -89,23 +89,12 @@ class Grupo(models.Model):
         return most_frequent(lista)
 
     @property
-    def escolaridade_most_frequent(self):
-        lista = []
-        if self.programa == 'COG':
-            lista = [p.escolaridade for p in self.participantes.all()]
-        elif self.programa == 'CARE':
-            lista = [c.escolaridade for c in self.cuidadores.all()]
-
-        return most_frequent(lista)
-
-    @property
     def diagnostico_most_frequent(self):
         lista = []
         if self.programa == 'COG':
             lista = [p.doencas_string for p in self.participantes.all()]
         elif self.programa == 'CARE':
             lista = [c.doencas_string for c in self.cuidadores.all()]
-
         return most_frequent(lista)
 
     @property
@@ -396,6 +385,7 @@ class Cuidador(Utilizador):
         diagnosticos = set(diagnosticos)  # remove duplicados
         return diagnosticos
 
+    @property
     def doencas_string(self):
         d_str = ', '.join(self.doencas)
         if len(d_str) < 2:
@@ -733,7 +723,7 @@ class Resposta(models.Model):
 
 class Escolha(models.Model):
     opcao = models.ForeignKey(Opcao, on_delete=models.CASCADE, null=True, blank=True, default=None)
-    pergunta = models.ForeignKey(Pergunta, on_delete=models.CASCADE, null=True, default=None)
+    pergunta = models.ForeignKey(Pergunta, on_delete=models.CASCADE, null=True, default=None, related_name="escolhas")
     resposta_escrita = models.CharField(max_length=750, default=None, null=True, blank=True)
     utilizador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, blank=True,
                                    null=True)
@@ -828,7 +818,6 @@ class Presenca(Evento):
     withApp = models.BooleanField(null=True, blank=True)
     descricao = models.TextField(null=True, blank=True)
 
-    @property
     def set_faltou(self):
         self.faltou = True
         self.present = False
@@ -853,7 +842,7 @@ class Presenca(Evento):
             presenca = "presente"
         else:
             presenca = "faltou"
-        return f"{self.participante} {presenca} - Modo: {self.mode}"
+        return f"{self.participante if self.participante is not None else self.cuidador} {presenca} - Modo: {self.mode if self.mode is not None else 'Faltou'}"
 
 
 class InformacoesGrupo(models.Model):

@@ -168,7 +168,7 @@ def new_group(request):
     selecoes = {}
 
     if request.POST:
-        # print(request.POST)
+        #print(request.POST)
         if len(request.POST.get('nome')) > 0:
             g = Grupo(
                 nome=request.POST.get('nome'),
@@ -185,7 +185,13 @@ def new_group(request):
                     p = Participante.objects.get(id=id)
                     g.participantes.add(p)
 
+            if g.referenciacao_most_frequent is not None:
+                g.referenciacao = Reference.objects.get(nome=g.referenciacao_most_frequent)
+            if g.diagnostico_most_frequent is not None:
+                g.diagnostico = Doenca.objects.get(nome=g.diagnostico_most_frequent)
+            g.localizacao= g.localizacao_most_frequent
             g.save()
+
 
             # Criar as partes e sessoes para este grupo
             for sessao in Sessao.objects.filter(programa=g.programa).all():
@@ -205,6 +211,8 @@ def new_group(request):
                             exercicio=exercicio
                         )
                         parte_grupo.save()
+
+
 
     contexto = {
         'grupos': Grupo.objects.all(),
@@ -878,22 +886,11 @@ def view_atualiza_presencas_diario(request, idSessaoGrupo):
     for participante_id, tipo_presenca in zip(nomes, valores):
         presenca = None
         if sessao_grupo.grupo.programa == "CARE":
-            presenca = Presenca.objects.filter(cuidador=Cuidador.objects.get(id=participante_id),
+            presenca = Presenca.objects.get(cuidador=Cuidador.objects.get(id=participante_id),
                                                sessaoDoGrupo=sessao_grupo)
-            if len(presenca) > 0:
-                presenca = presenca.first()
-            else:
-                # este else pode nao fazer muito sentido visto que nuca vai entrar
-                presenca = Presenca(cuidador=Cuidador.objects.get(id=participante_id), sessaoDoGrupo=sessao_grupo)
         elif sessao_grupo.grupo.programa == "COG":
-            presenca = Presenca.objects.filter(participante=Participante.objects.get(id=participante_id),
+            presenca = Presenca.objects.get(participante=Participante.objects.get(id=participante_id),
                                                sessaoDoGrupo=sessao_grupo)
-            if len(presenca) > 0:
-                presenca = presenca.first()
-            else:
-                # este else pode nao fazer muito sentido visto que nunca vai entrar
-                presenca = Presenca(participante=Participante.objects.get(id=participante_id),
-                                    sessaoDoGrupo=sessao_grupo)
         if tipo_presenca in ["naoVeio", "n"]:
             presenca.set_faltou()
         elif tipo_presenca in ["online", "o"]:
@@ -1482,8 +1479,8 @@ def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
 def view_resultados(request, idPergunta, idParte, sessaoGrupo):
     pergunta = Pergunta.objects.get(id=1)
 
-    escolhas = [escolha.texto_escolha for escolha in Pergunta.objects.get(id=idPergunta).resposta.all()]
-    votos = [escolha.votos for escolha in Pergunta.objects.get(id=idPergunta).resposta.all()]
+    escolhas = [escolha.opcao.resposta for escolha in Pergunta.objects.get(id=idPergunta).escolhas.all()]
+    votos = [escolha.opcao.cotacao for escolha in Pergunta.objects.get(id=idPergunta).escolhas.all()]
 
     plt.bar(escolhas, votos)
     plt.ylabel("respostas")

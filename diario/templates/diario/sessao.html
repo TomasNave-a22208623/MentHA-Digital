@@ -148,9 +148,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         <td style="text-align:center">
                             {% if parte_do_grupo.duracao != None %}
                                 {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                    {{ parte_do_grupo.duracao_em_horas_minutos }}/{{ parte_do_grupo.parte.duracao }}m
+                                    {{ parte_do_grupo.duracao_em_horas_minutos }} de {{ parte_do_grupo.parte.duracao }}m
                                 {% elif sessaoGrupo.grupo.programa == "COG"%}
-                                {{ parte_do_grupo.duracao_em_horas_minutos }}/{{ parte_do_grupo.exercicio.duracao }}m
+                                {{ parte_do_grupo.duracao_em_horas_minutos }} de {{ parte_do_grupo.exercicio.duracao }}m
                                 {% endif %}
                                 
                             {% endif %}
@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <td>
                             {% if parte_do_grupo.inicio == None and pode_iniciar %}
                                 {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
-                                    <button type="button" class="btn btn-outline-primary iniciar btn-sessao"
+                                    <button type="button" class="btn btn-primary iniciar btn-sessao"
                                         {% if sessaoGrupo.grupo.programa == "CARE" %}
                                             data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/iniciar/{{proxima_parte}}">
                                         {% elif sessaoGrupo.grupo.programa == "COG" %}
@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 {% endif %}
                             {% elif  parte_do_grupo.inicio != None %}
                                 {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
-                                    <button type="button" class="btn btn-outline-primary continuar btn-sessao"
+                                    <button type="button" class="btn btn-primary continuar btn-sessao"
                                         {% if sessaoGrupo.grupo.programa == "CARE" %}
                                             data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/continuar/{{proxima_parte}}">
                                         {% elif sessaoGrupo.grupo.programa == "COG" %}
