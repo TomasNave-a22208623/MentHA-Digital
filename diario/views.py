@@ -7,7 +7,7 @@ from .forms import *
 from datetime import datetime
 
 from .functions import *
-from .decorators import * 
+from .decorators import *
 
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -36,8 +36,9 @@ from channels.layers import get_channel_layer
 
 matplotlib.use('Agg')
 
-#Para permitir acesso a views por grupo
-#@user_passes_test(lambda u: u.groups.filter(name='YourGroupName').exists())
+
+# Para permitir acesso a views por grupo
+# @user_passes_test(lambda u: u.groups.filter(name='YourGroupName').exists())
 
 @register.filter
 def get_item(dictionary, key):
@@ -45,13 +46,11 @@ def get_item(dictionary, key):
 
 
 def nextSession(request):
-
     datas = SessaoDoGrupo.objects.exclude(data=None)
     datas = datas.filter(estado='PR')
 
-    if  bool(datas) == True:
+    if bool(datas) == True:
         datas = datas.filter(estado='PR').order_by('data')[0]
-
 
     contexto = {
         'proxima': datas,
@@ -60,40 +59,51 @@ def nextSession(request):
 
     return render(request, 'diario/nextSession.html', contexto)
 
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def dashboard(request):
     # doctor = request.user
+    grupos = []
     formGrupo = GrupoForm(request.POST or None)
     if formGrupo.is_valid():
         formGrupo.save()
         return redirect('diario:new_group')
 
+    dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
+    mentor = Mentor.objects.filter(user=request.user).first()
+    if dinamizador:
+        grupos = dinamizador.grupo.all()
+    if mentor:
+        grupos = mentor.grupo.all()
+    if request.user.is_superuser:
+        grupos = Grupo.objects.all()
     contexto = {
         # 'grupos': Grupo.objects.filter(doctor=doctor),
         # Apagar a linha de baixo ao descomentar a linha de cima
-        'grupos': Grupo.objects.all(),
+        # next(obj for obj in DinamizadorConvidado.objects.all() if obj.user.username == request.user.username).grupo.all()
+        'grupos': grupos,
         'cuidadores': Cuidador.objects.filter(grupo=None),
         'formGrupo': formGrupo,
     }
-    
+
     if request.user.groups.filter(name='Participante').exists():
         participante = Participante.objects.get(user=request.user)
-        sg = SessaoDoGrupo.objects.filter(grupo__in = participante.grupo.all()).exclude(parte_ativa__isnull=True)
+        sg = SessaoDoGrupo.objects.filter(grupo=participante.grupo).exclude(parte_ativa__isnull=True)
         if sg.exists():
             print(sg)
             sg = sg.get()
-            contexto['parte'] =  sg.parte_ativa
-            contexto['sg'] =  sg
+            contexto['parte'] = sg.parte_ativa
+            contexto['sg'] = sg
             return render(request, 'diario/parte_ativa.html', contexto)
-
 
     return render(request, 'diario/dashboard.html', contexto)
 
-#@login_required(login_url='diario:login')
-#@check_user_able_to_see_page('Todos')
-#def menu_view(request):
- #   return render(request,'mentha/app-list.html')
+
+# @login_required(login_url='diario:login')
+# @check_user_able_to_see_page('Todos')
+# def menu_view(request):
+#   return render(request,'mentha/app-list.html')
 
 
 @login_required(login_url='diario:login')
@@ -101,10 +111,11 @@ def dashboard(request):
 def parte_ativa(request, sg_id):
     sg = SessaoDoGrupo.objects.get(id=sg_id)
     contexto = {}
-    contexto['parte'] =  sg.parte_ativa
-    contexto['sg'] =  sg
-    
+    contexto['parte'] = sg.parte_ativa
+    contexto['sg'] = sg
+
     return render(request, 'diario/parte_ativa.html', contexto)
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
@@ -133,7 +144,7 @@ def new_group(request):
         'Referenciações': conjunto_referencias,
     }
 
-    #Obter campos para filtrar por (COG)
+    # Obter campos para filtrar por (COG)
     participantes = Participante.objects.all()
     filtrados_cog = participantes.filter(grupo=None)
 
@@ -146,14 +157,14 @@ def new_group(request):
     #     conjunto_referencias.update(set(cuidador.obter_reference))
 
     lista_pesquisa_participantes = {
-        #'Diagnósticos': list(dict.fromkeys({diagnostico for diagnostico in participante.diagnosticos.all() for participante in participantes})),
+        # 'Diagnósticos': list(dict.fromkeys({diagnostico for diagnostico in participante.diagnosticos.all() for participante in participantes})),
         'Diagnósticos': conjunto_doencas,
-        'Localizações': list(dict.fromkeys({participante.localizacao for participante in participantes if len(participante.localizacao) > 1})),
+        'Localizações': list(dict.fromkeys(
+            {participante.localizacao for participante in participantes if len(participante.localizacao) > 1})),
         'Escolaridades': list(dict.fromkeys({participante.escolaridade for participante in participantes})),
         'Referenciações': list(dict.fromkeys({participante.referenciacao for participante in participantes})),
         'GDS': list(dict.fromkeys({participante.nivel_gds for participante in participantes})),
     }
-    
 
     selecoes = {}
 
@@ -163,21 +174,27 @@ def new_group(request):
             g = Grupo(
                 nome=request.POST.get('nome'),
                 programa=request.POST.get('programa'),
-                )
+            )
             g.save()
             if request.POST.get('programa') == 'CARE':
                 for id in request.POST.get('participantes').split(','):
                     c = Cuidador.objects.get(id=id)
                     g.cuidadores.add(c)
-                    
+
             elif request.POST.get('programa') == 'COG':
                 for id in request.POST.get('participantes').split(','):
                     p = Participante.objects.get(id=id)
                     g.participantes.add(p)
-                    
+
+            if g.referenciacao_most_frequent is not None:
+                g.referenciacao = Reference.objects.get(nome=g.referenciacao_most_frequent)
+            if g.diagnostico_most_frequent is not None:
+                g.diagnostico = Doenca.objects.get(nome=g.diagnostico_most_frequent)
+            g.localizacao= g.localizacao_most_frequent
             g.save()
 
-            #Criar as partes e sessoes para este grupo
+
+            # Criar as partes e sessoes para este grupo
             for sessao in Sessao.objects.filter(programa=g.programa).all():
                 sessao_grupo = SessaoDoGrupo(grupo=g, sessao=sessao)
                 sessao_grupo.save()
@@ -194,7 +211,9 @@ def new_group(request):
                             sessaoGrupo=sessao_grupo,
                             exercicio=exercicio
                         )
-                        parte_grupo.save()        
+                        parte_grupo.save()
+
+
 
     contexto = {
         'grupos': Grupo.objects.all(),
@@ -208,15 +227,16 @@ def new_group(request):
     }
     return render(request, 'diario/new_group_remake.html', contexto)
 
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def obter_cadidatos(request):
     participantes = None
     if request.method == 'POST':
-        #print(request.POST)
-        match(request.POST.get('programa')):
+        # print(request.POST)
+        match (request.POST.get('programa')):
             case 'CARE':
-                #participantes = Cuidador.objects.filter(grupo=None)
+                # participantes = Cuidador.objects.filter(grupo=None)
                 participantes = Cuidador.objects.all()
                 if len(request.POST.get('localizacao')) > 0:
                     participantes = participantes.filter(localizacao=request.POST.get('localizacao'))
@@ -226,10 +246,9 @@ def obter_cadidatos(request):
                     participantes = participantes.filter(escolaridade=request.POST.get('escolaridade'))
                 if len(request.POST.get('referenciacao')) > 0:
                     participantes = participantes.filter(referenciacao=request.POST.get('referenciacao'))
-                
-                
+
             case 'COG':
-                #participantes = Participante.objects.filter(grupo=None)
+                # participantes = Participante.objects.filter(grupo=None)
                 participantes = Participante.objects.all()
                 if len(request.POST.get('localizacao')) > 0:
                     participantes = participantes.filter(localizacao=request.POST.get('localizacao'))
@@ -238,16 +257,18 @@ def obter_cadidatos(request):
                 if len(request.POST.get('escolaridade')) > 0:
                     participantes = participantes.filter(escolaridade=request.POST.get('escolaridade'))
                 if len(request.POST.get('referenciacao')) > 0:
-                    participantes = participantes.filter(referenciacao=Reference.objects.get(id=request.POST.get('referenciacao')))
+                    participantes = participantes.filter(
+                        referenciacao=Reference.objects.get(id=request.POST.get('referenciacao')))
                 if len(request.POST.get('gds')) > 0:
                     participantes = participantes.filter(nivel_gds=int(request.POST.get('gds')))
 
-    #print(participantes)
+    # print(participantes)
     contexto = {
         'programa': request.POST.get('programa'),
-        'participantes' : participantes,
+        'participantes': participantes,
     }
     return render(request, "diario/obter_candidatos.html", contexto)
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
@@ -289,7 +310,7 @@ def guarda_grupo(request):
                     parte_grupo.save()
 
         for cuidador_id in request.POST.getlist('cuidadores_selecionados[]'):
-            #print(f"cuidador selecionado: {cuidador_id}")
+            # print(f"cuidador selecionado: {cuidador_id}")
             c = Cuidador.objects.get(id=int(cuidador_id))
             novo_grupo.cuidadores.add(c)
 
@@ -345,22 +366,27 @@ def group_sessions(request, grupo_id):
     sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
     sessoes = Sessao.objects.all()
     grupo = Grupo.objects.get(id=grupo_id)
+    sessao_em_curso = None
+    proxima_sessao = None
 
     for sessao in sessoes_do_grupo:
+        if sessao.estado == 'EC':
+            sessao_em_curso = sessao.id
+            break
         if sessao.estado == 'PR':
             proxima_sessao = sessao.id
             break
-    else:
-        proxima_sessao = -1
 
     #    sessoes = Grupo.objects.get(id=grupo_id).sessoes.all()
 
     contexto = {
         'sessoes_do_grupo': sessoes_do_grupo,
         'grupo': grupo,
-        'proxima_sessao': proxima_sessao
+        'proxima_sessao': proxima_sessao,
+        'sessao_em_curso': sessao_em_curso
     }
     return render(request, "diario/group_sessions.html", contexto)
+
 
 def group_sessions_cog(request, grupo_id):
     # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
@@ -383,6 +409,7 @@ def group_sessions_cog(request, grupo_id):
     }
     return render(request, "diario/group_sessions.html", contexto)
 
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def group_notes(request, grupo_id):
@@ -398,7 +425,7 @@ def group_notes(request, grupo_id):
 @check_user_able_to_see_page('Todos')
 def caregiver_update(request, cuidador_id, grupo_id):
     cuidador = Cuidador.objects.get(pk=cuidador_id)
-    formCuidador = Cuidador_Update_Form(request.POST or None, instance=cuidador)
+    formCuidador = CuidadorForm(request.POST or None, instance=cuidador)
 
     if formCuidador.is_valid():
         formCuidador.save()
@@ -422,7 +449,7 @@ def create_caregiver(request, grupo_id):
     #     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
     contexto = {
-        #'formCuidador': formCuidador,
+        # 'formCuidador': formCuidador,
         'grupo_id': grupo_id,
     }
 
@@ -479,6 +506,7 @@ def assign_dinamizador(request, grupo_id, dinamizador_id):
 
     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def assign_caregiver(request, grupo_id, cuidador_id):
@@ -487,6 +515,7 @@ def assign_caregiver(request, grupo_id, cuidador_id):
     grupo.cuidadores.add(cuidador)
 
     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
@@ -543,12 +572,13 @@ def filter_group(request, cuidador_id):
     grupos = Grupo.objects.all()
 
     lista_pesquisa = {
-        'diagnostico': {(grupo.diagnostico.id, grupo.diagnostico.nome) for grupo in grupos if grupo.diagnostico is not None},
+        'diagnostico': {(grupo.diagnostico.id, grupo.diagnostico.nome) for grupo in grupos if
+                        grupo.diagnostico is not None},
         'localizacao': {grupo.localizacao for grupo in grupos if grupo.localizacao != ''},
         'escolaridade': {grupo.escolaridade for grupo in grupos if grupo.escolaridade != ''},
-        'referenciacao': {(grupo.referenciacao.id, grupo.referenciacao) for grupo in grupos if grupo.referenciacao is not None}
+        'referenciacao': {(grupo.referenciacao.id, grupo.referenciacao) for grupo in grupos if
+                          grupo.referenciacao is not None}
     }
-
 
     selecoes = {}
 
@@ -557,7 +587,7 @@ def filter_group(request, cuidador_id):
         for campo, valor in request.POST.items():
             if valor != '':
                 selecoes[campo] = valor
-                    
+
                 if campo == 'diagnostico':
                     doenca = Doenca.objects.get(id=valor)
                     filtrados = filtrados.filter(diagnostico=doenca)
@@ -599,13 +629,13 @@ def login_care_view(request):
 
         if user is not None:
             login(request, user)
-            #print(request.POST)
+            # print(request.POST)
             next_url = request.POST.get('next')
             if next_url:
                 return HttpResponseRedirect(next_url)
             else:
                 return redirect('diario:dashboard_Care')
-            
+
     context = {
         'next': next,
     }
@@ -632,7 +662,7 @@ def register_user(request):
 
 
 def logout_care_view(request):
-    return render(request,'mentha/base.html')
+    return render(request, 'mentha/base.html')
 
 
 def view_iniciar_sessao(request, sessao_grupo_id):
@@ -641,7 +671,6 @@ def view_iniciar_sessao(request, sessao_grupo_id):
     sessao_grupo.inicio = datetime.utcnow()
     sessao_grupo.save()
 
-
     # guardar info das presenças: ir buscar info enviada via formulario. e para cada participante guardar na base de dados atualização do utilizador
 
     if request.method == 'POST':
@@ -649,38 +678,53 @@ def view_iniciar_sessao(request, sessao_grupo_id):
             if participante_id.isdigit():
                 presenca = None
                 if sessao_grupo.grupo.programa == "CARE":
-                    participante = Cuidador.objects.get(id=participante_id)
-                    presenca = Presenca(
-                        cuidador=participante,
-                        sessaoDoGrupo=sessao_grupo)
+                    cuidador = Cuidador.objects.get(id=participante_id)
+                    presencas = Presenca.objects.filter(cuidador=cuidador, sessaoDoGrupo=sessao_grupo)
+                    if not presencas.exists():
+                        # Se não houver nenhuma instância, cria uma nova
+                        presenca = Presenca.objects.create(
+                            cuidador=cuidador,
+                            sessaoDoGrupo=sessao_grupo,
+                            tipoSessao=Presenca.CARE,
+                        )
+                    else:
+                        # Se houver pelo menos uma instância, atualiza a primeira encontrada
+                        presenca = presencas.first()
                 elif sessao_grupo.grupo.programa == "COG":
                     participante = Participante.objects.get(id=participante_id)
-                    presenca = Presenca(
-                        participante=participante,
-                        sessaoDoGrupo=sessao_grupo)
+                    presencas = Presenca.objects.filter(participante=participante, sessaoDoGrupo=sessao_grupo)
+                    if not presencas.exists():
+                        # Se não houver nenhuma instância, cria uma nova
+                        presenca = Presenca.objects.create(
+                            participante=participante,
+                            sessaoDoGrupo=sessao_grupo,
+                            tipoSessao=Presenca.CARE,
+                        )
+                    else:
+                        # Se houver pelo menos uma instância, atualiza a primeira encontrada
+                        presenca = presencas.first()
 
-            
-                if tipo_presenca == "faltou":
-                    presenca.set_faltou
-                elif tipo_presenca == "online":
-                    presenca.set_online
+                if tipo_presenca in ["naoVeio", "n"]:
+                    presenca.set_faltou()
+                elif tipo_presenca in ["online", "o"]:
+                    presenca.set_online()
                 else:
-                    presenca.set_presencial
+                    presenca.set_presencial()
 
                 presenca.save()
-       
 
+    return HttpResponseRedirect(reverse('diario:sessao', args=[sessao_grupo_id, grupo_id]))
 
-    return HttpResponseRedirect(reverse('diario:sessao', args=[sessao_grupo_id,grupo_id]))
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_sessao(request, sessao_grupo_id, grupo_id):
+    apresentacao = ""
     grupo = Grupo.objects.get(id=grupo_id)
-    sessao = SessaoDoGrupo.objects.get(id=sessao_grupo_id, grupo = grupo)
-    
+    sessao = SessaoDoGrupo.objects.get(id=sessao_grupo_id, grupo=grupo)
+
     data = sessao.data
-    
+
     pode_iniciar = False
     if data:
         if data.day == datetime.utcnow().day or sessao.inicio is not None:
@@ -697,12 +741,11 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
     else:
         proxima_parte = 0
 
-
     if grupo.programa == "CARE":
         participantes = Cuidador.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
     elif grupo.programa == "COG":
         participantes = Participante.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
-    #print(sessao.sessao.partes)
+    # print(sessao.sessao.partes)
     contexto = {
         'parte': sessao.sessao.partes,
         'proxima_parte': proxima_parte,
@@ -710,17 +753,18 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
         'partesGrupo': partes_grupo,
         'participantes': participantes,
         'grupo': Grupo.objects.get(id=sessao.grupo.id),
-        'pode_iniciar' : pode_iniciar,
+        'pode_iniciar': pode_iniciar,
+        'apresentacao' : apresentacao,
     }
 
     return render(request, 'diario/sessao.html', contexto)
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_detalhes_sessao(request, id_sessao_grupo):
     sessao = SessaoDoGrupo.objects.get(sessao=id, grupo=id_sessao_grupo)
     partes_grupo = ParteGrupo.objects.filter(sessaoGrupo=sessao)
-
 
     contexto = {
         'id': id,
@@ -732,12 +776,13 @@ def view_detalhes_sessao(request, id_sessao_grupo):
     }
     return render(request, "diario/detalhes_sessao.html", contexto)
 
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_diario(request, idGrupo, idSessao):  # NN: Usar sessao_grupo_id em vez de idSessao
     grupo = Grupo.objects.filter(id=idGrupo).get()
     sessao = Sessao.objects.get(id=idSessao)
-    sessaoGrupo = Sessao.objects.get(sessao = sessao, grupo = grupo)
+    sessaoGrupo = Sessao.objects.get(sessao=sessao, grupo=grupo)
     parte = sessao.partes.all()
 
     contexto = {
@@ -749,6 +794,7 @@ def view_diario(request, idGrupo, idSessao):  # NN: Usar sessao_grupo_id em vez 
     }
 
     return render(request, "diario/diario.html", contexto)
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
@@ -764,26 +810,26 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
     elif programa == "COG":
         participante = Participante.objects.get(pk=idParticipante)
         notas = Nota.objects.filter(participante=participante).order_by('-data')
-        #respostas = Resposta.objects.filter(participante=participante, sessao_grupo=sessao_grupo)
+        # respostas = Resposta.objects.filter(participante=participante, sessao_grupo=sessao_grupo)
         exercicios = sessao_grupo.sessao.exercicios.all()
         form_list = []
         for ex in exercicios:
             for parte in ex.partes_do_exercicio.all():
                 for pergunta in parte.perguntas.all():
-                    pg = ParteGrupo.objects.filter(sessaoGrupo = sessao_grupo, exercicio = ex).get()
+                    pg = ParteGrupo.objects.filter(sessaoGrupo=sessao_grupo, exercicio=ex).get()
                     initial_data = {}
                     r = Resposta.objects.filter(
-                        participante__id = idParticipante,
-                        sessao_grupo__id = idSessaoGrupo,
-                        pergunta = pergunta,
-                        parte_exercicio = parte,
-                        )
-                   
+                        participante__id=idParticipante,
+                        sessao_grupo__id=idSessaoGrupo,
+                        pergunta=pergunta,
+                        parte_exercicio=parte,
+                    )
+
                     if len(r) > 0:
                         r = r.get()
                         initial_data = {
-                        'resposta_escrita' : r.resposta_escrita,
-                        'certo' : r.certo,
+                            'resposta_escrita': r.resposta_escrita,
+                            'certo': r.certo,
                         }
                         if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
                             lista_ids_escolhas_multiplas.append(r.resposta_escolha.id)
@@ -794,23 +840,22 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
                         form = RespostaForm_RespostaSubmetida_Dinamizador(None)
                     if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
                         form = None
-                       
-                    tuplo = (pergunta,parte,pg,form)
+
+                    tuplo = (pergunta, parte, pg, form)
                     form_list.append(tuplo)
-        
-    
+
     if request.method == "POST":
         form = NotaForm(request.POST or None)
         if form.is_valid():
             form.save()
-    
+
         form1 = PartilhaForm(request.POST or None)
         if request.POST.get('partilha'):
             partilha_text = request.POST.get('partilha')
             id_participante = request.POST.get('participante')
             partilha = Partilha(cuidador=Cuidador.objects.get(pk=id_participante), partilha=partilha_text)
             partilha.save()
-        
+
     context = {
         'participante_id': idParticipante,
         'participante': participante,
@@ -829,54 +874,38 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
 
     return render(request, "diario/diario_participante.html", context)
 
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_atualiza_presencas_diario(request, idSessaoGrupo):
     sessao_grupo = SessaoDoGrupo.objects.get(pk=idSessaoGrupo)
     grupo = sessao_grupo.grupo
     idGrupo = grupo.id
-    
+
     nomes = request.POST.getlist("nome")
     valores = request.POST.getlist("valor")
-    for participante_id, tipo_presenca in zip(nomes,valores):
-        presenca = Presenca.objects.filter(participante=Cuidador.objects.get(id=participante_id), sessaoDoGrupo=sessao_grupo)
-        if len(presenca) > 0:
-            presenca = presenca.get()
-            if tipo_presenca in ["naoVeio", "n"]:
-                presenca.faltou = True
-                presenca.present = False
-                presenca.mode = ""
-            elif tipo_presenca in ["online", "o"]:
-                presenca.faltou = False
-                presenca.present = True
-                presenca.mode = "Online"
-            else:
-                presenca.faltou = False
-                presenca.present = True
-                presenca.mode = "Presencial"
-            presenca.save()
+    for participante_id, tipo_presenca in zip(nomes, valores):
+        presenca = None
+        if sessao_grupo.grupo.programa == "CARE":
+            presenca = Presenca.objects.get(cuidador=Cuidador.objects.get(id=participante_id),
+                                               sessaoDoGrupo=sessao_grupo)
+        elif sessao_grupo.grupo.programa == "COG":
+            presenca = Presenca.objects.get(participante=Participante.objects.get(id=participante_id),
+                                               sessaoDoGrupo=sessao_grupo)
+        if tipo_presenca in ["naoVeio", "n"]:
+            presenca.set_faltou()
+        elif tipo_presenca in ["online", "o"]:
+            presenca.set_online()
         else:
-            presenca = Presenca(participante=Cuidador.objects.get(id=participante_id), sessaoDoGrupo=sessao_grupo)
-            if tipo_presenca in ["naoVeio", "n"]:
-                presenca.faltou = True
-                presenca.present = False
-            elif tipo_presenca in ["online", "o"]:
-                presenca.faltou = False
-                presenca.present = True
-                presenca.mode = "Online"
-            else:
-                presenca.faltou = False
-                presenca.present = True
-                presenca.mode = "Presencial"
-            presenca.save()
-            
+            presenca.set_presencial()
+
     context = {
-        'participantes': Cuidador.objects.filter(grupo=idGrupo).order_by('nome'),
+        'participantes': Cuidador.objects.filter(grupo=idGrupo).order_by('user'),
         'grupo_id': idGrupo,
         'notasGrupo': NotaGrupo.objects.filter(grupo=idGrupo),
         'partilhas': PartilhaGrupo.objects.filter(grupo=idGrupo),
         'informacoes': Informacoes.objects.all(),
-        'respostas': Respostas.objects.all(),
+        'respostas': Resposta.objects.all(),
         'notaGrupoForm': NotaGrupoForm(),
         'partilhaGrupoForm': PartilhaGrupoForm()
 
@@ -884,21 +913,22 @@ def view_atualiza_presencas_diario(request, idSessaoGrupo):
 
     return render(request, "diario/diario_participante.html", context)
 
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_diario_grupo(request, idSessaoGrupo):
-    sessao_grupo = SessaoDoGrupo.objects.get(id = idSessaoGrupo)
+    sessao_grupo = SessaoDoGrupo.objects.get(id=idSessaoGrupo)
     idGrupo = sessao_grupo.grupo.id
     programa = sessao_grupo.grupo.programa
     if programa == "CARE":
         participantes = Cuidador.objects.filter(grupo=idGrupo).order_by('info_sensivel__nome')
     elif programa == "COG":
         participantes = Participante.objects.filter(grupo=idGrupo).order_by('info_sensivel__nome')
-        
+
     form_list = []
     form_nota_grupo = NotaGrupoForm(request.POST or None)
     form_partilhas_grupo = PartilhaGrupoForm(request.POST or None)
-    
+
     multiple_appends(form_list, form_nota_grupo, form_partilhas_grupo)
     for form in form_list:
         if form.is_valid():
@@ -913,32 +943,31 @@ def view_diario_grupo(request, idSessaoGrupo):
     faltou_list = []
     for pessoa in participantes:
         if programa == "CARE":
-            presenca = Presenca.objects.filter(cuidador=pessoa, sessaoDoGrupo = sessao_grupo)
+            presenca = Presenca.objects.filter(cuidador=pessoa, sessaoDoGrupo=sessao_grupo)
         elif programa == "COG":
-            presenca = Presenca.objects.filter(participante=pessoa, sessaoDoGrupo = sessao_grupo)
-        
+            presenca = Presenca.objects.filter(participante=pessoa, sessaoDoGrupo=sessao_grupo)
+
         if len(presenca) > 0:
-            presenca = presenca.filter()
-            if presenca.exists and presenca.values == "Online":
-                online_list.append(int(pessoa.id)) 
-            elif presenca.exists and presenca.values == "Presencial":
+            presenca = presenca.get()
+            if presenca is not None and presenca.mode == Presenca.ONLINE:
+                online_list.append(int(pessoa.id))
+            elif presenca is not None and presenca.mode == Presenca.PRESENT:
                 presencial_list.append(int(pessoa.id))
             else:
-                faltou_list.append(int(pessoa.id)) 
-    
+                faltou_list.append(int(pessoa.id))
     context = {
         'participantes': participantes,
         'grupo_id': idGrupo,
-        'grupo' : SessaoDoGrupo.objects.get(id = idSessaoGrupo).grupo,
-        'sessaoGrupo' : sessao_grupo,
+        'grupo': SessaoDoGrupo.objects.get(id=idSessaoGrupo).grupo,
+        'sessaoGrupo': sessao_grupo,
         'notasGrupo': NotaGrupo.objects.filter(grupo=idGrupo),
         'partilhas': PartilhaGrupo.objects.filter(grupo=idGrupo),
         'informacoes': Informacoes.objects.all(),
-        #'respostas': Respostas.objects.all(),
+        # 'respostas': Respostas.objects.all(),
         'notaGrupoForm': NotaGrupoForm(),
         'partilhaGrupoForm': PartilhaGrupoForm(),
         'online_list': online_list,
-        'presencial_list' : presencial_list,
+        'presencial_list': presencial_list,
         'faltou_list': faltou_list,
     }
 
@@ -949,6 +978,8 @@ def view_diario_grupo(request, idSessaoGrupo):
 @check_user_able_to_see_page('Todos')
 def view_presencas_sessao(request, proxima_id):
     sessao_grupo = SessaoDoGrupo.objects.get(id=proxima_id)
+    sessao_grupo.estado = SessaoDoGrupo.EMCURSO
+    sessao_grupo.save()
 
     contexto = {
         'sessao_grupo': sessao_grupo,
@@ -962,15 +993,13 @@ def view_presencas_sessao(request, proxima_id):
 @check_user_able_to_see_page('Todos')
 def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
     sg = SessaoDoGrupo.objects.get(sessao=sessaoGrupo_id, grupo=idGrupo)
-    programa = sg.grupo.programa 
+    programa = sg.grupo.programa
     if programa == "CARE":
         parte = Parte.objects.get(id=parte_do_grupo_id)
         parte_group = ParteGrupo.objects.get(parte_id=parte, sessaoGrupo=sg)
     elif programa == "COG":
         exercicio = Exercicio.objects.get(id=parte_do_grupo_id)
         parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
-    
-    
 
     q = parte.questionarios.all()
     if len(q) > 0:
@@ -979,7 +1008,7 @@ def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
         q = None
 
     contexto = {
-        'grupo':idGrupo,
+        'grupo': idGrupo,
         'id': sessaoGrupo_id,
         'sessaoGrupo': sg,
         'parteGrupo': parte_group,
@@ -990,6 +1019,7 @@ def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
     }
     return render(request, "diario/parteDetalhes.html", contexto)
 
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte):
@@ -998,7 +1028,7 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
     participante = Participante.objects.filter(user=request.user)
     if len(participante) > 0:
         participante = participante.get()
-    programa = sg.grupo.programa 
+    programa = sg.grupo.programa
     contexto = {
         'proxima_parte': proxima_parte,
         'estado': estado,
@@ -1018,19 +1048,19 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
         else:
             q = None
         contexto['q'] = q
-    
-    
+
+
     elif programa == "COG":
         exercicio = Exercicio.objects.get(id=parte_do_grupo_id)
         parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
-        
+
         contexto['exercicio'] = exercicio
         contexto['exercicio_partes'] = exercicio.partes_do_exercicio.all().order_by('ordem')
         contexto['dura'] = exercicio.duracao
 
         respostas_existentes = {}
         lista_ids_escolhas_multiplas = []
-        
+
         form_list = []
         for parte in exercicio.partes_do_exercicio.all().order_by('ordem'):
             initial_data = {}
@@ -1038,17 +1068,16 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
                 for pergunta in parte.perguntas.all():
                     r = Resposta.objects.filter(
                         participante__user=request.user,
-                        sessao_grupo__id = sessaoGrupo_id,
-                        pergunta = pergunta,
-                        #parte_grupo__id = parte_do_grupo_id,
-                        parte_exercicio = parte,
-                        )
-                    
+                        sessao_grupo__id=sessaoGrupo_id,
+                        pergunta=pergunta,
+                        # parte_grupo__id = parte_do_grupo_id,
+                        parte_exercicio=parte,
+                    )
 
                     if len(r) > 0:
                         r = r.get()
                         initial_data = {
-                        'resposta_escrita' : r.resposta_escrita
+                            'resposta_escrita': r.resposta_escrita
                         }
                         if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
                             lista_ids_escolhas_multiplas.append(r.resposta_escolha.id)
@@ -1059,62 +1088,64 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
                         form = RespostaForm_RespostaSubmetida(None)
                     elif pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
                         form = None
-                    
-                    tuplo = (pergunta, parte.ordem ,form)
+
+                    tuplo = (pergunta, parte.ordem, form)
                     form_list.append(tuplo)
 
             contexto['form_list'] = form_list
             contexto['lista_ids_escolhas_multiplas'] = lista_ids_escolhas_multiplas
 
-    contexto['respostas_existentes'] = respostas_existentes          
+    contexto['respostas_existentes'] = respostas_existentes
     contexto['parteGrupo'] = parte_group
-    
-        
+
     if estado != "ver" and estado != "continuar":
         parte_group.inicio = datetime.utcnow()
         parte_group.save()
 
     return render(request, "diario/parte.html", contexto)
 
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def get_respostas_do_participante(request, idSessaoGrupo, idParteGrupo, idParticipante):
     contexto = {}
-    
+
     exercicio = Exercicio.objects.get(id=idParteGrupo)
     sg = SessaoDoGrupo.objects.get(id=idSessaoGrupo)
     Participante.objects.get(id=idParticipante)
     parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
-    
+
     form_list = []
     for parte in exercicio.partes_do_exercicio.all():
         if parte.perguntas.all():
             for pergunta in parte.perguntas.all():
                 if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
-                    form = RespostaForm_RespostaEscrita(None, initial={'pergunta':pergunta})
+                    form = RespostaForm_RespostaEscrita(None, initial={'pergunta': pergunta})
                 elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
-                    form = RespostaForm_RespostaSubmetida(None, initial={'pergunta':pergunta})
-                tuplo = (pergunta,form)
+                    form = RespostaForm_RespostaSubmetida(None, initial={'pergunta': pergunta})
+                tuplo = (pergunta, form)
                 form_list.append(tuplo)
         contexto['form_list'] = form_list
-        
+
     return render(request, "diario/respostas.html", contexto)
 
+
 @login_required(login_url='diario:login')
-@check_user_able_to_see_page('Todos') 
+@check_user_able_to_see_page('Todos')
 def view_questionario(request, idPergunta, idParte, sessaoGrupo):
     parte = Parte.objects.get(id=idParte)
     questionario = parte.questionarios.all().filter(id=idPergunta).get()
-    
+
     if questionario.topico == 'Avaliação de satisfação':
-        return redirect('diario:questionario_satisfacao', idPergunta = idPergunta, idParte = idParte, sessaoGrupo = sessaoGrupo)
+        return redirect('diario:questionario_satisfacao', idPergunta=idPergunta, idParte=idParte,
+                        sessaoGrupo=sessaoGrupo)
 
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo)
-    sg_anterior = SessaoDoGrupo.objects.filter(sessao=questionario.continuacaoDe, grupo = sg.grupo)
+    sg_anterior = SessaoDoGrupo.objects.filter(sessao=questionario.continuacaoDe, grupo=sg.grupo)
     if len(sg_anterior) > 0:
         sg_anterior = sg_anterior[0]
-        #print(sg_anterior)
-        
+        # print(sg_anterior)
+
     numero_sessao = sg.sessao.numeroSessao
     pg = ParteGrupo.objects.filter(sessaoGrupo=sg, parte=parte).get()
     lista_opcoes = [x.resposta for x in questionario.perguntas.all()[0].opcoes.all()]
@@ -1128,44 +1159,46 @@ def view_questionario(request, idPergunta, idParte, sessaoGrupo):
                 sg = SessaoDoGrupo.objects.get(pk=request.POST.get('sessaogrupo-id'))
                 existing = Escolha.objects.filter(pergunta=q, utilizador=request.user, parte_grupo=pg)
                 if len(existing) < 1:
-                    nova_escolha = Escolha(opcao=opcao, pergunta=q, utilizador=request.user, parte_grupo=pg, sessao_grupo=sg)
+                    nova_escolha = Escolha(opcao=opcao, pergunta=q, utilizador=request.user, parte_grupo=pg,
+                                           sessao_grupo=sg)
                     nova_escolha.save()
                 else:
                     existing = existing[0]
                     existing.opcao = opcao
                     existing.save()
-                    
+
     contexto = {
-        'idPergunta':idPergunta,
-        'idParte':idParte,
+        'idPergunta': idPergunta,
+        'idParte': idParte,
         'sessaoGrupo': sessaoGrupo,
         'questionario': questionario,
         'parte': parte,
         'escolhas': Escolha.objects.all(),
         'lista_opcoes': lista_opcoes,
-        'parteGrupo' : pg.id,
-        'numero_sessao' : numero_sessao,
-        'sg_anterior' : sg_anterior,
+        'parteGrupo': pg.id,
+        'numero_sessao': numero_sessao,
+        'sg_anterior': sg_anterior,
     }
     return render(request, "diario/questionario.html", contexto)
 
 
 def partilha_parte(request, sessaoGrupo, idParteExercico):
-    #print('partilha parte')
+    # print('partilha parte')
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo)
     sg.parte_ativa = Parte_Exercicio.objects.get(id=idParteExercico)
     sg.save()
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)('test', {
-                'type':'chat_message',
-                'message' : f'{sg.id}',
-            })
+        'type': 'chat_message',
+        'message': f'{sg.id}',
+    })
     return HttpResponse("OK")
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_avaliacao_participantes(request, sessaoGrupoid):
-    sg = SessaoDoGrupo.objects.get(id = sessaoGrupoid)
+    sg = SessaoDoGrupo.objects.get(id=sessaoGrupoid)
 
     participantes = sg.grupo.participantes.all()
 
@@ -1174,56 +1207,58 @@ def view_avaliacao_participantes(request, sessaoGrupoid):
 
     participantes_form_list = []
     for participante in participantes:
-        existente = AvaliacaoParticipante.objects.filter(sessao_grupo = sg, participante = participante, submetido_por = Facilitador.objects.get(user=request.user))
+        existente = AvaliacaoParticipante.objects.filter(sessao_grupo=sg, participante=participante,
+                                                         submetido_por=Facilitador.objects.get(user=request.user))
         if len(existente) > 0:
             existente = existente.get()
             obs_part = existente.observacao
             initial_data = {
-                    'interesse' : existente.interesse,
-                    'comunicacao' : existente.comunicacao,
-                    'iniciativa' : existente.iniciativa,
-                    'satisfacao' : existente.satisfacao,
-                    'humor' : existente.humor,
-                    'eficacia_relacional' : existente.eficacia_relacional,
-                    }
-            form = AvaliacaoParticipanteForm(None, initial = initial_data)
+                'interesse': existente.interesse,
+                'comunicacao': existente.comunicacao,
+                'iniciativa': existente.iniciativa,
+                'satisfacao': existente.satisfacao,
+                'humor': existente.humor,
+                'eficacia_relacional': existente.eficacia_relacional,
+            }
+            form = AvaliacaoParticipanteForm(None, initial=initial_data)
         else:
             form = AvaliacaoParticipanteForm(None)
-        tuplo = (participante , form)
+        tuplo = (participante, form)
         participantes_form_list.append(tuplo)
 
-    existente = AvaliacaoSessao.objects.filter(sessao_grupo = sg)
+    existente = AvaliacaoSessao.objects.filter(sessao_grupo=sg)
 
     if len(existente) > 0:
-            existente = existente.get()
-            obs_sessao = existente.observacao
-            initial_data = {
-                    'planificacao_conteudos' : existente.planificacao_conteudos,
-                    'adq_conteudos' : existente.adq_conteudos,
-                    'adq_materiais' : existente.adq_materiais,
-                    'adq_tempo' : existente.adq_tempo,
-                    'grau_dominio' : existente.grau_dominio,
-                    'necessidade_treino' : existente.necessidade_treino,
-                    'apreciacao_global' : existente.apreciacao_global,
-                    'tipo_treino_competencias' : existente.tipo_treino_competencias,
-                    }
-            form_sessao = AvaliacaoSessaoForm(None, initial = initial_data)
+        existente = existente.get()
+        obs_sessao = existente.observacao
+        initial_data = {
+            'planificacao_conteudos': existente.planificacao_conteudos,
+            'adq_conteudos': existente.adq_conteudos,
+            'adq_materiais': existente.adq_materiais,
+            'adq_tempo': existente.adq_tempo,
+            'grau_dominio': existente.grau_dominio,
+            'necessidade_treino': existente.necessidade_treino,
+            'apreciacao_global': existente.apreciacao_global,
+            'tipo_treino_competencias': existente.tipo_treino_competencias,
+        }
+        form_sessao = AvaliacaoSessaoForm(None, initial=initial_data)
     else:
         form_sessao = AvaliacaoSessaoForm(None)
-    #form_sessao = AvaliacaoSessaoForm(None)
+    # form_sessao = AvaliacaoSessaoForm(None)
 
     contexto = {
         'participantes': participantes,
-        'request' : request,
-        #'form_paciente' : form_paciente,
+        'request': request,
+        # 'form_paciente' : form_paciente,
         'form_sessao': form_sessao,
         'sg_id': sg.id,
         'participantes_form_list': participantes_form_list,
         'obs_part': obs_part,
         'obs_sessao': obs_sessao,
-        }
+    }
 
     return render(request, "diario/avaliacao_participante.html", contexto)
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
@@ -1232,12 +1267,12 @@ def guarda_avaliacao_participante(request, sessaoGrupo_id):
     participante_id = request.POST.get('participante')
 
     avaliacao_existente = AvaliacaoParticipante.objects.filter(
-        sessao_grupo__id = sessaoGrupo_id,
-        participante__id = participante_id,
-        submetido_por = Facilitador.objects.get(user=request.user)
-        )
+        sessao_grupo__id=sessaoGrupo_id,
+        participante__id=participante_id,
+        submetido_por=Facilitador.objects.get(user=request.user)
+    )
 
-    #print(request.POST)
+    # print(request.POST)
 
     if len(avaliacao_existente) > 0:
         avaliacao_existente = avaliacao_existente.get()
@@ -1251,20 +1286,21 @@ def guarda_avaliacao_participante(request, sessaoGrupo_id):
         avaliacao_existente.save()
     else:
         avaliacao = AvaliacaoParticipante(
-            participante = Participante.objects.get(id = request.POST.get('participante')),
-            sessao_grupo = sg,
-            interesse = request.POST.get('interesse'),
-            comunicacao = request.POST.get('comunicacao'),
-            iniciativa = request.POST.get('iniciativa'),
-            satisfacao = request.POST.get('satisfacao'),
-            humor = request.POST.get('humor'),
-            eficacia_relacional = request.POST.get('eficacia_relacional'),
-            observacao = request.POST.get('observacao'),
-            submetido_por = Facilitador.objects.get(user=request.user)
-            )
+            participante=Participante.objects.get(id=request.POST.get('participante')),
+            sessao_grupo=sg,
+            interesse=request.POST.get('interesse'),
+            comunicacao=request.POST.get('comunicacao'),
+            iniciativa=request.POST.get('iniciativa'),
+            satisfacao=request.POST.get('satisfacao'),
+            humor=request.POST.get('humor'),
+            eficacia_relacional=request.POST.get('eficacia_relacional'),
+            observacao=request.POST.get('observacao'),
+            submetido_por=Facilitador.objects.get(user=request.user)
+        )
         avaliacao.save()
 
     return HttpResponse("OK")
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
@@ -1272,10 +1308,9 @@ def guarda_avaliacao_sessao(request, sessaoGrupo_id):
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo_id)
 
     avaliacao_existente = AvaliacaoSessao.objects.filter(
-        sessao_grupo__id = sessaoGrupo_id,
-        submetido_por = Facilitador.objects.get(user=request.user)
-        )
-
+        sessao_grupo__id=sessaoGrupo_id,
+        submetido_por=Facilitador.objects.get(user=request.user)
+    )
 
     if len(avaliacao_existente) > 0:
         avaliacao_existente = avaliacao_existente.get()
@@ -1291,21 +1326,22 @@ def guarda_avaliacao_sessao(request, sessaoGrupo_id):
         avaliacao_existente.save()
     else:
         avaliacao = AvaliacaoSessao(
-            sessao_grupo = sg,
-            planificacao_conteudos = request.POST.get('planificacao_conteudos'),
-            adq_conteudos = request.POST.get('adq_conteudos'),
-            adq_materiais = request.POST.get('adq_materiais'),
-            adq_tempo = request.POST.get('adq_tempo'),
-            grau_dominio = request.POST.get('grau_dominio'),
-            necessidade_treino = request.POST.get('necessidade_treino'),
-            apreciacao_global = request.POST.get('apreciacao_global'),
-            tipo_treino_competencias = request.POST.get('tipo_treino_competencias'),
-            observacao = request.POST.get('observacao'),
-            submetido_por = Facilitador.objects.get(user=request.user),
-            )
+            sessao_grupo=sg,
+            planificacao_conteudos=request.POST.get('planificacao_conteudos'),
+            adq_conteudos=request.POST.get('adq_conteudos'),
+            adq_materiais=request.POST.get('adq_materiais'),
+            adq_tempo=request.POST.get('adq_tempo'),
+            grau_dominio=request.POST.get('grau_dominio'),
+            necessidade_treino=request.POST.get('necessidade_treino'),
+            apreciacao_global=request.POST.get('apreciacao_global'),
+            tipo_treino_competencias=request.POST.get('tipo_treino_competencias'),
+            observacao=request.POST.get('observacao'),
+            submetido_por=Facilitador.objects.get(user=request.user),
+        )
         avaliacao.save()
 
     return HttpResponse("OK")
+
 
 @check_user_able_to_see_page('Todos')
 def view_exercicio(request, idExercicio, parteGrupo, sessaoGrupo):
@@ -1313,18 +1349,19 @@ def view_exercicio(request, idExercicio, parteGrupo, sessaoGrupo):
     parte = parte_grupo.parte
     sessao_grupo = SessaoDoGrupo.objects.get(id=sessaoGrupo)
     exercicio = Exercicio.objects.get(id=idExercicio)
-    
+
     # if request.method == 'POST':
     #     print('post')
-                    
+
     contexto = {
-        'request' : request,
-        'exercicio' : exercicio,
+        'request': request,
+        'exercicio': exercicio,
         'parte_grupo': parte_grupo,
         'sessao_grupo': sessao_grupo,
 
     }
     return render(request, "diario/exercicio.html", contexto)
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
@@ -1335,26 +1372,27 @@ def view_questionario_satisfacao(request, idPergunta, idParte, sessaoGrupo):
     sg = SessaoDoGrupo.objects.get(id=sessaoGrupo)
     numero_sessao = sg.sessao.numeroSessao
     pg = ParteGrupo.objects.filter(sessaoGrupo=sg, parte=parte).get()
-    
+
     q_logistica = questionarios_satisfacao.filter(nome="Logística e Organização").get()
     q_expectativas = questionarios_satisfacao.filter(nome="Expectativas").get()
     q_documentacao = questionarios_satisfacao.filter(nome="Documentação").get()
     q_avaliacao_dinamizadores = questionarios_satisfacao.filter(nome="Avaliação dos Dinamizadores").get()
     q_avaliacao_geral = Questionario.objects.all().filter(nome="Avaliacao Geral do Programa").get()
-    
+
     lista_opcoes_satisfacao = [x.resposta for x in questionarios_satisfacao[0].perguntas.all()[0].opcoes.all()]
     lista_opcoes_experiencia = [x.resposta for x in questionario_experiencia.perguntas.all()[0].opcoes.all()]
     lista_opcoes_geral = [x.resposta for x in q_avaliacao_geral.perguntas.all()[0].opcoes.all()]
-    
+
     q_avaliacao_geral_text = q_avaliacao_geral.perguntas.all()[0].texto
     q_avaliacao_geral_long_text = q_avaliacao_geral.perguntas.all()[1]
 
-    rl = Escolha.objects.all().filter(utilizador = request.user, pergunta=q_avaliacao_geral_long_text, parte_grupo = pg, sessao_grupo = sg)
+    rl = Escolha.objects.all().filter(utilizador=request.user, pergunta=q_avaliacao_geral_long_text, parte_grupo=pg,
+                                      sessao_grupo=sg)
     if len(rl) > 0:
         resposta_longa = rl.get().resposta_escrita
     else:
         resposta_longa = ""
-        
+
     if request.method == 'POST':
         for key in request.POST:
             if 'choice' in str(key):
@@ -1364,40 +1402,42 @@ def view_questionario_satisfacao(request, idPergunta, idParte, sessaoGrupo):
                 sg = SessaoDoGrupo.objects.get(pk=request.POST.get('sessaogrupo-id'))
                 existing = Escolha.objects.filter(pergunta=q, utilizador=request.user, parte_grupo=pg)
                 if len(existing) < 1:
-                    nova_escolha = Escolha(opcao=opcao, pergunta=q, utilizador=request.user, parte_grupo=pg, sessao_grupo=sg)
+                    nova_escolha = Escolha(opcao=opcao, pergunta=q, utilizador=request.user, parte_grupo=pg,
+                                           sessao_grupo=sg)
                     nova_escolha.save()
                 else:
                     existing = existing[0]
                     existing.opcao = opcao
                     existing.save()
-                                    
+
             elif 'text' in str(key):
                 k, pergunta_id = key.split('-')
                 q = Pergunta.objects.get(pk=pergunta_id)
                 existing = Escolha.objects.filter(pergunta=q, utilizador=request.user, parte_grupo=pg)
                 r = request.POST.get(key)
                 if len(existing) < 1:
-                    nova_escolha = Escolha(pergunta=q, utilizador=request.user, parte_grupo=pg, sessao_grupo=sg, resposta_escrita=r)
+                    nova_escolha = Escolha(pergunta=q, utilizador=request.user, parte_grupo=pg, sessao_grupo=sg,
+                                           resposta_escrita=r)
                     nova_escolha.save()
                 else:
                     existing = existing[0]
                     existing.resposta_escrita = r
                     existing.save()
-    
+
     contexto = {
-        'idPergunta':idPergunta,
-        'idParte':idParte,
+        'idPergunta': idPergunta,
+        'idParte': idParte,
         'sessaoGrupo': sessaoGrupo,
         'questionarios_satisfacao': questionarios_satisfacao,
-        'questionario' : questionarios_satisfacao[0],
+        'questionario': questionarios_satisfacao[0],
         'parte': parte,
         'escolhas': Escolha.objects.all(),
         'lista_opcoes_satisfacao': lista_opcoes_satisfacao,
-        'parteGrupo' : pg.id,
-        'numero_sessao' : numero_sessao,
-        'q_logistica' : q_logistica,
+        'parteGrupo': pg.id,
+        'numero_sessao': numero_sessao,
+        'q_logistica': q_logistica,
         'q_expectativas': q_expectativas,
-        'q_documentacao' : q_documentacao,
+        'q_documentacao': q_documentacao,
         'q_avaliacao_dinamizadores': q_avaliacao_dinamizadores,
         'lista_opcoes_experiencia': lista_opcoes_experiencia,
         'questionario_experiencia': questionario_experiencia,
@@ -1406,25 +1446,25 @@ def view_questionario_satisfacao(request, idPergunta, idParte, sessaoGrupo):
         'q_avaliacao_geral_text': q_avaliacao_geral_text,
         'q_avaliacao_geral_long_text': q_avaliacao_geral_long_text,
         'resposta_longa': resposta_longa,
-        #'sg_anterior' : sg_anterior,
+        # 'sg_anterior' : sg_anterior,
     }
-    
+
     return render(request, "diario/questionario_satisfacao.html", contexto)
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
     factory = qrcode.image.svg.SvgImage
-    uri = request.build_absolute_uri('view_questionario') 
-    uri = uri.replace('abrirQ','q')
-    uri = uri.replace('view_questionario',f'{sessaoGrupo}')
+    uri = request.build_absolute_uri('view_questionario')
+    uri = uri.replace('abrirQ', 'q')
+    uri = uri.replace('view_questionario', f'{sessaoGrupo}')
     img = qrcode.make(uri, image_factory=factory, box_size=20)
     stream = BytesIO()
     img.save(stream)
     parte = Parte.objects.get(id=idParte)
     questionario = parte.questionarios.all().filter(id=idPergunta)
 
-    
     contexto = {
         'sessaoGrupo': sessaoGrupo,
         'parte': Parte.objects.filter(id=idParte),
@@ -1434,13 +1474,14 @@ def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
     }
     return render(request, "diario/abrirQuestionario.html", contexto)
 
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
-def view_resultados(request, idPergunta,idParte,sessaoGrupo):
+def view_resultados(request, idPergunta, idParte, sessaoGrupo):
     pergunta = Pergunta.objects.get(id=1)
 
-    escolhas = [escolha.texto_escolha for escolha in Pergunta.objects.get(id=idPergunta).resposta.all()]
-    votos = [escolha.votos for escolha in Pergunta.objects.get(id=idPergunta).resposta.all()]
+    escolhas = [escolha.opcao.resposta for escolha in Pergunta.objects.get(id=idPergunta).escolhas.all()]
+    votos = [escolha.opcao.cotacao for escolha in Pergunta.objects.get(id=idPergunta).escolhas.all()]
 
     plt.bar(escolhas, votos)
     plt.ylabel("respostas")
@@ -1456,8 +1497,8 @@ def view_resultados(request, idPergunta,idParte,sessaoGrupo):
     string = base64.b64encode(buf.read())
     grafico = urllib.parse.quote(string)
 
-    context = {'pergunta': pergunta, 'grafico': grafico, 'sessaoGrupo': sessaoGrupo, 'idParte':idParte,
-}
+    context = {'pergunta': pergunta, 'grafico': grafico, 'sessaoGrupo': sessaoGrupo, 'idParte': idParte,
+               }
 
     return render(request, 'diario/resultados.html', context)
 
@@ -1474,9 +1515,9 @@ def finalizar_parte(request, idParte, sessao_grupo_id, estado):
         parte_group.concluido = True
         parte_group.save()
 
-    #if estado == "continuar":
-        #parte_group.fim = datetime.now()
-        #parte_group.save()
+    # if estado == "continuar":
+    # parte_group.fim = datetime.now()
+    # parte_group.save()
 
     return HttpResponseRedirect(reverse('diario:sessao', args=[sessao_grupo_id, grupo_id]))
 
@@ -1491,9 +1532,9 @@ def voltar_parte(request, idParte, sessao_grupo_id, estado):
         parte_group.concluido = True
         parte_group.save()
 
-    #if estado == "continuar":
-        #parte_group.fim = datetime.now()
-        #parte_group.save()
+    # if estado == "continuar":
+    # parte_group.fim = datetime.now()
+    # parte_group.save()
 
     return HttpResponseRedirect(reverse('diario:detalhes_sessao', args=[sessao_grupo_id]))
 
@@ -1530,77 +1571,79 @@ def view_changeDate(request, sessao_id, group_id):
 
     return render(request, "diario/changeDate.html", contexto)
 
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, pergunta_id, parte_exercicio_id):
     pergunta = Pergunta_Exercicio.objects.get(id=pergunta_id)
     resposta_existente = Resposta.objects.filter(
-        pergunta__id = pergunta_id, 
-        parte_grupo__id = parteGrupo_id, 
-        sessao_grupo__id = sessaoGrupo_id, 
-        participante__id = utilizador_id,
-        parte_exercicio__id = parte_exercicio_id
-        )
-    #print(resposta_existente)
+        pergunta__id=pergunta_id,
+        parte_grupo__id=parteGrupo_id,
+        sessao_grupo__id=sessaoGrupo_id,
+        participante__id=utilizador_id,
+        parte_exercicio__id=parte_exercicio_id
+    )
+    # print(resposta_existente)
     r = None
     if len(resposta_existente) > 0:
         r = resposta_existente[0]
     else:
         r = Resposta(
-            participante = Participante.objects.get(id = utilizador_id),
-            pergunta = pergunta,
-            sessao_grupo = SessaoDoGrupo.objects.get(id = sessaoGrupo_id),
-            parte_grupo = ParteGrupo.objects.get(id = parteGrupo_id),
-            parte_exercicio = Parte_Exercicio.objects.get(id = parte_exercicio_id)
-            )
-    
-    if pergunta.tipo_resposta == "RESPOSTA_ESCRITA": 
+            participante=Participante.objects.get(id=utilizador_id),
+            pergunta=pergunta,
+            sessao_grupo=SessaoDoGrupo.objects.get(id=sessaoGrupo_id),
+            parte_grupo=ParteGrupo.objects.get(id=parteGrupo_id),
+            parte_exercicio=Parte_Exercicio.objects.get(id=parte_exercicio_id)
+        )
+
+    if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
         r.resposta_escrita = request.POST.get('resposta_escrita')
     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
-        r.resposta_submetida = request.FILES.get('file') 
+        r.resposta_submetida = request.FILES.get('file')
     elif pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
         r.resposta_escolha = Opcao.objects.get(id=request.POST.get('choice'))
-    
+
     if (request.POST.get('certo') == 'true'):
         r.certo = True
-    
-    #print(r)
+
+    # print(r)
     r.save()
-    #print(request.FILES)
+    # print(request.FILES)
     return HttpResponse("OK")
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def respostas_view(request, idSessaoGrupo, idParticipante):
-    #USADO PARA ATUALIZAR SO A PARTE DAS RESPOSTAS DO DIARIO
+    # USADO PARA ATUALIZAR SO A PARTE DAS RESPOSTAS DO DIARIO
     sessao_grupo = SessaoDoGrupo.objects.get(pk=idSessaoGrupo)
     participante = Participante.objects.get(pk=idParticipante)
     exercicios = sessao_grupo.sessao.exercicios.all()
-    
+
     form_list = []
     for ex in exercicios:
         for parte in ex.partes_do_exercicio.all():
             for pergunta in parte.perguntas.all():
                 r = Resposta.objects.filter(
-                    participante__id = idParticipante,
-                    sessao_grupo__id = idSessaoGrupo,
-                    pergunta = pergunta,
-                    )
-                
+                    participante__id=idParticipante,
+                    sessao_grupo__id=idSessaoGrupo,
+                    pergunta=pergunta,
+                )
+
                 if len(r) > 0:
                     r = r.get()
                     initial_data = {
-                    'resposta_escrita' : r.resposta_escrita,
-                    'certo' : r.certo,
+                        'resposta_escrita': r.resposta_escrita,
+                        'certo': r.certo,
                     }
-                    
+
                 if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
                     form = RespostaForm_RespostaEscrita_Dinamizador(None, initial=initial_data)
                 elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
                     form = RespostaForm_RespostaSubmetida_Dinamizador(None)
-                tuplo = (pergunta,form)
+                tuplo = (pergunta, form)
                 form_list.append(tuplo)
-        
+
     context = {
         'participante_id': idParticipante,
         'participante': participante,

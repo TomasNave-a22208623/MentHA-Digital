@@ -28,8 +28,7 @@
                         <th style="text-align: center;"><strong>Data e hora</strong></th>
                         <th style="text-align: center;"><strong>Regime</strong></th>
                         <th style="text-align: center;"><strong>Estado</strong></th>
-                        <th style="text-align: center;"></th>
-                        <th style="text-align: center;"></th>
+                        <th style="text-align: center;">Sessão</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -70,23 +69,27 @@
                         </td>
                         <td style="text-align: center;">{% if sessao_do_grupo.estado == 'PR' %}
                             Por realizar
-                            {% endif %}
-                            {% if sessao_do_grupo.estado == 'R' %}
+                            {% elif sessao_do_grupo.estado == 'EC' %}
+                            Em curso
+                            {% else %}
                             Realizado
                             {% endif %}
                         </td>
 
                         <td style="text-align: center;">
-                            <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
-                                <button class="btn btn-link">Plano da sessão</button>
-                            </a>
-                        </td>
 
-                        <td style="text-align: center;">
                             {% if sessao_do_grupo.id == proxima_sessao %}
                             <form action="{% url 'diario:presencas_sessao' sessao_do_grupo.id %}">
-                                <button class="btn btn-primary">Iniciar</button>
+                                <button class="btn btn-primary btn-sessao">Iniciar</button>
                             </form>
+                            {% elif sessao_do_grupo.id == sessao_em_curso %}
+                            <form action="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
+                                <button class="btn btn-primary btn-sessao">Continuar</button>
+                            </form>
+                            {% else %}
+                            <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
+                                <button class="btn btn-outline-secondary btn-sessao">Plano</button>
+                            </a>
                             {% endif %}
                         </td>
                     </tr>
