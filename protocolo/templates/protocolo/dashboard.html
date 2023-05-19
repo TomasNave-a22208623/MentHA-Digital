@@ -21,8 +21,11 @@
     <script src="{% static 'protocolo/js/jquery.js' %}"></script>
     <script src="{% static 'protocolo/np/nprogress.js' %}"></script>
     <link rel='stylesheet' href="{% static 'protocolo/np/nprogress.css' %}"/>
-</head>
+    {% block head %}
 
+    {% endblock %}
+
+</head>
 <body id="page-top">
 <div id="wrapper">
     <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
@@ -41,24 +44,25 @@
                 <!-- Sidebar Link #1 -->
                 <li class="nav-item"><a class="nav-link jq-btn active" href="#"
                                         data-href="{% url 'protocolo:dashboard-content' %}"><i
-                        class="fas fa-tachometer-alt"></i><span>&nbsp Dashboard</span></a></li>
+                        class="fas fa-tachometer-alt"></i><span>&nbsp DASHBOARD</span></a></li>
                 <!-- Sidebar Link #2 -->
                 <li class="nav-item"><a class="nav-link jq-btn" href="#"
                                         data-href="{% url 'protocolo:participants' %}"><i
-                        class="fas fa-user"></i><span>&nbsp Participantes</span></a></li>
+                        class="fas fa-users"></i><span>&nbsp PARTICIPANTES</span></a></li>
                 <!-- Sidebar Link #3 -->
                <!-- <li class="nav-item"><a class="nav-link" href="#"><i
                         class="fas fa-table"></i><span>&nbsp Agendamentos</span></a></li> -->
                 <!-- Sidebar Link #4 -->
                 <li class="nav-item"><a class="nav-link jq-btn" href="#" data-href="{% url 'protocolo:protocols' %}">
-                    <i class="far fa-user-circle"></i>
-                    <span>&nbsp Protocolo de Avaliação</span>
+                    <i class="fa fa-book"></i>
+                    <span>&nbsp PROTOCOLOS</span>
                 </a>
                 </li>
                 <li class="nav-item">
                     <div class="menu-temporario">
                         <a class="nav-link jq-btn" href="#" data-href="{% url 'mentha:app-list' %}">
-                            <i id="app-list">Menu</i>
+                            <i id="app-list" class="fas fa-compass"></i>
+                            <span>&nbsp NAVEGAÇÃO</span>
                         </a>
 
                     </div>

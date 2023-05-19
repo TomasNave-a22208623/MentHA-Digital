@@ -1,454 +1,158 @@
 {% load static %}
 {% load tags %}
+
 <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
         <div id="content">
             <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+            <!-- Perfil-->
             <div class="container-fluid">
                 <div class="card shadow">
                     <div class="card-header py-3">
-                        <p class="text-primary m-0 fw-bold" style="font-size: 20px">Perfil</p>
+                        <p class="text-primary m-0 fw-bold" style="font-size: 20px">PERFIL</p>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table">
                                 <tbody>
-                                <tr>
-                                    <td rowspan="4" class="align-content-center align-middle" style="width: 15%">
-                                        <div class="col-md-6 text-nowrap d-xl-flex "
-                                             style="width: 150px;padding: 12px;"><img
-                                                class="rounded-circle img-fluid "
-                                                src="{% static 'protocolo/img/placeholder-avatar.png' %}" width="200px"
-                                                height="200px"></div>
-                                    </td>
-                                    <td class="text-start" style="text-align: center;">
-                                        <label class="form-label">Nome</label>
-                                        <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                            {{ patient.nome }}
-                                        </p>
-                                    </td>
-                                    <td class="text-start" style="text-align: center;">
-                                        <label class="form-label">Data de Nascimento</label>
-                                        <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold;">
-                                            {{ patient.nascimento }} ({{ age }} anos)</p>
-                                    </td>
-                                    <td class="text-start" style="text-align: center;">
-                                        <label class="form-label">Grupo COG</label>
-                                        <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold;">
-                                            {% if not patient.grupoCog %}
-                                                Não tem Cuidador.
-                                            {% else %}
-                                                {{ patient.grupoCog.nome }}
-                                            {% endif %}</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label class="form-label">Sexo</label>
-                                        <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                            {{ patient.sexo }}</p>
-                                    </td>
-                                    <td><label class="form-label">Referenciação</label>
-                                        <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                            {{ patient.referenciacao }}</p></td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label class="form-label">Nacionalidade</label>
-                                        <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                            {{ patient.nacionalidade }}</p>
-                                    </td>
-                                    <td></td>
-                                    <td><label class="form-label">Cuidador(es)</label>
-                                        <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                            {% if cuidadores|length == 0 %}
-                                                Não tem Cuidador.
-                                            {% else %}
-                                                {{ cuidadores }}
-                                            {% endif %}
-                                        </p></td>
-                                </tr>
-                                <tr>
-                                    <td><label class="form-label">Telemóvel</label>
-                                        <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                            ------</p></td>
-                                    <td>
-                                        <label class="form-label">Email</label>
-                                        <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                            {{ patient.email }}</p>
-                                    </td>
-                                    <td><label class="form-label">Grupo CARE</label>
-                                        <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                            Grupo 3 - Nível A</p></td>
-                                </tr>
-                                <tr></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="container-fluid" style="margin-top: 25px">
-                <div class="card shadow">
-                    <div class="card-header py-3">
-                        <p class="text-primary m-0 fw-bold" style="font-size: 20px">Avaliações</p>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th colspan="2" style="text-align: center;">Rastreio</th>
-                                    <th colspan="2" style="text-align: center;">0 meses</th>
-                                    <th colspan="2" style="text-align: center;">2 meses</th>
-                                    <th colspan="2" style="text-align: center;">4 meses</th>
-                                    <th colspan="2" style="text-align: center;">6 meses</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <!-- Rastreio -->
-                                    <td class="align-middle" style="padding-left:5%;width:10%;text-align: center;">
-                                        {% resolution_filter_get_percentage resolutions 1 patient as percentage %}
-                                        {% if percentage > 0 %}
-                                            {% get_part_id_from_resolutions resolutions 1 patient as p_id %}
-                                            <a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'protocolo:areas' 1 p_id patient.id %}">
-                                                <p style="margin-top: 10px;">
-                                                <div class="progress"
-                                                     style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
-                                                    <div class="progress-bar"
-                                                         aria-valuenow="{{ percentage }}"
-                                                         aria-valuemin="0"
-                                                         aria-valuemax="100"
-                                                         style="width: {{ percentage }}%;">
-                                                        {{ percentage }}%
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        {% else %}
-                                            <p style="margin-top: 10px;">
-                                            <div class="progress"
-                                                 style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
-                                                <div class="progress-bar"
-                                                     aria-valuenow="{{ percentage }}"
-                                                     aria-valuemin="0"
-                                                     aria-valuemax="100"
-                                                     style="width: {{ percentage }}%;">
-                                                    {{ percentage }}%
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <!-- Report -->
-                                    <td class="align-middle" style="width:10%;text-align: center">
-                                        {% for r in resolutions %}
-                                            {% if r.doctor == request.user and r.patient == p and r.part.order == 1 %}
-                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'protocolo:report' r.id %}">
-                                                    <i style="font-size: 15px" class="fa fa-file"></i>
-                                                </a>
-                                            {% endif %}
-                                        {% empty %}
-                                            Sem relatório
-                                        {% endfor %}
-                                    </td>
-                                    <!-- Pré-Teste -->
-                                    <td class="align-middle" style="padding-left:5%;width:10%;text-align: center;">
-                                        {% resolution_filter_get_percentage resolutions 2 patient as percentage %}
-                                        {% if percentage > 0 %}
-                                            {% get_part_id_from_resolutions resolutions 2 patient as p_id %}
-                                            <a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'protocolo:areas' 1 p_id patient.id %}">
-                                                <p style="margin-top: 10px;">
-                                                <div class="progress"
-                                                     style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
-                                                    <div class="progress-bar"
-                                                         aria-valuenow="{{ percentage }}"
-                                                         aria-valuemin="0"
-                                                         aria-valuemax="100"
-                                                         style="width: {{ percentage }}%;">
-                                                        {{ percentage }}%
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        {% else %}
-                                            <p style="margin-top: 10px;">
-                                            <div class="progress"
-                                                 style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
-                                                <div class="progress-bar"
-                                                     aria-valuenow="{{ percentage }}"
-                                                     aria-valuemin="0"
-                                                     aria-valuemax="100"
-                                                     style="width: {{ percentage }}%;">
-                                                    {{ percentage }}%
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <!-- Report -->
-                                    <td class="align-middle" style="width:10%;text-align: center">
-                                        {% for r in resolutions %}
-                                            {% if r.doctor == request.user and r.patient == p and r.part.order == 2 %}
-                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'protocolo:report' r.id %}">
-                                                    <i class="fa fa-file"></i>
-                                                </a>
-                                            {% endif %}
-                                        {% empty %}
-                                            Sem relatório
-                                        {% endfor %}
-                                    </td>
-                                    <!-- Monit I -->
-                                    <td class="align-middle" style="padding-left:5%;width:10%;text-align: center;">
-                                        {% resolution_filter_get_percentage resolutions 3 patient as percentage %}
-                                        {% if percentage > 0 %}
-                                            {% get_part_id_from_resolutions resolutions 3 patient as p_id %}
-                                            <a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'protocolo:areas' 1 p_id patient.id %}">
-                                                <p style="margin-top: 10px;">
-                                                <div class="progress"
-                                                     style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
-                                                    <div class="progress-bar"
-                                                         aria-valuenow="{{ percentage }}"
-                                                         aria-valuemin="0"
-                                                         aria-valuemax="100"
-                                                         style="width: {{ percentage }}%;">
-                                                        {{ percentage }}%
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        {% else %}
-                                            <p style="margin-top: 10px;">
-                                            <div class="progress"
-                                                 style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
-                                                <div class="progress-bar"
-                                                     aria-valuenow="{{ percentage }}"
-                                                     aria-valuemin="0"
-                                                     aria-valuemax="100"
-                                                     style="width: {{ percentage }}%;">
-                                                    {{ percentage }}%
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <!-- Report -->
-                                    <td class="align-middle" style="width:10%;text-align: center">
-                                        {% for r in resolutions %}
-                                            {% if r.doctor == request.user and r.patient == p and r.part.order == 3 %}
-                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'protocolo:report' r.id %}">
-                                                    <i class="fa fa-file"></i>
-                                                </a>
-                                            {% endif %}
-                                        {% empty %}
-                                            Sem relatório
-                                        {% endfor %}
-                                    </td>
-                                    <!-- Monit II -->
-                                    <td class="align-middle" style="padding-left:5%;width:10%;text-align: center;">
-                                        {% resolution_filter_get_percentage resolutions 4 patient as percentage %}
-                                        {% if percentage > 0 %}
-                                            {% get_part_id_from_resolutions resolutions 4 patient as p_id %}
-                                            <a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'protocolo:areas' 1 p_id patient.id %}">
-                                                <p style="margin-top: 10px;">
-                                                <div class="progress"
-                                                     style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
-                                                    <div class="progress-bar"
-                                                         aria-valuenow="{{ percentage }}"
-                                                         aria-valuemin="0"
-                                                         aria-valuemax="100"
-                                                         style="width: {{ percentage }}%;">
-                                                        {{ percentage }}%
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        {% else %}
-                                            <p style="margin-top: 10px;">
-                                            <div class="progress"
-                                                 style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
-                                                <div class="progress-bar"
-                                                     aria-valuenow="{{ percentage }}"
-                                                     aria-valuemin="0"
-                                                     aria-valuemax="100"
-                                                     style="width: {{ percentage }}%;">
-                                                    {{ percentage }}%
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <!-- Report -->
-                                    <td class="align-middle" style="width:10%;text-align: center">
-                                        {% for r in resolutions %}
-                                            {% if r.doctor == request.user and r.patient == p and r.part.order == 4 %}
-                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'protocolo:report' r.id %}">
-                                                    <i class="fa fa-file"></i>
-                                                </a>
-                                            {% endif %}
-                                        {% empty %}
-                                            Sem relatório
-                                        {% endfor %}
-
-                                    </td>
-                                    <!-- Pós-Teste -->
-                                    <td class="align-middle" style="padding-left:5%;width:10%;text-align: center;">
-                                        {% resolution_filter_get_percentage resolutions 5 patient as percentage %}
-                                        {% if percentage > 0 %}
-                                            {% get_part_id_from_resolutions resolutions 5 patient as p_id %}
-                                            <a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'protocolo:areas' 1 p_id patient.id %}">
-                                                <p style="margin-top: 10px;">
-                                                <div class="progress"
-                                                     style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
-                                                    <div class="progress-bar"
-                                                         aria-valuenow="{{ percentage }}"
-                                                         aria-valuemin="0"
-                                                         aria-valuemax="100"
-                                                         style="width: {{ percentage }}%;">
-                                                        {{ percentage }}%
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        {% else %}
-                                            <p style="margin-top: 10px;">
-                                            <div class="progress"
-                                                 style="margin-bottom:10px;text-align: right;margin-top: 10px;width: 100%">
-                                                <div class="progress-bar"
-                                                     aria-valuenow="{{ percentage }}"
-                                                     aria-valuemin="0"
-                                                     aria-valuemax="100"
-                                                     style="width: {{ percentage }}%;">
-                                                    {{ percentage }}%
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <!-- Report -->
-                                    <td class="align-middle text-center" style="width:10%;text-align: center">
-                                        {% for r in resolutions %}
-                                            {% if r.doctor == request.user and r.patient == p and r.part.order == 5 %}
-                                                <a id="1" href="#" class="jq-btn" data-href="{% url 'protocolo:report' r.id %}">
-                                                    <i class="fa fa-file"></i>
-                                                </a>
-                                            {% endif %}
-                                        {% empty %}
-                                            Sem relatório
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                                <tr>
-
-                                </tr>
-                                <tr></tr>
-                                </tbody>
-                                <!-- Bold footer line -->
-                                <tfoot>
-                                <tr>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-
-                                </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Visão Geral-->
-            <div class="container-fluid" style="margin-top: 25px">
-                <div class="card shadow">
-                    <div class="card-header py-3">
-                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">Visão Geral da Avaliação</p>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th style="width:25% "></th>
-                                    <th style="text-align: center">{{ parts.0.name }}</th>
-                                    <th style="text-align: center">{{ parts.1.name }}</th>
-                                    <th style="text-align: center">{{ parts.2.name }}</th>
-                                    <th style="text-align: center">{{ parts.3.name }}</th>
-                                    <th style="text-align: center">{{ parts.4.name }}</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for text in overview_list %}
                                     <tr>
-                                        <td>{{ text }}</td>
-                                        {% get_if_done_from_percentage_list percentages 1 text as done_text %}
-                                        {% if done_text == 'done' %}
-                                            <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
-                                                <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
-                                                {% elif done_text == 'not done' or done_text == None %}
-                                            <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
-                                                <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i>
-                                                {% elif done_text == 'does not exist' %}
-                                            <td style="background-color: rgba(0,0,0,0.0);text-align: center;">
-                                            <i class="fas fa-window-minimize" style="color: rgba(0,0,0,0.1)"></i>
-                                        {% endif %}
+                                        <td rowspan="4" class="align-content-center align-middle" style="width: 15%">
+                                            <div class="col-md-6 text-nowrap d-xl-flex " style="width: 150px;padding: 12px;">
+                                                <img class="rounded-circle img-fluid " src="{% static 'protocolo/img/placeholder-avatar.png' %}" width="200px" height="200px">
+                                            </div>
                                         </td>
-                                        {% get_if_done_from_percentage_list percentages 2 text as done_text %}
-                                        {% if done_text == 'done' %}
-                                            <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
-                                                <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
-                                                {% elif done_text == 'not done' or None %}
-                                            <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
-                                                <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i>
-                                                {% elif done_text == 'does not exist' %}
-                                            <td style="background-color: rgba(0,0,0,0.0);text-align: center;">
-                                            <i class="fas fa-window-minimize" style="color: rgba(0,0,0,0.1)"></i>
-                                        {% endif %}
+                                        <td class="text-start" style="text-align: center;">
+                                            <label class="form-label">Nome</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                                {{ patient.nome }}
+                                            </p>
                                         </td>
-                                        {% get_if_done_from_percentage_list percentages 3 text as done_text %}
-                                        {% if done_text == 'done' %}
-                                            <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
-                                                <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
-                                                {% elif done_text == 'not done' or None %}
-                                            <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
-                                                <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i>
-                                                {% elif done_text == 'does not exist' %}
-                                            <td style="background-color: rgba(0,0,0,0.0);text-align: center;">
-                                            <i class="fas fa-window-minimize" style="color: rgba(0,0,0,0.1)"></i>
-                                        {% endif %}
+                                        <td class="text-start" style="text-align: center;">
+                                            <label class="form-label">Data de Nascimento</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold;">
+                                                {{ patient.nascimento }} ({{ age }} anos)
+                                            </p>
                                         </td>
-                                        {% get_if_done_from_percentage_list percentages 4 text as done_text %}
-                                        {% if done_text == 'done' %}
-                                            <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
-                                                <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
-                                                {% elif done_text == 'not done' or None %}
-                                            <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
-                                                <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i>
-                                                {% elif done_text == 'does not exist' %}
-                                            <td style="background-color: rgba(0,0,0,0.0);text-align: center;">
-                                            <i class="fas fa-window-minimize" style="color: rgba(0,0,0,0.1)"></i>
-                                        {% endif %}</td>
-                                        {% get_if_done_from_percentage_list percentages 5 text as done_text %}
-                                        {% if done_text == 'done' %}
-                                            <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
-                                                <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
-                                                {% elif done_text == 'not done' or None %}
-                                            <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
-                                                <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i>
-                                                {% elif done_text == 'does not exist' %}
-                                            <td style="background-color: rgba(0,0,0,0.0);text-align: center;">
-                                            <i class="fas fa-window-minimize" style="color: rgba(0,0,0,0.1)"></i>
-                                        {% endif %}</td>
+                                        <td class="text-start" style="text-align: center;">
+                                            <label class="form-label">Grupo COG</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold;">
+                                                {% if not patient.grupoCog %}
+                                                    Não tem grupo COG
+                                                {% else %}
+                                                    {{ patient.grupoCog.nome }}
+                                                {% endif %}
+                                            </p>
+                                        </td>
                                     </tr>
-                                {% endfor %}
-                                <tr></tr>
+                                    <tr>
+                                        <td>
+                                            <label class="form-label">Sexo</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                                {{ patient.sexo }}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <label class="form-label">Referenciação</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                                {{ patient.referenciacao }}
+                                            </p>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label class="form-label">Nacionalidade</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                                {{ patient.nacionalidade }}
+                                            </p>
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <label class="form-label">Cuidador(es)</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                                {% if cuidadores|length == 0 %}
+                                                    Não tem cuidador
+                                                {% else %}
+                                                    {{ cuidadores }}
+                                                {% endif %}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label class="form-label">Telemóvel</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                                ------
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <label class="form-label">Email</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                                {{ patient.email }}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <label class="form-label">Grupo CARE</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                                ------
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
-
-
+            <!-- Visao Geral Da Avaliacao-->
+            <div class="container-fluid" style="margin-top: 25px">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">VISÃO GERAL DA AVALIAÇÃO</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive" style="overflow-x:auto;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="position:sticky; left:0; background-color: rgba(255,255,255, 1); min-width: 20rem"></th>
+                                        {% for part in partedoutilizador %}
+                                            {% if part.part.name != 'MentHA-Risk' and part.part.name != 'Teste Livre' %}
+                                                <th style="text-align: center; min-width: 16rem">{{ part.part.name }}</th>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for text in overview_list %}
+                                        <tr>
+                                            <td style="position:sticky; left: 0; background-color: rgba(255,255,255, 1)">{{ text }}</td>
+                                            {% for part in partedoutilizador %}
+                                                {% if part.part.name != 'MentHA-Risk' and part.part.name != 'Teste Livre' %}
+                                                    {% get_if_done_from_percentage_list percentages part.part.order text as done_text %}
+                                                        {% if done_text == 'done' %}
+                                                    <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
+                                                        <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
+                                                        {% elif done_text == 'not done' or done_text == None %}
+                                                    <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
+                                                        <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i>
+                                                        {% elif done_text == 'does not exist' %}
+                                                    <td style="background-color: rgba(0,0,0,0.0);text-align: center;">
+                                                        <i class="fas fa-window-minimize" style="color: rgba(0,0,0,0.1)"></i>
+                                                        {% endif %}
+                                                    </td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                    <tr></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
