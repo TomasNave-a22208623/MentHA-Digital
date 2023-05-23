@@ -5,13 +5,13 @@
     <p class="text-primary m-0 fw-bold">
         Sessão {{ sessaoGrupo.sessao.numeroSessao}} > Fase
         {% if parte.fase == 'I' %}
-        Inicial ({{ dura }}m)
+        Inicial
         {% endif %}
         {% if parte.fase == 'D' %}
-        Desenvolvimento ({{ dura }}m)
+        Desenvolvimento
         {% endif %}
         {% if parte.fase == 'F' %}
-        Final ({{ dura }}m)
+        Final
         {% endif %}
     </p>
     <div style="display: flex;gap: 10px;">
@@ -43,17 +43,40 @@
     </div>
 </div>
 {% endblock %}
-{% if estado != "ver" %}
-    <span id="timer">{{ parteGrupo.duracao }}</span>
- {% elif estado == "ver" %}
-     {% if parteGrupo.concluido %}
-         ({{ parteGrupo.duracao_em_horas_minutos }}/{{ dura }}m)
-     {% else %}
-         ({{ dura }}m)
-     {% endif %}
-{% endif %}
 </p>
 {% if sessaoGrupo.grupo.programa == "CARE"%}
+<div style ="width:25%" class="direita">
+        {% if estado != "ver" %}
+        <h5 class="text-primary m-0 fw-bold">
+            Duração
+            <span class=" m-6 fw-normal text-muted">
+                {{ dura }} minutos
+            </span>
+        </h5>
+        <div style ="width:100%"class="progress">
+            <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%;" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
+                    {{ parteGrupo.duracao_minutos }}m
+            </div>
+        </div>
+        {% elif estado == "ver" %}
+            {% if parteGrupo.concluido %}
+            <h5 class="text-primary m-0 fw-bold">
+                Duração
+                <span class=" m-6 fw-normal text-muted">
+                    {{ parteGrupo.duracao_em_horas_minutos }} de {{ dura }} minutos
+                </span>
+            </h5>
+            {% else %}
+            <h5 class="text-primary m-0 fw-bold">
+                Duração
+                <span class=" m-6 fw-normal text-muted">
+                    {{ dura }} minutos
+                </span>
+            </h5>
+            {% endif %}
+        {% endif %}
+    </div>
+    <br>
     <h5 class="text-primary m-0 fw-bold">Objetivo</h5>
     <p>{{ parte.objetivo }}</p>
 
