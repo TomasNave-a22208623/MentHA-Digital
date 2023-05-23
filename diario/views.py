@@ -91,7 +91,6 @@ def dashboard(request):
         participante = Participante.objects.get(user=request.user)
         sg = SessaoDoGrupo.objects.filter(grupo=participante.grupo).exclude(parte_ativa__isnull=True)
         if sg.exists():
-            print(sg)
             sg = sg.get()
             contexto['parte'] = sg.parte_ativa
             contexto['sg'] = sg
@@ -133,15 +132,12 @@ def new_group(request):
     for cuidador in cuidadores:
         conjunto_doencas.update(cuidador.doencas)
 
-    conjunto_referencias = set()
-    for cuidador in cuidadores:
-        conjunto_referencias.update(set(cuidador.obter_reference))
 
     lista_pesquisa_cuidadores = {
         'Diagnósticos': conjunto_doencas,
         'Localizações': {cuidador.localizacao for cuidador in cuidadores},
         'Escolaridades': {cuidador.escolaridade for cuidador in cuidadores},
-        'Referenciações': conjunto_referencias,
+        'Referenciações': list(dict.fromkeys({cuidador.referenciacao for cuidador in cuidadores})),
     }
 
     # Obter campos para filtrar por (COG)
@@ -233,7 +229,7 @@ def new_group(request):
 def obter_cadidatos(request):
     participantes = None
     if request.method == 'POST':
-        # print(request.POST)
+        #print(request.POST)
         match (request.POST.get('programa')):
             case 'CARE':
                 # participantes = Cuidador.objects.filter(grupo=None)
@@ -245,7 +241,8 @@ def obter_cadidatos(request):
                 if len(request.POST.get('escolaridade')) > 0:
                     participantes = participantes.filter(escolaridade=request.POST.get('escolaridade'))
                 if len(request.POST.get('referenciacao')) > 0:
-                    participantes = participantes.filter(referenciacao=request.POST.get('referenciacao'))
+                    participantes = participantes.filter(
+                        referenciacao=Reference.objects.get(id=request.POST.get('referenciacao')))
 
             case 'COG':
                 # participantes = Participante.objects.filter(grupo=None)
@@ -598,7 +595,6 @@ def filter_group(request, cuidador_id):
                 if campo == 'referenciacao':
                     referencia = Reference.objects.get(id=valor)
                     filtrados = filtrados.filter(referenciacao=referencia)
-    print(selecoes)
     contexto = {
         'cuidador': cuidador,
         'lista_pesquisa': lista_pesquisa,

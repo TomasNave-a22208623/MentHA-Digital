@@ -371,7 +371,7 @@ class Cuidador(Utilizador):
         ("Misto", "Misto")
     )
     escolaridade = models.CharField(max_length=20, choices=opEscolaridade, default="1-4", blank=False, null=False)
-    referenciacao = models.CharField(max_length=20, default="", null=True, blank=True)
+    referenciacao = models.ForeignKey(Reference, on_delete=models.CASCADE, blank=True, null=True)
     # referenciacao é um charfield, devia ser um ManyToManyField
     regime = models.CharField(max_length=20, choices=opRegime, default="Online", blank=False, null=False)
     grupo = models.ManyToManyField(Grupo, blank=True, related_name='cuidadores')
