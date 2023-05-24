@@ -47,17 +47,25 @@
 {% if sessaoGrupo.grupo.programa == "CARE"%}
 <div style ="width:25%" class="direita">
         {% if estado != "ver" %}
-        <h5 class="text-primary m-0 fw-bold">
-            Duração
-            <span class=" m-6 fw-normal text-muted">
-                {{ dura }} minutos
-            </span>
-        </h5>
-        <div style ="width:100%; margin-top: 5px;"class="progress">
-            <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%;" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
-                    {{ parteGrupo.duracao_minutos }}m
-            </div>
-        </div>
+            <h5 class="text-primary m-0 fw-bold">
+                Duração
+                <span class=" m-6 fw-normal text-muted">
+                    {{ dura }} minutos
+                </span>
+            </h5>
+            {% if parteGrupo.duracao_minutos > dura %}
+                <div style ="width:100%; margin-top: 5px;"class="progress">
+                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%; background-color: #dc3545" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
+                        {{ parteGrupo.duracao_minutos }}m
+                    </div>
+                </div>
+            {% else %}
+                <div style ="width:100%; margin-top: 5px;"class="progress">
+                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%;" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
+                        {{ parteGrupo.duracao_minutos }}m
+                    </div>
+                </div>
+            {% endif %}
         {% elif estado == "ver" %}
             {% if parteGrupo.concluido %}
             <h5 class="text-primary m-0 fw-bold">
