@@ -41,10 +41,10 @@ class Doenca(models.Model):
 
 class Grupo(models.Model):
     opEscolaridade = (
-        ("0-4", "0-4"),
-        ("5-9", "5-9"),
-        ("10-12", "10-12"),
-        ("12+", "12+")
+        ("Analfabeto", "Analfabeto"),
+        ("1-4", "1-4"),
+        ("5-10", "5-10"),
+        ("11+", "11+")
     )
 
     opPrograma = (
@@ -52,7 +52,7 @@ class Grupo(models.Model):
         ("COG", "COG"),
     )
 
-    nome = models.CharField(max_length=20)
+    nome = models.CharField(max_length=50)
     diagnostico = models.ForeignKey(Doenca, on_delete=models.CASCADE, null=True, blank=True)
     localizacao = models.CharField(max_length=20, default="", null=True, blank=True)
     escolaridade = models.CharField(max_length=20, choices=opEscolaridade, default="", blank=True, null=True)
@@ -382,6 +382,15 @@ class Cuidador(Utilizador):
         diagnosticos = []
         for participante in list(participantes):
             diagnosticos += [obj.nome for obj in participante.diagnosticos.all()]
+        diagnosticos = set(diagnosticos)  # remove duplicados
+        return diagnosticos
+
+    @property
+    def doencas_object(self):
+        participantes = self.participantes.all()
+        diagnosticos = []
+        for participante in list(participantes):
+            diagnosticos += [obj for obj in participante.diagnosticos.all()]
         diagnosticos = set(diagnosticos)  # remove duplicados
         return diagnosticos
 
