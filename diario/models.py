@@ -161,6 +161,8 @@ class Sessao(models.Model):
     componentes = models.CharField(max_length=1000, null=True, blank=True)
     instrumentoAvaliacao = models.TextField(max_length=1000, null=True, blank=True)
     programa = models.CharField(max_length=20, choices=opPrograma, default="CARE", blank=True, null=True)
+    materiais = models.FileField(upload_to='materiais/', null=True, blank=True)
+    relatorio = models.FileField(upload_to='relatorios/', null=True, blank=True)
 
     @property
     def objetivos(self):
