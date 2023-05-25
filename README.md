@@ -23,15 +23,15 @@
 🔖 Passar DB para PSQL
 ======
 
-1. Temos de dar export da bd em UTF-8 senão vai dar erro de encoding,  para isso fazemos: 
+1. Se quisermos importar dados da bd antiga em sqlite, temos de exportar a bd em UTF-8, senão vai dar erro de encoding,  para isso fazemos: 
 ```
 python manage.py -Xutf8 dumpdata > <nome_ficheiro>.json
 ```
-2. Instalar psycogpg2 
+2. Instalar psycogpg2 (package adaptador de PostgreSQL para Django)
 ```
 pip install psycopg2
 ```
-3. Editar a varivel DATABASES no settings.py para:
+3. Editar a variável DATABASES no settings.py para:
 ```
 DATABASES = {
     'default': {
@@ -44,24 +44,14 @@ DATABASES = {
     }
 }
 ```
-4. Como demos expor da bd em UTF-8 vamos ter caracteres estranhos no lugar de de caracteres portugueses.
-5. Para substituir todos os caracteres estranhos em todos os modelos da base de dados fazemos um dicionario onde metemos como chave o caracter estranho e como valor o que é suposto ser em portugues
-6. Para isto usamos tb smart_str para dar para correr em linux senão vai dar erro de encoding
+4. Como demos expor da bd em UTF-8 vamos ter caracteres estranhos no lugar de de caracteres portuguêses.
+5. Para corrigir todos os caracteres errados em todos os modelos da bd, fazemos um dicionario onde metemos como chave o char errado e como valor char correto
+6. Para isto usamos tb smart_str() para dar para correr em linux senão vai dar erro de encoding
 ```
+from django.utils.encoding import smart_str
+
 char_map = {
-    smart_str("+º", encoding='utf-8', strings_only=True, errors='strict'): smart_str("ç", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+ú", encoding='utf-8', strings_only=True, errors='strict'): smart_str("ã", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+¬", encoding='utf-8', strings_only=True, errors='strict'): smart_str("é", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+¦", encoding='utf-8', strings_only=True, errors='strict'): smart_str("ó", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+¬", encoding='utf-8', strings_only=True, errors='strict'): smart_str("ê", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+é", encoding='utf-8', strings_only=True, errors='strict'): smart_str("Â", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+Ò", encoding='utf-8', strings_only=True, errors='strict'): smart_str("é", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+í", encoding='utf-8', strings_only=True, errors='strict'): smart_str("á", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+¡", encoding='utf-8', strings_only=True, errors='strict'): smart_str("í", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+á", encoding='utf-8', strings_only=True, errors='strict'): smart_str("à", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+ë", encoding='utf-8', strings_only=True, errors='strict'): smart_str("É", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+ü", encoding='utf-8', strings_only=True, errors='strict'): smart_str("Á", encoding='utf-8', strings_only=True, errors='strict'),
-    smart_str("+ó", encoding='utf-8', strings_only=True, errors='strict'): smart_str("â", encoding='utf-8', strings_only=True, errors='strict'),
+    smart_str("<char_errado>", encoding='utf-8', strings_only=True, errors='strict'): smart_str("<char_correto>", encoding='utf-8', strings_only=True, errors='strict'),
 }
 ```
 7. Depois definimos uma função para substituir esses caracteres num texto recebido
@@ -73,13 +63,13 @@ def replace_chr(text):
             smart_txt = text.replace(incorrect_char, correct_char)
         return smart_txt
     return text 
- ```
+```
 8. Executar o environment e abrir a python shell
 ```
 source bin/activate
 python manage.py shell
 ```
-9. Importar o que for necessário ( onde está a funçao decode() e executá-la) p.ex, se a funçao estiver no views.py:
+9. Importar o que for necessário (onde está a funçao decode() e executá-la) p.ex, se a funçao estiver no views.py:
 ```
 from mentha.views import * 
 decode()
