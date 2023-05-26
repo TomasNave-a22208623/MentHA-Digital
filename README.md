@@ -1,5 +1,9 @@
 # protocolo_de_avaliacao
 
+📝 Ficheiro de Bugs
+======
+https://shorturl.at/qAJN8
+
 ⚙️ Requisitios
 ======
 1. Python 3.10 ou superior
