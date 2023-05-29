@@ -85,6 +85,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     </form>
                 </div>
             </div>
+        <br>
+            <div style ="width:25%" class="direita">
+                <h5 class="text-primary m-0 fw-bold">
+                    Duração
+                    <span class=" m-6 fw-normal text-muted">
+                        {{ tempo_total_partes }} minutos
+                    </span>
+                </h5>
+                <div style ="width:100%; margin-top: 5px;"class="progress">
+                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ tempo_total_partes_grupo }}%;" aria-valuenow="{{ tempo_total_partes_grupo }}" aria-valuemin="0" aria-valuemax="{{tempo_total_partes}}">
+                            {{ tempo_total_partes_grupo }}m
+                    </div>
+                </div>
+            </div>
 
             <br>
 
