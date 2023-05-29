@@ -37,7 +37,123 @@ class Protocol(Common):
     def __str__(self):
         return f"{self.name}"
 
+class Risk(models.Model):
+    SEXO = (
+        ('M', 'Masculino'),
+        ('F','Feminino'),
+    )
+    FUMADOR = (
+        ('smoking','smoking'),
+        ('nonSmoking','nonSmoking'),
+    )
+    DIABETES = (
+        ('S','Sim'),
+        ('N','Não'),
+    )
+    AVC = (
+        ('S','Sim'),
+        ('N','Não'),
+    )
+    ENFARTE = (
+        ('S','Sim'),
+        ('N','Não'),
+    )
+    RINS =(
+        ('S','Sim'),
+        ('N','Não'),
+    )
+    PERNAS = (
+        ('S','Sim'),
+        ('N','Não'),
+    )
+    HIPERCOLESTROL = (
+        ('S','Sim'),
+        ('N','Não'),
+    )
+    PRESSAO_ARTERAL = (
+        ('160','160-179'),
+        ('140','140-159'),
+        ('120','120-139'),
+        ('100','100-119'),
+    )
+    COLESTROL_TOTAL = (
+        ('3','3.0-3.9'),
+        ('4','4.0-4.9'),
+        ('5','5.0-5.9'),
+        ('6','6.0-6.9'),
+    )
 
+
+    idade = models.PositiveIntegerField(default=0)
+    sexo = models.CharField(max_length=10,choices=SEXO)
+    peso = models.FloatField(default=0)
+    altura = models.CharField(max_length=10,blank=True)
+    imc = models.IntegerField(default=0)
+    pressao_arterial = models.IntegerField(default=0)
+    colestrol_total = models.FloatField(default=0)
+    colestrol_hdl = models.IntegerField(default=0)
+    colestrol_nao_hdl = models.IntegerField(default=0)
+    hemoglobina_gliciada = models.IntegerField(default=0)
+    fumador = models.CharField(max_length=10,choices=FUMADOR,null=True)
+    diabetes = models.CharField(max_length=10,choices=DIABETES)
+    anos_diabetes = models.IntegerField(default=0,blank=True)
+    avc = models.CharField(max_length=10,choices=AVC)
+    enfarte = models.CharField(max_length=10,choices=ENFARTE)
+    doenca_rins = models.CharField(max_length=10,choices=RINS)
+    doenca_pernas = models.CharField(max_length=10,choices=PERNAS)
+    hipercolestrol = models.CharField(max_length=10,choices=HIPERCOLESTROL)
+    data_atual = models.DateField(default=timezone.now)
+    comentario2 = models.CharField(max_length=200,blank=True)
+    comentario = models.CharField(max_length=200,blank=True)
+    risco_de_enfarte = models.IntegerField(default=0,null=True) #propriedade
+    parteDoUtilizador = models.OneToOneField('ParteDoUtilizador',on_delete=models.CASCADE,null=True,blank=True,default=None)
+    
+
+    # @property
+    # def risco_de_enfarte(self):
+
+    #     print("entrou no risk_json")
+    #     #abrir json risk_men
+    #     data = open_json(path)
+    #     print("entrou no risk_json2")
+    #     for i in data:
+    #         if(i == smoking):
+    #             print("entrou no risk_json3")
+    #             for j in data[i]:
+    #                 min=j.split('-')[0]
+    #                 max=j.split('-')[1]
+    #                 min = int(min)
+    #                 max = int(max)
+    #                 idade = int(idade)
+    #                 if(idade in range(min,max+1)):
+    #                     print("entrou no risk_json4")
+    #                     for k in data[i][j]:
+    #                         min=k.split('-')[0]
+    #                         max=k.split('-')[1]
+    #                         min = int(min)
+    #                         max = int(max)
+    #                         hipertensao = int(hipertensao)
+    #                         if(hipertensao in range(min,max+1)):
+    #                         print("entrou no risk_json5")
+    #                         for l in data[i][j][k]:
+    #                             min=l.split('-')[0]
+    #                             max=l.split('-')[1]
+    #                             min = float(min)
+    #                             max = float(max)
+    #                             colesterol = float(colesterol)
+    #                             if(colesterol in float_range(min,max+1)):
+    #                                 print("entrou no risk_json6")
+    #                                 print(colesterol)
+    #                                 print(data[i][j][k][l])
+    #                                 return data[i][j][k][l]
+
+
+
+    class Meta:
+        db_table = 'protocolo_risk'
+    
+    
+    
 class Part(Common):
     protocol = models.ForeignKey('Protocol', on_delete=models.CASCADE)
     part_number = models.IntegerField(default=0)
@@ -97,6 +213,19 @@ class Area(Common):
     def instrument(self):
         return Instrument.objects.filter(area=self).get()
 
+class ParteDoUtilizador(models.Model):
+    
+    part = models.ForeignKey('Part', on_delete = models.CASCADE, related_name='parteDoUtilizador')  #parte do protocolo que o utilizador fez
+    participante = models.ForeignKey(Participante, on_delete=models.CASCADE, related_name='parteDoUtilizador') #participante que fez a parte
+    data = models.DateField() #data da marcacao
+    time = models.TimeField() #hora da marcacao
+
+    @property
+    def order(self):
+        return self.part.order
+
+    def __str__(self) -> str:
+        return self.part.name
 
 class Instrument(Common):
     area = models.ManyToManyField('Area',
@@ -227,10 +356,10 @@ class Section(Common):
 class Question(Common):
     # 1 = Multiple Choice, 2 = Escrita aberta ou submissão, 3 = Tabela de escolhas multiplas (p. ex. Psicossintomatologia BSI)
     # 4 = Checkboxes, 5 = Multiplas text areas com cronómetro, 6 = Nomeação de Imagens, 7= Memoria (Reconhecimento),
-    # 8 = GDS Questionário, 9 GDS atribuir estadio, 10 = Trail Maker Test, 11 = Sociodemografico
+    # 8 = GDS Questionário, 9 GDS atribuir estadio, 10 = Trail Maker Test, 11 = Sociodemografico 12 = Menth_Risk
     question_type = models.PositiveIntegerField(default=1,
                                                 blank=False,
-                                                validators=[MinValueValidator(1), MaxValueValidator(11)])
+                                                validators=[MinValueValidator(1), MaxValueValidator(12)])
     instruction = models.TextField(max_length=LONG_LEN,
                                    blank=True)
     helping_images = models.ManyToManyField('QuestionImage',
@@ -293,20 +422,20 @@ class PossibleAnswer(Common):
 class Resolution(models.Model):
     patient = models.ForeignKey(Participante,
                                 on_delete=models.CASCADE, default=None, blank=True, null=True)
-    part = models.ForeignKey('Part', on_delete=models.CASCADE)
+    part = models.ForeignKey('ParteDoUtilizador', on_delete=models.CASCADE,null=True, blank=True)
     date = models.DateTimeField(default=timezone.now)
     doctor = models.ForeignKey(settings.AUTH_USER_MODEL,
                                on_delete=models.CASCADE, default=None, blank=True, null=True)
     statistics = models.JSONField(blank=True, default=dict)
 
     def __str__(self):
-        return f"{self.id}. {self.patient.nome} - {self.part.name} " \
+        return f"{self.id}. {self.patient.nome} -  " \
                f"({self.date.day}/{self.date.month}/{self.date.year}, {self.date.hour}:{self.date.minute})"
 
     def initialize_statistics(self):
         self.statistics['total_answered'] = 0
         self.statistics['total_percentage'] = 0
-        areas = Area.objects.all().order_by('order').filter(part=self.part)
+        areas = Area.objects.all().order_by('order').filter(part=self.part.part)
         for area in areas:
             self.statistics[area.id] = {}
             self.statistics[area.id]['name'] = area.name
@@ -345,7 +474,7 @@ class Resolution(models.Model):
 
 
     def increment_statistics(self, part_id: int, area_id: int, instrument_id: int, dimension_id: int, section_id: int):
-        part = Part.objects.get(pk=part_id)
+        part = ParteDoUtilizador.objects.get(pk=part_id).part
         self.statistics['total_answered'] += 1
         self.statistics['total_percentage'] = percentage \
             (total=part.number_of_questions,
@@ -499,3 +628,14 @@ class MultipleChoicesCheckbox(Common):
 
     def __str__(self):
         return f"{self.choice.name}"
+
+#class agendamentos(model.Model):
+#    dia = models.ForeignKey('Dia',on_delete=moodels.CASCADE)
+#    hora = models.ForeignKey('Hora',on_delete=models.CASCADE)
+
+#    def __str__(self):
+#        return f"{self.choice.name}"    
+
+
+
+
