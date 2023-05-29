@@ -1489,14 +1489,30 @@ def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_resultados(request, idPergunta, idParte, sessaoGrupo):
-    pergunta = Pergunta.objects.get(id=1)
+    questionario = Questionario.objects.get(id=idPergunta)
+    escolhas = []
 
-    escolhas = [escolha.opcao.resposta for escolha in Pergunta.objects.get(id=idPergunta).escolhas.all()]
-    votos = [escolha.opcao.cotacao for escolha in Pergunta.objects.get(id=idPergunta).escolhas.all()]
+    for pergunta in questionario.perguntas.all():
+        opcoes_respostas = [opcao.resposta for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
+        opcoes = [opcao for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
+        print(escolhas)
+        counter_respostas = {}
+        for opcao in opcoes:
+            counter_respostas[opcao.id] = 0
+        for i, escolha in enumerate(Pergunta.objects.get(id=pergunta.id).escolhas.all()):
+            counter_respostas[escolha.opcao.id] += 1
 
-    plt.bar(escolhas, votos)
+
+        print(counter_respostas)
+
+
+    plt.bar(opcoes_respostas, list(counter_respostas.values()))
     plt.ylabel("respostas")
     plt.autoscale()
+    max_ = max(list(counter_respostas.values()))
+    steps = list(range(max_ + 1))
+    plt.yticks(steps)
+
 
     fig = plt.gcf()
     plt.close()
