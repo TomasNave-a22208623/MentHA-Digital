@@ -12,7 +12,7 @@
     </div>
     <div><img src="data:image/png;base64,{{ grafico }}" style="margin-left:400px;margin-top:150px;" ></div>
 
-  <a href="{% url 'diario:view_abrirQuestionario' pergunta.id idParte sessaoGrupo %}" style="margin-left: 700px">
+  <a onclick="history.back()" style="margin-left: 700px">
       <button class="btn btn-outline-primary">Voltar</button>
   </a>
 </body>

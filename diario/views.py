@@ -130,7 +130,7 @@ def new_group(request):
 
     conjunto_doencas = set()
     for cuidador in cuidadores:
-        conjunto_doencas.update(cuidador.doencas)
+        conjunto_doencas.update(cuidador.doencas_object)
 
 
     lista_pesquisa_cuidadores = {
@@ -187,6 +187,7 @@ def new_group(request):
             if g.diagnostico_most_frequent is not None:
                 g.diagnostico = Doenca.objects.get(nome=g.diagnostico_most_frequent)
             g.localizacao= g.localizacao_most_frequent
+            g.escolaridade= g.escolaridade_most_frequent
             g.save()
 
 
@@ -237,7 +238,7 @@ def obter_cadidatos(request):
                 if len(request.POST.get('localizacao')) > 0:
                     participantes = participantes.filter(localizacao=request.POST.get('localizacao'))
                 if len(request.POST.get('diagnostico')) > 0:
-                    participantes = participantes.filter(diagnosticos__in=request.POST.get('diagnostico'))
+                    participantes = participantes.filter(participantes__diagnosticos__in=request.POST.get('diagnostico'))
                 if len(request.POST.get('escolaridade')) > 0:
                     participantes = participantes.filter(escolaridade=request.POST.get('escolaridade'))
                 if len(request.POST.get('referenciacao')) > 0:

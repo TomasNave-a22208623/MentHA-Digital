@@ -29,6 +29,8 @@
                         <th style="text-align: center;"><strong>Regime</strong></th>
                         <th style="text-align: center;"><strong>Estado</strong></th>
                         <th style="text-align: center;">Sessão</th>
+                        <th style="text-align: center;">Materiais</th>
+                        <th style="text-align: center;">Relatório</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -90,6 +92,24 @@
                             <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
                                 <button class="btn btn-outline-secondary btn-sessao">Plano</button>
                             </a>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if sessao_do_grupo.sessao.materiais|length > 0 %}
+                            <a href="{{ sessao_do_grupo.sessao.materiais.url }}">
+                                📃
+                            </a>
+                            {% else %}
+                                &#10060;
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if sessao_do_grupo.sessao.relatorio|length > 0 %}
+                            <a href="{{ sessao_do_grupo.sessao.relatorio.url }}">
+                                &#128203;
+                            </a>
+                            {% else %}
+                                &#10060;
                             {% endif %}
                         </td>
                     </tr>
