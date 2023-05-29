@@ -82,7 +82,7 @@
 
                             {% if sessao_do_grupo.id == proxima_sessao %}
                             <form action="{% url 'diario:presencas_sessao' sessao_do_grupo.id %}">
-                                <button class="btn btn-primary btn-sessao">Iniciar</button>
+                                <button class="btn btn-primary btn-sessao ee button">Iniciar</button>
                             </form>
                             {% elif sessao_do_grupo.id == sessao_em_curso %}
                             <form action="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">

@@ -682,7 +682,7 @@ class ParteGrupo(models.Model):
         elif self.fim == None and self.inicio != None:
             return (datetime.utcnow() - self.inicio).seconds
         else:
-            return '-'
+            return 0
 
     @property
     def duracao_minutos(self):

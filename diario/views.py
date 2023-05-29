@@ -339,6 +339,7 @@ def group_members(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
+
     # formDinamizador = DinamizadorForm(request.POST or None)
     # if formDinamizador.is_valid():
     #     formDinamizador.save()
@@ -743,6 +744,16 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
     elif grupo.programa == "COG":
         participantes = Participante.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
     # print(sessao.sessao.partes)
+
+    tempo_total_partes = 0
+    tempo_total_partes_grupo = 0
+
+    for parte in sessao.sessao.partes.all():
+        tempo_total_partes += parte.duracao
+
+    for parte_grupo in partes_grupo:
+        tempo_total_partes_grupo += parte_grupo.duracao_minutos
+
     contexto = {
         'parte': sessao.sessao.partes,
         'proxima_parte': proxima_parte,
@@ -752,6 +763,8 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
         'grupo': Grupo.objects.get(id=sessao.grupo.id),
         'pode_iniciar': pode_iniciar,
         'apresentacao' : apresentacao,
+        'tempo_total_partes': tempo_total_partes,
+        'tempo_total_partes_grupo': tempo_total_partes_grupo,
     }
 
     return render(request, 'diario/sessao.html', contexto)
@@ -1163,6 +1176,7 @@ def view_questionario(request, idPergunta, idParte, sessaoGrupo):
                     existing = existing[0]
                     existing.opcao = opcao
                     existing.save()
+        return redirect('diario:sessao', sg.id, sg.grupo.id)
 
     contexto = {
         'idPergunta': idPergunta,
@@ -1475,14 +1489,30 @@ def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_resultados(request, idPergunta, idParte, sessaoGrupo):
-    pergunta = Pergunta.objects.get(id=1)
+    questionario = Questionario.objects.get(id=idPergunta)
+    escolhas = []
 
-    escolhas = [escolha.opcao.resposta for escolha in Pergunta.objects.get(id=idPergunta).escolhas.all()]
-    votos = [escolha.opcao.cotacao for escolha in Pergunta.objects.get(id=idPergunta).escolhas.all()]
+    for pergunta in questionario.perguntas.all():
+        opcoes_respostas = [opcao.resposta for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
+        opcoes = [opcao for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
+        print(escolhas)
+        counter_respostas = {}
+        for opcao in opcoes:
+            counter_respostas[opcao.id] = 0
+        for i, escolha in enumerate(Pergunta.objects.get(id=pergunta.id).escolhas.all()):
+            counter_respostas[escolha.opcao.id] += 1
 
-    plt.bar(escolhas, votos)
+
+        print(counter_respostas)
+
+
+    plt.bar(opcoes_respostas, list(counter_respostas.values()))
     plt.ylabel("respostas")
     plt.autoscale()
+    max_ = max(list(counter_respostas.values()))
+    steps = list(range(max_ + 1))
+    plt.yticks(steps)
+
 
     fig = plt.gcf()
     plt.close()
@@ -1540,6 +1570,12 @@ def voltar_parte(request, idParte, sessao_grupo_id, estado):
 @check_user_able_to_see_page('Todos')
 def finalizar_sessao(request, idGrupo, sessao_grupo_id):
     sessao_group = SessaoDoGrupo.objects.get(id=sessao_grupo_id)
+    parte_group_final = sessao_group.parteGrupos.all().last()
+
+    parte_group_final.fim = datetime.utcnow()
+    parte_group_final.concluido = True
+    parte_group_final.save()
+
     if request.method == 'POST':
         sessao_group.estado = 'R'
         sessao_group.fim = datetime.utcnow()
