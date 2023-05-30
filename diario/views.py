@@ -46,7 +46,20 @@ from django.core.files import File
 
 matplotlib.use('Agg')
 
-
+months_pt = {
+    'January': 'janeiro',
+    'February': 'fevereiro',
+    'March': 'março',
+    'April': 'abril',
+    'May': 'maio',
+    'June': 'junho',
+    'July': 'julho',
+    'August': 'agosto',
+    'September': 'setembro',
+    'October': 'outubro',
+    'November': 'novembro',
+    'December': 'dezembro'
+}
 # Para permitir acesso a views por grupo
 # @user_passes_test(lambda u: u.groups.filter(name='YourGroupName').exists())
 
@@ -75,6 +88,7 @@ def nextSession(request):
 def dashboard(request):
     # doctor = request.user
     grupos = []
+    sg = None
     formGrupo = GrupoForm(request.POST or None)
     if formGrupo.is_valid():
         formGrupo.save()
@@ -102,7 +116,7 @@ def dashboard(request):
     'formGrupo': formGrupo,
     }
 
-    if sg.exists():
+    if sg:
         sg = sg.get()
         parte = sg.parte_ativa
         contexto['parte'] = parte
@@ -771,7 +785,6 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
     sessao = SessaoDoGrupo.objects.get(id=sessao_grupo_id, grupo=grupo)
 
     data = sessao.data
-
     pode_iniciar = False
     if data:
         if data.day == datetime.utcnow().day or sessao.inicio is not None:
@@ -1755,6 +1768,16 @@ def gera_relatorio(sessaoDoGrupo, request):
         f'Presenças na {sessaoDoGrupo.__str__()}:')
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
 
+    paragraph = document.add_paragraph(
+        f'A sessão estava agendada para o dia {sessaoDoGrupo.data.day} '
+        f'do mês de {months_pt.get(sessaoDoGrupo.data.strftime("%B"))} '
+        f'do ano de {sessaoDoGrupo.data.year}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph(f'Hora de termino: {sessaoDoGrupo.fim}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    #Dicionario para fazer a contagem dos regimes utlizados durante a sessão
     counter_precensas = {'Presencial': 0, 'Online': 0, 'Faltou': 0}
     for presenca in Presenca.objects.filter(sessaoDoGrupo=sessaoDoGrupo):
         if presenca.present:
@@ -1765,6 +1788,7 @@ def gera_relatorio(sessaoDoGrupo, request):
         elif presenca.faltou:
             counter_precensas['Faltou'] += 1
 
+    #Criação do grafico das presenças
     plt.bar(counter_precensas.keys(), list(counter_precensas.values()))
     plt.ylabel("número de pessoas")
     plt.autoscale()
@@ -1781,7 +1805,7 @@ def gera_relatorio(sessaoDoGrupo, request):
     buf.seek(0)
 
     # Add the image to the document
-    document.add_picture(buf, width=Inches(6.5))
+    document.add_picture(buf, width=Inches(6))
 
     plt.clf()
 
@@ -1797,13 +1821,14 @@ def gera_relatorio(sessaoDoGrupo, request):
         for i, escolha in enumerate(Pergunta.objects.get(id=pergunta.id).escolhas.all()):
             counter_respostas[escolha.opcao.id] += 1
 
+        # Criação do grafico das escolhas dos cuidadores
         plt.bar(opcoes_respostas, list(counter_respostas.values()))
         plt.ylabel("respostas")
         plt.autoscale()
         max_ = max(list(counter_respostas.values()))
         steps = list(range(max_ + 1))
         plt.yticks(steps)
-        plt.xlabel("Pergunta " + str(i + 1) + ": " + insert_line_break(pergunta.texto, 50))
+        plt.xlabel("Pergunta " + str(i + 1))
 
         fig = plt.gcf()
         plt.close()
@@ -1811,15 +1836,15 @@ def gera_relatorio(sessaoDoGrupo, request):
         buf = io.BytesIO()
         fig.savefig(buf, format='png')
         buf.seek(0)
-
         # Add the image to the document
-        document.add_picture(buf, width=Inches(6.5))
+        document.add_paragraph(pergunta.texto)
+        document.add_picture(buf, width=Inches(6))
 
     # Assinatura
-    paragraph = document.add_paragraph(f'O avaliador, {request.user.username}')
+    paragraph = document.add_paragraph(f'Este relatório foi gerado pelo o dinamizador {request.user.username}')
 
     # Save the Word document
-    nome_ficheiro = 'qualquer'
+    nome_ficheiro = 'relatorio'
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
 
@@ -1847,16 +1872,3 @@ def gera_relatorio(sessaoDoGrupo, request):
     os.remove(docx_path)
     os.remove(pdf_path)
 
-def insert_line_break(string, n):
-    result = ''
-    current_line_length = 0
-    words = string.split()
-
-    for word in words:
-        if current_line_length + len(word) > n:
-            result += '\n'
-            current_line_length = 0
-        result += word + ' '
-        current_line_length += len(word) + 1  # +1 for the space after the word
-
-    return result.strip()
