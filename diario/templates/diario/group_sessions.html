@@ -104,8 +104,8 @@
                             {% endif %}
                         </td>
                         <td style="text-align: center;">
-                            {% if sessao_do_grupo.sessao.relatorio|length > 0 %}
-                            <a href="{{ sessao_do_grupo.sessao.relatorio.url }}">
+                            {% if sessao_do_grupo.relatorio|length > 0 %}
+                            <a href="{{ sessao_do_grupo.relatorio.url }}">
                                 &#128203;
                             </a>
                             {% else %}

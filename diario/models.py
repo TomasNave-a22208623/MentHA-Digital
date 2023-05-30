@@ -162,7 +162,6 @@ class Sessao(models.Model):
     instrumentoAvaliacao = models.TextField(max_length=1000, null=True, blank=True)
     programa = models.CharField(max_length=20, choices=opPrograma, default="CARE", blank=True, null=True)
     materiais = models.FileField(upload_to='materiais/', null=True, blank=True)
-    relatorio = models.FileField(upload_to='relatorios/', null=True, blank=True)
 
     @property
     def objetivos(self):
@@ -284,6 +283,7 @@ class SessaoDoGrupo(models.Model):
     concluido = models.BooleanField(default=False)
     sessao = models.ForeignKey(Sessao, on_delete=models.CASCADE, blank=True, null=True, related_name='sessoes')
     parte_ativa = models.ForeignKey(Parte_Exercicio, models.CASCADE, blank=True, null=True, related_name='sessoes')
+    relatorio = models.FileField(upload_to='relatorios/', null=True, blank=True)
 
     def __str__(self):
         return f'Sessao {self.sessao} do grupo {self.grupo}'

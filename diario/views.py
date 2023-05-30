@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, redirect
 from django.forms import ModelForm, TextInput, Textarea
 from .models import *
@@ -39,6 +40,9 @@ import win32com.client as win32
 from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import os
+import pythoncom
+import tempfile
+from django.core.files import File
 
 matplotlib.use('Agg')
 
@@ -1508,7 +1512,6 @@ def view_resultados(request, idPergunta, idParte, sessaoGrupo):
             counter_respostas[escolha.opcao.id] += 1
 
 
-        print(counter_respostas)
 
 
     plt.bar(opcoes_respostas, list(counter_respostas.values()))
@@ -1580,6 +1583,8 @@ def finalizar_sessao(request, idGrupo, sessao_grupo_id):
     parte_group_final.fim = datetime.utcnow()
     parte_group_final.concluido = True
     parte_group_final.save()
+
+    gera_relatorio(sessao_group, request)
 
     if request.method == 'POST':
         sessao_group.estado = 'R'
@@ -1692,7 +1697,8 @@ def respostas_view(request, idSessaoGrupo, idParticipante):
     return render(request, "diario/respostas.html", context)
 
 
-def gera_relatorio(ano, parte, avaliado, data, avaliador, areas):
+def gera_relatorio(sessaoDoGrupo, request):
+    perguntas = []
     document = Document()
 
     # Cabeçalho
@@ -1703,55 +1709,116 @@ def gera_relatorio(ano, parte, avaliado, data, avaliador, areas):
         run.font.italic = True
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-    paragraph = document.add_heading(f'Relatório de {parte}', 0)
+    paragraph = document.add_heading(f'Relatório da {sessaoDoGrupo.sessao.nome}', 0)
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-    document.add_paragraph(f'Nome da pessoa avaliada: {avaliado}')
-    document.add_paragraph(f'Data: {data}')
-
     # Relatório
-
     paragraph = document.add_paragraph(
-        f'Apresenta-se de seguida os resultados da avaliação MentHA, {parte}, de {avaliado}, realizado no dia {data}.')
+        f'Presenças na {sessaoDoGrupo.__str__()}:')
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
 
-    for area in areas:
-        paragraph = document.add_heading(f"Dimensão: {area['dimensao']}", 2)
-        paragraph = document.add_paragraph(area['observacoes'])
-        picture = document.add_picture(area['grafico'], width=Inches(1))
-        last_paragraph = document.paragraphs[-1]
-        last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-        paragraph = document.add_paragraph(area['titulo_grafico'])
-        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-        document.add_paragraph(f'')
+    counter_precensas = {'Presencial': 0, 'Online': 0, 'Faltou': 0}
+    for presenca in Presenca.objects.filter(sessaoDoGrupo=sessaoDoGrupo):
+        if presenca.present:
+            if presenca.mode == Presenca.PRESENT:
+                counter_precensas['Presencial'] += 1
+            if presenca.mode == Presenca.ONLINE:
+                counter_precensas['Online'] += 1
+        elif presenca.faltou:
+            counter_precensas['Faltou'] += 1
+
+    plt.bar(counter_precensas.keys(), list(counter_precensas.values()))
+    plt.ylabel("número de pessoas")
+    plt.autoscale()
+    max_ = max(list(counter_precensas.values()))
+    steps = list(range(max_ + 1))
+    plt.yticks(steps)
+    plt.xlabel("Presenças por modo de assistência")
+
+    fig = plt.gcf()
+    plt.close()
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png')
+    buf.seek(0)
+
+    # Add the image to the document
+    document.add_picture(buf, width=Inches(6.5))
+
+    plt.clf()
+
+    for escolha in Escolha.objects.filter(sessao_grupo=sessaoDoGrupo):
+        perguntas.append(escolha.pergunta)
+
+    for i, pergunta in enumerate(perguntas):
+        opcoes_respostas = [opcao.resposta for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
+        opcoes = [opcao for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
+        counter_respostas = {}
+        for opcao in opcoes:
+            counter_respostas[opcao.id] = 0
+        for i, escolha in enumerate(Pergunta.objects.get(id=pergunta.id).escolhas.all()):
+            counter_respostas[escolha.opcao.id] += 1
+
+        plt.bar(opcoes_respostas, list(counter_respostas.values()))
+        plt.ylabel("respostas")
+        plt.autoscale()
+        max_ = max(list(counter_respostas.values()))
+        steps = list(range(max_ + 1))
+        plt.yticks(steps)
+        plt.xlabel("Pergunta " + str(i + 1) + ": " + insert_line_break(pergunta.texto, 50))
+
+        fig = plt.gcf()
+        plt.close()
+
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png')
+        buf.seek(0)
+
+        # Add the image to the document
+        document.add_picture(buf, width=Inches(6.5))
 
     # Assinatura
-
-    paragraph = document.add_paragraph(f'O avaliador,')
-    paragraph = document.add_paragraph(f'{avaliador}')
+    paragraph = document.add_paragraph(f'O avaliador, {request.user.username}')
 
     # Save the Word document
-    nome_ficheiro = f'Relatorio_{avaliado}_{data}_{parte}'
-    document.save(os.path.join(os.getcwd(), f'{nome_ficheiro}.docx'))
+    nome_ficheiro = 'qualquer'
+    docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
+    document.save(docx_path)
 
-    # Convert the Word document to PDF. explorar e usar isto em baixo.
+    # Convert the Word document to PDF
 
-    #    config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
-    #    pdfkit.from_file(f'{nome_ficheiro}.docx', f'{nome_ficheiro}.pdf', configuration=config, options={"enable-local-file-access": ""})
+    pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
 
-    # Convert the Word document to PDF. ESte codigo em baixo funciona localmente mas não funciona no servidor, pois precisa do word instalado. Usar a parte em baixo
+    pythoncom.CoInitialize()
 
-    # Create an instance of the Word application
     word_app = win32.gencache.EnsureDispatch('Word.Application')
-
-    # Open the Word document
-    doc = word_app.Documents.Open(os.path.join(os.getcwd(), nome_ficheiro + '.docx'))
-
-    # Save the document as PDF
-    doc.SaveAs(os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf'), FileFormat=17)
-
-    # Close the Word document
+    doc = word_app.Documents.Open(docx_path)
+    doc.SaveAs(pdf_path, FileFormat=17)
     doc.Close()
-
-    # Quit the Word application
     word_app.Quit()
+
+    # Create a Django File object from the PDF file
+    with open(pdf_path, 'rb') as f:
+        pdf_data = io.BytesIO(f.read())
+
+    # Assign the PDF file to the file field of sessaoDoGrupo
+    sessaoDoGrupo.relatorio.save(f'{nome_ficheiro}.pdf', pdf_data)
+    sessaoDoGrupo.save()
+
+    # Delete the temporary files
+    os.remove(docx_path)
+    os.remove(pdf_path)
+
+def insert_line_break(string, n):
+    result = ''
+    current_line_length = 0
+    words = string.split()
+
+    for word in words:
+        if current_line_length + len(word) > n:
+            result += '\n'
+            current_line_length = 0
+        result += word + ' '
+        current_line_length += len(word) + 1  # +1 for the space after the word
+
+    return result.strip()
