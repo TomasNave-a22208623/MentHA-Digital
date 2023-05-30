@@ -34,6 +34,12 @@ from django.shortcuts import render
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
+from docx import Document
+import win32com.client as win32
+from docx.shared import Inches
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+import os
+
 matplotlib.use('Agg')
 
 
@@ -1582,7 +1588,6 @@ def finalizar_sessao(request, idGrupo, sessao_grupo_id):
         sessao_group.concluido = True
         sessao_group.parte_ativa = None
         sessao_group.save()
-        
 
     return HttpResponseRedirect(reverse('diario:group_sessions', args=[idGrupo]))
 
@@ -1686,3 +1691,68 @@ def respostas_view(request, idSessaoGrupo, idParticipante):
         'form_list': form_list
     }
     return render(request, "diario/respostas.html", context)
+
+
+def gera_relatorio(ano, parte, avaliado, data, avaliador, areas):
+    document = Document()
+
+    # Cabeçalho
+    paragraph = document.add_paragraph(f'Projeto MentHA')
+
+    # para pôr em itálico (chato... talvez exista algo melhor)
+    for run in paragraph.runs:
+        run.font.italic = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    paragraph = document.add_heading(f'Relatório de {parte}', 0)
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    document.add_paragraph(f'Nome da pessoa avaliada: {avaliado}')
+    document.add_paragraph(f'Data: {data}')
+
+    # Relatório
+
+    paragraph = document.add_paragraph(
+        f'Apresenta-se de seguida os resultados da avaliação MentHA, {parte}, de {avaliado}, realizado no dia {data}.')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    for area in areas:
+        paragraph = document.add_heading(f"Dimensão: {area['dimensao']}", 2)
+        paragraph = document.add_paragraph(area['observacoes'])
+        picture = document.add_picture(area['grafico'], width=Inches(1))
+        last_paragraph = document.paragraphs[-1]
+        last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        paragraph = document.add_paragraph(area['titulo_grafico'])
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        document.add_paragraph(f'')
+
+    # Assinatura
+
+    paragraph = document.add_paragraph(f'O avaliador,')
+    paragraph = document.add_paragraph(f'{avaliador}')
+
+    # Save the Word document
+    nome_ficheiro = f'Relatorio_{avaliado}_{data}_{parte}'
+    document.save(os.path.join(os.getcwd(), f'{nome_ficheiro}.docx'))
+
+    # Convert the Word document to PDF. explorar e usar isto em baixo.
+
+    #    config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+    #    pdfkit.from_file(f'{nome_ficheiro}.docx', f'{nome_ficheiro}.pdf', configuration=config, options={"enable-local-file-access": ""})
+
+    # Convert the Word document to PDF. ESte codigo em baixo funciona localmente mas não funciona no servidor, pois precisa do word instalado. Usar a parte em baixo
+
+    # Create an instance of the Word application
+    word_app = win32.gencache.EnsureDispatch('Word.Application')
+
+    # Open the Word document
+    doc = word_app.Documents.Open(os.path.join(os.getcwd(), nome_ficheiro + '.docx'))
+
+    # Save the document as PDF
+    doc.SaveAs(os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf'), FileFormat=17)
+
+    # Close the Word document
+    doc.Close()
+
+    # Quit the Word application
+    word_app.Quit()
