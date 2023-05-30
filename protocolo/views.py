@@ -1,19 +1,31 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse, FileResponse
 from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
-from .models import Protocol, Part, Area, Instrument, Dimension, Section, Question, Resolution, Answer, PossibleAnswer
+from .models import Protocol, Part, Area, Instrument, Dimension, Section, Question, Resolution, Answer, PossibleAnswer,Risk
 from django.urls import reverse
 from .functions import *
 from .forms import *
 from diario.models import *
 import json
+import os
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import letter 
+from xhtml2pdf import pisa
 
 # Other Imports
 import plotly.graph_objects as go
 import plotly
 import pandas as pd
 import time
+
+#word Imports to PDF
+from docx import Document
+import win32com.client as win32
+from docx.shared import Inches
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+import os
 
 
 # Create your views here.
@@ -40,19 +52,107 @@ def menu_protocolo_view(request):
     return render(request, 'mentha/app-list.html')
 
 @login_required(login_url='login')
+def popup_view(request):
+    return render(request, 'protocolo/popupparts.html')
+
+# @login_required(login_url='login')
+# def risco_view(request):
+#     return render(request, 'protocolo/risco.html')
+
+@login_required(login_url='login')
+def incrementar(request, part_id, participant_id):
+    part = Part.objects.get(pk = part_id)
+    particitant = Participante.objects.get(pk = participant_id)
+    nome = part.nome + datetime.now
+    partParticipant = ParteDoUtilizador(part=part, participante = particitant, nome = nome)    
+
+    return render(request,'protocolo/parts.html')
+
+@login_required(login_url='login')
+def participant_risk_view(request,protocol_id):
+    doctor = request.user
+    protocolo = Protocol.objects.get(pk=protocol_id)
+    participants = Participante.objects.filter(avaliador=doctor)
+    resolutions = Resolution.objects.filter(doctor=doctor)
+
+    context = {'participants': participants, 'resolutions': resolutions, 'protocolo': protocolo}
+    return render(request,'protocolo/protocolo_participants_risk.html',context)
+#funcao view para adicionar uma parte a um participante
+
+@login_required(login_url='login')
+def nova_pagina_risk_report(request):
+    form_report_risk = Risk.objects.all()
+    return render(request,'protocolo/visualizacao_risk.html',{'form_report_risk':form_report_risk})
+
+@login_required(login_url='login')
+def parte_do_utilizador_add_view(request):
+    print('teste1231222')
+    if request.method == 'POST':
+        partId = request.POST.get('partId')
+        print(partId)   
+        part= Part.objects.get(pk=partId)
+        print(part)
+        print('teste12312412312')
+        patient =  Participante.objects.get(pk=request.POST.get('patientId'))
+        parteDoUtilizador = ParteDoUtilizador(part=part,participante=patient)
+        parteDoUtilizador.save()
+
+    
+    context = {
+        'parteDoUtilizador':parteDoUtilizador,
+        'part':part,
+
+        }
+    return HttpResponse('200')    
+    # return JsonResponse({}, status=201)
+
+@login_required(login_url='login')
+def parte_view(request):
+    parte = Part.objects.all()#participante = patient)
+    #patient = Participante.objects.get(pk=patient_id)
+    botao_clicado = int(request.GET.get('botao_clicado ', 0))
+    context = {
+               'parte':parte,
+                'botao_clicado': botao_clicado,
+                #'patient':patient
+               }
+    return render(request, 'protocolo/parts.html', context)
+
+# @login_required(login_url='login')
+# def risk_form_view(request):
+#     submitted = False
+#     form_risk = FormRisk()#request.POST or None)
+#     if request.method == "POST":
+#         form_risk = FormRisk(request.POST or None)
+#         if form_risk.is_valid():
+#             form_risk.save()
+#             return HttpResponseRedirect('protocolo/parts_risk?submitted=True')
+#     else:
+#         #form_risk = FormRisk()
+#         if 'submitted' in request.GET:
+#             submitted = True
+#     context = {'form_risk':form_risk, 'submitted':submitted,}
+#     return render(request,'protocolo/parts_risk.html',context)
+
+@login_required(login_url='login')
 def parts_view(request, protocol_id, patient_id):
     start = time.time()
     protocol = Protocol.objects.get(pk=protocol_id)
     resolutions = Resolution.objects.filter(doctor=request.user, patient=Participante.objects.filter(
         pk=patient_id).get())  # Mudar request.user para o patient depois
-    parts = Part.objects.filter(protocol=protocol_id).order_by('order')
     patient = Participante.objects.get(pk=patient_id)
-
+    parts = ParteDoUtilizador.objects.filter(participante = patient)
+    parte = Part.objects.all()
+    # parte_parte = ParteDoUtilizador.objects.all()
+    risk_area = Area.objects.get(id = 47)
+    pergunta_risk = Question.objects.get(id = 189)
+    print(pergunta_risk)
     # statistics
     answered_list = []
     percentage_list = []
-    for part in parts:
-        resolution = resolutions.filter(part=part)
+    # data = parte_parte.get().data
+    for parteDoUtilizador in parts:
+        resolution = resolutions.filter(part=parteDoUtilizador)
         if not resolution:
             answered_list.append(0)
             percentage_list.append(0)
@@ -60,38 +160,54 @@ def parts_view(request, protocol_id, patient_id):
             s = resolution.get().statistics
             answered_list.append(s.get('total_answered'))
             percentage_list.append(s.get('total_percentage'))
+    
+    # funcao para apagar partes duplicadas com a mesma data
+    # for part in range(len(parts)):
+    #     current_part = parts[part]
+    #     if part+1 < len(parts): 
+    #         next_part = parts[part+1]
+    #         if current_part.part.name == next_part.part.name and current_part.data == next_part.data:
+    #             next_part.delete()
+    #             print('deleted')
+    #     else:
+    #         break
     # print(answered_list)
     # print(percentage_list)
     end = time.time()
     print("Parts", (end - start))
-    context = {'parts': zip(parts, answered_list, percentage_list), 'protocol': protocol, 'resolutions': resolutions,
+    context = {'parts': zip(parts, answered_list, percentage_list),
+               'parte':parte,
+               'risk_area':risk_area,
+                'protocol': protocol, 'resolutions': resolutions,
                'patient': patient,
-               'protocol': protocol}
+               'pergunta_risk':pergunta_risk,
+               }
     return render(request, 'protocolo/parts.html', context)
-
 
 @login_required(login_url='login')
 def areas_view(request, protocol_id, part_id, patient_id):
     start = time.time()
     protocol = Protocol.objects.get(pk=protocol_id)
-    part = Part.objects.get(pk=part_id)
+    parteDoUtilizador = ParteDoUtilizador.objects.get(pk=part_id)
+    part = parteDoUtilizador.part
     areas = Area.objects.filter(part=part).order_by('order')
     patient = Participante.objects.get(pk=patient_id)
     rel_q = Question.objects.filter(name="Relação com o Avaliador").get()
     coop_q = Question.objects.filter(name="Cooperação dada na entrevista").get()
     qs_q = Question.objects.filter(name="Questionário Sociodemográfico").get()
+    
     # print(coop_q)
 
     # ESTOU A CRIAR A RESOLUÇAO AQUI, MAS DEPOIS MUDAR DE SITIO
     r = None
-    if Resolution.objects.filter(patient=patient, part=part, doctor=request.user).exists():
-        r = Resolution.objects.filter(patient=patient, part=part, doctor=request.user).get()
+    if Resolution.objects.filter(patient=patient, part=parteDoUtilizador, doctor=request.user).exists():
+        r = Resolution.objects.filter(patient=patient, part=parteDoUtilizador, doctor=request.user).get()
     else:
-        r = Resolution(patient=patient, part=part, doctor=request.user)
+        r = Resolution(patient=patient, part=parteDoUtilizador, doctor=request.user)
         r.initialize_statistics()
         r.save()
         # Sem esta ultima linha a página das àreas vinha vazia
-        r = Resolution.objects.get(patient=patient, part=part, doctor=request.user)
+        r = Resolution.objects.get(patient=patient, part=parteDoUtilizador, doctor=request.user)
 
     # statistics
     # print_nested_dict(r.statistics, 0)
@@ -104,7 +220,7 @@ def areas_view(request, protocol_id, part_id, patient_id):
             percentage_list.append(s.get(f'{area.id}').get('percentage'))
     end = time.time()
     print("Parts", (end - start))
-    context = {'areas': zip(areas, answered_list, percentage_list), 'part': part, 'protocol': protocol,
+    context = {'areas': zip(areas, answered_list, percentage_list), 'part': parteDoUtilizador, 'protocol': protocol,
                'resolution': r.id, 'patient': patient, 'coop': coop_q, 'rel': rel_q, 'qs': qs_q }
     return render(request, 'protocolo/areas.html', context)
 
@@ -113,14 +229,14 @@ def areas_view(request, protocol_id, part_id, patient_id):
 def instruments_view(request, protocol_id, part_id, area_id, patient_id):
     start = time.time()
     protocol = Protocol.objects.get(pk=protocol_id)
-    part = Part.objects.get(pk=part_id)
+    parteDoUtilizador = ParteDoUtilizador.objects.get(pk=part_id)
     area = Area.objects.get(pk=area_id)
     patient = Participante.objects.get(pk=patient_id)
 
     instruments = Instrument.objects.filter(area=area_id).order_by('order')
 
     # statistics
-    r = Resolution.objects.get(patient=patient, doctor=request.user, part=part)
+    r = Resolution.objects.get(patient=patient, doctor=request.user, part=parteDoUtilizador)
     # print_nested_dict(r.statistics, 0)
     answered_list = []
     percentage_list = []
@@ -136,7 +252,7 @@ def instruments_view(request, protocol_id, part_id, area_id, patient_id):
     end = time.time()
     print("Instruments", (end - start))
 
-    context = {'area': area, 'part': part, 'protocol': protocol, 'protocol_id': protocol_id, 'part_id': part_id,
+    context = {'area': area, 'part': parteDoUtilizador, 'protocol': protocol, 'protocol_id': protocol_id, 'part_id': part_id,
                'area_id': area_id, 'patient_id': patient_id,
                'instruments': [e for e in zip(instruments, answered_list, percentage_list, quotation_list)],
                # 'instruments': zip(instruments, answered_list, percentage_list, quotation_list),
@@ -153,7 +269,7 @@ def instruments_view(request, protocol_id, part_id, area_id, patient_id):
 def dimensions_view(request, protocol_id, part_id, area_id, instrument_id, patient_id):
     start = time.time()
     protocol = Protocol.objects.get(pk=protocol_id)
-    part = Part.objects.get(pk=part_id)
+    parteDoUtilizador = ParteDoUtilizador.objects.get(pk=part_id)
     area = Area.objects.get(pk=area_id)
     instrument = Instrument.objects.get(pk=instrument_id)
     dimensions = Dimension.objects.filter(instrument=instrument_id).order_by('order')
@@ -163,7 +279,7 @@ def dimensions_view(request, protocol_id, part_id, area_id, instrument_id, patie
         return redirect('protocolo:sections', protocol_id, part_id, area_id, instrument_id, dimensions.get().id, patient_id)
 
     # statistics
-    r = Resolution.objects.get(patient=patient, doctor=request.user, part=part)
+    r = Resolution.objects.get(patient=patient, doctor=request.user, part=parteDoUtilizador)
     # print_nested_dict(r.statistics.get(str(area.id)).get(str(instrument.id)))
     # print(r.statistics.get(str(area.id)).get(str(instrument.id)).get('9').get('quotation'))
 
@@ -180,7 +296,7 @@ def dimensions_view(request, protocol_id, part_id, area_id, instrument_id, patie
     # print(percentage_list)
     end = time.time()
     print("Dimensions", (end - start))
-    context = {'area': area, 'part': part, 'protocol': protocol, 'instrument': instrument,
+    context = {'area': area, 'part': parteDoUtilizador, 'protocol': protocol, 'instrument': instrument,
                'dimensions': zip(dimensions, answered_list, percentage_list, quotation_list), 'resolution': r.id,
                'patient': patient, }
     return render(request, 'protocolo/dimensions.html', context)
@@ -190,7 +306,7 @@ def dimensions_view(request, protocol_id, part_id, area_id, instrument_id, patie
 def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimension_id, patient_id):
     start = time.time()
     protocol = Protocol.objects.get(pk=protocol_id)
-    part = Part.objects.get(pk=part_id)
+    parteDoUtilizador = ParteDoUtilizador.objects.get(pk=part_id)
     area = Area.objects.get(pk=area_id)
     instrument = Instrument.objects.get(pk=instrument_id)
     dimension = Dimension.objects.get(pk=dimension_id)
@@ -202,7 +318,7 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                         patient_id)
 
     # statistics
-    r = Resolution.objects.get(patient=patient, doctor=request.user, part=part)
+    r = Resolution.objects.get(patient=patient, doctor=request.user, part=parteDoUtilizador)
     # print_nested_dict(r.statistics, 0)
     answered_list = []
     percentage_list = []
@@ -226,7 +342,7 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         return redirect(question_view)
     end = time.time()
     print("Sections", (end - start))
-    context = {'area': area, 'part': part, 'protocol': protocol, 'instrument': instrument, 'dimension': dimension,
+    context = {'area': area, 'part': parteDoUtilizador, 'protocol': protocol, 'instrument': instrument, 'dimension': dimension,
                'sections': zip(sections, answered_list, percentage_list, quotation_list), 'resolution': r.id,
                'patient': patient, }
 
@@ -240,21 +356,29 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     start = time.time()
     doencas = Doenca.objects.all()
     protocol = Protocol.objects.get(pk=protocol_id)
-    part = Part.objects.get(pk=part_id)
+    parteDoUtilizador = ParteDoUtilizador.objects.get(pk=part_id)
     area = Area.objects.get(pk=area_id)
     instrument = Instrument.objects.get(pk=instrument_id)
     dimension = Dimension.objects.get(pk=dimension_id)
     section = Section.objects.get(pk=section_id)
     question = Question.objects.filter(section=section).first()
     form = uploadAnswerForm(request.POST or None)
+    form_risk = FormRisk(request.POST or None)
     patient = Participante.objects.get(pk=patient_id)
-    r = Resolution.objects.get(patient=patient, doctor=request.user, part=part)
+    r = Resolution.objects.filter(patient=patient, doctor=request.user, part=parteDoUtilizador)
+    
+    if len(r) == 0 and parteDoUtilizador.part.name == 'MentHA-Risk':
+        r = Resolution.objects.create(patient=patient, doctor=request.user, part=parteDoUtilizador)
+        r.initialize_statistics()
+        r.save()
+    else:
+        r = r.get()
     answers = Answer.objects.filter(resolution=r)
     # print(question.section.number_of_questions)
     # print(question.section.dimension.number_of_questions)
-    context = {'area': area, 'part': part, 'protocol': protocol, 'instrument': instrument, 'dimension': dimension,
+    context = {'area': area, 'part': parteDoUtilizador, 'protocol': protocol, 'instrument': instrument, 'dimension': dimension,
                'section': section, 'question': question, 'form': form, 'resolution': r.id, 'answers': answers,
-               'patient': patient, 'doencas': doencas, }
+               'patient': patient, 'doencas': doencas,'form_risk':form_risk}
     # print(answers)
 
     if question.question_type == 10:
@@ -313,17 +437,21 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                         list.append(mca.choice.id)
                     existing_answer_id = list
                     context['existing_answer_id'] = list
-
+    existing_risk = None
+    for risk in Risk.objects.all():
+        if risk.parteDoUtilizador == parteDoUtilizador:
+            existing_risk = risk
+    context['existing_risk'] = existing_risk
     if request.method == 'POST':
         existing_answer = None
-
+       
         for answer in answers:
             if answer.question == question:
                 existing_answer = answer
 
         if question.question_type == 1 or question.question_type == 9:
             id_answer = request.POST.get("choice")
-            r = Resolution.objects.get(part=part, patient=patient, doctor=request.user)
+            r = Resolution.objects.get(part=parteDoUtilizador, patient=patient, doctor=request.user)
             if existing_answer is None:
                 # cria uma nova associação
                 new_answer = Answer(question=question, multiple_choice_answer=PossibleAnswer.objects.get(pk=id_answer),
@@ -345,7 +473,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}', quotation)
 
 
-        elif question.question_type == 2:
+        elif question.question_type == 2:   
             form = uploadAnswerForm(request.POST, files=request.FILES)
             if form.is_valid():
                 new_answer = Answer()
@@ -547,6 +675,63 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                     patient.diagnosticos.add(Doenca.objects.get(id=id))
                 patient.save()
 
+        elif question.question_type == 12:
+            cwd = os.getcwd()
+            cwd2 = os.path.join(cwd, 'protocolo', 'static', 'protocolo', 'data_risk')
+            file_path_men = os.path.join(cwd2, 'risk_men.json')
+            file_path_women = os.path.join(cwd2, 'risk_women.json')
+            new_risk= Risk()
+            colestrol_virgula = 0.0
+            new_risk.idade = request.POST.get('idade')
+            new_risk.sexo = request.POST.get('sexo')
+            new_risk.pressao_arterial = request.POST.get('pressao_arterial')
+            new_risk.colestrol_total = request.POST.get('colestrol_total') 
+            new_risk.fumador = request.POST.get('fumador')
+            new_risk.comentario = request.POST.get('comentario')
+            print("VER ISTO URGENTE!!!!!!!!!!")
+            print(new_risk.colestrol_total)
+            print("VER ISTO URGENTE!!!!!!!!!!")
+            colestrol_virgula = new_risk.colestrol_total
+            colestrol_virgula = str(colestrol_virgula)
+            if request.POST.get('colestrol_total')[1] == ',':
+                print("ENTROU NO IF")
+                colestrol_virgula = colestrol_virgula.replace(',','.')
+                print(colestrol_virgula)
+                print("SAIU DO IF")
+            elif request.POST.get('colestrol_total')[1] == '.':
+                colestrol_virgula = colestrol_virgula
+            if request.POST.get('sexo') == 'F':
+                risco = risk_json(file_path_women, new_risk.fumador, new_risk.idade, colestrol_virgula,new_risk.pressao_arterial)
+                new_risk.risco_de_enfarte = risco
+            elif request.POST.get('sexo') == 'M':
+                risco = risk_json(file_path_men, new_risk.fumador, new_risk.idade, colestrol_virgula,new_risk.pressao_arterial)
+                new_risk.risco_de_enfarte = risco
+            new_risk.parteDoUtilizador = parteDoUtilizador
+            
+
+            if existing_risk is None:
+                # cria uma nova resposta
+                r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
+                                       f'{section_id}')
+                new_risk.save()
+            else:
+                print(existing_risk)
+                # modifica a resposta existente
+                existing_risk.idade = request.POST.get('idade')
+                existing_risk.sexo = request.POST.get('sexo')
+                existing_risk.pressao_arterial = request.POST.get('pressao_arterial')
+                existing_risk.colestrol_total = request.POST.get('colestrol_total') 
+                existing_risk.fumador = request.POST.get('fumador')
+                existing_risk.comentario = request.POST.get('comentario') 
+                if request.POST.get('sexo') == 'F':
+                    risco = risk_json(file_path_women, existing_risk.fumador, existing_risk.idade, existing_risk.colestrol_total,existing_risk.pressao_arterial)
+                    existing_risk.risco_de_enfarte = risco
+                elif request.POST.get('sexo') == 'M':
+                    risco = risk_json(file_path_men, existing_risk.fumador, existing_risk.idade, existing_risk.colestrol_total,existing_risk.pressao_arterial)
+                    existing_risk.risco_de_enfarte = risco
+                existing_risk.save()
+            r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}',
+                               new_risk.risco_de_enfarte)
 
         if question.question_type == 3:
             return redirect('protocolo:instruments', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
@@ -562,16 +747,17 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         else:
             return redirect('protocolo:sections', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
                             instrument_id=instrument_id, dimension_id=dimension_id, patient_id=patient_id)
+    
+    
     end = time.time()
     print("Question", (end - start))
     return render(request, 'protocolo/question.html', context)
-
 
 @login_required(login_url='login')
 def report_view(request, resolution_id):
     start = time.time()
     r = Resolution.objects.get(pk=resolution_id)
-    areas = Area.objects.filter(part=r.part)
+    areas = Area.objects.filter(part=r.part.part)
     # print(r)
     # É necessário o ensure_ascii = False para mostrar caracteres UTF-8
     report_json = r.statistics
@@ -580,6 +766,10 @@ def report_view(request, resolution_id):
     answers = Answer.objects.filter(resolution=r).order_by("question__section__order")
     # print(answers)
     done = []
+
+    
+
+
     for area in areas.order_by('order'):
         report[area.id] = {}
         instruments = Instrument.objects.all().order_by('order').filter(area=area)
@@ -651,6 +841,39 @@ def report_view(request, resolution_id):
 
 
 @login_required(login_url='login')
+def report_risk(request):
+    start = time.time()
+    print(request.POST)
+    print("ele chega AQUI")
+    lines = []
+
+    risk = Risk.objects.all()
+    for r in risk:
+        lines.append("Relatório de Risco: ")
+        lines.append("Idade:" + str(r.idade))
+        lines.append("Sexo:" + str(r.sexo))
+        lines.append("Colesterol:" + str(r.colestrol_total))
+        lines.append("pressao_arterial:" + str(r.pressao_arterial))
+        lines.append("O risco atual é de:" + str(r.risco_de_enfarte))
+        lines.append("Comentario:" + str(r.comentario))
+    
+    context = {'lines': lines
+               }
+    print("ele chega AQUI2")
+    parts_risk = render(request, 'protocolo/parts_risk.html', context)
+    print("ele chega AQUI3")
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Risco.pdf"'
+    pdf = pisa.pisaDocument(parts_risk.content, response)
+    if not pdf.err:
+        return response
+    
+    end = time.time()
+
+    print("Report-risk", (end - start))
+    return HttpResponse("Erro ao gerar PDF")
+
+@login_required(login_url='login')
 def protocol_participants_view(request, protocol_id):
     doctor = request.user
     protocolo = Protocol.objects.get(pk=protocol_id)
@@ -709,21 +932,42 @@ def logout_view(request):
 def profile_view(request, participant_id):
     # Falta mostrar as resoluções das partes feitas no perfil e os seus relatorios
     patient = Participante.objects.filter(pk=participant_id).get()
-    resolutions = Resolution.objects.filter(patient=patient).order_by('part__order')
+    resolutions = Resolution.objects.filter(patient=patient)
+    parteDoUtilizador = ParteDoUtilizador.objects.filter(participante=patient)
+    parte = Part.objects.all()
+    risk_area = Area.objects.get(id = 47)
+    pergunta_risk = Question.objects.get(id = 189)
     c = []
-
     age = calculate_age(patient.nascimento)
+    answered_list = []
+    percentage_list = []
+    form = AppointmentForm(request.POST or None)
 
+    if request.method == "POST":
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.participante = patient
+            obj.save()
+            
+    for partesDoUtilizador in parteDoUtilizador:
+        resolution = resolutions.filter(part=partesDoUtilizador)
+        if not resolution:
+            answered_list.append(0)
+            percentage_list.append(0)
+        else:
+            s = resolution.get().statistics
+            answered_list.append(s.get('total_answered'))
+            percentage_list.append(s.get('total_percentage'))
     for cuidador in Cuidador.objects.all():
         if cuidador in patient.cuidadores.all():
             c.append(cuidador.nome)
 
     cuidadores = ", ".join(c)
-
+    
     # Copia da patient_overview_view
     areas = Area.objects.order_by('part__order', 'order').all()
     # print(areas)
-    parts = Part.objects.all()
     overview_list = []
 
     # Getting all unique area names to display on html page
@@ -736,41 +980,51 @@ def profile_view(request, participant_id):
 
     ow_l = dict.fromkeys(x for x in overview_list)
 
-    percentages = {1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}}
+    percentages = {}
     # Getting % done per area, per part, to display done or not done on HTML
-    for part in parts:
-        r = resolutions.filter(part=part)
+    for part_do_utilizador in parteDoUtilizador:
+        percentages[part_do_utilizador.id]={}
+        part = part_do_utilizador.part
+        r = resolutions.filter(part=part_do_utilizador)
         if len(r) < 1:
             for text in overview_list:
                 this_area = Area.objects.filter(part=part, name=text.split(' - ')[0]).order_by('order')
                 if len(this_area) < 1:
-                    percentages[part.order][text] = "does not exist"
+                    percentages[part_do_utilizador.id][text] = "does not exist"
                 else:
-                    percentages[part.order][text] = "not done"
+                    percentages[part_do_utilizador.id][text] = "not done"
         else:
             r = r.get()
             for text in overview_list:
                 area_text = text.split(' - ')[0]
                 this_area = Area.objects.filter(part=part, name=area_text).order_by('order')
                 if len(this_area) < 1:
-                    percentages[part.order][text] = "does not exist"
+                    percentages[part_do_utilizador.id][text] = "does not exist"
                 else:
                     this_area = this_area.get()
                     instruments = Instrument.objects.filter(area=this_area, area__part=part).order_by('order')
                     for instrument in instruments:
                         if instrument.name != 'None':
+                            #print(this_area)
                             p = r.statistics[f"{this_area.id}"][f"{instrument.id}"].get('percentage')
+                            
                         else:
                             p = r.statistics[f"{this_area.id}"].get('percentage')
 
                         if p == 100:
-                            percentages[part.order][text] = "done"
+                            percentages[part_do_utilizador.id][text] = "done"
                         else:
-                            percentages[part.order][text] = "not done"
+                            percentages[part_do_utilizador.id][text] = "not done"
 
-    context = {'patient': patient, 'cuidadores': cuidadores, 'resolutions': resolutions, 'parts': parts,
+    context = {'patient': patient, 'cuidadores': cuidadores, 'resolutions': resolutions,'partesdoutilizador': zip(parteDoUtilizador, answered_list, percentage_list),
+               'partedoutilizador': parteDoUtilizador,
                'overview_list': ow_l,
-               'percentages': percentages, 'age': age,}
+               'percentages': percentages, 'age': age,
+               'parte': parte,
+               'risk_area':risk_area,
+               'pergunta_risk':pergunta_risk,
+               'form' : form
+               }
     return render(request, 'protocolo/profile.html', context)
 
 
@@ -965,3 +1219,58 @@ def patient_overview_view(request, participant_id):
                'percentages': percentages,
                }
     return render(request, 'protocolo/patient_overview.html', context)
+
+
+#quero obter o json com as respostas de um paciente de risk
+def risk_json(path,smoking, idade,colesterol,hipertensao):
+
+    print("entrou no risk_json")
+    #abrir json risk_men
+    data = open_json(path)
+    print("entrou no risk_json2")
+    for i in data:
+        if(i == smoking):
+            print("entrou no risk_json3")
+            for j in data[i]:
+                min=j.split('-')[0]
+                max=j.split('-')[1]
+                min = int(min)
+                max = int(max)
+                idade = int(idade)
+                if(idade in range(min,max+1)):
+                    print("entrou no risk_json4")
+                    for k in data[i][j]:
+                        min=k.split('-')[0]
+                        max=k.split('-')[1]
+                        min = int(min)
+                        max = int(max)
+                        hipertensao = int(hipertensao)
+                        if(hipertensao in range(min,max+1)):
+                           print("entrou no risk_json5")
+                           for l in data[i][j][k]:
+                               min=l.split('-')[0]
+                               max=l.split('-')[1]
+                               min = float(min)
+                               max = float(max)
+                               print("este é o valor max do colestrol" + str(max))
+                               print("este é o valor min do colestrol" + str(min))
+                               print("este é o valor do colestrol")
+                               print(colesterol)
+                               print("este é o valor do colestrol")
+                               colesterol = float(colesterol)
+                               if(colesterol in float_range(min,max+0.1)):
+                                   print("entrou no risk_json6")
+                                   print(data[i][j][k][l])
+                                   return data[i][j][k][l]
+
+
+#funcao que abre um ficheiro Json e devolve um dicionario
+def open_json(file_name):
+    with open(file_name) as json_file:
+        data = json.load(json_file)
+        return data
+#funcao que faça um float range de 0.1 em 0.1
+def float_range(start, stop, step=0.1):
+    while start < stop:
+        yield round(start, 1)
+        start += step   

@@ -531,7 +531,15 @@ class Participante(Utilizador):
         diagnosticos += [obj.nome for obj in self.diagnosticos.all()]
         diagnosticos = set(diagnosticos)  # remove duplicados
         return diagnosticos
-
+    
+    @property
+    def proximoAgendamento(self):
+        agendamentos = self.parteDoUtilizador.filter(data__gt=datetime.today()).order_by("data")
+        if len(agendamentos) > 0:
+            return f"{agendamentos[0].data.strftime('%d/%m/%Y')}"
+        else:
+            return f"Sem agendamentos"
+            
     def doencas_string(self):
         d_str = ', '.join(self.doencas)
         if len(d_str) < 2:

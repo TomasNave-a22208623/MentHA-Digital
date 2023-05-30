@@ -17,23 +17,58 @@
                                 <tbody>
                                     <tr>
                                         <td rowspan="4" class="align-content-center align-middle" style="width: 15%">
-                                            <div class="col-md-6 text-nowrap d-xl-flex " style="width: 150px;padding: 12px;">
-                                                <img class="rounded-circle img-fluid " src="{% static 'protocolo/img/placeholder-avatar.png' %}" width="200px" height="200px">
-                                            </div>
+                                            <!-- Imagem -->
+                                            {% if patient.imagem %}
+                                                <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
+                                                    src="{{ patient.imagem.url }}" width="200px"
+                                                    height="200px"
+                                                    style="margin-left: auto;margin-right: auto;display: block;">
+                                            {% else %}
+                                                <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
+                                                    src="{% static 'protocolo/img/placeholder-avatar.png' %}" width="200px"
+                                                    height="200px"
+                                                    style="margin-left: auto;margin-right: auto;display: block;">
+                                            {% endif %}
                                         </td>
-                                        <td class="text-start" style="text-align: center;">
+                                        <td class="text-start" style="text-align:center; width: 25%">
+                                            <!-- Nome -->
                                             <label class="form-label">Nome</label>
                                             <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
                                                 {{ patient.nome }}
                                             </p>
                                         </td>
-                                        <td class="text-start" style="text-align: center;">
+                                        <td class="text-start" style="text-align:center; width: 25%">
+                                            <!-- Telemovel -->
+                                            <label class="form-label">Telemóvel</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                                {{ patient.telemovel }}
+                                            </p>
+                                        </td>
+                                        <td class="text-start" style="text-align:center; width: 25%">
+                                            <!-- Referenciacao -->
+                                            <label class="form-label">Referenciação</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                                {{ patient.referenciacao }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <!-- Data de Nascimento -->
                                             <label class="form-label">Data de Nascimento</label>
                                             <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold;">
                                                 {{ patient.nascimento }} ({{ age }} anos)
                                             </p>
                                         </td>
-                                        <td class="text-start" style="text-align: center;">
+                                        <td>
+                                            <!-- E-mail -->
+                                            <label class="form-label">E-mail</label>
+                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                                {{ patient.email }}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <!-- Grupo COG -->
                                             <label class="form-label">Grupo COG</label>
                                             <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold;">
                                                 {% if not patient.grupoCog %}
@@ -46,21 +81,28 @@
                                     </tr>
                                     <tr>
                                         <td>
+                                            <!-- Sexo -->
                                             <label class="form-label">Sexo</label>
                                             <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
                                                 {{ patient.sexo }}
                                             </p>
                                         </td>
+                                        <td></td>
                                         <td>
-                                            <label class="form-label">Referenciação</label>
+                                            <!-- Grupo CARE -->
+                                            <label class="form-label">Grupo CARE</label>
                                             <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                                {{ patient.referenciacao }}
+                                                {% if not patient.grupoCare %}
+                                                    Não tem grupo CARE
+                                                {% else %}
+                                                    {{ patient.grupoCare.nome }}
+                                                {% endif %}
                                             </p>
                                         </td>
-                                        <td></td>
                                     </tr>
                                     <tr>
                                         <td>
+                                            <!-- Nacionalidade -->
                                             <label class="form-label">Nacionalidade</label>
                                             <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
                                                 {{ patient.nacionalidade }}
@@ -68,6 +110,7 @@
                                         </td>
                                         <td></td>
                                         <td>
+                                            <!-- Cuidadores -->
                                             <label class="form-label">Cuidador(es)</label>
                                             <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
                                                 {% if cuidadores|length == 0 %}
@@ -78,26 +121,6 @@
                                             </p>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td>
-                                            <label class="form-label">Telemóvel</label>
-                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                                ------
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <label class="form-label">Email</label>
-                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                                {{ patient.email }}
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <label class="form-label">Grupo CARE</label>
-                                            <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                                ------
-                                            </p>
-                                        </td>
-                                    </tr>
                                     <tr></tr>
                                 </tbody>
                             </table>
@@ -105,6 +128,120 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Agendamentos-->
+            <div class="container-fluid" style="margin-top: 25px">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">AGENDAMENTOS</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-body">
+                            <div class="table-responsive table mt-2" id="dataTable" role="grid"
+                                aria-describedby="dataTable_info">
+                                <table class="table my-0 table-hover-light" id="dataTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align:center; width:15%">Parte</th>
+                                            <th style="text-align:center; width:15%">Data</th>
+                                            <th style="text-align:center; width:15%">Hora</th>
+                                            <th style="text-align:left; width:20%">Progresso</th>
+                                            <th style="text-align:center; width:15%">Gerar Relatório</th>
+                                            <th style="text-align:center; width:15%">Selecionar Área</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            {% for part,answered,percentage in partesdoutilizador %}
+                                            <!-- Part -->
+                                            <td style="margin-top:0px; padding-bottom:0px;">
+                                                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:areas' 1 part.id patient.id %}">
+                                                    <p style="margin-top: 10px;">
+                                                        {{ part.part.name }}
+                                                    </p>
+                                                </a>
+                                            </td>
+
+                                            <!-- Date -->
+                                            <td style="margin-top:10px; padding-bottom:0px; text-align:center;">
+                                                <p style="margin-top: 10px;">
+                                                    {{part.data.day}}/{{part.data.month}}/{{part.data.year}}
+                                                </p>
+                                            </td>
+
+                                            <!-- Hour -->
+                                            <td style="margin-top:10px; padding-bottom:0px; text-align:center;">
+                                                <p style="margin-top: 10px;">
+                                                    {{part.time}}
+                                                </p>
+                                            </td>
+
+                                            <!-- Progress Bar -->
+                                            {% if part.part.name != "MentHA-Risk" %}
+                                                <td style="padding-bottom:0px;">
+                                                    <div class="progress" style="margin-top:15px;">
+                                                        <div class="progress-bar" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percentage }}%;">
+                                                            {{ percentage }}%
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            {% else %}
+                                                <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                                </td>
+                                            {% endif %}
+                                            
+                                            <!-- Report Button -->
+                                            <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                                <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"  style="text-align: center;">
+                                                    <button class="btn btn-secondary" type="button" style="border-radius: 217px;">
+                                                        <i class="fa fa-file-text-o" style="border-left-width: 0px;font-size: 15px;text-align: center;"></i>
+                                                    </button>
+                                                </a>
+                                            </td>
+
+                                            <!-- Area Button -->
+                                            <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                                <a href="#" class="jq-btn"
+                                                    {% if part.part.name != "MentHA-Risk" %}
+                                                        data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"
+                                                    {% else %}
+                                                        data-href="{% url 'protocolo:question' 1 part.id risk_area.id pergunta_risk.section.dimension.instrument.id pergunta_risk.section.dimension.id pergunta_risk.section.id  patient.id %}"
+                                                    {% endif %}>
+                                                    <button class="btn btn-primary" type="button" style="border-radius: 217px;">
+                                                        <i class="fa fa-chevron-right" style="border-left-width: 0px;font-size: 15px;text-align: center;"></i>
+                                                    </button>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        <tr></tr>
+                                    </tbody>
+                                    <!-- Bold footer line -->
+                                    <tfoot>
+                                        <tr>
+                                            <td><strong></strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <!-- Appointment Button -->
+                            <form id="appointment-form" action="" method="POST" style="display:flex; align-items:flex-end; gap:10px">
+                                {% csrf_token %}
+                                {% for field in form %}
+                                    <div style="display:flex; flex-direction:row; align-items:center; gap:4px">
+                                        {{ field.label }}: {{ field }}
+                                    </div>
+                                {% endfor %}
+                                <button id="btn-popup" class="btn btn-primary btn-appointment flex-left" type="submit" data-href="{% url 'protocolo:participant' patient.id %}"> 
+                                    <i class="fa fa-calendar-plus-o"></i>&nbsp Agendar
+                                </button>                                                    
+                            </form>
+                        </div>
+                    </div>
+                    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+                </div>
+            </div>
+
             <!-- Visao Geral Da Avaliacao-->
             <div class="container-fluid" style="margin-top: 25px">
                 <div class="card shadow">
@@ -116,35 +253,37 @@
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th style="position:sticky; left:0; background-color: rgba(255,255,255, 1); min-width: 20rem"></th>
+                                        <th style="position:sticky; left:0; background-color: rgba(255,255,255, 1); width:15ch;"></th>
                                         {% for part in partedoutilizador %}
                                             {% if part.part.name != 'MentHA-Risk' and part.part.name != 'Teste Livre' %}
-                                                <th style="text-align: center; min-width: 16rem">{{ part.part.name }}</th>
+                                                <th style="text-align: center; width:15ch;">{{ part.part.name }} <p style="font-weight:normal;">{{part.data.day}}/{{part.data.month}}/{{part.data.year}}</p></th>
                                             {% endif %}
                                         {% endfor %}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for text in overview_list %}
-                                        <tr>
-                                            <td style="position:sticky; left: 0; background-color: rgba(255,255,255, 1)">{{ text }}</td>
-                                            {% for part in partedoutilizador %}
-                                                {% if part.part.name != 'MentHA-Risk' and part.part.name != 'Teste Livre' %}
-                                                    {% get_if_done_from_percentage_list percentages part.part.order text as done_text %}
-                                                        {% if done_text == 'done' %}
-                                                    <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
-                                                        <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
-                                                        {% elif done_text == 'not done' or done_text == None %}
-                                                    <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
-                                                        <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i>
-                                                        {% elif done_text == 'does not exist' %}
-                                                    <td style="background-color: rgba(0,0,0,0.0);text-align: center;">
-                                                        <i class="fas fa-window-minimize" style="color: rgba(0,0,0,0.1)"></i>
-                                                        {% endif %}
-                                                    </td>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </tr>
+                                        {% if text != "MentHA-Risk-area - MentHA-Risk-instrument" and text != "None" and text != "None - Fumadores" %}
+                                            <tr>
+                                                <td style="position:sticky; left: 0; background-color: rgba(255,255,255, 1)">{{ text }}</td>
+                                                {% for part in partedoutilizador %}
+                                                    {% if part.part.name != 'MentHA-Risk' and part.part.name != 'Teste Livre' %}
+                                                        {% get_if_done_from_percentage_list percentages part.id text as done_text %}
+                                                            {% if done_text == 'done' %}
+                                                        <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
+                                                            <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
+                                                            {% elif done_text == 'not done' or done_text == None %}
+                                                        <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
+                                                            <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i>
+                                                            {% elif done_text == 'does not exist' %}
+                                                        <td style="background-color: rgba(0,0,0,0.0);text-align: center;">
+                                                            <i class="fas fa-window-minimize" style="color: rgba(0,0,0,0.1)"></i>
+                                                            {% endif %}
+                                                        </td>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tr>
+                                        {% endif %}
                                     {% endfor %}
                                     <tr></tr>
                                 </tbody>
@@ -153,6 +292,7 @@
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
     <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>

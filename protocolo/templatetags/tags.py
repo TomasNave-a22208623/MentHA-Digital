@@ -363,10 +363,12 @@ def save(x):
 
 
 @register.simple_tag
-def resolution_filter_get_percentage(resolutions, order, person):
-    r = resolutions.filter(patient=person, part__order=order)
+def resolution_filter_get_percentage(resolutions, order, person,doctor):
+    r = resolutions.filter(patient=person, part__order=order, doctor= doctor)
+    
+    print(r)
 
-    if len(r) >= 1:
+    if len(r) == 1:
         return r.get().statistics.get('total_percentage')
     else:
         return 0
@@ -412,8 +414,8 @@ def get_area_from_id(areas, id):
     return areas.get(id=id)
 
 @register.simple_tag
-def get_if_done_from_percentage_list(percentages, order, area):
-    return percentages.get(int(order)).get(area)
+def get_if_done_from_percentage_list(percentages, id, area):
+    return percentages.get(int(id)).get(area)
 
 @register.simple_tag
 def get_rowspan(rowspans, estadio):

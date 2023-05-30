@@ -3,243 +3,74 @@
 <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
         <div id="content">
-            <div class="d-sm-flex justify-content-between align-items-center mb-4">
-            </div>
+            <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
             <div class="container-fluid">
                 <div class="card shadow">
                     <div class="card-header py-3">
-                        <p class="text-primary m-0 fw-bold" style="font-size: 20px;">Participantes</p>
+                        <p class="text-primary m-0 fw-bold" style="font-size: 20px;">PARTICIPANTES</p>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
-                                <tr>
-                                    <th style="text-align: left;"></th>
-                                    <th style="text-align: left;">Nome</th>
-                                    <th style="text-align: center;">Idade</th>
-                                    <th style="text-align: center;">Sexo</th>
-                                    <th style="text-align: center;">Rastreio</th>
-                                    <th style="text-align: center;">Pré-Teste</th>
-                                    <th style="text-align: center;">Monit I</th>
-                                    <th style="text-align: center;">Monit II</th>
-                                    <th style="text-align: center;">Pós-Teste</th>
-                                    <th style="text-align: center;">Referenciação</th>
-                                    <th style="text-align: center;">Agendamentos</th>
-                                </tr>
+                                    <tr>
+                                        <th style="text-align:center; width:15%"></th>
+                                        <th style="text-align:center; width:20%">Nome</th>
+                                        <th style="text-align:center; width:15%">Idade</th>
+                                        <th style="text-align:center; width:15%">Referenciação</th>
+                                        <th style="text-align:center; width:15%">Próximo Agendamento</th>
+                                        <th style="text-align:center; width:15%">Visualizar Perfil</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                {% for p in participants %}
-                                    <tr>
-                                        <td style="text-align: center">
-                                            <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
-                                                 src="{% static 'protocolo/img/placeholder-avatar.png' %}" width="45px"
-                                                 height="45px"
-                                                 style="margin-left: auto;margin-right: auto;display: block;">
-                                        </td>
-                                        <td><a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'protocolo:participant' p.id %}">
-                                            {{ p.nome }}
-                                            <svg style="margin-top: 0px;"
-                                                 xmlns="http://www.w3.org/2000/svg"
-                                                 width="16"
-                                                 height="16" fill="currentColor"
-                                                 class="bi bi-link" viewBox="0 0 16 16">
-                                                <path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9c-.086 0-.17.01-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z"/>
-                                                <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z"/>
-                                            </svg>
-                                        </a></td>
-                                        <td style="text-align: center;">{% calculate_age p.nascimento %}</td>
-                                        <td style="text-align: center;">{{ p.sexo }}</td>
-                                        <td style="text-align: center;">
-                                            {% resolution_filter_get_percentage resolutions 1 p as percentage %}
-                                            {% if percentage > 0 %}
-                                                {% get_part_id_from_resolutions resolutions 1 p as p_id %}
-                                                <a href="#" class="jq-btn no-decor"
-                                                   data-href="{% url 'protocolo:areas' 1 p_id p.id %}">
-                                                    <p style="margin-top: 10px;">
-                                                    <div class="progress"
-                                                         style="text-align: right;margin-top: 10px;width: 100%">
-                                                        <div class="progress-bar"
-                                                             aria-valuenow="{{ percentage }}"
-                                                             aria-valuemin="0"
-                                                             aria-valuemax="100"
-                                                             style="width: {{ percentage }}%;">
-                                                            {{ percentage }}%
-                                                        </div>
-                                                    </div>
+                                    {% for p in participants %}
+                                        <tr>
+                                            <td style="text-align: center">
+                                                {% if p.imagem %}
+                                                <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
+                                                    src="{{ p.imagem.url }}" width="45px"
+                                                    height="45px"
+                                                    style="margin-left: auto;margin-right: auto;display: block;">
+                                                {% else %}
+                                                    <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
+                                                    src="{% static 'protocolo/img/placeholder-avatar.png' %}" width="45px"
+                                                    height="45px"
+                                                    style="margin-left: auto;margin-right: auto;display: block;">
+                                                {% endif %}
+                                            </td>
+                                            <td style="text-align: center;">
+                                                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participant' p.id %}">{{ p.nome }}</a>
+                                            </td>
+                                            <td style="text-align: center;">{% calculate_age p.nascimento %}</td>
+                                            <td style="text-align: center;">{{ p.referenciacao }}</td>
+                                            <td style="text-align: center;">{{ p.proximoAgendamento }}</td>
+                                            <td style="text-align: center">
+                                                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participant' p.id %}">
+                                                <button class="btn btn-primary" type="button" style="border-radius: 217px;">
+                                                    <i class="fa fa-chevron-right" style="border-left-width:0px; font-size:15px; text-align:center;"></i>
+                                                </button> 
                                                 </a>
-                                            {% else %}
-                                                <p style="margin-top: 10px;">
-                                                <div class="progress"
-                                                     style="text-align: right;margin-top: 10px;width: 100%">
-                                                    <div class="progress-bar"
-                                                         aria-valuenow="{{ percentage }}"
-                                                         aria-valuemin="0"
-                                                         aria-valuemax="100"
-                                                         style="width: {{ percentage }}%;">
-                                                        {{ percentage }}%
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                        </td>
-                                        <td style="text-align: center;">
-                                            {% resolution_filter_get_percentage resolutions 2 p as percentage %}
-                                            {% if percentage > 0 %}
-                                                {% get_part_id_from_resolutions resolutions 2 p as p_id %}
-                                                <a href="#" class="jq-btn no-decor"
-                                                   data-href="{% url 'protocolo:areas' 1 p_id p.id %}">
-                                                    <p style="margin-top: 10px;">
-                                                    <div class="progress"
-                                                         style="text-align: right;margin-top: 10px;width: 100%">
-                                                        <div class="progress-bar"
-                                                             aria-valuenow="{{ percentage }}"
-                                                             aria-valuemin="0"
-                                                             aria-valuemax="100"
-                                                             style="width: {{ percentage }}%;">
-                                                            {{ percentage }}%
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            {% else %}
-                                                <p style="margin-top: 10px;">
-                                                <div class="progress"
-                                                     style="text-align: right;margin-top: 10px;width: 100%">
-                                                    <div class="progress-bar"
-                                                         aria-valuenow="{{ percentage }}"
-                                                         aria-valuemin="0"
-                                                         aria-valuemax="100"
-                                                         style="width: {{ percentage }}%;">
-                                                        {{ percentage }}%
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                        </td>
-                                        <td style="text-align: center;">
-                                            {% resolution_filter_get_percentage resolutions 3 p as percentage %}
-                                            {% if percentage > 0 %}
-                                                {% get_part_id_from_resolutions resolutions 3 p as p_id %}
-                                                <a href="#" class="jq-btn no-decor"
-                                                   data-href="{% url 'protocolo:areas' 1 p_id p.id %}">
-                                                    <p style="margin-top: 10px;">
-                                                    <div class="progress"
-                                                         style="text-align: right;margin-top: 10px;width: 100%">
-                                                        <div class="progress-bar"
-                                                             aria-valuenow="{{ percentage }}"
-                                                             aria-valuemin="0"
-                                                             aria-valuemax="100"
-                                                             style="width: {{ percentage }}%;">
-                                                            {{ percentage }}%
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            {% else %}
-                                                <p style="margin-top: 10px;">
-                                                <div class="progress"
-                                                     style="text-align: right;margin-top: 10px;width: 100%">
-                                                    <div class="progress-bar"
-                                                         aria-valuenow="{{ percentage }}"
-                                                         aria-valuemin="0"
-                                                         aria-valuemax="100"
-                                                         style="width: {{ percentage }}%;">
-                                                        {{ percentage }}%
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                        </td>
-                                        <td style="text-align: center;">
-                                            {% resolution_filter_get_percentage resolutions 4 p as percentage %}
-                                            {% if percentage > 0 %}
-                                                {% get_part_id_from_resolutions resolutions 4 p as p_id %}
-                                                <a href="#" class="jq-btn no-decor"
-                                                   data-href="{% url 'protocolo:areas' 1 p_id p.id %}">
-                                                    <p style="margin-top: 10px;">
-                                                    <div class="progress"
-                                                         style="text-align: right;margin-top: 10px;width: 100%">
-                                                        <div class="progress-bar"
-                                                             aria-valuenow="{{ percentage }}"
-                                                             aria-valuemin="0"
-                                                             aria-valuemax="100"
-                                                             style="width: {{ percentage }}%;">
-                                                            {{ percentage }}%
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            {% else %}
-                                                <p style="margin-top: 10px;">
-                                                <div class="progress"
-                                                     style="text-align: right;margin-top: 10px;width: 100%">
-                                                    <div class="progress-bar"
-                                                         aria-valuenow="{{ percentage }}"
-                                                         aria-valuemin="0"
-                                                         aria-valuemax="100"
-                                                         style="width: {{ percentage }}%;">
-                                                        {{ percentage }}%
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                        </td>
-                                        <td style="text-align: center;">
-                                            {% resolution_filter_get_percentage resolutions 5 p as percentage %}
-                                            {% if percentage > 0 %}
-                                                {% get_part_id_from_resolutions resolutions 5 p as p_id %}
-                                                <a href="#" class="jq-btn no-decor"
-                                                   data-href="{% url 'protocolo:areas' 1 p_id p.id %}">
-                                                    <p style="margin-top: 10px;">
-                                                    <div class="progress"
-                                                         style="text-align: right;margin-top: 10px;width: 100%">
-                                                        <div class="progress-bar"
-                                                             aria-valuenow="{{ percentage }}"
-                                                             aria-valuemin="0"
-                                                             aria-valuemax="100"
-                                                             style="width: {{ percentage }}%;">
-                                                            {{ percentage }}%
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            {% else %}
-                                                <p style="margin-top: 10px;">
-                                                <div class="progress"
-                                                     style="text-align: right;margin-top: 10px;width: 100%">
-                                                    <div class="progress-bar"
-                                                         aria-valuenow="{{ percentage }}"
-                                                         aria-valuemin="0"
-                                                         aria-valuemax="100"
-                                                         style="width: {{ percentage }}%;">
-                                                        {{ percentage }}%
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                        </td>
-                                        <td style="text-align: center">{{ p.referenciacao.reference }}</td>
-                                        <td style="text-align: center">
-                                            <button onclick="agendar()">Agendar</button>
-                                           <script>
-                                               const agendar = () => {
-                                                    window.open("{% url 'protocolo:teste' %}")
-                                                }
-                                            </script>
-                                        </td>
-                                    </tr>
-                                {% empty %}
-                                    Não tem Participantes associados.
-                                {% endfor %}
-                                <tr></tr>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        Não tem Participantes associados.
+                                    {% endfor %}
+                                    <tr></tr>
                                 </tbody>
                                 <!-- Bold footer line -->
                                 <tfoot>
-                                <tr>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                    <td><strong></strong></td>
-                                </tr>
+                                    <tr>
+                                        <td><strong></strong></td>
+                                        <td><strong></strong></td>
+                                        <td><strong></strong></td>
+                                        <td><strong></strong></td>
+                                        <td><strong></strong></td>
+                                        <td><strong></strong></td>
+                                        <td><strong></strong></td>
+                                        <td><strong></strong></td>
+                                        <td><strong></strong></td>
+                                        <td><strong></strong></td>
+                                    </tr>
                                 </tfoot>
                             </table>
                         </div>

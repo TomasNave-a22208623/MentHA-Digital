@@ -244,3 +244,6 @@
 .instrument-tooltip:hover .tooltiptext {
   visibility: visible;
 }
+.hidden-cell {
+    display: none;
+}
