@@ -82,29 +82,67 @@ def dashboard(request):
 
     dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
     mentor = Mentor.objects.filter(user=request.user).first()
+    participante = Participante.objects.filter(user= request.user).first()
     if dinamizador:
         grupos = dinamizador.grupo.all()
     if mentor:
         grupos = mentor.grupo.all()
+    if participante:
+        grupos = participante.grupo.all()
+        sg = SessaoDoGrupo.objects.filter(grupo__in=participante.grupo.all()).exclude(parte_ativa__isnull=True)
     if request.user.is_superuser:
         grupos = Grupo.objects.all()
+
     contexto = {
-        # 'grupos': Grupo.objects.filter(doctor=doctor),
-        # Apagar a linha de baixo ao descomentar a linha de cima
-        # next(obj for obj in DinamizadorConvidado.objects.all() if obj.user.username == request.user.username).grupo.all()
-        'grupos': grupos,
-        'cuidadores': Cuidador.objects.filter(grupo=None),
-        'formGrupo': formGrupo,
+    # 'grupos': Grupo.objects.filter(doctor=doctor),
+    # Apagar a linha de baixo ao descomentar a linha de cima
+    # next(obj for obj in DinamizadorConvidado.objects.all() if obj.user.username == request.user.username).grupo.all()
+    'grupos': grupos,
+    'cuidadores': Cuidador.objects.filter(grupo=None),
+    'formGrupo': formGrupo,
     }
 
-    if request.user.groups.filter(name='Participante').exists():
-        participante = Participante.objects.get(user=request.user)
-        sg = SessaoDoGrupo.objects.filter(grupo=participante.grupo).exclude(parte_ativa__isnull=True)
-        if sg.exists():
-            sg = sg.get()
-            contexto['parte'] = sg.parte_ativa
-            contexto['sg'] = sg
-            return render(request, 'diario/parte_ativa.html', contexto)
+    if sg.exists():
+        sg = sg.get()
+        parte = sg.parte_ativa
+        contexto['parte'] = parte
+        print(sg.parte_ativa.descricao)
+        contexto['sg'] = sg
+
+        form_list = []
+        lista_ids_escolhas_multiplas = []
+        for pergunta in parte.perguntas.all():
+            initial_data = {}
+            r = Resposta.objects.filter(
+                participante__id=participante.id,
+                sessao_grupo__id=sg.id,
+                pergunta=pergunta,
+                parte_exercicio=parte,
+            )
+
+            if len(r) > 0:
+                r = r.get()
+                initial_data = {
+                    'resposta_escrita': r.resposta_escrita,
+                    'certo': r.certo,
+                }
+                if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+                    lista_ids_escolhas_multiplas.append(r.resposta_escolha.id)
+
+            if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+                form = RespostaForm_RespostaEscrita(None, initial=initial_data)
+            elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
+                form = RespostaForm_RespostaSubmetida(None)
+            if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+                form = None
+
+            tuplo = (pergunta, parte, form)
+            form_list.append(tuplo)
+            contexto['form_list'] = form_list
+            contexto['lista_ids_escolhas_multiplas'] = lista_ids_escolhas_multiplas
+        return render(request, 'diario/parte_ativa.html', contexto)
+   
+    
 
     return render(request, 'diario/dashboard.html', contexto)
 
