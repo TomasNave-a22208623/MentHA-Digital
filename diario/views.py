@@ -671,6 +671,7 @@ def logout_care_view(request):
 
 def view_iniciar_sessao(request, sessao_grupo_id):
     sessao_grupo = SessaoDoGrupo.objects.get(id=sessao_grupo_id)
+    sessao_grupo.estado = SessaoDoGrupo.EMCURSO
     grupo_id = sessao_grupo.grupo.id
     sessao_grupo.inicio = datetime.utcnow()
     sessao_grupo.save()
@@ -994,8 +995,6 @@ def view_diario_grupo(request, idSessaoGrupo):
 @check_user_able_to_see_page('Todos')
 def view_presencas_sessao(request, proxima_id):
     sessao_grupo = SessaoDoGrupo.objects.get(id=proxima_id)
-    sessao_grupo.estado = SessaoDoGrupo.EMCURSO
-    sessao_grupo.save()
 
     contexto = {
         'sessao_grupo': sessao_grupo,
