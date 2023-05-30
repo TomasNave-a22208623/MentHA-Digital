@@ -252,7 +252,7 @@ position: relative;
 
 #content{
     display:flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .side-by-side{

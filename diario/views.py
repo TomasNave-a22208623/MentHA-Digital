@@ -34,6 +34,12 @@ from django.shortcuts import render
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
+from docx import Document
+import win32com.client as win32
+from docx.shared import Inches
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+import os
+
 matplotlib.use('Agg')
 
 
@@ -377,6 +383,7 @@ def group_members(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
+
     # formDinamizador = DinamizadorForm(request.POST or None)
     # if formDinamizador.is_valid():
     #     formDinamizador.save()
@@ -702,6 +709,7 @@ def logout_care_view(request):
 
 def view_iniciar_sessao(request, sessao_grupo_id):
     sessao_grupo = SessaoDoGrupo.objects.get(id=sessao_grupo_id)
+    sessao_grupo.estado = SessaoDoGrupo.EMCURSO
     grupo_id = sessao_grupo.grupo.id
     sessao_grupo.inicio = datetime.utcnow()
     sessao_grupo.save()
@@ -781,6 +789,16 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
     elif grupo.programa == "COG":
         participantes = Participante.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
     # print(sessao.sessao.partes)
+
+    tempo_total_partes = 0
+    tempo_total_partes_grupo = 0
+
+    for parte in sessao.sessao.partes.all():
+        tempo_total_partes += parte.duracao
+
+    for parte_grupo in partes_grupo:
+        tempo_total_partes_grupo += parte_grupo.duracao_minutos
+
     contexto = {
         'parte': sessao.sessao.partes,
         'proxima_parte': proxima_parte,
@@ -790,6 +808,8 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
         'grupo': Grupo.objects.get(id=sessao.grupo.id),
         'pode_iniciar': pode_iniciar,
         'apresentacao' : apresentacao,
+        'tempo_total_partes': tempo_total_partes,
+        'tempo_total_partes_grupo': tempo_total_partes_grupo,
     }
 
     return render(request, 'diario/sessao.html', contexto)
@@ -1013,8 +1033,6 @@ def view_diario_grupo(request, idSessaoGrupo):
 @check_user_able_to_see_page('Todos')
 def view_presencas_sessao(request, proxima_id):
     sessao_grupo = SessaoDoGrupo.objects.get(id=proxima_id)
-    sessao_grupo.estado = SessaoDoGrupo.EMCURSO
-    sessao_grupo.save()
 
     contexto = {
         'sessao_grupo': sessao_grupo,
@@ -1201,6 +1219,7 @@ def view_questionario(request, idPergunta, idParte, sessaoGrupo):
                     existing = existing[0]
                     existing.opcao = opcao
                     existing.save()
+        return redirect('diario:sessao', sg.id, sg.grupo.id)
 
     contexto = {
         'idPergunta': idPergunta,
@@ -1513,14 +1532,30 @@ def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def view_resultados(request, idPergunta, idParte, sessaoGrupo):
-    pergunta = Pergunta.objects.get(id=1)
+    questionario = Questionario.objects.get(id=idPergunta)
+    escolhas = []
 
-    escolhas = [escolha.opcao.resposta for escolha in Pergunta.objects.get(id=idPergunta).escolhas.all()]
-    votos = [escolha.opcao.cotacao for escolha in Pergunta.objects.get(id=idPergunta).escolhas.all()]
+    for pergunta in questionario.perguntas.all():
+        opcoes_respostas = [opcao.resposta for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
+        opcoes = [opcao for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
+        print(escolhas)
+        counter_respostas = {}
+        for opcao in opcoes:
+            counter_respostas[opcao.id] = 0
+        for i, escolha in enumerate(Pergunta.objects.get(id=pergunta.id).escolhas.all()):
+            counter_respostas[escolha.opcao.id] += 1
 
-    plt.bar(escolhas, votos)
+
+        print(counter_respostas)
+
+
+    plt.bar(opcoes_respostas, list(counter_respostas.values()))
     plt.ylabel("respostas")
     plt.autoscale()
+    max_ = max(list(counter_respostas.values()))
+    steps = list(range(max_ + 1))
+    plt.yticks(steps)
+
 
     fig = plt.gcf()
     plt.close()
@@ -1578,13 +1613,18 @@ def voltar_parte(request, idParte, sessao_grupo_id, estado):
 @check_user_able_to_see_page('Todos')
 def finalizar_sessao(request, idGrupo, sessao_grupo_id):
     sessao_group = SessaoDoGrupo.objects.get(id=sessao_grupo_id)
+    parte_group_final = sessao_group.parteGrupos.all().last()
+
+    parte_group_final.fim = datetime.utcnow()
+    parte_group_final.concluido = True
+    parte_group_final.save()
+
     if request.method == 'POST':
         sessao_group.estado = 'R'
         sessao_group.fim = datetime.utcnow()
         sessao_group.concluido = True
         sessao_group.parte_ativa = None
         sessao_group.save()
-        
 
     return HttpResponseRedirect(reverse('diario:group_sessions', args=[idGrupo]))
 
@@ -1688,3 +1728,68 @@ def respostas_view(request, idSessaoGrupo, idParticipante):
         'form_list': form_list
     }
     return render(request, "diario/respostas.html", context)
+
+
+def gera_relatorio(ano, parte, avaliado, data, avaliador, areas):
+    document = Document()
+
+    # Cabeçalho
+    paragraph = document.add_paragraph(f'Projeto MentHA')
+
+    # para pôr em itálico (chato... talvez exista algo melhor)
+    for run in paragraph.runs:
+        run.font.italic = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    paragraph = document.add_heading(f'Relatório de {parte}', 0)
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    document.add_paragraph(f'Nome da pessoa avaliada: {avaliado}')
+    document.add_paragraph(f'Data: {data}')
+
+    # Relatório
+
+    paragraph = document.add_paragraph(
+        f'Apresenta-se de seguida os resultados da avaliação MentHA, {parte}, de {avaliado}, realizado no dia {data}.')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    for area in areas:
+        paragraph = document.add_heading(f"Dimensão: {area['dimensao']}", 2)
+        paragraph = document.add_paragraph(area['observacoes'])
+        picture = document.add_picture(area['grafico'], width=Inches(1))
+        last_paragraph = document.paragraphs[-1]
+        last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        paragraph = document.add_paragraph(area['titulo_grafico'])
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        document.add_paragraph(f'')
+
+    # Assinatura
+
+    paragraph = document.add_paragraph(f'O avaliador,')
+    paragraph = document.add_paragraph(f'{avaliador}')
+
+    # Save the Word document
+    nome_ficheiro = f'Relatorio_{avaliado}_{data}_{parte}'
+    document.save(os.path.join(os.getcwd(), f'{nome_ficheiro}.docx'))
+
+    # Convert the Word document to PDF. explorar e usar isto em baixo.
+
+    #    config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+    #    pdfkit.from_file(f'{nome_ficheiro}.docx', f'{nome_ficheiro}.pdf', configuration=config, options={"enable-local-file-access": ""})
+
+    # Convert the Word document to PDF. ESte codigo em baixo funciona localmente mas não funciona no servidor, pois precisa do word instalado. Usar a parte em baixo
+
+    # Create an instance of the Word application
+    word_app = win32.gencache.EnsureDispatch('Word.Application')
+
+    # Open the Word document
+    doc = word_app.Documents.Open(os.path.join(os.getcwd(), nome_ficheiro + '.docx'))
+
+    # Save the document as PDF
+    doc.SaveAs(os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf'), FileFormat=17)
+
+    # Close the Word document
+    doc.Close()
+
+    # Quit the Word application
+    word_app.Quit()

@@ -9,6 +9,17 @@
                         <p class="text-primary m-0 fw-bold">Relatório {{ resolution.part }} - {{ resolution.patient }}
                             ({{ resolution.date }})</p>
                     </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 text-nowrap">
+                                <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#modalReport">
+                                        <i class="fa fa-print"></i> Gerar Word
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                 <div class="card-body">
                         <div class="table-responsive">
                             <table class="table">
@@ -35,7 +46,7 @@
                                                     <span class="fw-bold {% for i in instruments %}{% if i.name == instrument_name and i.tooltip.1%}instrument-tooltip{% endif %}{% endfor %}">
                                                     {% for i in instruments %}
                                                             {% if i.name == instrument_name %}
-                                                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:dimensions' resolution.part.protocol.id resolution.part.id area_id i.id resolution.patient.id %}">
+                                                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:dimensions' resolution.part.part.protocol.id resolution.part.id area_id i.id resolution.patient.id %}">
                                                             {% endif %}
                                                     {% endfor %}
                                                     {{ instrument_name }}

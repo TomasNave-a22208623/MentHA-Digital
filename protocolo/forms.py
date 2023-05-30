@@ -3,6 +3,27 @@ from django.forms import ModelForm
 
 from .models import *
 
+class DateInput(forms.DateInput):
+    input_type = 'date'
+
+class TimeInput(forms.TimeInput):
+    input_type = 'time'
+
+class AppointmentForm(ModelForm):
+    class Meta:
+        model = ParteDoUtilizador
+        fields = ('part', 'data', 'time')
+        labels = {'part': 'Parte', 'date': 'Data', 'time':'Hora'}
+        widgets = {
+            'part' : forms.Select(attrs={'class': 'form-control'}),
+            'data' : DateInput(attrs={'class': 'form-control'}),
+            'time' : TimeInput(attrs={'class': 'form-control'}),
+        }
+
+class FormRisk(ModelForm):
+    class Meta:
+        model = Risk
+        fields = '__all__'
 
 class uploadAnswerForm(ModelForm):
     class Meta:
