@@ -1753,9 +1753,16 @@ def gera_relatorio(sessaoDoGrupo, request):
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
     # Relatório
-    paragraph = document.add_paragraph(
-        f'Presenças na {sessaoDoGrupo.__str__()}:')
+    paragraph = document.add_paragraph("O presente relatório tem como objetivo fornecer os resultados detalhados da "
+                                       +f"{sessaoDoGrupo.__str__()}" +
+                                       " realizada no dia "+ f"{sessaoDoGrupo.data.day}" + "." +
+                                       f"{sessaoDoGrupo.data.month}" + "." +
+                                       f"{sessaoDoGrupo.data.year}" + " com a participação de várias pessoas. "
+                                       "Durante a sessão abordou-se o seguinte tema: " + f"{sessaoDoGrupo.sessao.nome}")
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    paragraph = document.add_heading(
+        f'Presenças na {sessaoDoGrupo.__str__()}:', 2)
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
     counter_precensas = {'Presencial': 0, 'Online': 0, 'Faltou': 0}
     for presenca in Presenca.objects.filter(sessaoDoGrupo=sessaoDoGrupo):
@@ -1773,7 +1780,6 @@ def gera_relatorio(sessaoDoGrupo, request):
     max_ = max(list(counter_precensas.values()))
     steps = list(range(max_ + 1))
     plt.yticks(steps)
-    plt.xlabel("Presenças por modo de assistência")
 
     fig = plt.gcf()
     plt.close()
@@ -1783,10 +1789,28 @@ def gera_relatorio(sessaoDoGrupo, request):
     buf.seek(0)
 
     # Add the image to the document
-    document.add_picture(buf, width=Inches(6.5))
+    document.add_picture(buf, width=Inches(4))
+    last_paragraph = document.paragraphs[-1]
+    last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    caption = document.add_paragraph("Presenças por modo de assistência", style='Caption')
+    caption.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
     plt.clf()
 
+    document.add_paragraph("Nesta sessão estiveram presentes em modo online um total de " + str(counter_precensas['Online'])
+                           + " participantes e em modo presencial " + str(counter_precensas['Presencial'])
+                           + " participantes.")
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    if counter_precensas['Faltou'] > 1:
+        document.add_paragraph("Infelizmente, um total de " + str(counter_precensas['Faltou'])
+                               + "participantes não poderam estar presentes")
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    elif counter_precensas['Faltou'] == 1:
+        document.add_paragraph("Infelizmente, um dos participantes não pode estar presente")
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    document.add_page_break()
+    paragraph = document.add_heading(
+        f'Resultados dos questionários na {sessaoDoGrupo.__str__()}:', 2)
     for escolha in Escolha.objects.filter(sessao_grupo=sessaoDoGrupo):
         perguntas.append(escolha.pergunta)
 
@@ -1796,7 +1820,7 @@ def gera_relatorio(sessaoDoGrupo, request):
         counter_respostas = {}
         for opcao in opcoes:
             counter_respostas[opcao.id] = 0
-        for i, escolha in enumerate(Pergunta.objects.get(id=pergunta.id).escolhas.all()):
+        for escolha in Pergunta.objects.get(id=pergunta.id).escolhas.filter(sessao_grupo=sessaoDoGrupo):
             counter_respostas[escolha.opcao.id] += 1
 
         plt.bar(opcoes_respostas, list(counter_respostas.values()))
@@ -1805,8 +1829,9 @@ def gera_relatorio(sessaoDoGrupo, request):
         max_ = max(list(counter_respostas.values()))
         steps = list(range(max_ + 1))
         plt.yticks(steps)
-        plt.xlabel("Pergunta " + str(i + 1) + ": " + insert_line_break(pergunta.texto, 50))
-
+        p = document.paragraphs[-1]
+        p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        plt.tight_layout()
         fig = plt.gcf()
         plt.close()
 
@@ -1815,13 +1840,23 @@ def gera_relatorio(sessaoDoGrupo, request):
         buf.seek(0)
 
         # Add the image to the document
-        document.add_picture(buf, width=Inches(6.5))
+        paragraph = document.add_paragraph("O seguinte gráfico mostra os resultados obtidos da seguinte pergunta: \n"
+                                           + pergunta.texto)
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        document.add_picture(buf, width=Inches(4))
+        last_paragraph = document.paragraphs[-1]
+        last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        i += 1
+        caption = document.add_paragraph("Pergunta " + str(i) + "- Resultados", style='Caption')
+        caption.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
     # Assinatura
-    paragraph = document.add_paragraph(f'O avaliador, {request.user.username}')
+    paragraph = document.add_paragraph('O dinamizador,')
+    paragraph = document.add_paragraph(f'{request.user.username}')
 
     # Save the Word document
-    nome_ficheiro = 'qualquer'
+    nome_ficheiro = 'relatorio'+ sessaoDoGrupo.__str__()
+    nome_ficheiro = nome_ficheiro.replace(" ", "")
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
 
@@ -1849,20 +1884,6 @@ def gera_relatorio(sessaoDoGrupo, request):
     os.remove(docx_path)
     os.remove(pdf_path)
 
-def insert_line_break(string, n):
-    result = ''
-    current_line_length = 0
-    words = string.split()
-
-    for word in words:
-        if current_line_length + len(word) > n:
-            result += '\n'
-            current_line_length = 0
-        result += word + ' '
-        current_line_length += len(word) + 1  # +1 for the space after the word
-
-    return result.strip()
-
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Cuidador')
 def user_dashboard(request):
@@ -1880,7 +1901,7 @@ def user_dashboard(request):
     uri = request.build_absolute_uri('zoom')
     uri = uri.replace('abrirZ', 'z')
     img = qrcode.make(uri, image_factory=factory, box_size=5)
-    img_pop = qrcode.make(uri, image_factory=factory, box_size=70)
+    img_pop = qrcode.make(uri, image_factory=factory, box_size=45)
     stream = BytesIO()
     stream_pop = BytesIO()
     img.save(stream)

@@ -288,6 +288,7 @@ class SessaoDoGrupo(models.Model):
     def __str__(self):
         return f'Sessao {self.sessao} do grupo {self.grupo}'
 
+
     def parte_atual(self):
         for pg in self.parteGrupos:
             if pg.em_progresso:

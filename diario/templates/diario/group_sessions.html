@@ -96,18 +96,22 @@
                         </td>
                         <td style="text-align: center;">
                             {% if sessao_do_grupo.sessao.materiais|length > 0 %}
-                            <a href="{{ sessao_do_grupo.sessao.materiais.url }}">
-                                &#128218;
-                            </a>
+                             <button style="border-radius: 50%; border: 0; background-color: lightgray;">
+                                 <a href="{{ sessao_do_grupo.sessao.materiais.url }}">
+                                    &#128218;
+                                </a>
+                             </button>
                             {% else %}
                                 &#10060;
                             {% endif %}
                         </td>
                         <td style="text-align: center;">
                             {% if sessao_do_grupo.relatorio|length > 0 %}
-                            <a href="{{ sessao_do_grupo.relatorio.url }}">
-                                &#128203;
-                            </a>
+                                <button style="border-radius: 50%; border: 0; background-color: lightgray;">
+                                    <a href="{{ sessao_do_grupo.relatorio.url }}">
+                                        &#128203;
+                                    </a>
+                                 </button>
                             {% else %}
                                 &#10060;
                             {% endif %}
