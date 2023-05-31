@@ -18,6 +18,14 @@ https://shorturl.at/qAJN8
 6. Abrir http://127.0.0.1:8000/ no browser
 7. Fazer login com as credenciais user:"superuser" pw:"super123"
 
+🔌 Sockets
+======
+(Se o requirements.txt não estiver atualizado)
+Se os sockets não estiverem instalados corretamente, quando um dinamizador muda o exercício partilhado, a aplicação não vai ser atualizada no ecrã dos participantes.
+Para isso precisamos de uma versão específica do package 'channels'
+```
+pip install channels==3.0.5
+```
 📶 Acesso Online
 ======
 
