@@ -1,3 +1,5 @@
+import io
+from platform import python_compiler
 from django.http import HttpResponseRedirect, JsonResponse, FileResponse
 from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth.decorators import login_required
@@ -25,6 +27,8 @@ from docx import Document
 import win32com.client as win32
 from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+
+import pythoncom
 import os
 
 
@@ -378,7 +382,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     # print(question.section.dimension.number_of_questions)
     context = {'area': area, 'part': parteDoUtilizador, 'protocol': protocol, 'instrument': instrument, 'dimension': dimension,
                'section': section, 'question': question, 'form': form, 'resolution': r.id, 'answers': answers,
-               'patient': patient, 'doencas': doencas,'form_risk':form_risk}
+               'patient': patient, 'doencas': doencas,'form_risk':form_risk
+               }
     # print(answers)
 
     if question.question_type == 10:
@@ -707,8 +712,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 risco = risk_json(file_path_men, new_risk.fumador, new_risk.idade, colestrol_virgula,new_risk.pressao_arterial)
                 new_risk.risco_de_enfarte = risco
             new_risk.parteDoUtilizador = parteDoUtilizador
-            
-
+            gera_relatorio_risk(new_risk, patient, request)
             if existing_risk is None:
                 # cria uma nova resposta
                 r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
@@ -730,6 +734,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                     risco = risk_json(file_path_men, existing_risk.fumador, existing_risk.idade, existing_risk.colestrol_total,existing_risk.pressao_arterial)
                     existing_risk.risco_de_enfarte = risco
                 existing_risk.save()
+            
             r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}',
                                new_risk.risco_de_enfarte)
 
@@ -935,12 +940,33 @@ def profile_view(request, participant_id):
     resolutions = Resolution.objects.filter(patient=patient)
     parteDoUtilizador = ParteDoUtilizador.objects.filter(participante=patient)
     parte = Part.objects.all()
+    #quero  buscar o user atual
+
+
+    user = request.user
+    # print(request.user.groups.all())
+    
+    #isto server para ver qual dos grupos dos users para ver permições e deixar aceder o que ao que
+    user_risk = None
+    user_tudo = None
+
+    if request.user.groups.filter(name='Administrador').exists():
+        print("ele entra aqui")
+        user_tudo = request.user.groups.filter(name='Administrador')
+    if request.user.groups.filter(name='Avaliador').exists():
+        print("ele entra aqui2")
+        user_tudo = request.user.groups.filter(name='Avaliador' )
+    if request.user.groups.filter(name='Avaliador-Risk').exists():
+        print("ele entra aqui3")
+        user_risk = request.user.groups.filter(name='Avaliador-Risk')
+
     risk_area = Area.objects.get(id = 47)
     pergunta_risk = Question.objects.get(id = 189)
     c = []
     age = calculate_age(patient.nascimento)
     answered_list = []
     percentage_list = []
+    
     form = AppointmentForm(request.POST or None)
 
     if request.method == "POST":
@@ -949,7 +975,11 @@ def profile_view(request, participant_id):
             obj = form.save(commit=False)
             obj.participante = patient
             obj.save()
-            
+    
+    # if request.user.groups.filter(name='Avaliador-Risk').exists():
+    #     if not parteDoUtilizador.filter(part= risk_area.part):
+    #         parte
+
     for partesDoUtilizador in parteDoUtilizador:
         resolution = resolutions.filter(part=partesDoUtilizador)
         if not resolution:
@@ -1023,7 +1053,10 @@ def profile_view(request, participant_id):
                'parte': parte,
                'risk_area':risk_area,
                'pergunta_risk':pergunta_risk,
-               'form' : form
+               'form' : form,
+               'user' : user,
+                'user_risk' : user_risk,
+                'user_tudo' : user_tudo,
                }
     return render(request, 'protocolo/profile.html', context)
 
@@ -1274,3 +1307,134 @@ def float_range(start, stop, step=0.1):
     while start < stop:
         yield round(start, 1)
         start += step   
+def gera_relatorio_risk(parte_risk,patient, request):
+    
+    document = Document()
+
+    # Cabeçalho
+    paragraph = document.add_paragraph(f'Avaliação de Risco Cardiovascular - {patient.__str__()}')
+
+    # para pôr em itálico (chato... talvez exista algo melhor)
+    for run in paragraph.runs:
+        run.font.italic = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    paragraph = document.add_heading(f'Relatório de {patient.__str__()}', 0)
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    # Relatório
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    paragraph = document.add_paragraph(f'Idade do paciente: {parte_risk.idade}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    paragraph = document.add_paragraph(f'Sexo do paciente: {parte_risk.sexo}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    paragraph = document.add_paragraph(f'Fumador: {parte_risk.fumador}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    paragraph = document.add_paragraph(f'Pressão arterial sistólica: {parte_risk.pressao_arterial}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    paragraph = document.add_paragraph(f'Colesterol total: {parte_risk.colestrol_total}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    paragraph = document.add_paragraph(f'Probabilidade de ter um Risco Cardiovascular: {parte_risk.risco_de_enfarte}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    paragraph = document.add_paragraph(f'Comentário do Avaliador: {parte_risk.comentario}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    print("CHEGA A CLRLLLLLLLLL ZIMBORA")
+    # Assinatura
+    paragraph = document.add_paragraph(f'O avaliador, {request.user.username}')
+
+    # Save the Word document
+    nome_ficheiro = 'qualquer'
+    docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
+    document.save(docx_path)
+    print("CHEGA A CLRLLLLLLLLL ZIMBORA2")
+    # Convert the Word document to PDF
+
+    pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
+    pythoncom.CoInitialize()
+    
+    
+    print("CHEGA A CLRLLLLLLLLL ZIMBORA3")
+    word_app = win32.gencache.EnsureDispatch('Word.Application')
+    doc = word_app.Documents.Open(docx_path)
+    doc.SaveAs(pdf_path, FileFormat=17)
+    doc.Close()
+    word_app.Quit()
+    print("CHEGA A CLRLLLLLLLLL ZIMBORA4")
+    # Create a Django File object from the PDF file
+    with open(pdf_path, 'rb') as f:
+        pdf_data = io.BytesIO(f.read())
+
+    # Assign the PDF file to the file field of sessaoDoGrupo
+    parte_risk.relatorio.save(f'{nome_ficheiro}.pdf', pdf_data)
+    parte_risk.save()
+    print("CHEGA A CLRLLLLLLLLL ZIMBORA5")
+    # Delete the temporary files
+    os.remove(docx_path)
+    os.remove(pdf_path)
+
+# def gera_relatorio_parte(parte,patient, request):
+#     perguntas = []
+#     document = Document()
+
+#     # Cabeçalho
+#     paragraph = document.add_paragraph(f'Avaliação de Risco Cardiovascular - {parte.patient.name}')
+
+#     # para pôr em itálico (chato... talvez exista algo melhor)
+#     for run in paragraph.runs:
+#         run.font.italic = True
+#     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+#     paragraph = document.add_heading(f'Relatório da {parte.patient.nome}', 0)
+#     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+#     # Relatório
+#     paragraph = document.add_paragraph(
+#         f'Presenças na {parte.__str__()}:')
+#     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+#     paragraph = document.add_paragraph(f'Idade do paciente: {parte.idade}')
+#     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+#     paragraph = document.add_paragraph(f'Sexo do paciente: {parte.sexo}')
+#     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+#     paragraph = document.add_paragraph(f'Fumador: {parte.fumador}')
+#     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+#     paragraph = document.add_paragraph(f'Pressão arterial sistólica: {parte.pressao_arterial}')
+#     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+#     paragraph = document.add_paragraph(f'Colesterol total: {parte.colestrol_total}')
+#     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+#     paragraph = document.add_paragraph(f'Probabilidade de ter um Risco Cardiovascular: {parte.risco_de_enfarte}')
+#     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+#     paragraph = document.add_paragraph(f'Comentário do Avaliador: {parte.comentario}')
+#     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+#     # Assinatura
+#     paragraph = document.add_paragraph(f'O avaliador, {request.user.username}')
+
+#     # Save the Word document
+#     nome_ficheiro = 'qualquer'
+#     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
+#     document.save(docx_path)
+
+#     # Convert the Word document to PDF
+
+#     pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
+
+#     python_compiler.CoInitialize()
+
+#     word_app = win32.gencache.EnsureDispatch('Word.Application')
+#     doc = word_app.Documents.Open(docx_path)
+#     doc.SaveAs(pdf_path, FileFormat=17)
+#     doc.Close()
+#     word_app.Quit()
+
+#     # Create a Django File object from the PDF file
+#     with open(pdf_path, 'rb') as f:
+#         pdf_data = io.BytesIO(f.read())
+
+#     # Assign the PDF file to the file field of sessaoDoGrupo
+#     parte.relatorio.save(f'{nome_ficheiro}.pdf', pdf_data)
+#     parte.save()
+
+#     # Delete the temporary files
+#     os.remove(docx_path)
+#     os.remove(pdf_path)
