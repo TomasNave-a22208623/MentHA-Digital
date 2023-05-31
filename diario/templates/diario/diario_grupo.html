@@ -36,6 +36,9 @@ function hideContent1(element){
 document.querySelector("#" + element.id + " > .detalhe").style.display="none"
 }
 
+
+
+
 </script>
 {% endblock %}
 
@@ -66,7 +69,7 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
 </div>
 
 <div id="partilhas">
-   
+
 
     <form id="partilhaGrupoForm" onsubmit='return sendForm({{sessaoGrupo.id}}, "partilhaGrupoForm");' method="post">
         {% csrf_token %}
@@ -88,7 +91,8 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
 </div>
 
 <div id="presencas">
-    <form id="atualizaPresencas" onsubmit="event.preventDefault(); atualizaPresencas({{sessaoGrupo.id}});" method="POST">
+    <form id="atualizaPresencas" onsubmit="event.preventDefault(); atualizaPresencas({{sessaoGrupo.id}});"
+          method="POST">
         {% csrf_token %}
         <table class="table table-hover">
             <thead>
@@ -107,29 +111,29 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
                 </td>
                 <td style="text-align: center;">
                     <input type="radio" data-participante="{{ participante.id }}" value="online"
-                            name="{{ participante.id }}"
-                            {% if participante.id in online_list %}
-                                checked
-                            {% endif %}
-                            >
+                           name="{{ participante.id }}"
+                           {% if participante.id in online_list %}
+                           checked
+                           {% endif %}
+                    >
                 </td>
                 <td style="text-align: center;">
                     <input type="radio" data-participante="{{ participante.id }}"
-                            value="presencial"
-                            name="{{ participante.id }}"
-                            {% if participante.id in presencial_list %}
-                                checked
-                            {% endif %}
-                            >
+                           value="presencial"
+                           name="{{ participante.id }}"
+                           {% if participante.id in presencial_list %}
+                           checked
+                           {% endif %}
+                    >
                 </td>
                 <td style="text-align: center;">
                     <input type="radio" data-participante="{{ participante.id }}"
-                            value="naoVeio"
-                            name="{{ participante.id }}"
-                            {% if participante.id in faltou_list %}
-                                checked
-                            {% endif %}
-                            >
+                           value="naoVeio"
+                           name="{{ participante.id }}"
+                           {% if participante.id in faltou_list %}
+                           checked
+                           {% endif %}
+                    >
                 </td>
             </tr>
             {% endfor %}
@@ -141,29 +145,43 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
 </div>
 
 <div id="informacoes">
+    <table style="width:100%">
+        <tr style="color:white; background-color:cornflowerblue;">
+            <th>
+                <div class="titulo">Diagnóstico:</div>
+            </th>
+            <td style="padding:10px;">
+                <div class="detalhe">{{grupo.diagnostico}}</div>
+            </td>
+        </tr>
 
-    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-         onmouseout="hideContent1(this)">
-        <div class="titulo">Diagnóstico</div>
-        <div class="detalhe">{{ grupo.diagnostico }}</div>
-    </div>
-    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-         onmouseout="hideContent1(this)">
-        <div class="titulo">Localização</div>
-        <div class="detalhe">{{ grupo.localizacao }}</div>
-    </div>
-        <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-        onmouseout="hideContent1(this)">
-        <div class="titulo">Escolaridade</div>
-        <div class="detalhe">{{ grupo.escolaridade }}</div>
-    </div>
-        <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-        onmouseout="hideContent1(this)">
-        <div class="titulo">Referenciação</div>
-        <div class="detalhe">{{ grupo.referenciacao }}</div>
-    </div>
+        <tr>
+            <th>
+                <div class="titulo">Localização:</div>
+            </th>
+            <td style="padding:10px;">
+                <div class="detalhe">{{grupo.localizacao}}</div>
+            </td>
+        </tr>
 
+        <tr style="color:white; background-color:cornflowerblue;">
+            <th>
+                <div class="titulo">Escolaridade:</div>
+            </th>
+            <td style="padding:10px;">
+                <div class="detalhe">{{grupo.escolaridade}}</div>
+            </td>
+        </tr>
 
+        <tr>
+            <th>
+                <div class="titulo">Referenciação:</div>
+            </th>
+            <td style="padding:10px;">
+                <div class="detalhe">{{grupo.referenciacao}}</div>
+            </td>
+        </tr>
+    </table>
 </div>
 
 <!-- As respostas nao fazem parte do grupo -->

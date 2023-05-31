@@ -94,11 +94,19 @@ document.addEventListener("DOMContentLoaded", function () {
                         {{ tempo_total_partes }} minutos
                     </span>
                 </h5>
-                <div style ="width:100%; margin-top: 5px;"class="progress">
-                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ tempo_total_partes_grupo }}%;" aria-valuenow="{{ tempo_total_partes_grupo }}" aria-valuemin="0" aria-valuemax="{{tempo_total_partes}}">
-                            {{ tempo_total_partes_grupo }}m
+                {% if tempo_total_partes_grupo > tempo_total_partes %}
+                    <div style ="width:100%; margin-top: 5px;"class="progress">
+                        <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ tempo_total_partes_grupo }}%; background-color: #dc3545;" aria-valuenow="{{ tempo_total_partes_grupo }}" aria-valuemin="0" aria-valuemax="{{tempo_total_partes}}">
+                                {{ tempo_total_partes_grupo }}m
+                        </div>
                     </div>
-                </div>
+                {% else %}
+                    <div style ="width:100%; margin-top: 5px;"class="progress">
+                        <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ tempo_total_partes_grupo }}%;" aria-valuenow="{{ tempo_total_partes_grupo }}" aria-valuemin="0" aria-valuemax="{{tempo_total_partes}}">
+                                {{ tempo_total_partes_grupo }}m
+                        </div>
+                    </div>
+                {% endif %}
             </div>
 
             <br>

@@ -4,17 +4,18 @@
 
 {% block main %}
 <body>
+<div class="content-results">
+    {% for escolha in pergunta.escolha_set.all %}
+    <h2>{{escolha}}: {{escolha.votos}}</h2>
+    {% endfor %}
 
-  <div>
-        {% for escolha in pergunta.escolha_set.all %}
-        <h2>{{escolha}}: {{escolha.votos}}</h2>
-        {% endfor %}
+    <div>
+        <img src="data:image/png;base64,{{ grafico }}">
+
+        <a onclick="history.back()">
+            <button class="btn btn-outline-primary" style="margin-bottom: 442px; margin-left: 31px;">Voltar</button>
+        </a>
     </div>
-    <div><img src="data:image/png;base64,{{ grafico }}" style="margin-left:400px;margin-top:150px;" ></div>
-
-  <br>
-  <a onclick="history.back()" style="margin-left: 700px">
-      <button class="btn btn-outline-primary">Voltar</button>
-  </a>
+</div>
 </body>
 {% endblock %}

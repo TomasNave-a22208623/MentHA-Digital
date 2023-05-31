@@ -46,20 +46,7 @@ from django.core.files import File
 
 matplotlib.use('Agg')
 
-months_pt = {
-    'January': 'janeiro',
-    'February': 'fevereiro',
-    'March': 'março',
-    'April': 'abril',
-    'May': 'maio',
-    'June': 'junho',
-    'July': 'julho',
-    'August': 'agosto',
-    'September': 'setembro',
-    'October': 'outubro',
-    'November': 'novembro',
-    'December': 'dezembro'
-}
+
 # Para permitir acesso a views por grupo
 # @user_passes_test(lambda u: u.groups.filter(name='YourGroupName').exists())
 
@@ -96,7 +83,9 @@ def dashboard(request):
 
     dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
     mentor = Mentor.objects.filter(user=request.user).first()
-    participante = Participante.objects.filter(user= request.user).first()
+    participante = Participante.objects.filter(user=request.user).first()
+    cuidador = Cuidador.objects.filter(user=request.user).first()
+
     if dinamizador:
         grupos = dinamizador.grupo.all()
     if mentor:
@@ -104,6 +93,8 @@ def dashboard(request):
     if participante:
         grupos = participante.grupo.all()
         sg = SessaoDoGrupo.objects.filter(grupo__in=participante.grupo.all()).exclude(parte_ativa__isnull=True)
+    if cuidador:
+        return redirect('diario:user_dashboard')
     if request.user.is_superuser:
         grupos = Grupo.objects.all()
 
@@ -155,9 +146,6 @@ def dashboard(request):
             contexto['form_list'] = form_list
             contexto['lista_ids_escolhas_multiplas'] = lista_ids_escolhas_multiplas
         return render(request, 'diario/parte_ativa.html', contexto)
-   
-    
-
     return render(request, 'diario/dashboard.html', contexto)
 
 
@@ -785,6 +773,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
     sessao = SessaoDoGrupo.objects.get(id=sessao_grupo_id, grupo=grupo)
 
     data = sessao.data
+
     pode_iniciar = False
     if data:
         if data.day == datetime.utcnow().day or sessao.inicio is not None:
@@ -1768,16 +1757,6 @@ def gera_relatorio(sessaoDoGrupo, request):
         f'Presenças na {sessaoDoGrupo.__str__()}:')
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
 
-    paragraph = document.add_paragraph(
-        f'A sessão estava agendada para o dia {sessaoDoGrupo.data.day} '
-        f'do mês de {months_pt.get(sessaoDoGrupo.data.strftime("%B"))} '
-        f'do ano de {sessaoDoGrupo.data.year}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-
-    paragraph = document.add_paragraph(f'Hora de termino: {sessaoDoGrupo.fim}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-
-    #Dicionario para fazer a contagem dos regimes utlizados durante a sessão
     counter_precensas = {'Presencial': 0, 'Online': 0, 'Faltou': 0}
     for presenca in Presenca.objects.filter(sessaoDoGrupo=sessaoDoGrupo):
         if presenca.present:
@@ -1788,7 +1767,6 @@ def gera_relatorio(sessaoDoGrupo, request):
         elif presenca.faltou:
             counter_precensas['Faltou'] += 1
 
-    #Criação do grafico das presenças
     plt.bar(counter_precensas.keys(), list(counter_precensas.values()))
     plt.ylabel("número de pessoas")
     plt.autoscale()
@@ -1805,7 +1783,7 @@ def gera_relatorio(sessaoDoGrupo, request):
     buf.seek(0)
 
     # Add the image to the document
-    document.add_picture(buf, width=Inches(6))
+    document.add_picture(buf, width=Inches(6.5))
 
     plt.clf()
 
@@ -1821,14 +1799,13 @@ def gera_relatorio(sessaoDoGrupo, request):
         for i, escolha in enumerate(Pergunta.objects.get(id=pergunta.id).escolhas.all()):
             counter_respostas[escolha.opcao.id] += 1
 
-        # Criação do grafico das escolhas dos cuidadores
         plt.bar(opcoes_respostas, list(counter_respostas.values()))
         plt.ylabel("respostas")
         plt.autoscale()
         max_ = max(list(counter_respostas.values()))
         steps = list(range(max_ + 1))
         plt.yticks(steps)
-        plt.xlabel("Pergunta " + str(i + 1))
+        plt.xlabel("Pergunta " + str(i + 1) + ": " + insert_line_break(pergunta.texto, 50))
 
         fig = plt.gcf()
         plt.close()
@@ -1836,15 +1813,15 @@ def gera_relatorio(sessaoDoGrupo, request):
         buf = io.BytesIO()
         fig.savefig(buf, format='png')
         buf.seek(0)
+
         # Add the image to the document
-        document.add_paragraph(pergunta.texto)
-        document.add_picture(buf, width=Inches(6))
+        document.add_picture(buf, width=Inches(6.5))
 
     # Assinatura
-    paragraph = document.add_paragraph(f'Este relatório foi gerado pelo o dinamizador {request.user.username}')
+    paragraph = document.add_paragraph(f'O avaliador, {request.user.username}')
 
     # Save the Word document
-    nome_ficheiro = 'relatorio'
+    nome_ficheiro = 'qualquer'
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
 
@@ -1872,3 +1849,49 @@ def gera_relatorio(sessaoDoGrupo, request):
     os.remove(docx_path)
     os.remove(pdf_path)
 
+def insert_line_break(string, n):
+    result = ''
+    current_line_length = 0
+    words = string.split()
+
+    for word in words:
+        if current_line_length + len(word) > n:
+            result += '\n'
+            current_line_length = 0
+        result += word + ' '
+        current_line_length += len(word) + 1  # +1 for the space after the word
+
+    return result.strip()
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Cuidador')
+def user_dashboard(request):
+    datas = SessaoDoGrupo.objects.exclude(data=None)
+    datas = datas.filter(estado='PR')
+
+    if bool(datas) == True:
+        datas = datas.filter(estado='PR').order_by('data')[0]
+
+    cuidador = Cuidador.objects.filter(user=request.user).first()
+
+    grupos = cuidador.grupo.all()
+
+    factory = qrcode.image.svg.SvgImage
+    uri = request.build_absolute_uri('zoom')
+    uri = uri.replace('abrirZ', 'z')
+    img = qrcode.make(uri, image_factory=factory, box_size=5)
+    img_pop = qrcode.make(uri, image_factory=factory, box_size=70)
+    stream = BytesIO()
+    stream_pop = BytesIO()
+    img.save(stream)
+    img_pop.save(stream_pop)
+
+    context = {
+        'grupos': grupos,
+        'proxima': datas,
+        'ss': bool(datas),
+        'svg': stream.getvalue().decode(),
+        'svg_pop': stream_pop.getvalue().decode(),
+    }
+
+    return render(request, "diario/user_dashboard.html", context)
