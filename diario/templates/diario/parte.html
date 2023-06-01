@@ -24,7 +24,7 @@
             <button class="btn btn-outline-primary">Voltar à Sessão</button>
         </form>
 
-        {% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase != parte.FINAL %}
+        {% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase != parte.FINAL and grupos_permissoes.exists %}
             {% if sessaoGrupo.grupo.programa == "CARE" %}
                 <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
             {% elif sessaoGrupo.grupo.programa == "COG" %}
@@ -33,7 +33,7 @@
             {% csrf_token %}
                 <button class="btn btn-danger">Terminar Parte</button>
                 </form>
-        {% else %}
+        {% elif parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase == parte.FINAL and grupos_permissoes.exists %}
         <form action="{% url 'diario:finalizar_sessao' sessaoGrupo.grupo.id sessaoGrupo.id %}" method="POST">
             {% csrf_token %}
             <button class="btn btn-danger">Terminar Sessão</button>

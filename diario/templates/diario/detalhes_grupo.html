@@ -202,11 +202,13 @@
                                         </form>
                                     </td>
                                     -->
+                    {% if grupos_permissoes.exists %}
                     <td style="text-align: center">
                       <form action="{% url 'diario:delete_grupos' grupo.id %}">
                         <button class="btn btn-danger">Apagar</button>
                       </form>
                     </td>
+                    {% endif %}
                   </tr>
                 </tbody>
               </table>

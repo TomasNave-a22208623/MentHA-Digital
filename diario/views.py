@@ -372,12 +372,14 @@ def view_group_details(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
+
+    print(request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']))
     contexto = {
         'grupo': Grupo.objects.get(id=grupo_id),
         'cuidadores': cuidadores,
         'mentores': mentores,
         'dinamizadores': dinamizadores,
-
+        'grupos_permissoes' : request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
     return render(request, "diario/detalhes_grupo.html", contexto)
 
@@ -396,6 +398,7 @@ def group_members(request, grupo_id):
     #     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
     contexto = {
+
         'grupo_id': grupo_id,
         'grupo': Grupo.objects.get(id=grupo_id),
         'cuidadores': cuidadores,
@@ -403,7 +406,8 @@ def group_members(request, grupo_id):
         'dinamizadores': dinamizadores,
         # 'formDinamizador': formDinamizador,
         'dinami': DinamizadorConvidado.objects.filter(grupo=None),
-        'caregiver': Cuidador.objects.filter(grupo=None)
+        'caregiver': Cuidador.objects.filter(grupo=None),
+        'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
     return render(request, "diario/group_members.html", contexto)
 
@@ -432,7 +436,8 @@ def group_sessions(request, grupo_id):
         'sessoes_do_grupo': sessoes_do_grupo,
         'grupo': grupo,
         'proxima_sessao': proxima_sessao,
-        'sessao_em_curso': sessao_em_curso
+        'sessao_em_curso': sessao_em_curso,
+        'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
     return render(request, "diario/group_sessions.html", contexto)
 
@@ -1093,6 +1098,7 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
         'estado': estado,
         'sessaoGrupo': sg,
         'participante': participante,
+        'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
     parte_group = None
     if programa == "CARE":
@@ -1740,6 +1746,7 @@ def respostas_view(request, idSessaoGrupo, idParticipante):
 def gera_relatorio(sessaoDoGrupo, request):
     perguntas = []
     document = Document()
+    counter = 0
 
     # Cabeçalho
     paragraph = document.add_paragraph(f'Projeto MentHA')
@@ -1847,8 +1854,13 @@ def gera_relatorio(sessaoDoGrupo, request):
         last_paragraph = document.paragraphs[-1]
         last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
         i += 1
+        counter += 1
         caption = document.add_paragraph("Pergunta " + str(i) + "- Resultados", style='Caption')
         caption.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    if counter == 0:
+        paragraph = document.add_paragraph('Não existem resultados disponiveis para esta sessão\n')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
 
     # Assinatura
     paragraph = document.add_paragraph('O dinamizador,')
