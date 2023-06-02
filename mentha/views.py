@@ -138,7 +138,7 @@ def app_list_view(request):
         show.append('CARE')
     if request.user.groups.filter(name__in=['Facilitador','Participante','Administrador']).exists():
         show.append('COG')
-    if request.user.groups.filter(name__in=['Avaliador','Administrador']).exists():
+    if request.user.groups.filter(name__in=['Avaliador','Administrador','Avaliador-Risk']).exists():
         show.append('Protocolo')
     
     context= {

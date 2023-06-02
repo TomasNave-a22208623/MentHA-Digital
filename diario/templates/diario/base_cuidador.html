@@ -2,7 +2,7 @@
 {% load static %}
 <html lang="pt">
 <head>
-    
+
     <meta charset="UTF-8">
     <title>MentHA Digital</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,7 +51,7 @@
             filter = input.value.toUpperCase();
             table = document.getElementById("myTable");
             tr = table.getElementsByTagName("tr");
-    
+
             // Loop through all table rows, and hide those who don't match the search query
             for (i = 0; i < tr.length; i++) {
                 td = tr[i].getElementsByTagName("td")[0];
@@ -65,10 +65,10 @@
                 }
             }
         }
-    
+
         {% block script %} {% endblock %}
-    
-    
+
+
     </script>
 
 </head>
@@ -83,18 +83,8 @@
         <div id="navegacao">
         </div>
             <div class="nav-links max-left" id="my_groups">
-                <a href="{% url 'diario:dashboard_Care' %}" class="active">
-                    <i class="bx bx-home"></i>
-                    <span class="links_name">Os Meus Grupos</span>
-                </a>
             </div>
             <div class="nav-links" id="next_session">
-                {% block menu %}
-                <a href="{% url 'diario:nextSession' %}">
-                    <i class='bx bxl-zoom'></i>
-                    <span class="links_name">Próxima Sessão</span>
-                </a>
-                {% endblock %}
             </div>
 
             <div class="search-box">
@@ -159,7 +149,7 @@
         {% block main %}
         {% endblock main %}
     </div>
-              
+
 </body>
 
 </html>

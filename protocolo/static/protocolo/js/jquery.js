@@ -201,8 +201,7 @@ $(document).ready(function () {
     });
     //quero fazer uma jquery ou função que quando carrego no botão de adicionar uma nova linha, ele vai buscar o valor do input e adiciona a uma nova linha na tabela com o valor do input
 
-    
-    
+
     
 
 }

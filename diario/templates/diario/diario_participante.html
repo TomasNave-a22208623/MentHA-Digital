@@ -1,10 +1,11 @@
-
 <style>
 .atividades {
   position: absolute;
   left: 100px;
   top: 150px;
 }
+
+
 </style>
 
 <div id="notas" style="overflow: auto;">
@@ -38,13 +39,17 @@
 </div>
 
 <div id="partilhas">
-    <form id="partilhaForm" onsubmit='event.preventDefault(); sendFormParticipante({{sessaoGrupo.id}}, {{ participante_id }}, "partilhaForm");' method="post">
+    <form id="partilhaForm"
+          onsubmit='event.preventDefault(); sendFormParticipante({{sessaoGrupo.id}}, {{ participante_id }}, "partilhaForm");'
+          method="post">
         {% csrf_token %}
         {{ partilhaForm.partilha }}
         <input type="hidden" name="participante" value={{ participante_id }}>
         <button type="submit" class="btn btn-primary" name="partilha">Guardar partilha</button>
     </form>
 
+    <hr>
+    <h2><b>Partilhas de {{ participante.info_sensivel.nome }}</b></h2>
     <ul>
         {% if partilhas|length > 0 %}
         {% for partilha in partilhas %}
@@ -57,7 +62,7 @@
 </div>
 
 <div id="respostas" data-participante="{{ participante.id }}">
- {% for pergunta,parte,pg,form in form_list %}
+    {% for pergunta,parte,pg,form in form_list %}
     <div id="flex-container">
         <div class="row">
             <div class="w-50" style="padding-top: 10px;
@@ -67,100 +72,88 @@
             <div class="w-50" style="padding-top: 10px;
             padding-right: 25px;">
                 {% comment %} {{ form.as_p }} {% endcomment %}
-            {% if pergunta.tipo_resposta == 'UPLOAD_FOTOGRAFIA' %}
+                {% if pergunta.tipo_resposta == 'UPLOAD_FOTOGRAFIA' %}
                 <form action="preventDefault()" enctype="multipart/form-data">
                     {% for field in form %}
-                        <div>
-                            {{ field }} 
-                            <span data-parteid="{{parte.id}}" data-partegrupoid="{{pg.id}}" data-perguntaid="{{pergunta.id}}" style="display:none"></span>
-                        </div>
+                    <div>
+                        {{ field }}
+                        <span data-parteid="{{parte.id}}" data-partegrupoid="{{pg.id}}"
+                              data-perguntaid="{{pergunta.id}}" style="display:none"></span>
+                    </div>
                     {% endfor %}
                 </form>
-            {% elif pergunta.tipo_resposta == 'ESCOLHA_MULTIPLA' %}
+                {% elif pergunta.tipo_resposta == 'ESCOLHA_MULTIPLA' %}
                 {% include 'diario/escolha_multipla.html' %}
-            {% else %}
+                {% else %}
                 {% for field in form %}
-                    <div>
-                        {{ field }} 
-                       <span data-parteid="{{parte.id}}" data-partegrupoid="{{pg.id}}" data-perguntaid="{{pergunta.id}}" style="display:none"></span>
-                    </div>
-                    {% if pergunta.postexto %}
-                    <label>
-                        {{ pergunta.postexto }}
-                    </label>
-                    {% endif %}
+                <div>
+                    {{ field }}
+                    <span data-parteid="{{parte.id}}" data-partegrupoid="{{pg.id}}" data-perguntaid="{{pergunta.id}}"
+                          style="display:none"></span>
+                </div>
+                {% if pergunta.postexto %}
+                <label>
+                    {{ pergunta.postexto }}
+                </label>
+                {% endif %}
                 {% endfor %}
-            {% endif %}
-        </div>
+                {% endif %}
             </div>
-            
+        </div>
+
     </div>
- {% endfor %}
-    <button style="float:right;margin-top:15px"onclick="submete_diario({{sessaoGrupo.id}}, {{ participante.id }})" class="btn btn-primary">Submeter</button>
+    {% endfor %}
+    <button style="float:right;margin-top:15px" onclick="submete_diario({{sessaoGrupo.id}}, {{ participante.id }})"
+            class="btn btn-primary">Submeter
+    </button>
 </div>
 
 <div id="informacoes">
-    
-    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-         onmouseout="hideContent1(this)">
-        <div class="titulo">Nome Completo</div>
-        <div class="detalhe">{{participante.info_sensivel.nome}}
-        </div>
-    </div>
+    <table style="width:100%">
+        <tr style="color:white; background-color:cornflowerblue;">
+            <th><div class="titulo">Nome Completo:</div></th>
+            <td style="padding:10px;"><div class="detalhe">{{participante.info_sensivel.nome}}</div></td>
+        </tr>
 
-    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-         onmouseout="hideContent1(this)">
-        <div class="titulo">Idade</div>
-        <div class="detalhe">{{participante.idade}}
-        </div>
-    </div>
+        <tr>
+            <th><div class="titulo">Idade:</div></th>
+            <td style="padding:10px;"><div class="detalhe">{{participante.idade}}</div></td>
+        </tr>
 
-    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-         onmouseout="hideContent1(this)">
-        <div class="titulo">Sexo</div>
-        <div class="detalhe">{{participante.sexo}}
-        </div>
-    </div>
+        <tr style="color:white; background-color:cornflowerblue;">
+            <th><div class="titulo">Sexo:</div></th>
+            <td style="padding:10px;"><div class="detalhe">{{participante.sexo}}</div></td>
+        </tr>
 
-    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-         onmouseout="hideContent1(this)">
-        <div class="titulo">Data de Nascimento</div>
-        <div class="detalhe">{{participante.nascimento}}
-        </div>
-    </div>
+        <tr>
+            <th><div class="titulo">Data de Nascimento:</div></th>
+            <td style="padding:10px;"><div class="detalhe">{{participante.nascimento}}</div></td>
+        </tr>
 
-    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-         onmouseout="hideContent1(this)">
-        <div class="titulo">Nacionalidade</div>
-        <div class="detalhe">{{participante.nacionalidade}}
-        </div>
-    </div>
+        <tr style="color:white; background-color:cornflowerblue;">
+            <th><div class="titulo">Nacionalidade:</div></th>
+            <td style="padding:10px;"><div class="detalhe">{{participante.nacionalidade}}</div></td>
+        </tr>
 
-    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-         onmouseout="hideContent1(this)">
-        <div class="titulo">Diagnósticos</div>
-        <div class="detalhe">{{participante.nacionalidade}}
-        </div>
-    </div>
+        <tr>
+            <th><div class="titulo">Diagnósticos:</div></th>
+            <td style="padding:10px;"><div class="detalhe">{{participante.doencas}}</div></td>
+        </tr>
 
-    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-         onmouseout="hideContent1(this)">
-        <div class="titulo">Telemóvel</div>
-        <div class="detalhe">{{participante.info_sensivel.telemovel}}
-        </div>
-    </div>
+        <tr style="color:white; background-color:cornflowerblue;">
+            <th><div class="titulo">Telemóvel:</div></th>
+            <td style="padding:10px;"><div class="detalhe">{{participante.info_sensivel.telemovel}}</div></td>
+        </tr>
 
-    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
-         onmouseout="hideContent1(this)">
-        <div class="titulo">Email</div>
-        <div class="detalhe">{{participante.info_sensivel.email}}
-        </div>
-    </div>
-
+        <tr>
+            <th><div class="titulo">Email:</div></th>
+            <td style="padding:10px;"><div class="detalhe">{{participante.info_sensivel.email}}</div></td>
+        </tr>
+    </table>
 </div>
 
- <div id="presencas">
+<div id="presencas">
 
-     <h1>Presencas do grupo {{ grupo_id }}</h1>
+    <h1>Presencas do grupo {{ grupo_id }}</h1>
 
 </div>

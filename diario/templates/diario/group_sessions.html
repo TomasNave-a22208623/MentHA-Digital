@@ -30,7 +30,9 @@
                         <th style="text-align: center;"><strong>Estado</strong></th>
                         <th style="text-align: center;">Sessão</th>
                         <th style="text-align: center;">Materiais</th>
+                    {% if grupos_permissoes.exists %}
                         <th style="text-align: center;">Relatório</th>
+                    {% endif %}
                     </tr>
                     </thead>
                     <tbody>
@@ -42,8 +44,9 @@
                         <td style="text-align: center;">{{ sessao_do_grupo.sessao.nome }}</td>
                         {% endif %}
                         <td style="text-align: center;">
+                        {% if grupos_permissoes.exists %}
                             <a href="{% url 'diario:changeDate' sessao_do_grupo.sessao.id grupo.id %}">
-
+                        {% endif %}
                                 {% if sessao_do_grupo.data == None %}
                                 <button class="btn btn-link">
                                     Não agendada
@@ -80,11 +83,11 @@
 
                         <td style="text-align: center;">
 
-                            {% if sessao_do_grupo.id == proxima_sessao %}
+                            {% if sessao_do_grupo.id == proxima_sessao and  sessao_do_grupo.data is not Null and grupos_permissoes.exists %}
                             <form action="{% url 'diario:presencas_sessao' sessao_do_grupo.id %}">
                                 <button class="btn btn-primary btn-sessao ee button">Iniciar</button>
                             </form>
-                            {% elif sessao_do_grupo.id == sessao_em_curso %}
+                            {% elif sessao_do_grupo.id == sessao_em_curso and grupos_permissoes.exists %}
                             <form action="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
                                 <button class="btn btn-primary btn-sessao">Continuar</button>
                             </form>
@@ -96,22 +99,28 @@
                         </td>
                         <td style="text-align: center;">
                             {% if sessao_do_grupo.sessao.materiais|length > 0 %}
-                            <a href="{{ sessao_do_grupo.sessao.materiais.url }}">
-                                📃
-                            </a>
+                             <button style="border-radius: 50%; border: 0; background-color: lightgray;">
+                                 <a href="{{ sessao_do_grupo.sessao.materiais.url }}">
+                                    &#128218;
+                                </a>
+                             </button>
                             {% else %}
                                 &#10060;
                             {% endif %}
                         </td>
+                        {% if grupos_permissoes.exists %}
                         <td style="text-align: center;">
-                            {% if sessao_do_grupo.sessao.relatorio|length > 0 %}
-                            <a href="{{ sessao_do_grupo.sessao.relatorio.url }}">
-                                &#128203;
-                            </a>
+                            {% if sessao_do_grupo.relatorio|length > 0 %}
+                                <button style="border-radius: 50%; border: 0; background-color: lightgray;">
+                                    <a href="{{ sessao_do_grupo.relatorio.url }}">
+                                        &#128203;
+                                    </a>
+                                 </button>
                             {% else %}
                                 &#10060;
                             {% endif %}
                         </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                     </tbody>

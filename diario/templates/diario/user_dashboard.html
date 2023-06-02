@@ -1,0 +1,175 @@
+{% extends 'diario/base_cuidador.html' %}
+{% load static %}
+{% block main %}
+
+    <script>
+        function showPopup() {
+            var popup = document.getElementById('popup');
+            popup.classList.toggle('show');
+        }
+
+        function hidePopup() {
+            var popup = document.getElementById('popup');
+            popup.classList.toggle('show');
+        }
+
+        function myFunction() {
+            // Declare variables
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+    </script>
+
+    <div class="content-user-db">
+        <div class="container-fluid">
+            <div class="container text-start">
+                <div class="row">
+                    <div class="col align-self-center">
+                        <div class="">
+                            <div class="card-body" style="padding: 8px">
+                                <p class="text-primary m-0 fw-bold"
+                                   style="margin: 5px; font-size: 26px">A Minha Próxima Sessão</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow">
+                <div class="card-body">
+                    {% if ss == True %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="text-align: center;"><strong>Grupo</strong></th>
+                                    <th style="text-align: center;"><strong>Sessão</strong></th>
+                                    <th style="text-align: center;"><strong>Data</strong></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                <tr>
+                                    <td style="text-align: center; vertical-align: middle;">{{ proxima.grupo }}</td>
+                                    <td style="text-align: center; vertical-align: middle;">{{ proxima.sessao }}</td>
+                                    <td style="text-align: center; vertical-align: middle;">{{ proxima.data }}</td>
+                                    <td style="text-align: center; vertical-align: middle;">
+                                        <div class="input-group mb-3">
+                                            <a href="#" onclick="showPopup()">
+                                                <div style="margin: auto">
+                                                    {{ svg|safe }}
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <a href="#" onclick="showPopup()">
+                                        <div id="popup" class="popup">
+                                            <div id="div-no-click" class="popup-content" style="pointer-events: none;">
+                                                <div class="input-group mb-3">
+                                                    <div style="margin: auto">
+                                                        {{ svg_pop|safe }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <td style="text-align: center; vertical-align: middle;"><p>ou</p></td>
+
+                                    <td style="text-align: center; vertical-align: middle;">
+                                        <form action="{% url 'diario:presencas_sessao' proxima.id %}">
+                                            <button class="btn btn-outline-primary">Entrar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+
+                                <tr>
+
+                                </tr>
+                                </tbody>
+                                <!-- Bold footer line -->
+                            </table>
+                        </div>
+                    {% else %}
+                        Sem nenhuma sessão brevemente
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="container-fluid" style="margin-top:15px">
+            <div class="card-body" style="padding: 8px">
+                <p class="text-primary m-0 fw-bold" style="margin: 5px; font-size: 26px">O Meu Grupo</p>
+            </div>
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="table-responsive" style="margin-top:15px">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th style="text-align: center;"><strong>Grupo</strong></th>
+                                <th style="text-align: center;"><strong>Programa</strong></th>
+                                <th style="text-align: center;"><strong>Diagnóstico</strong></th>
+                                <th style="text-align: center;"><strong>Localização</strong></th>
+                                <th style="text-align: center;"><strong>Referenciação</strong></th>
+                                <th style="text-align: center;"><strong>Nº Membros</strong></th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for grupo in grupos %}
+                                <tr>
+                                    <td style="text-align: center;">{{ grupo }}</td>
+                                    <td style="text-align: center;">{{ grupo.programa }}</td>
+                                    <td style="text-align: center;">{{ grupo.diagnostico }}</td>
+                                    <td style="text-align: center;">{{ grupo.localizacao }}</td>
+                                    <td style="text-align: center;">{{ grupo.referenciacao }}</td>
+                                    <td style="text-align: center;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+                                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                            <path fill-rule="evenodd"
+                                                  d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
+                                            <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+                                        </svg>
+                                        {{ grupo.nr_membros }}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <form action="{% url 'diario:grupo_details' grupo.id %}">
+                                            <button class="btn btn-primary">Detalhes</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <div class="alert alert-warning" role="alert">
+                                    Não tem Grupos associados
+                                </div>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

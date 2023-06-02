@@ -128,7 +128,7 @@
                     </div>
                 </div>
             </div>
-
+            {% if user_tudo is not None and user_risk is None %}
             <!-- Agendamentos-->
             <div class="container-fluid" style="margin-top: 25px">
                 <div class="card shadow">
@@ -145,7 +145,7 @@
                                             <th style="text-align:center; width:15%">Parte</th>
                                             <th style="text-align:center; width:15%">Data</th>
                                             <th style="text-align:center; width:15%">Hora</th>
-                                            <th style="text-align:left; width:20%">Progresso</th>
+                                            <th style="text-align:center; width:20%">Progresso</th>
                                             <th style="text-align:center; width:15%">Gerar Relatório</th>
                                             <th style="text-align:center; width:15%">Selecionar Área</th>
                                         </tr>
@@ -186,8 +186,11 @@
                                                     </div>
                                                 </td>
                                             {% else %}
-                                                <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
-                                                </td>
+                                                    <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                                        {% if percentage == 100 %}
+                                                            <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
+                                                        {% endif %}
+                                                    </td>
                                             {% endif %}
                                             
                                             <!-- Report Button -->
@@ -292,7 +295,129 @@
                     </div>
                 </div>
             </div>
-            
+            {% elif user_risk is not None %}
+             <!-- Agendamentos-->
+            <div class="container-fluid" style="margin-top: 25px">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">AGENDAMENTOS</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-body">
+                            <div class="table-responsive table mt-2" id="dataTable" role="grid"
+                                aria-describedby="dataTable_info">
+                                <table class="table my-0 table-hover-light" id="dataTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align:center; width:15%">Parte</th>
+                                            <th style="text-align:center; width:15%">Data</th>
+                                            <th style="text-align:center; width:15%">Hora</th>
+                                            <th style="text-align:left; width:20%">Progresso</th>
+                                            <th style="text-align:center; width:15%">Gerar Relatório</th>
+                                            <th style="text-align:center; width:15%">Selecionar Área</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            {% for part,answered,percentage in partesdoutilizador %}
+                                            {% if part.part.name == 'MentHA-Risk'  %}
+                                            <!-- Part -->
+                                            <td style="margin-top:0px; padding-bottom:0px;">
+                                                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:areas' 1 part.id patient.id %}">
+                                                    <p style="margin-top: 10px;">
+                                                        {{ part.part.name }}
+                                                    </p>
+                                                </a>
+                                            </td>
+
+                                            <!-- Date -->
+                                            <td style="margin-top:10px; padding-bottom:0px; text-align:center;">
+                                                <p style="margin-top: 10px;">
+                                                    {{part.data.day}}/{{part.data.month}}/{{part.data.year}}
+                                                </p>
+                                            </td>
+
+                                            <!-- Hour -->
+                                            <td style="margin-top:10px; padding-bottom:0px; text-align:center;">
+                                                <p style="margin-top: 10px;">
+                                                    {{part.time}}
+                                                </p>
+                                            </td>
+
+                                            <!-- Progress Bar -->
+                                            {% if part.part.name != "MentHA-Risk" %}
+                                                <td style="padding-bottom:0px;">
+                                                    <div class="progress" style="margin-top:15px;">
+                                                        <div class="progress-bar" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percentage }}%;">
+                                                            {{ percentage }}%
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            {% else %}
+                                                <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                                </td>
+                                            {% endif %}
+                                            
+                                            <!-- Report Button -->
+                                            <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                                <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"  style="text-align: center;">
+                                                    <button class="btn btn-secondary" type="button" style="border-radius: 217px;">
+                                                        <i class="fa fa-file-text-o" style="border-left-width: 0px;font-size: 15px;text-align: center;"></i>
+                                                    </button>
+                                                </a>
+                                            </td>
+
+                                            <!-- Area Button -->
+                                            <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                                <a href="#" class="jq-btn"
+                                                    {% if part.part.name != "MentHA-Risk" %}
+                                                        data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"
+                                                    {% else %}
+                                                        data-href="{% url 'protocolo:question' 1 part.id risk_area.id pergunta_risk.section.dimension.instrument.id pergunta_risk.section.dimension.id pergunta_risk.section.id  patient.id %}"
+                                                    {% endif %}>
+                                                    <button class="btn btn-primary" type="button" style="border-radius: 217px;">
+                                                        <i class="fa fa-chevron-right" style="border-left-width: 0px;font-size: 15px;text-align: center;"></i>
+                                                    </button>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% endfor %}
+                                        <tr></tr>
+                                    </tbody>
+                                    <!-- Bold footer line -->
+                                    <tfoot>
+                                        <tr>
+                                            <td><strong></strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <!-- Appointment Button -->
+
+                            <form id="appointment-form" action="" method="POST" style="display:flex; align-items:flex-end; gap:10px">
+                                {% csrf_token %}
+                                <select>
+                                    <option value="1">MentHA-Risk</option>
+                                </select>
+
+                                {% for field in form %}
+                                    <div style="display:flex; flex-direction:row; align-items:center; gap:4px">
+                                        
+                                        {{ field.label }}: {{ field }}
+                                    </div>
+                                {% endfor %}
+                                <button id="btn-popup" class="btn btn-primary btn-appointment flex-left" type="submit" data-href="{% url 'protocolo:participant' patient.id %}"> 
+                                    <i class="fa fa-calendar-plus-o"></i>&nbsp Agendar
+                                </button>                                                    
+                            </form>
+                        </div>
+                    </div>
+                    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+                </div>
+            </div>
+
+            {% endif %}
         </div>
     </div>
     <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
