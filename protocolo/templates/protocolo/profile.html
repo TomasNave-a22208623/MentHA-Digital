@@ -145,7 +145,7 @@
                                             <th style="text-align:center; width:15%">Parte</th>
                                             <th style="text-align:center; width:15%">Data</th>
                                             <th style="text-align:center; width:15%">Hora</th>
-                                            <th style="text-align:left; width:20%">Progresso</th>
+                                            <th style="text-align:center; width:20%">Progresso</th>
                                             <th style="text-align:center; width:15%">Gerar Relatório</th>
                                             <th style="text-align:center; width:15%">Selecionar Área</th>
                                         </tr>
@@ -186,8 +186,11 @@
                                                     </div>
                                                 </td>
                                             {% else %}
-                                                <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
-                                                </td>
+                                                    <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                                        {% if percentage == 100 %}
+                                                            <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
+                                                        {% endif %}
+                                                    </td>
                                             {% endif %}
                                             
                                             <!-- Report Button -->
@@ -391,10 +394,16 @@
                                 </table>
                             </div>
                             <!-- Appointment Button -->
+
                             <form id="appointment-form" action="" method="POST" style="display:flex; align-items:flex-end; gap:10px">
                                 {% csrf_token %}
+                                <select>
+                                    <option value="1">MentHA-Risk</option>
+                                </select>
+
                                 {% for field in form %}
                                     <div style="display:flex; flex-direction:row; align-items:center; gap:4px">
+                                        
                                         {{ field.label }}: {{ field }}
                                     </div>
                                 {% endfor %}

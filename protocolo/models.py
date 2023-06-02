@@ -108,6 +108,7 @@ class Risk(models.Model):
     risco_de_enfarte = models.IntegerField(default=0,null=True) #propriedade
     parteDoUtilizador = models.OneToOneField('ParteDoUtilizador',on_delete=models.CASCADE,null=True,blank=True,default=None)
     relatorio = models.FileField(upload_to='relatorio_risk/', null=True, blank=True)
+    concluido = models.BooleanField(default=False)
     
 
     # @property
@@ -220,7 +221,9 @@ class ParteDoUtilizador(models.Model):
     participante = models.ForeignKey(Participante, on_delete=models.CASCADE, related_name='parteDoUtilizador') #participante que fez a parte
     data = models.DateField() #data da marcacao
     time = models.TimeField() #hora da marcacao
-
+    relatorio = models.FileField(upload_to='relatorio/', null=True, blank=True)
+    concluido = models.BooleanField(default=False)
+    
     @property
     def order(self):
         return self.part.order
