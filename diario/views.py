@@ -79,6 +79,7 @@ def dashboard(request):
     dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
     mentor = Mentor.objects.filter(user=request.user).first()
     participante = Participante.objects.filter(user= request.user).first()
+    is_participante = False
     if dinamizador:
         grupos = dinamizador.grupo.all()
     if mentor:
@@ -86,6 +87,7 @@ def dashboard(request):
     if participante:
         grupos = participante.grupo.all()
         sg = SessaoDoGrupo.objects.filter(grupo__in=participante.grupo.all()).exclude(parte_ativa__isnull=True)
+        is_participante = True
     if request.user.is_superuser:
         grupos = Grupo.objects.all()
 
@@ -98,13 +100,12 @@ def dashboard(request):
     'formGrupo': formGrupo,
     }
 
-    if sg.exists():
+    if is_participante and len(sg) > 1:
         sg = sg.get()
+        contexto['sg'] = sg
         parte = sg.parte_ativa
         contexto['parte'] = parte
-        print(sg.parte_ativa.descricao)
-        contexto['sg'] = sg
-
+        
         form_list = []
         lista_ids_escolhas_multiplas = []
         for pergunta in parte.perguntas.all():
