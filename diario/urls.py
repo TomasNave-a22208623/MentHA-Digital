@@ -87,5 +87,7 @@ urlpatterns = [
                        name="obter_candidatos"),
                   path('parte_ativa/<int:sg_id>', views.parte_ativa,
                        name="parte_ativa"),
+                path('user_dashboard', views.user_dashboard,
+                     name="user_dashboard"),
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

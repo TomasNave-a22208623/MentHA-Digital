@@ -28,7 +28,7 @@
                         <th style="text-align: center;"><strong>Data e hora</strong></th>
                         <th style="text-align: center;"><strong>Regime</strong></th>
                         <th style="text-align: center;"><strong>Estado</strong></th>
-                        <th style="text-align: center;">Sessão</th>
+                        <th style="text-align: center;">Plano</th>
                         <th style="text-align: center;">Materiais</th>
                     {% if grupos_permissoes.exists %}
                         <th style="text-align: center;">Relatório</th>
@@ -73,11 +73,11 @@
                             {% endif %}
                         </td>
                         <td style="text-align: center;">{% if sessao_do_grupo.estado == 'PR' %}
-                            Por realizar
+                            &#10060;
                             {% elif sessao_do_grupo.estado == 'EC' %}
                             Em curso
                             {% else %}
-                            Realizado
+                            &#x2714;
                             {% endif %}
                         </td>
 
@@ -93,15 +93,15 @@
                             </form>
                             {% else %}
                             <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
-                                <button class="btn btn-outline-secondary btn-sessao">Plano</button>
+                                <button class="btn btn-outline-secondary btn-sessao">CARE {{ sessao_do_grupo.sessao.numeroSessao }}</button>
                             </a>
                             {% endif %}
                         </td>
                         <td style="text-align: center;">
                             {% if sessao_do_grupo.sessao.materiais|length > 0 %}
-                             <button style="border-radius: 50%; border: 0; background-color: lightgray;">
+                             <button style="border-radius: 70%; border: 0; background-color: lightgray;">
                                  <a href="{{ sessao_do_grupo.sessao.materiais.url }}">
-                                    &#128218;
+                                    <img src="../../../media/images/download-circular-button.png" style="width:25px;height:25px;">
                                 </a>
                              </button>
                             {% else %}
@@ -111,9 +111,9 @@
                         {% if grupos_permissoes.exists %}
                         <td style="text-align: center;">
                             {% if sessao_do_grupo.relatorio|length > 0 %}
-                                <button style="border-radius: 50%; border: 0; background-color: lightgray;">
+                                <button style="border-radius: 70%; border: 0; background-color: lightgray;">
                                     <a href="{{ sessao_do_grupo.relatorio.url }}">
-                                        &#128203;
+                                        <img src="../../../media/images/file.png" style="width:25px;height:25px;">
                                     </a>
                                  </button>
                             {% else %}
