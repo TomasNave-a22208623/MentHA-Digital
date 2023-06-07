@@ -737,6 +737,7 @@ class Escolha(models.Model):
 
 class Partilha(models.Model):
     participante = models.ForeignKey(Participante, on_delete=models.CASCADE, blank=True, null=True)
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null=True, default=None)
     cuidador = models.ForeignKey(Cuidador, on_delete=models.CASCADE, blank=True, null=True)
     partilha = models.TextField()
     data = models.DateTimeField(auto_now_add=True, null=True)
@@ -881,6 +882,7 @@ class PartilhaGrupo(models.Model):
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
     descricao = models.TextField()
     data = models.DateTimeField(auto_now_add=True, null=True)
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null=True, default=None)
 
     def __str__(self):
         return f'{self.descricao}'

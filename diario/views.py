@@ -820,6 +820,8 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
         'pode_iniciar': pode_iniciar,
         'apresentacao' : apresentacao,
         'tempo_total_partes': tempo_total_partes,
+        'cuidador': Cuidador.objects.filter(user=request.user).first(),
+        'participante': Participante.objects.filter(user=request.user).first(),
         'tempo_total_partes_grupo': tempo_total_partes_grupo,
         'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
@@ -920,14 +922,14 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         if request.POST.get('partilha'):
             partilha_text = request.POST.get('partilha')
             id_participante = request.POST.get('participante')
-            partilha = Partilha(cuidador=Cuidador.objects.get(pk=id_participante), partilha=partilha_text)
+            partilha = Partilha(cuidador=Cuidador.objects.get(pk=id_participante), partilha=partilha_text, sessao_grupo=sessao_grupo)
             partilha.save()
 
     context = {
         'participante_id': idParticipante,
         'participante': participante,
         'notas': notas,
-        'partilhas': Partilha.objects.filter(cuidador_id=idParticipante).order_by('-data'),
+        'partilhas': Partilha.objects.filter(sessao_grupo=sessao_grupo).order_by('-data'),
         'informacoes': Informacoes.objects.filter(participante=idParticipante).order_by('-data'),
         'respostas': 'aaa',
         'notaForm': NotaForm(),
@@ -1003,7 +1005,7 @@ def view_diario_grupo(request, idSessaoGrupo):
         form1 = PartilhaGrupoForm(request.POST or None)
         if request.POST.get('descricao'):
             partilha_text = request.POST.get('descricao')
-            partilha_grupo = PartilhaGrupo(grupo=sessao_grupo.grupo, descricao=partilha_text)
+            partilha_grupo = Partilha(partilha=partilha_text, sessao_grupo=sessao_grupo)
             partilha_grupo.save()
 
     form = RespostasForm(request.POST or None)
@@ -1033,7 +1035,7 @@ def view_diario_grupo(request, idSessaoGrupo):
         'grupo': SessaoDoGrupo.objects.get(id=idSessaoGrupo).grupo,
         'sessaoGrupo': sessao_grupo,
         'notasGrupo': NotaGrupo.objects.filter(grupo=idGrupo),
-        'partilhas': PartilhaGrupo.objects.filter(grupo=idGrupo),
+        'partilhas': Partilha.objects.filter(sessao_grupo=sessao_grupo),
         'informacoes': Informacoes.objects.all(),
         # 'respostas': Respostas.objects.all(),
         'notaGrupoForm': NotaGrupoForm(),
@@ -1631,10 +1633,10 @@ def voltar_parte(request, idParte, sessao_grupo_id, estado):
 def finalizar_sessao(request, idGrupo, sessao_grupo_id):
     sessao_group = SessaoDoGrupo.objects.get(id=sessao_grupo_id)
     parte_group_final = sessao_group.parteGrupos.all().last()
-
-    parte_group_final.fim = datetime.utcnow()
-    parte_group_final.concluido = True
-    parte_group_final.save()
+    for parte in sessao_group.parteGrupos.all():
+        parte.fim = datetime.utcnow()
+        parte.concluido = True
+        parte.save()
 
     gera_relatorio(sessao_group, request)
 
@@ -1816,7 +1818,7 @@ def gera_relatorio(sessaoDoGrupo, request):
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
     if counter_precensas['Faltou'] > 1:
         document.add_paragraph("Infelizmente, um total de " + str(counter_precensas['Faltou'])
-                               + "participantes não poderam estar presentes")
+                               + " participantes não poderam estar presentes")
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
     elif counter_precensas['Faltou'] == 1:
         document.add_paragraph("Infelizmente, um dos participantes não pode estar presente")

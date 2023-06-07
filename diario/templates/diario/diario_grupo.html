@@ -78,7 +78,7 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
         <button type="submit" class="btn btn-primary" name="partilha">Guardar partilha</button>
     </form>
 
-    <h2>Partilhas de {{ grupo.nome }}</h2>
+    <h2><b>Partilhas de {{ grupo.nome }}</b></h2>
     <ul>
         {% if partilhas|length > 0 %}
         {% for partilha in partilhas %}
