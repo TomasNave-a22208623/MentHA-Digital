@@ -45,7 +45,7 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
 <div id="notas" style="overflow: auto;">
     <!-- https://code-boxx.com/post-form-data-javascript-fetch/ -->
 
-    <form id="notaGrupoForm" onsubmit='return sendForm({{sessaoGrupo.id}}, "notaGrupoForm");' method="post">
+    <form id="notaGrupoForm" onsubmit='event.preventDefault(); sendForm({{sessaoGrupo.id}}, "notaGrupoForm");' method="post">
         {% csrf_token %}
         {{ notaGrupoForm.notaGrupo }}
         <input type="hidden" name="grupo" value={{ grupo_id }}>
@@ -59,7 +59,7 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
     <ul>
         {% if notasGrupo|length > 0 %}
         {% for nota in notasGrupo %}
-        <li>{{ nota }}</li>
+        <li>{{ nota }} <span class="data">{{ nota.data_str }}</span></li>
         {% endfor %}
         {% else %}
         <li>Sem notas</li>
@@ -71,10 +71,10 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
 <div id="partilhas">
 
 
-    <form id="partilhaGrupoForm" onsubmit='return sendForm({{sessaoGrupo.id}}, "partilhaGrupoForm");' method="post">
+    <form id="partilhaGrupoForm" onsubmit='event.preventDefault(); sendForm({{sessaoGrupo.id}}, "partilhaGrupoForm");' method="post">
         {% csrf_token %}
         {{ partilhaGrupoForm.descricao }}
-        <input type="hidden" name="grupo" value={{ grupo_id }}>
+        <input type="hidden" name="grupo" value={{ sessaoGrupo.id }}>
         <button type="submit" class="btn btn-primary" name="partilha">Guardar partilha</button>
     </form>
 
@@ -82,7 +82,7 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
     <ul>
         {% if partilhas|length > 0 %}
         {% for partilha in partilhas %}
-        <li>{{ partilha }} <span class="data">{{ partilha.data }}</span></li>
+        <li>{{ partilha }} <span class="data">{{ partilha.data_str }}</span></li>
         {% endfor %}
         {% else %}
         <li>Sem partilhas</li>

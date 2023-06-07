@@ -9,22 +9,6 @@ from django.http import HttpResponse
 
 from .functions import *
 
-
-##### Eventos ######################################
-
-# class Grupo(models.Model):
-#     nome = models.CharField(max_length=20)
-
-#     def __str__(self):
-#         return f'{self.nome}'
-
-#     class Meta:
-#         abstract = True
-#         Eu CONSEGUI
-#         EU JAMES TAMBEM
-#         O Tiago Silva esteve aqui
-#         Da-lhe Zé
-
 class Reference(models.Model):
     nome = models.CharField(max_length=20, default="")
 
@@ -705,10 +689,10 @@ class ParteGrupo(models.Model):
 
         hDisplay = ""
         if h > 0:
-            hDisplay = str(h) + "h"
-        mDisplay = "0m"
+            hDisplay = str(h)
+        mDisplay = "0"
         if m > 0:
-            mDisplay = str(m) + "m"
+            mDisplay = str(m)
 
         return hDisplay + mDisplay
 
@@ -760,6 +744,11 @@ class Partilha(models.Model):
     def __str__(self):
         return f'{self.partilha}'
 
+    def data_str(self):
+        formato_saida = "%d/%m/%Y %H:%M"
+        data_saida = self.data.strftime(formato_saida)
+        return data_saida
+
 
 ###################################  COG ########################
 
@@ -798,6 +787,11 @@ class Nota(models.Model):
 
     def __str__(self):
         return f'{self.nota}'
+
+    def data_str(self):
+        formato_saida = "%d/%m/%Y %H:%M"
+        data_saida = self.data.strftime(formato_saida)
+        return data_saida
 
 
 # class GrupoAvalia(Grupo):
@@ -891,6 +885,11 @@ class PartilhaGrupo(models.Model):
     def __str__(self):
         return f'{self.descricao}'
 
+    def data_str(self):
+        formato_saida = "%d/%m/%Y %H:%M"
+        data_saida = self.data.strftime(formato_saida)
+        return data_saida
+
 
 class NotaGrupo(models.Model):
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, null=True)
@@ -902,3 +901,8 @@ class NotaGrupo(models.Model):
 
     def __str__(self):
         return f'{self.notaGrupo}'
+
+    def data_str(self):
+        formato_saida = "%d/%m/%Y %H:%M"
+        data_saida = self.data.strftime(formato_saida)
+        return data_saida

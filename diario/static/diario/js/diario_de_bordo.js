@@ -25,7 +25,7 @@ function ativaBotaoParticipante(idParticipante) {
   buttonAtivo.style.font_weight = "600";
 }
 //Grupo
-function ativaBotaoGrupo(idGrupo) {
+function ativaBotaoGrupo() {
   // desativa todos os botões
   document.querySelectorAll(".participantes button").forEach((button) => {
     button.style.backgroundColor = "white";
@@ -33,7 +33,7 @@ function ativaBotaoGrupo(idGrupo) {
     button.style.font_weight = "600";
   });
   // obtém e ativa o botão do grupo
-  let buttonAtivo = document.querySelector(`[data-idGrupo="${idGrupo}"]`);
+  let buttonAtivo = document.querySelector(`[id="botao-grupo"]`);
   buttonAtivo.style.backgroundColor = "#0d6efd";
   buttonAtivo.style.color = "white";
   buttonAtivo.style.font_weight = "600";
@@ -132,16 +132,15 @@ function sendFormParticipante(idSG, idPart, formId) {
       });
 }
 
-function sendForm(idSG, idPart, formId) {
+function sendForm(idSG, formId) {
   let data = new FormData(document.getElementById(formId));
-  fetch(`/diario/diario_grupo/${idSG}/${idPart}`, { method: "POST", body: data })
+  fetch(`/diario/diario_grupo/${idSG}`, { method: "POST", body: data })
     .then((response) => response.text())
-    .then((text) => {
-      document.querySelector(".info").innerHTML = text;
+    .then(text => {
+      document.querySelector('.info').innerHTML = text;
       ativaMenu();
-      ativaBotaoGrupo(idgrupo);
+      ativaBotaoGrupo();
     });
-  return false;
 }
 
 function mostraDiarioBordo() {

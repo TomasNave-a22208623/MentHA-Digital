@@ -28,7 +28,7 @@
     <ul>
         {% if notas|length > 0 %}
         {% for nota in notas %}
-        <li>{{ nota }} <span class="data">{{ nota.data }}</span></li>
+        <li>{{ nota }} <span class="data">{{ nota.data_str }}</span></li>
         {% endfor %}
         {% else %}
         <li>Sem notas</li>
@@ -53,7 +53,7 @@
     <ul>
         {% if partilhas|length > 0 %}
         {% for partilha in partilhas %}
-        <li>{{ partilha }} <span class="data">{{ partilha.data }}</span></li>
+        <li>{{ partilha }} <span class="data">{{ partilha.data_str }}</span></li>
         {% endfor %}
         {% else %}
         <li>Sem partilhas</li>

@@ -131,8 +131,10 @@ document.addEventListener("DOMContentLoaded", function () {
                             <th scope="col">Domínio</th>
                             <th scope="col">Atividades</th>
                         {% endif %}
-                        <th></th>
-                        <th scope="col">Duração</th>
+                        {% if grupos_permissoes.exists %}
+                            <th></th>
+                            <th scope="col">Duração</th>
+                        {% endif %}
                         <th scope="col"></th>
                     </tr>
                     </thead>
@@ -162,26 +164,30 @@ document.addEventListener("DOMContentLoaded", function () {
                             {{ parte_do_grupo.exercicio.descricao | markdownify}}
                         </td>
                         {% endif %}
+                        {% if grupos_permissoes.exists %}
                         <td style="color:dodgerblue">
                             {% if parte_do_grupo.concluido == True %}
                             ✔
                             {% else %}
                             X
                             {% endif %}
+                        {% endif %}
 
                         </td>
-                        <td style="text-align:center">
+                        {% if grupos_permissoes.exists %}
+                        <td>
                             {% if parte_do_grupo.duracao != None %}
                                 {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                    {{ parte_do_grupo.duracao_em_horas_minutos }} de {{ parte_do_grupo.parte.duracao }}m
+                                    {{ parte_do_grupo.duracao_em_horas_minutos }} - {{ parte_do_grupo.parte.duracao }} min
                                 {% elif sessaoGrupo.grupo.programa == "COG"%}
-                                {{ parte_do_grupo.duracao_em_horas_minutos }} de {{ parte_do_grupo.exercicio.duracao }}m
+                                {{ parte_do_grupo.duracao_em_horas_minutos }} - {{ parte_do_grupo.exercicio.duracao }} min
                                 {% endif %}
 
                             {% endif %}
                         </td>
+                        {% endif %}
                         <td>
-                            {% if parte_do_grupo.inicio == None and pode_iniciar %}
+                            {% if parte_do_grupo.inicio == None and pode_iniciar and grupos_permissoes.exists %}
                                 {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
                                     <button type="button" class="btn btn-primary iniciar btn-sessao"
                                         {% if sessaoGrupo.grupo.programa == "CARE" %}
@@ -192,7 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                         Iniciar
                                     </button>
                                 {% endif %}
-                            {% elif  parte_do_grupo.inicio != None %}
+                            {% elif  parte_do_grupo.inicio != None and grupos_permissoes.exists %}
                                 {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
                                     <button type="button" class="btn btn-primary continuar btn-sessao"
                                         {% if sessaoGrupo.grupo.programa == "CARE" %}
@@ -203,14 +209,13 @@ document.addEventListener("DOMContentLoaded", function () {
                                         Continuar
                                     </button>
                                 {% endif %}
-                            {% else %}
+                            {% elif grupos_permissoes.exists %}
                             <button type="button" class="btn btn-outline-secondary ver btn-sessao"
                                 {% if sessaoGrupo.grupo.programa == "CARE" %}
                                     data-parte="{{parte_do_grupo.parte.id}}/{{sessaoGrupo.id}}/ver/{{proxima_parte}}">
                                 {% elif sessaoGrupo.grupo.programa == "COG" %}
                                     data-parte="{{parte_do_grupo.exercicio.id}}/{{sessaoGrupo.id}}/ver/{{proxima_parte}}">
                                 {% endif %}
-
                                 Ver
                             </button>
                             {% endif %}
@@ -246,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <div >
             <!-- Grupo -->
             <div class="grupo">
-                <button type="button" class="btn btn-primary" data-idgrupo="{{ sessaoGrupo.id }}"
+                <button id="botao-grupo" type="button" class="btn btn-primary" data-idgrupo="{{ sessaoGrupo.id }}"
                         style="width:100%; margin-top: 10px">Grupo
                 </button>
             </div>

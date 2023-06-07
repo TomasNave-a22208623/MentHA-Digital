@@ -821,6 +821,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
         'apresentacao' : apresentacao,
         'tempo_total_partes': tempo_total_partes,
         'tempo_total_partes_grupo': tempo_total_partes_grupo,
+        'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
 
     return render(request, 'diario/sessao.html', contexto)
@@ -995,10 +996,15 @@ def view_diario_grupo(request, idSessaoGrupo):
     form_nota_grupo = NotaGrupoForm(request.POST or None)
     form_partilhas_grupo = PartilhaGrupoForm(request.POST or None)
 
-    multiple_appends(form_list, form_nota_grupo, form_partilhas_grupo)
-    for form in form_list:
+    if request.method == "POST":
+        form = NotaGrupoForm(request.POST or None)
         if form.is_valid():
             form.save()
+        form1 = PartilhaGrupoForm(request.POST or None)
+        if request.POST.get('descricao'):
+            partilha_text = request.POST.get('descricao')
+            partilha_grupo = PartilhaGrupo(grupo=sessao_grupo.grupo, descricao=partilha_text)
+            partilha_grupo.save()
 
     form = RespostasForm(request.POST or None)
     if form.is_valid():
