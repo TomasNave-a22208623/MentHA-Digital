@@ -26,7 +26,26 @@
         </a>
     </div>
 </div>
-
+<div class="card-body" id="btn-report"
+        {% if existing_risk.concluido == True %} 
+        style="display:block">
+        <a href="{{ existing_risk.relatorio_word.url }}">
+        {% else %}
+        style="display:none">
+        <a href="">
+        {% endif %}
+        <div class="row">
+            <div class="col-md-12 text-nowrap">
+                <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
+                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                            data-bs-target="#modalReport">
+                        <i class="fa fa-print"></i> Gerar WORD
+                    </button>
+                </div>
+        </div>
+        </a>
+    </div>
+</div>
 <h2>Questionário MentHA-Risk</h2>
 <br>
 
@@ -49,6 +68,14 @@
             selected
         {% endif %}>Feminino</option>
     </select>
+    <br>
+    <br>
+    <label for="altura">Indique a sua altura:</label>
+    <input type="text" id="altura" name="altura" value="{{existing_risk.altura}}" required>
+    <br>
+    <br>
+    <label for="peso">Indique o seu peso:</label>
+    <input type="text" id="peso" name="peso" value="{{existing_risk.peso}}" required>
     <br>
     <br>
     <label for="fumador">É fumador ativo:</label>
@@ -75,6 +102,126 @@
         Indique o seu colesterol total (mmol/L):
         <input type="text" id="colestrol_total" name="colestrol_total" value="{{existing_risk.colestrol_total}}" required>
     </label>
+    <br>
+    <br>
+     <label for="colestrol_hdl">
+        Indique o seu colestrol_hdl (mmol/L):
+        <input type="text" id="colestrol_hdl" name="colestrol_hdl" value="{{existing_risk.colestrol_hdl}}" required >
+    </label>
+    <br>
+    <br>
+     <label for="colestrol_nao_hdl">
+        Indique o seu colestrol_nao_hdl sistólica (mmol/L):
+        <input type="text" id="colestrol_nao_hdl" name="colestrol_nao_hdl" value="{{existing_risk.colestrol_nao_hdl}}" required >
+    </label>
+    <br>
+    <br>
+     <label for="hemoglobina_gliciada">
+        Indique a sua hemoglobina_gliciada:
+        <input type="text" id="hemoglobina_gliciada" name="hemoglobina_gliciada" value="{{existing_risk.hemoglobina_gliciada}}" required >
+    </label>
+    <br>
+    <br>
+    <label for="diabetes">Tem diabetes:
+        <select id="diabetes" name="diabetes">
+            <option value="True"
+            {% if existing_risk.diabetes == 'True' %}
+                selected
+            {% endif %}
+            >Sim</option>
+            <option value="False"
+            {% if existing_risk.diabetes == 'False' %}
+                selected
+            {% endif %}>Não</option>
+        </select>
+    </label>
+    <br>
+    <br>
+    <label for="anos_diabetes">Tem diabetes há quantos anos:
+        <input type="text" id="anos_diabetes" name="anos_diabetes" value="{{existing_risk.anos_diabetes}}" required >   
+    </label>
+    <br>
+    <br>
+    <label for="avc">
+        Já teve um AVC:
+        <select id="avc" name="avc">
+            <option value="True"
+            {% if existing_risk.avc == 'True' %}
+                selected
+            {% endif %}
+            >Sim</option>
+            <option value="False"
+            {% if existing_risk.avc == 'False' %}
+                selected
+            {% endif %}>Não</option>
+        </select>
+    </label>
+    <br>
+    <br>
+    <label for ="enfarte">
+        Já teve um enfarte:
+        <select id="enfarte" name="enfarte">
+            <option value="True"
+            {% if existing_risk.enfarte == 'True' %}
+                selected
+            {% endif %}
+            >Sim</option>
+            <option value="False"
+            {% if existing_risk.enfarte == 'False' %}
+                selected
+            {% endif %}>Não</option>
+        </select>
+    </label>
+    <br>
+    <br>
+    <label for="doenca_rins">
+        Tem doença renal:
+        <select id="doenca_rins" name="doenca_rins">
+            <option value="True"
+            {% if existing_risk.doenca_rins == 'True' %}
+                selected
+            {% endif %}
+            >Sim</option>
+            <option value="False"
+            {% if existing_risk.doenca_rins == 'False' %}
+                selected
+            {% endif %}>Não</option>
+        </select>
+    </label>
+    <br>
+    <br>
+    <label for="doenca_pernas">
+        Tem doença arterial periférica:
+        <select id="doenca_pernas" name="doenca_pernas">
+            <option value="True"
+            {% if existing_risk.doenca_pernas == 'True' %}
+                selected
+            {% endif %}
+            >Sim</option>
+            <option value="False"
+            {% if existing_risk.doenca_pernas == 'False' %}
+                selected
+            {% endif %}>Não</option>
+        </select>
+    </label>
+    <br>
+    <br>
+    <label for="hipercolestrol">
+        Tem hipercolestrolémia:
+        <select id="hipercolestrol" name="hipercolestrol">
+            <option value="True"
+            {% if existing_risk.hipercolestrol == 'True' %}
+                selected
+            {% endif %}
+            >Sim</option>
+            <option value="False"
+            {% if existing_risk.hipercolestrol == 'False' %}
+                selected
+            {% endif %}>Não</option>
+        </select>
+    </label>
+    <br>
+    <br>
     <br>
     <br>
     <p>Escreva o seu comentário:</p>
