@@ -13,12 +13,11 @@ class AppointmentForm(ModelForm):
     class Meta:
         model = ParteDoUtilizador
         fields = ('part', 'data', 'time')
-        labels = {'part': 'Parte', 'date': 'Data', 'time':'Hora'}
         labels = {'part': 'Avaliação', 'date': 'Data', 'time':'Hora'}
         widgets = {
             'part' : forms.Select(attrs={'class': 'form-control'}),
             'data' : DateInput(attrs={'class': 'form-control'}),
-
+            'time' : TimeInput(attrs={'class': 'form-control'}),
         }
 
 class FormRisk(ModelForm):

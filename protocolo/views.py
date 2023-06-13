@@ -1367,6 +1367,31 @@ def float_range(start, stop, step=0.1):
 def gera_relatorio_risk_pdf(parte_risk,patient, username):
     
     document = Document()
+    #conversao para boleans
+    if parte_risk.diabetes == "True":
+        parte_risk.diabetes = True
+    else:
+        parte_risk.diabetes = False
+    if parte_risk.enfarte == "True":
+        parte_risk.enfarte = True
+    else:
+        parte_risk.enfarte = False
+    if parte_risk.doenca_rins == "True":
+        parte_risk.doenca_rins = True
+    else:
+        parte_risk.doenca_rins = False
+    if parte_risk.hipercolestrol == "True":
+        parte_risk.hipercolestrol = True
+    else:
+        parte_risk.hipercolestrol = False
+    if parte_risk.avc == "True":
+        parte_risk.avc = True
+    else:
+        parte_risk.avc = False
+    if parte_risk.doenca_pernas == "True":
+        parte_risk.doenca_pernas = True
+    else:
+        parte_risk.doenca_pernas = False
     #guardar valores para uso
     risco_baixo = ""
     hipercolesterol = ""
@@ -1386,6 +1411,11 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
 
     # Cabeçalho
     paragraph = document.add_paragraph(f'MentHA-Risk')
+
+    #testes
+    print("Teste nos reports do risk")
+    print(parte_risk.diabetes)
+    print("Teste nos reports do risk")
 
     # para pôr em itálico (chato... talvez exista algo melhor)
     for run in paragraph.runs:
