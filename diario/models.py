@@ -1,4 +1,3 @@
-from unittest.util import _MAX_LENGTH
 from django.db import models
 from datetime import datetime
 from django import forms
@@ -8,6 +7,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.http import HttpResponse
 
 from .functions import *
+
 
 class Reference(models.Model):
     nome = models.CharField(max_length=20, default="")
@@ -268,10 +268,10 @@ class SessaoDoGrupo(models.Model):
     sessao = models.ForeignKey(Sessao, on_delete=models.CASCADE, blank=True, null=True, related_name='sessoes')
     parte_ativa = models.ForeignKey(Parte_Exercicio, models.CASCADE, blank=True, null=True, related_name='sessoes')
     relatorio = models.FileField(upload_to='relatorios/', null=True, blank=True)
+    diario_bordo = models.FileField(upload_to='diarios/', null=True, blank=True)
 
     def __str__(self):
         return f'Sessao {self.sessao} do grupo {self.grupo}'
-
 
     def parte_atual(self):
         for pg in self.parteGrupos:
@@ -284,6 +284,7 @@ class Questionario(models.Model):
     topico = models.CharField(max_length=300, default="", blank=True, null=True)
     perguntas = models.ManyToManyField(Pergunta, blank=True, default=None)
     continuacaoDe = models.ForeignKey(Sessao, blank=True, on_delete=models.CASCADE, null=True, default=None)
+    concluido = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.nome}'
@@ -516,7 +517,7 @@ class Participante(Utilizador):
         diagnosticos += [obj.nome for obj in self.diagnosticos.all()]
         diagnosticos = set(diagnosticos)  # remove duplicados
         return diagnosticos
-    
+
     @property
     def proximoAgendamento(self):
         agendamentos = self.parteDoUtilizador.filter(data__gt=datetime.today()).order_by("data")
@@ -524,7 +525,7 @@ class Participante(Utilizador):
             return f"{agendamentos[0].data.strftime('%d/%m/%Y')}"
         else:
             return f"Sem agendamentos"
-            
+
     def doencas_string(self):
         d_str = ', '.join(self.doencas)
         if len(d_str) < 2:
@@ -736,6 +737,12 @@ class Escolha(models.Model):
 
 
 class Partilha(models.Model):
+    partilha_dinamizador = models.ForeignKey(DinamizadorConvidado, on_delete=models.CASCADE, default="", null=True,
+                                             blank=True,
+                                             related_name='partilha_dinamizador')
+    partilha_mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE, default="", null=True,
+                                        blank=True,
+                                        related_name='partilha_mentor')
     participante = models.ForeignKey(Participante, on_delete=models.CASCADE, blank=True, null=True)
     sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null=True, default=None)
     cuidador = models.ForeignKey(Cuidador, on_delete=models.CASCADE, blank=True, null=True)
@@ -747,6 +754,11 @@ class Partilha(models.Model):
 
     def data_str(self):
         formato_saida = "%d/%m/%Y %H:%M"
+        data_saida = self.data.strftime(formato_saida)
+        return data_saida
+
+    def hora_str(self):
+        formato_saida = "%H:%M"
         data_saida = self.data.strftime(formato_saida)
         return data_saida
 
@@ -774,7 +786,13 @@ class Nota(models.Model):
         ("Gerais", "Gerais"),
         ("Sessão", "Sessão"),
     )
-
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null=True, default=None)
+    anotador_dinamizador = models.ForeignKey(DinamizadorConvidado, on_delete=models.CASCADE, default="", null=True,
+                                             blank=True,
+                                             related_name='notas_dinamizador_sobre_cuidador')
+    anotador_mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE, default="", null=True,
+                                        blank=True,
+                                        related_name='notas_menor_sobre_participante')
     cuidador = models.ForeignKey(Cuidador, on_delete=models.CASCADE, default="", null=True, blank=True,
                                  related_name='notas')
     participante = models.ForeignKey(Participante, on_delete=models.CASCADE, null=True, blank=True)
@@ -791,6 +809,11 @@ class Nota(models.Model):
 
     def data_str(self):
         formato_saida = "%d/%m/%Y %H:%M"
+        data_saida = self.data.strftime(formato_saida)
+        return data_saida
+
+    def hora_str(self):
+        formato_saida = "%H:%M"
         data_saida = self.data.strftime(formato_saida)
         return data_saida
 
@@ -879,6 +902,12 @@ class Informacoes(models.Model):
 
 
 class PartilhaGrupo(models.Model):
+    partilha_dinamizador = models.ForeignKey(DinamizadorConvidado, on_delete=models.CASCADE, default="", null=True,
+                                             blank=True,
+                                             related_name='partilha_grupo_dinamizador')
+    partilha_mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE, default="", null=True,
+                                             blank=True,
+                                             related_name='partilha_grupo_mentor')
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
     descricao = models.TextField()
     data = models.DateTimeField(auto_now_add=True, null=True)
@@ -892,8 +921,20 @@ class PartilhaGrupo(models.Model):
         data_saida = self.data.strftime(formato_saida)
         return data_saida
 
+    def hora_str(self):
+        formato_saida = "%H:%M"
+        data_saida = self.data.strftime(formato_saida)
+        return data_saida
+
 
 class NotaGrupo(models.Model):
+    anotador_dinamizador = models.ForeignKey(DinamizadorConvidado, on_delete=models.CASCADE, default="", null=True,
+                                             blank=True,
+                                             related_name='notas_grupo_dinamizador')
+    anotador_mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE, default="", null=True,
+                                        blank=True,
+                                        related_name='notas_grupo_mentor')
+    sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null=True)
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, null=True)
     notaGrupo = models.TextField()
     data = models.DateTimeField(auto_now_add=True, null=True)
@@ -906,5 +947,10 @@ class NotaGrupo(models.Model):
 
     def data_str(self):
         formato_saida = "%d/%m/%Y %H:%M"
+        data_saida = self.data.strftime(formato_saida)
+        return data_saida
+
+    def hora_str(self):
+        formato_saida = "%H:%M"
         data_saida = self.data.strftime(formato_saida)
         return data_saida
