@@ -875,10 +875,10 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
     form_list = []
     if programa == "CARE":
         participante = Cuidador.objects.get(pk=idParticipante)
-        notas = Nota.objects.filter(cuidador=participante).order_by('-data')
+        notas = Nota.objects.filter(cuidador=participante, sessao_grupo=sessao_grupo).order_by('-data')
     elif programa == "COG":
         participante = Participante.objects.get(pk=idParticipante)
-        notas = Nota.objects.filter(participante=participante).order_by('-data')
+        notas = Nota.objects.filter(participante=participante, sessao_grupo=sessao_grupo).order_by('-data')
         # respostas = Resposta.objects.filter(participante=participante, sessao_grupo=sessao_grupo)
         exercicios = sessao_grupo.sessao.exercicios.all()
         form_list = []
@@ -914,16 +914,30 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
                     form_list.append(tuplo)
 
     if request.method == "POST":
-        form = NotaForm(request.POST or None)
-        if form.is_valid():
-            form.save()
-
-        form1 = PartilhaForm(request.POST or None)
+        print(request.POST)
         if request.POST.get('partilha'):
             partilha_text = request.POST.get('partilha')
             id_participante = request.POST.get('participante')
             partilha = Partilha(cuidador=Cuidador.objects.get(pk=id_participante), partilha=partilha_text, sessao_grupo=sessao_grupo)
             partilha.save()
+
+        elif request.POST.get('cuidador'):
+            cuidador_id = request.POST.get('cuidador')
+            nota_text = request.POST.get('nota')
+            nota = Nota(cuidador=Cuidador.objects.get(pk=cuidador_id), nota=nota_text, sessao_grupo=sessao_grupo)
+            if DinamizadorConvidado.objects.filter(user=request.user).first():
+                nota.anotador_dinamizador = DinamizadorConvidado.objects.get(user=request.user)
+            nota.sessao_grupo = sessao_grupo
+            nota.save()
+
+        elif request.POST.get('participante'):
+            participante_id = request.POST.get('participante')
+            nota_text = request.POST.get('nota')
+            nota = Nota(participante=Participante.objects.get(pk=participante_id), nota=nota_text, sessao_grupo=sessao_grupo)
+            if Mentor.objects.filter(user=request.user).first():
+                nota.anotador_mentor = Mentor.objects.get(user=request.user)
+            nota.sessao_grupo = sessao_grupo
+            nota.save()
 
     context = {
         'participante_id': idParticipante,
@@ -939,6 +953,7 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         'exercicios': exercicios,
         'form_list': form_list,
         'lista_ids_escolhas_multiplas': lista_ids_escolhas_multiplas,
+        'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
 
     return render(request, "diario/diario_participante.html", context)
@@ -999,14 +1014,27 @@ def view_diario_grupo(request, idSessaoGrupo):
     form_partilhas_grupo = PartilhaGrupoForm(request.POST or None)
 
     if request.method == "POST":
+        print(request.POST)
         form = NotaGrupoForm(request.POST or None)
-        if form.is_valid():
-            form.save()
+        if request.POST.get('notaGrupo'):
+            nota_grupo_text = request.POST.get('notaGrupo')
+            nota_grupo = NotaGrupo(notaGrupo=nota_grupo_text, sessao_grupo=sessao_grupo)
+            if DinamizadorConvidado.objects.filter(user=request.user).first():
+                nota_grupo.anotador_dinamizador = DinamizadorConvidado.objects.get(user=request.user)
+            if Mentor.objects.filter(user=request.user).first():
+                nota_grupo.anotador_mentor = Mentor.objects.get(user=request.user)
+            nota_grupo.grupo = sessao_grupo.grupo
+            nota_grupo.save()
         form1 = PartilhaGrupoForm(request.POST or None)
         if request.POST.get('descricao'):
             partilha_text = request.POST.get('descricao')
-            partilha_grupo = Partilha(partilha=partilha_text, sessao_grupo=sessao_grupo)
-            partilha_grupo.save()
+            partilha = Partilha(partilha=partilha_text, sessao_grupo=sessao_grupo)
+            if DinamizadorConvidado.objects.filter(user=request.user).first():
+                partilha.partilha_dinamizador = DinamizadorConvidado.objects.get(user=request.user)
+            if Mentor.objects.filter(user=request.user).first():
+                partilha.partilha_mentor = Mentor.objects.get(user=request.user)
+            partilha.grupo = sessao_grupo.grupo
+            partilha.save()
 
     form = RespostasForm(request.POST or None)
     if form.is_valid():
@@ -1034,8 +1062,8 @@ def view_diario_grupo(request, idSessaoGrupo):
         'grupo_id': idGrupo,
         'grupo': SessaoDoGrupo.objects.get(id=idSessaoGrupo).grupo,
         'sessaoGrupo': sessao_grupo,
-        'notasGrupo': NotaGrupo.objects.filter(grupo=idGrupo),
-        'partilhas': Partilha.objects.filter(sessao_grupo=sessao_grupo),
+        'notasGrupo': NotaGrupo.objects.filter(grupo=idGrupo, sessao_grupo=sessao_grupo),
+        'partilhas': Partilha.objects.filter(sessao_grupo=sessao_grupo).order_by('-data'),
         'informacoes': Informacoes.objects.all(),
         # 'respostas': Respostas.objects.all(),
         'notaGrupoForm': NotaGrupoForm(),
@@ -1043,6 +1071,7 @@ def view_diario_grupo(request, idSessaoGrupo):
         'online_list': online_list,
         'presencial_list': presencial_list,
         'faltou_list': faltou_list,
+        'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
 
     return render(request, "diario/diario_grupo.html", context)
@@ -1638,7 +1667,8 @@ def finalizar_sessao(request, idGrupo, sessao_grupo_id):
         parte.concluido = True
         parte.save()
 
-    gera_relatorio(sessao_group, request)
+    gera_relatorio_questinarios(sessao_group, request)
+    gera_relatorio_diario_bordo(sessao_group, request)
 
     if request.method == 'POST':
         sessao_group.estado = 'R'
@@ -1751,7 +1781,7 @@ def respostas_view(request, idSessaoGrupo, idParticipante):
     return render(request, "diario/respostas.html", context)
 
 
-def gera_relatorio(sessaoDoGrupo, request):
+def gera_relatorio_questinarios(sessaoDoGrupo, request):
     perguntas = []
     document = Document()
     counter = 0
@@ -1898,6 +1928,142 @@ def gera_relatorio(sessaoDoGrupo, request):
 
     # Assign the PDF file to the file field of sessaoDoGrupo
     sessaoDoGrupo.relatorio.save(f'{nome_ficheiro}.pdf', pdf_data)
+    sessaoDoGrupo.save()
+
+    # Delete the temporary files
+    os.remove(docx_path)
+    os.remove(pdf_path)
+
+def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
+    document = Document()
+    partilhas = Partilha.objects.all().filter(sessao_grupo=sessaoDoGrupo).order_by('-data')
+    notas = Nota.objects.all().filter(sessao_grupo=sessaoDoGrupo)
+    notas_grupo = NotaGrupo.objects.all().filter(sessao_grupo=sessaoDoGrupo)
+    grupo = sessaoDoGrupo.grupo
+    partes = ParteGrupo.objects.filter(sessaoGrupo=sessaoDoGrupo)
+
+    # Cabeçalho
+    paragraph = document.add_paragraph(f'Projeto MentHA')
+
+    # para pôr em itálico (chato... talvez exista algo melhor)
+    for run in paragraph.runs:
+        run.font.italic = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    paragraph = document.add_heading(f'Relatório da {sessaoDoGrupo.sessao.nome}', 0)
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    # Relatório
+    paragraph = document.add_paragraph("O presente relatório tem como objetivo fornecer os dados detalhados acerca do Diário de Bordo da "
+                                       +f"{sessaoDoGrupo.__str__()}" +
+                                       " realizada no dia "+ f"{sessaoDoGrupo.data.day}" + "." +
+                                       f"{sessaoDoGrupo.data.month}" + "." +
+                                       f"{sessaoDoGrupo.data.year}" + " com a participação de várias pessoas. "
+                                       "Durante a sessão abordou-se o seguinte tema: " + f"{sessaoDoGrupo.sessao.nome}")
+
+    if partes.exists():
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        paragraph = document.add_heading(
+            f'Partes realizadas na {sessaoDoGrupo.__str__()}:', 2)
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    for parte_grupo in partes:
+        if grupo.programa == "CARE":
+            paragraph = document.add_paragraph(
+                "Fase " + dict(parte_grupo.parte.FASE)[parte_grupo.parte.fase] + " - " + parte_grupo.parte.objetivo)
+            paragraph = document.add_paragraph(
+                "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.parte.duracao) + " min")
+        if grupo.programa == "COG":
+            paragraph = document.add_paragraph(
+                "Fase" + parte_grupo.exercicio + " - " + parte_grupo.exercicio.objetivo)
+            paragraph = document.add_paragraph(
+                "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.exercicio.duracao) + " min")
+
+    if partilhas.exists():
+        paragraph = document.add_heading(
+            f'Partilhas realizadas na {sessaoDoGrupo.__str__()}:', 2)
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    for partilha in partilhas:
+        if partilha.participante:
+            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o participante " +
+                                               partilha.participante.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
+        elif partilha.cuidador:
+            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o cuidador " +
+                                               partilha.cuidador.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
+        elif partilha.partilha_dinamizador:
+            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o dinamizador " +
+                                               partilha.partilha_dinamizador.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
+        elif partilha.partilha_mentor:
+            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o mentor " +
+                                               partilha.partilha_mentor.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
+
+    if notas_grupo.exists():
+        paragraph = document.add_heading(
+            f'Notas realizadas sobre o Grupo {grupo.nome}', 2)
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    for nota_grupo in notas_grupo:
+        if nota_grupo.anotador_mentor:
+            paragraph = document.add_paragraph("Às " + nota_grupo.hora_str() + " o mentor " +
+                                               nota_grupo.anotador_mentor.nome + " fez a seguinte nota sobre o grupo: \n" + nota_grupo.notaGrupo + ".")
+        if nota_grupo.anotador_dinamizador:
+            paragraph = document.add_paragraph("Às " + nota_grupo.hora_str() + " o dinamizador " +
+                                               nota_grupo.anotador_dinamizador.nome + " fez a seguinte nota sobre o grupo: \n" + nota_grupo.notaGrupo + ".")
+
+    if notas.exists() and grupo.programa == "CARE":
+        paragraph = document.add_heading(
+            f'Notas realizadas acerca dos cuidadores', 2)
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        paragraph = document.add_paragraph("Dinamizador " + notas.first().anotador_dinamizador.nome + ":")
+    elif notas.exists() and grupo.programa == "COG":
+        paragraph = document.add_heading(
+            f'Notas realizadas acerca dos participantes', 2)
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        paragraph = document.add_paragraph("Mentor " + notas.first().anotador_dinamizador.nome + ":")
+
+
+    for nota in notas:
+        if nota.anotador_dinamizador:
+            paragraph = document.add_paragraph("Às " + nota.hora_str() + " o dinamizador fez a seguinte nota acerca do cuidador "
+                                               + nota.cuidador.nome + ": \n" + nota.nota + ".")
+        if nota.anotador_mentor:
+            paragraph = document.add_paragraph("Às " + nota.hora_str() + " o mentor fez a seguinte nota acerca do participante "
+                                               + nota.cuidador.nome + ": \n" + nota.nota + ".")
+
+    # Assinatura
+    if DinamizadorConvidado.objects.filter(user=request.user):
+        paragraph = document.add_paragraph('O dinamizador,')
+        paragraph = document.add_paragraph(f'{request.user.username}')
+    elif Mentor.objects.filter(user=request.user):
+        paragraph = document.add_paragraph('O mentor,')
+        paragraph = document.add_paragraph(f'{request.user.username}')
+
+
+    # Save the Word document
+    nome_ficheiro = 'diarioBordo'+ sessaoDoGrupo.__str__()
+    nome_ficheiro = nome_ficheiro.replace(" ", "")
+    docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
+    document.save(docx_path)
+
+    # Convert the Word document to PDF
+
+    pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
+
+    pythoncom.CoInitialize()
+
+    word_app = win32.gencache.EnsureDispatch('Word.Application')
+    doc = word_app.Documents.Open(docx_path)
+    doc.SaveAs(pdf_path, FileFormat=17)
+    doc.Close()
+    word_app.Quit()
+
+    # Create a Django File object from the PDF file
+    with open(pdf_path, 'rb') as f:
+        pdf_data = io.BytesIO(f.read())
+
+    # Assign the PDF file to the file field of sessaoDoGrupo
+    sessaoDoGrupo.diario_bordo.save(f'{nome_ficheiro}.pdf', pdf_data)
     sessaoDoGrupo.save()
 
     # Delete the temporary files
