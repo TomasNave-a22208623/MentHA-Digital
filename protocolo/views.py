@@ -72,6 +72,20 @@ def popup_view(request):
 #     return render(request, 'protocolo/risco.html')
 
 @login_required(login_url='login')
+def registo_view(request):
+
+    form = PatientForm(request.POST or None)
+    avaliador = request.user
+
+    if request.method == "POST":
+        form = PatientForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.save()
+    context ={'form' : form, 'avaliador': avaliador}
+    return render(request, 'protocolo/participantes_registo.html',context)
+
+@login_required(login_url='login')
 def incrementar(request, part_id, participant_id):
     part = Part.objects.get(pk = part_id)
     particitant = Participante.objects.get(pk = participant_id)
@@ -776,6 +790,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             username = request.user.username
 
             gera_relatorio_risk_pdf(ris, patient, username)
+            
         if question.question_type == 3:
             return redirect('protocolo:instruments', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
                             patient_id=patient_id)
@@ -1727,6 +1742,7 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
         new_image.save(new_img_path)
 
         document.add_picture(new_img_path, width=Inches(3), height=Inches(3))
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
         
 
     elif idade >= 70 and idade < 90:
@@ -1755,6 +1771,7 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
         new_image.save(new_img_path)
         
         document.add_picture(new_img_path, width=Inches(3), height=Inches(3))
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     #fazer parte dinamica para mostrar os valores de risco
 
     #Recomendações
@@ -1824,6 +1841,20 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
     paragraph = document.add_paragraph()
     paragraph = document.add_paragraph(f'O avaliador, {username}')
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+
+    #imagens logos no fundo do documento
+    # cwd = os.getcwd()
+    # cwd2 = os.path.join(cwd, 'mentha', 'static', 'img', 'img-logo','ulht.png')
+    img_path4 = os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'ulht.png')
+    document.add_picture(img_path4)
+    img_path5 = os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'dgs_footer.png')
+    document.add_picture(img_path5, width=Inches(0.2), height=Inches(0.2))
+    # img_path6 = os.path.join(os.getcwd(), 'mentha\\static\mentha\\pareceiros_sm\\dgs_footer.png')
+    # document.add_picture(img_path6, width=Inches(1.5), height=Inches(1.5))
+    # img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\logo4.png')
+    # document.add_picture(img_path, width=Inches(1.5), height=Inches(1.5))
+    # img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\logo5.png')
+    # document.add_picture(img_path, width=Inches(1.5), height=Inches(1.5))
     
     # Save the Word document
     nome_ficheiro = 'Risco_Cardiovascular' +'_'+ patient.__str__() + generate_id() 

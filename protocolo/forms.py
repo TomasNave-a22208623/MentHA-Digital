@@ -10,6 +10,10 @@ class TimeInput(forms.TimeInput):
     input_type = 'time'
 
 class AppointmentForm(ModelForm):
+    
+    # ParteDoUtilizador.objects.filter() == 'MentHA-Risk'
+    # request.user.groups.filter(name__in=['Avaliador','Administrador','Avaliador-Risk'])
+
     class Meta:
         model = ParteDoUtilizador
         fields = ('part', 'data', 'time')
@@ -19,7 +23,18 @@ class AppointmentForm(ModelForm):
             'data' : DateInput(attrs={'class': 'form-control'}),
             'time' : TimeInput(attrs={'class': 'form-control'}),
         }
+        
 
+class PatientForm(ModelForm):
+    class Meta:
+        model = Participante
+        fields = '__all__'
+        labels = {'part': 'Avaliação', 'date': 'Data', 'time':'Hora'}
+        widgets = {
+            'part' : forms.Select(attrs={'class': 'form-control'}),
+            'data' : DateInput(attrs={'class': 'form-control'}),
+            'time' : TimeInput(attrs={'class': 'form-control'}),
+        }
 class FormRisk(ModelForm):
     class Meta:
         model = Risk
