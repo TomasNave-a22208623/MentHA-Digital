@@ -2073,15 +2073,11 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Cuidador')
 def user_dashboard(request):
-    datas = SessaoDoGrupo.objects.exclude(data=None)
-    datas = datas.filter(estado='PR')
-
-    if bool(datas) == True:
-        datas = datas.filter(estado='PR').order_by('data')[0]
 
     cuidador = Cuidador.objects.filter(user=request.user).first()
 
     grupos = cuidador.grupo.all()
+    sessao_grupo = SessaoDoGrupo.objects.filter(grupo=grupos.first(), estado='EC').first()
 
     factory = qrcode.image.svg.SvgImage
     uri = request.build_absolute_uri('zoom')
@@ -2095,8 +2091,8 @@ def user_dashboard(request):
 
     context = {
         'grupos': grupos,
-        'proxima': datas,
-        'ss': bool(datas),
+        'proxima': sessao_grupo,
+        'ss': bool(sessao_grupo),
         'svg': stream.getvalue().decode(),
         'svg_pop': stream_pop.getvalue().decode(),
     }
