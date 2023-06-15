@@ -392,6 +392,9 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     form_risk = FormRisk(request.POST or None)
     patient = Participante.objects.get(pk=patient_id)
     r = Resolution.objects.filter(patient=patient, doctor=request.user, part=parteDoUtilizador)
+    print('VOU DAR UMA PRINT')
+    print(parteDoUtilizador)
+    print('VOU DAR UMA PRINT')
     
     if len(r) == 0 and parteDoUtilizador.part.name == 'MentHA-Risk':
         r = Resolution.objects.create(patient=patient, doctor=request.user, part=parteDoUtilizador)
@@ -1741,7 +1744,7 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
         
         new_image.save(new_img_path)
 
-        document.add_picture(new_img_path, width=Inches(3), height=Inches(3))
+        document.add_picture(new_img_path, width=Inches(4.5), height=Inches(4.5))
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
         
 
@@ -1770,7 +1773,7 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
         
         new_image.save(new_img_path)
         
-        document.add_picture(new_img_path, width=Inches(3), height=Inches(3))
+        document.add_picture(new_img_path, width=Inches(4.5), height=Inches(4.5))
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     #fazer parte dinamica para mostrar os valores de risco
 
@@ -1825,6 +1828,7 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
     #Comentário do Avaliador
     paragraph = document.add_paragraph()
     paragraph = document.add_paragraph()
+    paragraph = document.add_paragraph()
     run = paragraph.add_run(f'Comentário do Avaliador:')
     run.bold = True
     run.font.size = Pt(14)
@@ -1838,17 +1842,38 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
     print("CHEGA A  ZIMBORA")
     # Assinatura
     paragraph = document.add_paragraph()
-    paragraph = document.add_paragraph()
     paragraph = document.add_paragraph(f'O avaliador, {username}')
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+    paragraph = document.add_paragraph()
 
     #imagens logos no fundo do documento
     # cwd = os.getcwd()
     # cwd2 = os.path.join(cwd, 'mentha', 'static', 'img', 'img-logo','ulht.png')
-    img_path4 = os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'ulht.png')
-    document.add_picture(img_path4)
-    img_path5 = os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'dgs_footer.png')
-    document.add_picture(img_path5, width=Inches(0.2), height=Inches(0.2))
+    section = document.sections[0]
+
+    # Configurar o rodapé
+    footer = section.footer
+    footer.is_linked_to_previous = False  # Certifique-se de que o rodapé não esteja vinculado ao anterior
+
+# Criar parágrafo vazio no rodapé para adicionar as imagens
+    paragraph = footer.paragraphs[0]
+    image_paths = [
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'ulht.png'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'dgs_footer.png'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'adebe.png'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'copelabs.jpg'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'gira.png'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'cvp.jpg'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'familiarmente.jpg'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'elo.png'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'mentha-logo.png')
+    ]
+    for i,image_path in enumerate(image_paths):
+        run = paragraph.add_run()
+        run.add_picture(image_path, width=Inches(0.3), height=Inches(0.3))
+        if i < len(image_path)-1:
+            run.add_text(" ")
+
     # img_path6 = os.path.join(os.getcwd(), 'mentha\\static\mentha\\pareceiros_sm\\dgs_footer.png')
     # document.add_picture(img_path6, width=Inches(1.5), height=Inches(1.5))
     # img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\logo4.png')

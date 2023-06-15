@@ -230,7 +230,7 @@ class ParteDoUtilizador(models.Model):
         return self.part.order
 
     def __str__(self) -> str:
-        return self.part.name
+        return f'{self.part.name} {self.participante}'
 
 class Instrument(Common):
     area = models.ManyToManyField('Area',

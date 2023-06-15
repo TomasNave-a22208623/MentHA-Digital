@@ -333,19 +333,21 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for part,answered,percentage in partesdoutilizador %}  
+                                    <tr>
+                                        <td>
+                                    </tr>
+                                    {% for part in partedoutilizador %}  
                                         {% comment %} {% if parte != "MentHA-Risk-area - MentHA-Risk-instrument" and text != "None" and text != "None - Fumadores" %} {% endcomment %}
                                         {% if part.part.name == 'MentHA-Risk' %}    
                                         <tr>
                                             <td style="position:sticky; left: 0; background-color: rgba(255,255,255, 1)">Status:</td>   
-                                                {% if percentage == 100 %}
+                                              
                                                     <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
                                                         <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
-                                                {% else %}
+                                                
                                                     <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
                                                         <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i>
                                                     </td>
-                                                {% endif %}
                                         </tr>
                                         {% endif %}
                                     {% endfor %}

@@ -38,10 +38,12 @@ $(document).on("click", ".btn-submit-risk", async () => {
             processData: false,  // tell jQuery not to process the data
             contentType: false   // tell jQuery not to set contentType
             
-        })
-        .then((response) => {
-            console.log(response) 
-        });
+        }).then(response => response.text())
+            .then(html => {
+                // console.log(html);
+                document.getElementById('content').innerHTML = html;
+
+            })
     // } catch (error) {
     //     console.error("Error:", error);
     // }
@@ -53,6 +55,32 @@ $(document).on("click", ".btn-submit-risk", async () => {
 //     button.style.display = "none";
 // }
 console.log('chegou aqui');
+
+
+// $(document).on("click", ".btn-submit-risk", function () {
+//     event.preventDefault();
+//     var href = $(this).attr("data-href");
+//     const csrf_token = Cookies.get('csrftoken');
+//     // var post_data = $("#appointment-form").serialize();
+//     var post_data = $("#risk_form").serialize();
+    
+//     $.ajax({
+//         method: 'POST',
+//         url: href,
+//         data: post_data,
+//         headers: { 'X-CSRFToken': csrf_token },
+//         async: false,
+//         success: function (data) {
+//             console.log("Success!")
+//             $('.page-content').html(data);
+//             return false;
+//         },
+//         error: function () {
+//             console.log("Error!");
+//             alert("Pagina não disponível.");
+//         }
+//     })
+// });
 
 // $(document).on("click", ".btn-submit-risk",  ()=> {
 //     event.preventDefault();

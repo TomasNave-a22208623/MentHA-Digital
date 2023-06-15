@@ -52,7 +52,7 @@
 <br>
 
 <div class="container-form">
-    <form action="javascript:void(0);" method="post" id="risk_form">
+    <form action="" method="post" id="risk_form">
         {% csrf_token %}
         <div>
         <label for="pergunta"><b>Como classifica o seu Risco Cardio Vascular</b></label>
@@ -107,15 +107,15 @@
             <label for="fumador"><b>É fumador ativo</b></label>
             <div class="select-containers">
                 <select class="select" id="fumador" name="fumador">
+                    <option value="nonSmoking"
+                    {% if existing_risk.fumador == 'nonSmoking' %}
+                        selected
+                    {% endif %}>Não</option>
                     <option value="smoking"
                     {% if existing_risk.fumador == 'smoking' %}
                         selected
                     {% endif %}
                     >Sim</option>
-                    <option value="nonSmoking"
-                    {% if existing_risk.fumador == 'nonSmoking' %}
-                        selected
-                    {% endif %}>Não</option>
                 </select>
             </div>
         </div>
@@ -170,15 +170,15 @@
             <label for="diabetes">Tem diabetes</b>
                 <div class="select-containers">
                     <select class="select" id="diabetes" name="diabetes">
+                        <option value="False"
+                        {% if existing_risk.diabetes == 'False' %}
+                            selected
+                        {% endif %}>Não</option>
                         <option value="True"
                         {% if existing_risk.diabetes == 'True' %}
                             selected
                         {% endif %}
                         >Sim</option>
-                        <option value="False"
-                        {% if existing_risk.diabetes == 'False' %}
-                            selected
-                        {% endif %}>Não</option>
                     </select>
                 </div>
             </label>
@@ -197,15 +197,15 @@
                 <b>Já teve um AVC</b>
                 <div class="select-containers">
                     <select class="select" id="avc" name="avc">
-                        <option value="True"
-                        {% if existing_risk.avc == 'True' %}
-                            selected
-                        {% endif %}
-                        >Sim</option>
                         <option value="False"
                         {% if existing_risk.avc == 'False' %}
                             selected
                         {% endif %}>Não</option>
+                         <option value="True"
+                        {% if existing_risk.avc == 'True' %}
+                            selected
+                        {% endif %}
+                        >Sim</option>
                     </select>
                 </div>
             </label>
@@ -216,15 +216,15 @@
                 <b>Já teve um enfarte</b>
                 <div class="select-containers">
                     <select class="select" id="enfarte" name="enfarte">
+                        <option value="False"
+                        {% if existing_risk.enfarte == 'False' %}
+                            selected
+                        {% endif %}>Não</option>
                         <option value="True"
                         {% if existing_risk.enfarte == 'True' %}
                             selected
                         {% endif %}
                         >Sim</option>
-                        <option value="False"
-                        {% if existing_risk.enfarte == 'False' %}
-                            selected
-                        {% endif %}>Não</option>
                     </select>
                 </div>
             </label>
@@ -235,15 +235,15 @@
                 <b>Tem doença renal</b>
                 <div class="select-containers">
                     <select class="select" id="doenca_rins" name="doenca_rins">
+                        <option value="False"
+                        {% if existing_risk.doenca_rins == 'False' %}
+                            selected
+                        {% endif %}>Não</option>
                         <option value="True"
                         {% if existing_risk.doenca_rins == 'True' %}
                             selected
                         {% endif %}
                         >Sim</option>
-                        <option value="False"
-                        {% if existing_risk.doenca_rins == 'False' %}
-                            selected
-                        {% endif %}>Não</option>
                     </select>
                 </div>
             </label>
@@ -254,15 +254,15 @@
                 <b>Tem doença arterial periférica</b>
                 <div class="select-containers">
                     <select class="select" id="doenca_pernas" name="doenca_pernas">
+                        <option value="False"
+                        {% if existing_risk.doenca_pernas == 'False' %}
+                            selected
+                        {% endif %}>Não</option>
                         <option value="True"
                         {% if existing_risk.doenca_pernas == 'True' %}
                             selected
                         {% endif %}
                         >Sim</option>
-                        <option value="False"
-                        {% if existing_risk.doenca_pernas == 'False' %}
-                            selected
-                        {% endif %}>Não</option>
                     </select>
                 </div>
             </label>
@@ -273,15 +273,15 @@
                 <b>Tem hipercolestrolémia</b>
                 <div>
                     <select class="select" id="hipercolestrol" name="hipercolestrol">
+                        <option value="False"
+                        {% if existing_risk.hipercolestrol == 'False' %}
+                            selected
+                        {% endif %}>Não</option>
                         <option value="True"
                         {% if existing_risk.hipercolestrol == 'True' %}
                             selected
                         {% endif %}
                         >Sim</option>
-                        <option value="False"
-                        {% if existing_risk.hipercolestrol == 'False' %}
-                            selected
-                        {% endif %}>Não</option>
                     </select>
                 </div>
             </label>
@@ -309,7 +309,7 @@
         type="button" data-href="{% url 'protocolo:participant' patient.id %}">
         <i class="fa fa-chevron-left"></i>&nbsp; Anterior
     </button> 
-    <button type="submit" href="{% url 'protocolo:dashboard' %}"
+    <button type="submit"
 data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}"
 class="btn btn-submit-risk btn-primary flex-right"
 style="margin-left: 835px">&nbsp;Submeter</button>
