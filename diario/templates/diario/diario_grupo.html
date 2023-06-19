@@ -6,8 +6,8 @@
         data.append('checked',checked);
         csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
         data.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
-        
-        // fazer view para isto 
+
+        // fazer view para isto
         fetch('user/${id}', {
             method: "POST",
             body: data
@@ -45,7 +45,7 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
 <div id="notas" style="overflow: auto;">
     <!-- https://code-boxx.com/post-form-data-javascript-fetch/ -->
 
-    <form id="notaGrupoForm" onsubmit='return sendForm({{sessaoGrupo.id}}, "notaGrupoForm");' method="post">
+    <form id="notaGrupoForm" onsubmit='event.preventDefault(); sendForm({{sessaoGrupo.id}}, "notaGrupoForm");' method="post">
         {% csrf_token %}
         {{ notaGrupoForm.notaGrupo }}
         <input type="hidden" name="grupo" value={{ grupo_id }}>
@@ -59,7 +59,13 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
     <ul>
         {% if notasGrupo|length > 0 %}
         {% for nota in notasGrupo %}
-        <li>{{ nota }}</li>
+        <li>{{ nota }} <span class="data">{{ nota.data_str }}
+            {% if nota.anotador_dinamizador %}
+                {{ nota.anotador_dinamizador.nome }}
+            {% elif nota.mentor %}
+                {{ nota.anotador_mentor.nome }}
+            {% endif %}
+        </span></li>
         {% endfor %}
         {% else %}
         <li>Sem notas</li>
@@ -71,18 +77,27 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
 <div id="partilhas">
 
 
-    <form id="partilhaGrupoForm" onsubmit='return sendForm({{sessaoGrupo.id}}, "partilhaGrupoForm");' method="post">
+    <form id="partilhaGrupoForm" onsubmit='event.preventDefault(); sendForm({{sessaoGrupo.id}}, "partilhaGrupoForm");' method="post">
         {% csrf_token %}
         {{ partilhaGrupoForm.descricao }}
-        <input type="hidden" name="grupo" value={{ grupo_id }}>
+        <input type="hidden" name="grupo" value={{ sessaoGrupo.id }}>
         <button type="submit" class="btn btn-primary" name="partilha">Guardar partilha</button>
     </form>
 
-    <h2>Partilhas de {{ grupo.nome }}</h2>
+    <h2><b>Partilhas de {{ grupo.nome }}</b></h2>
     <ul>
         {% if partilhas|length > 0 %}
         {% for partilha in partilhas %}
-        <li>{{ partilha }} <span class="data">{{ partilha.data }}</span></li>
+        <li>{{ partilha }} <span class="data">{{ partilha.data_str }}
+            {% if partilha.partilha_dinamizador %}
+                {{ partilha.partilha_dinamizador.nome }}
+            {% elif partilha.partilha_mentor %}
+                {{ partilha.partilha_mentor.nome }}
+            {% elif partilha.cuidador %}
+                {{ partilha.cuidador.nome }}
+            {% elif partilha.participante %}
+                {{ partilha.participante.nome }}
+            {% endif %}</span></li>
         {% endfor %}
         {% else %}
         <li>Sem partilhas</li>
@@ -151,7 +166,7 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
                 <div class="titulo">Diagnóstico:</div>
             </th>
             <td style="padding:10px;">
-                <div class="detalhe">{{grupo.diagnostico}}</div>
+                <div class="detalhe">{{ grupo.diagnostico }}</div>
             </td>
         </tr>
 

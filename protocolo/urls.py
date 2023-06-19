@@ -40,6 +40,7 @@ urlpatterns = [
                   path('login', views.login_view, name="login"),
                   path('logout', views.logout_view, name="logout"),
                   path('profile/<int:participant_id>/', views.profile_view, name="participant"),
+                  path('participantes_registo/',views.registo_view,name="participantes_registo"),
                   path('participant-overview/<int:participant_id>/', views.patient_overview_view,
                        name="participant-overview"),
                   path(

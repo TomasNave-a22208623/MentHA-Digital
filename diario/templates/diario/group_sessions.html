@@ -28,16 +28,17 @@
                         <th style="text-align: center;"><strong>Data e hora</strong></th>
                         <th style="text-align: center;"><strong>Regime</strong></th>
                         <th style="text-align: center;"><strong>Estado</strong></th>
-                        <th style="text-align: center;">Sessão</th>
+                        <th style="text-align: center;">Plano</th>
                         <th style="text-align: center;">Materiais</th>
                     {% if grupos_permissoes.exists %}
                         <th style="text-align: center;">Relatório</th>
+                        <th style="text-align: center;">Diário</th>
                     {% endif %}
                     </tr>
                     </thead>
                     <tbody>
                     {% for sessao_do_grupo in sessoes_do_grupo %}
-                    <tr>
+                    <tr {% if sessao_do_grupo.estado == 'R' %} style="background-color: #ededed" {% endif %}>
                         <td style="text-align: center;">{{ sessao_do_grupo.sessao.numeroSessao }}
                         </td>
                         {% if programa == "CARE" %}
@@ -45,21 +46,31 @@
                         {% endif %}
                         <td style="text-align: center;">
                         {% if grupos_permissoes.exists %}
-                            <a href="{% url 'diario:changeDate' sessao_do_grupo.sessao.id grupo.id %}">
-                        {% endif %}
+                            {% if sessao_do_grupo.estado == 'R' %}
+                                {{ sessao_do_grupo.data }}
+                            {% else %}
+                                <a href="{% url 'diario:changeDate' sessao_do_grupo.sessao.id grupo.id %}">
                                 {% if sessao_do_grupo.data == None %}
-                                <button class="btn btn-link">
-                                    Não agendada
-                                </button>
+                                    <button class="btn btn-link">
+                                        Não agendada
+                                    </button>
 
                                 {% else %}
-                                <!--                                            {{ sessao_do_grupo.data }}-->
-                                <button class="btn btn-link">
-                                    {{ sessao_do_grupo.data }}
-                                </button>
-
-                            </a>
+                                    <!--                                            {{ sessao_do_grupo.data }}-->
+                                    <button class="btn btn-link">
+                                        {{ sessao_do_grupo.data }}
+                                    </button>
+                                    </a>
+                                {% endif %}
                             {% endif %}
+                        {% else %}
+                            {% if sessao_do_grupo.data == None %}
+                                Não agendada
+                            {% else %}
+                                {{ sessao_do_grupo.data }}
+                            {% endif %}
+                        {% endif %}
+
 
                         </td>
                         <td style="text-align: center;">{% if sessao_do_grupo.regime == 'P' %}
@@ -73,11 +84,11 @@
                             {% endif %}
                         </td>
                         <td style="text-align: center;">{% if sessao_do_grupo.estado == 'PR' %}
-                            Por realizar
+                            &#10060;
                             {% elif sessao_do_grupo.estado == 'EC' %}
-                            Em curso
+                            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><path d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM188.3 147.1c-7.6 4.2-12.3 12.3-12.3 20.9V344c0 8.7 4.7 16.7 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5-16.7-4.7-24.3-.5z"/></svg>
                             {% else %}
-                            Realizado
+                            &#x2714;
                             {% endif %}
                         </td>
 
@@ -93,29 +104,38 @@
                             </form>
                             {% else %}
                             <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
-                                <button class="btn btn-outline-secondary btn-sessao">Plano</button>
+                                <button class="btn btn-outline-secondary btn-sessao">CARE {{ sessao_do_grupo.sessao.numeroSessao }}</button>
                             </a>
                             {% endif %}
                         </td>
                         <td style="text-align: center;">
                             {% if sessao_do_grupo.sessao.materiais|length > 0 %}
-                             <button style="border-radius: 50%; border: 0; background-color: lightgray;">
+
                                  <a href="{{ sessao_do_grupo.sessao.materiais.url }}">
-                                    &#128218;
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="2em" viewBox="0 0 512 512"><path d="M256 464a208 208 0 1 1 0-416 208 208 0 1 1 0 416zM256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM376.9 294.6c4.5-4.2 7.1-10.1 7.1-16.3c0-12.3-10-22.3-22.3-22.3H304V160c0-17.7-14.3-32-32-32l-32 0c-17.7 0-32 14.3-32 32v96H150.3C138 256 128 266 128 278.3c0 6.2 2.6 12.1 7.1 16.3l107.1 99.9c3.8 3.5 8.7 5.5 13.8 5.5s10.1-2 13.8-5.5l107.1-99.9z"/></svg>
                                 </a>
-                             </button>
+
                             {% else %}
                                 &#10060;
                             {% endif %}
                         </td>
                         {% if grupos_permissoes.exists %}
-                        <td style="text-align: center;">
-                            {% if sessao_do_grupo.relatorio|length > 0 %}
-                                <button style="border-radius: 50%; border: 0; background-color: lightgray;">
+                            <td style="text-align: center;">
+                                {% if sessao_do_grupo.relatorio|length > 0 %}
+
                                     <a href="{{ sessao_do_grupo.relatorio.url }}">
-                                        &#128203;
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="2em" viewBox="0 0 512 512"><path d="M256 464a208 208 0 1 1 0-416 208 208 0 1 1 0 416zM256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM376.9 294.6c4.5-4.2 7.1-10.1 7.1-16.3c0-12.3-10-22.3-22.3-22.3H304V160c0-17.7-14.3-32-32-32l-32 0c-17.7 0-32 14.3-32 32v96H150.3C138 256 128 266 128 278.3c0 6.2 2.6 12.1 7.1 16.3l107.1 99.9c3.8 3.5 8.7 5.5 13.8 5.5s10.1-2 13.8-5.5l107.1-99.9z"/></svg>
                                     </a>
-                                 </button>
+                                {% else %}
+                                    &#10060;
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                            {% if sessao_do_grupo.diario_bordo|length > 0 %}
+
+                                <a href="{{ sessao_do_grupo.diario_bordo.url }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="2em" viewBox="0 0 512 512"><path d="M256 464a208 208 0 1 1 0-416 208 208 0 1 1 0 416zM256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM376.9 294.6c4.5-4.2 7.1-10.1 7.1-16.3c0-12.3-10-22.3-22.3-22.3H304V160c0-17.7-14.3-32-32-32l-32 0c-17.7 0-32 14.3-32 32v96H150.3C138 256 128 266 128 278.3c0 6.2 2.6 12.1 7.1 16.3l107.1 99.9c3.8 3.5 8.7 5.5 13.8 5.5s10.1-2 13.8-5.5l107.1-99.9z"/></svg>
+                                </a>
                             {% else %}
                                 &#10060;
                             {% endif %}

@@ -1,0 +1,18 @@
+{% load static %}
+{% block head %}
+
+{% endblock %}    
+
+<form id="patient-form" action="" method="POST">
+    {% csrf_token %}
+    {% for field in form %}
+        <div>
+            {{ field.label }}: {{ field }}
+        </div>
+        <br>
+    {% endfor %}
+
+    <button id="btn-popup" class="btn btn-primary btn-registar flex-left" type="submit" data-href="{% url 'protocolo:participantes_registo' %}"> 
+        <i class="fa fa-calendar-plus-o"></i>&nbsp Registar
+    </button>                                                
+</form>

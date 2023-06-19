@@ -147,6 +147,29 @@ $(document).ready(function () {
             }
         })
     });
+    $(document).on("click", ".btn-registar", function () {
+        event.preventDefault();
+        var href = $(this).attr("data-href");
+        const csrf_token = Cookies.get('csrftoken');
+        var post_data = $("#patient-form").serialize();
+
+        $.ajax({
+            method: 'POST',
+            url: href,
+            data: post_data,
+            headers: { 'X-CSRFToken': csrf_token },
+            async: false,
+            success: function (data) {
+                console.log("Success!")
+                $('.page-content').html(data);
+                return false;
+            },
+            error: function () {
+                console.log("Error!");
+                alert("Pagina não disponível.");
+            }
+        })
+    });
 
     $(document).on("click", ".btn-submit-upl", function () {
         event.preventDefault();

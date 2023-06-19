@@ -23,11 +23,18 @@ import pandas as pd
 import time
 import hashlib
 import random
+from PIL import Image, ImageDraw, ImageFont
+from docx.shared import Pt
+
+
 #word Imports to PDF
 from docx import Document
 import win32com.client as win32
 from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.shared import RGBColor
+from docx.oxml.ns import nsdecls
+from docx.oxml import parse_xml
 
 import pythoncom
 import os
@@ -63,6 +70,20 @@ def popup_view(request):
 # @login_required(login_url='login')
 # def risco_view(request):
 #     return render(request, 'protocolo/risco.html')
+
+@login_required(login_url='login')
+def registo_view(request):
+
+    form = PatientForm(request.POST or None)
+    avaliador = request.user
+
+    if request.method == "POST":
+        form = PatientForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.save()
+    context ={'form' : form, 'avaliador': avaliador}
+    return render(request, 'protocolo/participantes_registo.html',context)
 
 @login_required(login_url='login')
 def incrementar(request, part_id, participant_id):
@@ -371,6 +392,9 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     form_risk = FormRisk(request.POST or None)
     patient = Participante.objects.get(pk=patient_id)
     r = Resolution.objects.filter(patient=patient, doctor=request.user, part=parteDoUtilizador)
+    print('VOU DAR UMA PRINT')
+    print(parteDoUtilizador)
+    print('VOU DAR UMA PRINT')
     
     if len(r) == 0 and parteDoUtilizador.part.name == 'MentHA-Risk':
         r = Resolution.objects.create(patient=patient, doctor=request.user, part=parteDoUtilizador)
@@ -691,9 +715,21 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             colestrol_virgula = 0.0
             new_risk.idade = request.POST.get('idade')
             new_risk.sexo = request.POST.get('sexo')
+            new_risk.peso = request.POST.get('peso')
+            new_risk.altura = request.POST.get('altura')
             new_risk.pressao_arterial = request.POST.get('pressao_arterial')
             new_risk.colestrol_total = request.POST.get('colestrol_total') 
+            new_risk.colestrol_hdl = request.POST.get('colestrol_hdl')
+            new_risk.colestrol_nao_hdl = request.POST.get('colestrol_nao_hdl')
             new_risk.fumador = request.POST.get('fumador')
+            new_risk.diabetes = request.POST.get('diabetes')
+            new_risk.hemoglobina_gliciada = request.POST.get('hemoglobina_gliciada')
+            new_risk.anos_diabetes = request.POST.get('anos_diabetes')
+            new_risk.avc = request.POST.get('avc')
+            new_risk.enfarte = request.POST.get('enfarte')
+            new_risk.doenca_rins = request.POST.get('doenca_rins')
+            new_risk.doenca_pernas = request.POST.get('doenca_pernas')
+            new_risk.hipercolestrol = request.POST.get('hipercolestrol')
             new_risk.comentario = request.POST.get('comentario')
             print("VER ISTO URGENTE!!!!!!!!!!")
             print(new_risk.colestrol_total)
@@ -715,6 +751,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 new_risk.risco_de_enfarte = risco
             new_risk.parteDoUtilizador = parteDoUtilizador
             new_risk.concluido = True
+            new_risk.imc = calcular_imc(new_risk.peso, new_risk.altura)
             
             if existing_risk is None:
                 # cria uma nova resposta
@@ -726,10 +763,23 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 # modifica a resposta existente
                 existing_risk.idade = request.POST.get('idade')
                 existing_risk.sexo = request.POST.get('sexo')
+                existing_risk.peso = request.POST.get('peso')
+                existing_risk.altura = request.POST.get('altura')
                 existing_risk.pressao_arterial = request.POST.get('pressao_arterial')
-                existing_risk.colestrol_total = request.POST.get('colestrol_total') 
+                existing_risk.colestrol_total = request.POST.get('colestrol_total')
+                existing_risk.colestrol_hdl = request.POST.get('colestrol_hdl')
+                existing_risk.colestrol_nao_hdl = request.POST.get('colestrol_nao_hdl') 
                 existing_risk.fumador = request.POST.get('fumador')
+                existing_risk.diabetes = request.POST.get('diabetes')
+                existing_risk.hemoglobina_gliciada = request.POST.get('hemoglobina_gliciada')
+                existing_risk.anos_diabetes = request.POST.get('anos_diabetes')
+                existing_risk.avc = request.POST.get('avc')
+                existing_risk.enfarte = request.POST.get('enfarte')
+                existing_risk.doenca_rins = request.POST.get('doenca_rins')
+                existing_risk.doenca_pernas = request.POST.get('doenca_pernas')
+                existing_risk.hipercolestrol = request.POST.get('hipercolestrol')
                 existing_risk.comentario = request.POST.get('comentario') 
+                existing_risk.imc = calcular_imc(existing_risk.peso, existing_risk.altura)
                 if request.POST.get('sexo') == 'F':
                     risco = risk_json(file_path_women, existing_risk.fumador, existing_risk.idade, existing_risk.colestrol_total,existing_risk.pressao_arterial)
                     existing_risk.risco_de_enfarte = risco
@@ -742,7 +792,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                                new_risk.risco_de_enfarte)
             username = request.user.username
 
-            gera_relatorio_risk(ris, patient, username)
+            gera_relatorio_risk_pdf(ris, patient, username)
+            
         if question.question_type == 3:
             return redirect('protocolo:instruments', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
                             patient_id=patient_id)
@@ -1148,13 +1199,17 @@ def profile_view(request, participant_id):
     resolutions = Resolution.objects.filter(patient=patient)
     parteDoUtilizador = ParteDoUtilizador.objects.filter(participante=patient)
     parte = Part.objects.all()
-    #quero  buscar o user atual
+    
+
     existing_risk = None
     for risk in Risk.objects.all():
         if risk.parteDoUtilizador == parteDoUtilizador:
             existing_risk = risk
    
-
+    print('existing_risk:')
+    print(existing_risk)
+    print("'Risk.objects.all():")
+    print(Risk.objects.all())
 
     user = request.user
     # print(request.user.groups.all())
@@ -1529,72 +1584,545 @@ def float_range(start, stop, step=0.1):
     while start < stop:
         yield round(start, 1)
         start += step   
-def gera_relatorio_risk(parte_risk,patient, username):
+def gera_relatorio_risk_pdf(parte_risk,patient, username):
     
     document = Document()
+    #conversao para boleans
+    if parte_risk.diabetes == "True":
+        parte_risk.diabetes = True
+    else:
+        parte_risk.diabetes = False
+    if parte_risk.enfarte == "True":
+        parte_risk.enfarte = True
+    else:
+        parte_risk.enfarte = False
+    if parte_risk.doenca_rins == "True":
+        parte_risk.doenca_rins = True
+    else:
+        parte_risk.doenca_rins = False
+    if parte_risk.hipercolestrol == "True":
+        parte_risk.hipercolestrol = True
+    else:
+        parte_risk.hipercolestrol = False
+    if parte_risk.avc == "True":
+        parte_risk.avc = True
+    else:
+        parte_risk.avc = False
+    if parte_risk.doenca_pernas == "True":
+        parte_risk.doenca_pernas = True
+    else:
+        parte_risk.doenca_pernas = False
+    #guardar valores para uso
+    risco_baixo = ""
+    hipercolesterol = ""
+    drc = ""
+    fuma = ""
+    cardio = ""
+    diabetes = ""
+
+    #conversao para ints
+    idade = int(parte_risk.idade)
+    risco = int(parte_risk.risco_de_enfarte)
+    #cores
+    color_low = '00FF00'  # Green
+    color_moderate = 'FFD700'  # Yellow 'FFFF00'
+    color_high = 'FF0000'  # Red
+    color_very_high = '8B0000'  # Dark Red
 
     # Cabeçalho
-    paragraph = document.add_paragraph(f'Avaliação de Risco Cardiovascular - {patient.__str__()}')
+    paragraph = document.add_paragraph(f'MentHA-Risk')
+
+    #testes
+    print("Teste nos reports do risk")
+    print(parte_risk.diabetes)
+    print("Teste nos reports do risk")
 
     # para pôr em itálico (chato... talvez exista algo melhor)
     for run in paragraph.runs:
         run.font.italic = True
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-    paragraph = document.add_heading(f'Relatório de {patient.__str__()}', 0)
+    paragraph = document.add_heading(f'Avaliação de risco Cardiovascular de {patient.__str__()}', 0)
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
     # Relatório
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Idade do paciente: {parte_risk.idade}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Sexo do paciente: {parte_risk.sexo}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Fumador: {parte_risk.fumador}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Pressão arterial sistólica: {parte_risk.pressao_arterial}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Colesterol total: {parte_risk.colestrol_total}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Probabilidade de ter um Risco Cardiovascular: {parte_risk.risco_de_enfarte}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Comentário do Avaliador: {parte_risk.comentario}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    print("CHEGA A CLRLLLLLLLLL ZIMBORA")
-    # Assinatura
-    paragraph = document.add_paragraph(f'O avaliador, {username}')
 
+
+    #Dados Sócio-demográficos 
+    paragraph = document.add_paragraph()
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run('Dados Socio-demográficos')
+    run.bold = True
+    run.font.size = Pt(14)
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    paragraph = document.add_paragraph()
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Nome:')
+    run.bold = True
+    paragraph.add_run(f' {patient.__str__()}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Instituição de Referência:')
+    run.bold = True
+    paragraph.add_run(f' {patient.referenciacao}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Local de Residência:')
+    run.bold = True
+    paragraph.add_run(f' {patient.localizacao}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'E-mail:')
+    run.bold = True
+    paragraph.add_run(f' {patient.email}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+
+    #Dados para SCORE-2
+    paragraph = document.add_paragraph()  
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run('Dados para SCORE-2')
+    run.bold = True
+    run.font.size = Pt(14)
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    paragraph = document.add_paragraph()
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Idade:')
+    run.bold = True
+    paragraph.add_run(f' {parte_risk.idade}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Sexo:')
+    run.bold = True
+    paragraph.add_run(f' {parte_risk.sexo}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    if parte_risk.fumador == 'smoking':
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'É fumador: ')
+        run.bold = True
+        paragraph.add_run(f'Sim')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        fuma = "É fumador"
+    else:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'É fumador:')
+        run.bold = True
+        paragraph.add_run(f' Não')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY 
+        fuma = "Não fuma"
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Pressão arterial sistólica:')
+    run.bold = True
+    paragraph.add_run(f' {parte_risk.pressao_arterial} mmHg')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Colesterol Não HDL:')
+    run.bold = True
+    paragraph.add_run(f' {parte_risk.colestrol_nao_hdl} mmmol/L')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+
+
+    #Dados Complementares
+    paragraph = document.add_paragraph()
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run('Dados Complementares')
+    run.bold = True
+    run.font.size = Pt(14)
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Peso:')
+    run.bold = True
+    paragraph.add_run(f' {parte_risk.peso} kg')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'IMC:')
+    run.bold = True
+    paragraph.add_run(f' {parte_risk.imc}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Altura:')
+    run.bold = True
+    paragraph.add_run(f' {parte_risk.altura} cm')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+
+    
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Colesterol total:')
+    run.bold = True
+    paragraph.add_run(f' {parte_risk.colestrol_total} mmol/L')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Colesterol HDL:')
+    run.bold = True
+    paragraph.add_run(f' {parte_risk.colestrol_hdl} mmol/L')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Hemoglobina_gliciada:')
+    run.bold = True
+    paragraph.add_run(f' {parte_risk.hemoglobina_gliciada} %')  
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    if parte_risk.diabetes:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Diabetes:')
+        run.bold = True
+        paragraph.add_run(f' Tem Diabetes')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        diabetes = "com Diabetes"
+    else:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Diabetes:')
+        run.bold = True
+        paragraph.add_run(f' Não tem Diabetes')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        diabetes = "sem Diabetes"
+    if parte_risk.diabetes:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Há quantos anos o paciente tem diabétes:')
+        run.bold = True
+        paragraph.add_run(f' {parte_risk.anos_diabetes} anos')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    else:
+        pass
+
+    if parte_risk.avc:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Teve algum AVC (Acidente Vascular Cerebral):')
+        run.bold = True
+        paragraph.add_run(f' Sim teve')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    else:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Teve algum AVC (Acidente Vascular Cerebral):')
+        run.bold = True
+        paragraph.add_run(f' Não teve')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    if parte_risk.enfarte:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Teve algum Enfarte (Ataque cardiaco):')
+        run.bold = True
+        paragraph.add_run(f' Sim teve')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        cardio = "com histório de evento cardiovascular major"
+    else:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Teve algum Enfarte (Ataque cardiaco):')
+        run.bold = True
+        paragraph.add_run(f' Não teve')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        cardio = "sem histório de evento cardiovascular major"
+    if parte_risk.doenca_rins:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Tem doença dos Rins:')
+        run.bold = True
+        paragraph.add_run(f' Sim tem')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        drc = "e com doença renal crónica"
+    else:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Tem doença dos Rins:')
+        run.bold = True
+        paragraph.add_run(f' Não tem')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        drc = "sem doença renal crónica"
+    if parte_risk.doenca_pernas:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Tem doença das Pernas:')
+        run.bold = True
+        paragraph.add_run(f' Sim tem')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    else:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Tem doença das Pernas:')
+        run.bold = True
+        paragraph.add_run(f' Não tem')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    if parte_risk.hipercolestrol:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Historial de hipercolesterolemia familiar:')
+        run.bold = True
+        paragraph = document.add_paragraph(f' Existe familiares com hipercolesterolémia')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        hipercolesterol = "com hipercolesterolémia familiar"
+    else:
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Historial de hipercolesterolemia familiar:')
+        run.bold = True
+        paragraph = document.add_paragraph(f' Não existe familiares com hipercolesterolémia')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        hipercolesterol = "sem hipercolesterolémia familiar"
+    #Resumo dos dados/Resultados
+    paragraph = document.add_paragraph()
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Resultados')
+    run.bold = True
+    run.font.size = Pt(14)
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Probabilidade de ter um Risco Cardiovascular:')
+    run.bold = True
+    paragraph.add_run(f' {parte_risk.risco_de_enfarte} %')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    if ((risco <= 2 and idade < 50) or (risco < 5 and (idade >= 50 and idade <= 69)) or (risco <= 5 and idade >= 70)):
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Classificação do Risco Cardiovascular:')
+        run.bold = True
+        paragraph.add_run(f' Baixo')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        add_cores(paragraph, color_low)
+        risco_baixo = "Baixo"
+    elif (((risco > 2 or risco <= 8) and idade < 50) or (risco < 5 and (idade >= 50 or idade <= 69)) or (risco <= 5 and idade >= 70) ):
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Classificação do Risco Cardiovascular:')
+        run.bold = True
+        paragraph.add_run(f' Moderado')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        add_cores(paragraph, color_moderate)
+        risco_baixo = "Moderado"
+    elif (((risco >= 2 and risco < 8) and idade<50) or ((risco >= 5 and risco < 10) and (idade >= 50 and idade <= 69)) or((risco >= 7 and risco < 15) and idade >= 70)):
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Classificação do Risco Cardiovascular:')
+        run.bold = True
+        paragraph.add_run(f' Alto')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        add_cores(paragraph, color_high)
+        risco_baixo = "Alto"
+    elif ((risco >= 7 and idade < 50) or (risco >= 10 and (idade >= 50 and idade <=69)) or(risco >= 15 and idade >= 70)):
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(f'Classificação do Risco Cardiovascular:')
+        run.bold = True
+        paragraph.add_run(f' Muito Alto')
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        add_cores(paragraph, color_very_high)
+        risco_baixo = "Elevado"
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Descrição: ')
+    run.bold = True
+    if parte_risk.sexo == 'M':
+        paragraph.add_run(f'Um Homen de {idade} anos {cardio},{diabetes} ,{hipercolesterol} e {drc}. O valor de colesterol total de {parte_risk.colestrol_total} mg/dl e o colesterol HDL de {parte_risk.colestrol_hdl} mg/dl; logo o colesterol não HDL de {parte_risk.colestrol_nao_hdl} mg/dl. {fuma} e o valor da pressão arterial sistolica é de {parte_risk.pressao_arterial} mmHg. O score de risco é de {parte_risk.risco_de_enfarte}% o que significa que tem {risco_baixo} risco cardiovascular.')
+    else:
+        paragraph.add_run(f'Uma Mulher de {idade} anos {cardio},{diabetes} ,{hipercolesterol} e {drc}. O valor de colesterol total de {parte_risk.colestrol_total} mg/dl e o colesterol HDL de {parte_risk.colestrol_hdl} mg/dl; logo o colesterol não HDL de {parte_risk.colestrol_nao_hdl} mg/dl. {fuma} e o valor da pressão arterial sistolica é de {parte_risk.pressao_arterial} mmHg. O score de risco é de {parte_risk.risco_de_enfarte}% o que significa que tem {risco_baixo} risco cardiovascular.')
+    
+    if idade <70 and idade >= 40:
+
+        # nome_ficheiro_imagem = 'SCORE-2-1-' +patient.__str__()+generate_id()+'.png'
+        img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\SCORE-2-1.png')
+        new_img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\img-report\SCORE-2-1-'+patient.__str__()+generate_id()+'.png')
+        
+
+        with Image.open(img_path) as image:
+            new_image = image.copy()
+        
+        # Encontre o número que deseja destacar na imagem
+        numero_destaque = parte_risk.risco_de_enfarte  # Use a função calcular_resultado() que você definiu anteriormente
+
+        
+        # Destaque o número na imagem
+        new_image = Image.open(img_path)
+        draw = ImageDraw.Draw(new_image)
+        # font = ImageFont.truetype("caminho_para_a_fonte.ttf", size=20)  # Substitua "caminho_para_a_fonte.ttf" pelo caminho da sua fonte
+        
+        numero_x = 10  # Substitua pelos valores corretos de posição do número na imagem
+        numero_y = 10
+        draw.text((numero_x, numero_y), str(numero_destaque), fill=(0, 0, 0))  # Substitua (255, 0, 0) pela cor desejada do destaque
+        
+        new_image.save(new_img_path)
+
+        document.add_picture(new_img_path, width=Inches(4.5), height=Inches(4.5))
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        
+
+    elif idade >= 70 and idade < 90:
+
+        # nome_ficheiro_imagem = 'SCORE-2-1-' +patient.__str__()+generate_id()+'.png'
+        img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\SCORE-2-90.png')
+        new_img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\img-report\SCORE-2-90-'+patient.__str__()+generate_id()+'.png')
+        
+
+        with Image.open(img_path) as image:
+            new_image = image.copy()
+        
+        # Encontre o número que deseja destacar na imagem
+        numero_destaque = parte_risk.risco_de_enfarte  # Use a função calcular_resultado() que você definiu anteriormente
+
+        
+        # Destaque o número na imagem
+        new_image = Image.open(img_path)
+        draw = ImageDraw.Draw(new_image)
+        # font = ImageFont.truetype("caminho_para_a_fonte.ttf", size=20)  # Substitua "caminho_para_a_fonte.ttf" pelo caminho da sua fonte
+        
+        numero_x = 10  # Substitua pelos valores corretos de posição do número na imagem
+        numero_y = 10
+        draw.text((numero_x, numero_y), str(numero_destaque), fill=(0, 0, 0))  # Substitua (255, 0, 0) pela cor desejada do destaque
+        
+        new_image.save(new_img_path)
+        
+        document.add_picture(new_img_path, width=Inches(4.5), height=Inches(4.5))
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    #fazer parte dinamica para mostrar os valores de risco
+
+    #Recomendações
+    paragraph = document.add_paragraph()
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Recomendações')
+    run.bold = True
+    run.font.size = Pt(14)
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'O Paciente deve:')
+    run.bold = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'  •	Deixar de fumar')
+    run.bold = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'  •	Reduzir o consumo de álcool')
+    run.bold = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'  •	Reduzir o consumo de sal')
+    run.bold = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'  •	Reduzir o consumo de gorduras saturadas e colesterol')
+    run.bold = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'  •	Reduzir o consumo de açúcares e doces')
+    run.bold = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'  •	Fazer uma alimentação saudável e equilibrada')
+    run.bold = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'  •	Praticar exercício físico regularmente')
+    run.bold = True
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    #Comentário do Avaliador
+    paragraph = document.add_paragraph()
+    paragraph = document.add_paragraph()
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run(f'Comentário do Avaliador:')
+    run.bold = True
+    run.font.size = Pt(14)
+    paragraph = document.add_paragraph(f'{parte_risk.comentario}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    # Add the image
+    # img_path = os.path.join(os.getcwd(), 'img', 'example.jpg')
+    # document.add_picture(img_path, width=Inches(3), height=Inches(3))asdsad
+    
+    print("CHEGA A  ZIMBORA")
+    # Assinatura
+    paragraph = document.add_paragraph()
+    paragraph = document.add_paragraph(f'O avaliador, {username}')
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+    paragraph = document.add_paragraph()
+
+    #imagens logos no fundo do documento
+    # cwd = os.getcwd()
+    # cwd2 = os.path.join(cwd, 'mentha', 'static', 'img', 'img-logo','ulht.png')
+    section = document.sections[0]
+
+    # Configurar o rodapé
+    footer = section.footer
+    footer.is_linked_to_previous = False  # Certifique-se de que o rodapé não esteja vinculado ao anterior
+
+# Criar parágrafo vazio no rodapé para adicionar as imagens
+    paragraph = footer.paragraphs[0]
+    image_paths = [
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'ulht.png'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'dgs_footer.png'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'adebe.png'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'copelabs.jpg'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'gira.png'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'cvp.jpg'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'familiarmente.jpg'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'elo.png'),
+    os.path.join(os.getcwd(), 'protocolo', 'static', 'protocolo', 'img', 'img-logo', 'mentha-logo.png')
+    ]
+    for i,image_path in enumerate(image_paths):
+        run = paragraph.add_run()
+        run.add_picture(image_path, width=Inches(0.3), height=Inches(0.3))
+        if i < len(image_path)-1:
+            run.add_text(" ")
+
+    # img_path6 = os.path.join(os.getcwd(), 'mentha\\static\mentha\\pareceiros_sm\\dgs_footer.png')
+    # document.add_picture(img_path6, width=Inches(1.5), height=Inches(1.5))
+    # img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\logo4.png')
+    # document.add_picture(img_path, width=Inches(1.5), height=Inches(1.5))
+    # img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\logo5.png')
+    # document.add_picture(img_path, width=Inches(1.5), height=Inches(1.5))
+    
     # Save the Word document
     nome_ficheiro = 'Risco_Cardiovascular' +'_'+ patient.__str__() + generate_id() 
     nome_ficheiro = nome_ficheiro.replace(" ", "")
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     print(docx_path)
     document.save(docx_path)
-    print("CHEGA A CLRLLLLLLLLL ZIMBORA2")
+    print("CHEGA A  ZIMBORA2")
     # Convert the Word document to PDF
 
     pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
     pythoncom.CoInitialize()
     
     
-    print("CHEGA A CLRLLLLLLLLL ZIMBORA3")
+    print("CHEGA A  ZIMBORA3")
     word_app = win32.gencache.EnsureDispatch('Word.Application')
     doc = word_app.Documents.Open(docx_path)
     doc.SaveAs(pdf_path, FileFormat=17)
     doc.Close()
     word_app.Quit()
-    print("CHEGA A CLRLLLLLLLLL ZIMBORA4")
+    print("CHEGA A  ZIMBORA4")
     # Create a Django File object from the PDF file
     with open(pdf_path, 'rb') as f:
         pdf_data = io.BytesIO(f.read())
 
+    # Create a Django File object from the Word document
+    with open(docx_path, 'rb') as f:
+        docx_data = io.BytesIO(f.read())
+        
     # Assign the PDF file to the file field of sessaoDoGrupo
     parte_risk.relatorio.save(f'{nome_ficheiro}.pdf', pdf_data)
     parte_risk.save()
-    print("CHEGA A CLRLLLLLLLLL ZIMBORA5")
+    parte_risk.relatorio_word.save(f'{nome_ficheiro}.docx', docx_data)
+    parte_risk.save()
+    print("CHEGA A  ZIMBORA5")
     # Delete the temporary files
     os.remove(docx_path)
     os.remove(pdf_path)
+
+
+
 
 
 def gera_relatorio_parte(parte,patient, request):
@@ -1627,7 +2155,7 @@ def gera_relatorio_parte(parte,patient, request):
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
     paragraph = document.add_paragraph(f'Comentário do Avaliador: {parte.comentario}')
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    print("CHEGA A CLRLLLLLLLLL ZIMBORA")
+    print("CHEGA A  ZIMBORA")
     # Assinatura
     paragraph = document.add_paragraph(f'O avaliador, {request.user.username}')
 
@@ -1637,20 +2165,20 @@ def gera_relatorio_parte(parte,patient, request):
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     print(docx_path)
     document.save(docx_path)
-    print("CHEGA A CLRLLLLLLLLL ZIMBORA2")
+    print("CHEGA A  ZIMBORA2")
     # Convert the Word document to PDF
 
     pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
     pythoncom.CoInitialize()
     
     
-    print("CHEGA A CLRLLLLLLLLL ZIMBORA3")
+    print("CHEGA A  ZIMBORA3")
     word_app = win32.gencache.EnsureDispatch('Word.Application')
     doc = word_app.Documents.Open(docx_path)
     doc.SaveAs(pdf_path, FileFormat=17)
     doc.Close()
     word_app.Quit()
-    print("CHEGA A CLRLLLLLLLLL ZIMBORA4")
+    print("CHEGA A  ZIMBORA4")
     # Create a Django File object from the PDF file
     with open(pdf_path, 'rb') as f:
         pdf_data = io.BytesIO(f.read())
@@ -1658,11 +2186,26 @@ def gera_relatorio_parte(parte,patient, request):
     # Assign the PDF file to the file field of sessaoDoGrupo
     parte.relatorio.save(f'{nome_ficheiro}.pdf', pdf_data)
     parte.save()
-    print("CHEGA A CLRLLLLLLLLL ZIMBORA5")
+    print("CHEGA A  ZIMBORA5")
     # Delete the temporary files
     os.remove(docx_path)
     os.remove(pdf_path)
 
 
+def word ():
+    return 1
 
 
+#funcao para calcular o IMC
+def calcular_imc(peso,altura):
+    #altura em metros
+    #peso em kg
+    peso = int(peso)
+    altura = int(altura)
+    imc = peso/(altura*altura)
+    return imc
+#funcao para por cores no word
+def add_cores(paragraph, color):
+    run = paragraph.add_run()
+    run.text = u'\u25CF'  # Circle character
+    run.font.color.rgb = RGBColor.from_string(color)

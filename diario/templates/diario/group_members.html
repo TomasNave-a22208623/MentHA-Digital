@@ -37,19 +37,25 @@
                             <thead>
                             <tr>
                                 <th style="text-align: center;"><strong>Nome</strong></th>
-                                <th style="text-align: center;"><strong>Escolaridade</strong></th>
-                                <th style="text-align: center;"><strong>Referencia</strong></th>
+                                <th style="text-align: center;"><strong>E-mail</strong></th>
+                                <th style="text-align: center;"><strong>Localidade</strong></th>
+                                <th style="text-align: center;"><strong>Referenciação</strong></th>
                             </tr>
                             </thead>
                             <tbody>
                             {% for cuidador in cuidadores %}
                             <tr>
                                 <td style="text-align: center;">
-                                    <a href="{% url 'diario:p_view' cuidador.id grupo.id %}">
+                                    {% if grupos_permissoes.exists %}
+                                        <a href="{% url 'diario:p_view' cuidador.id grupo.id %}">
                                         {{ cuidador }}
-                                    </a>
+                                        </a>
+                                    {% else %}
+                                        {{ cuidador }}
+                                    {% endif %}
                                 </td>
-                                <td style="text-align: center;">{{ cuidador.escolaridade }}</td>
+                                <td style="text-align: center;">{{ cuidador.email }}</td>
+                                <td style="text-align: center;">{{ cuidador.localizacao }}</td>
                                 <td style="text-align: center;">
                                     {% for referencia in cuidador.obter_reference %}
                                         {{ referencia }}
@@ -119,14 +125,16 @@
                                     <thead>
                                     <tr>
                                         <th style="text-align: center;"><strong>Nome</strong></th>
-                                        <th style="text-align: center;"><strong>Função</strong></th>
+                                        <th style="text-align: center;"><strong>E-mail</strong></th>
+                                        <th style="text-align: center;"><strong>Localidade</strong></th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for dinamizador in dinamizadores %}
                                     <tr>
                                         <td style="text-align: center;">{{ dinamizador }}</td>
-                                        <td style="text-align: center;">{{ dinamizador.funcao }}</td>
+                                        <td style="text-align: center;">{{ dinamizador.email }}</td>
+                                        <td style="text-align: center;">{{ dinamizador.localizacao }}</td>
                                         {% if grupos_permissoes.exists %}
                                         <td></td>
                                         <td></td>

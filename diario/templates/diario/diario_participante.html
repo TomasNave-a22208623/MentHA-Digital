@@ -18,17 +18,24 @@
         {% csrf_token %}
         {{ notaForm.nota }}
         <input type="hidden" name="cuidador" value={{ participante_id }}>
-
         <button type="submit" class="btn btn-primary" name="nota">Guardar nota</button>
 
     </form>
 
     <hr>
-    <h2><b>Notas de {{ participante.info_sensivel.nome }}</b></h2>
+    <h2><b>Notas sobre {{ participante.info_sensivel.nome }}</b></h2>
     <ul>
         {% if notas|length > 0 %}
         {% for nota in notas %}
-        <li>{{ nota }} <span class="data">{{ nota.data }}</span></li>
+            {% if grupos_permissoes.exists %}
+                {% if nota.anotador_dinamizador or nota.anotador_mentor %}
+                    <li>{{ nota }} <span class="data">{{ nota.data_str }}</span></li>
+                {% endif %}
+            {% else %}
+                {% if nota.anotador_dinamizador is None and nota.anotador_mentor is None %}
+                    <li>{{ nota }} <span class="data">{{ nota.data_str }}</span></li>
+                {% endif %}
+            {% endif %}
         {% endfor %}
         {% else %}
         <li>Sem notas</li>
@@ -49,19 +56,44 @@
     </form>
 
     <hr>
-    <h2><b>Partilhas de {{ participante.info_sensivel.nome }}</b></h2>
+    <h2><b>Partilhas</b></h2>
     <ul>
-        {% if partilhas|length > 0 %}
-        {% for partilha in partilhas %}
-        <li>{{ partilha }} <span class="data">{{ partilha.data }}</span></li>
-        {% endfor %}
+        {% if grupos_permissoes.exists %}
+            {% if partilhas|length > 0 %}
+                {% for partilha in partilhas %}
+                    {% if partilha.cuidador.id == participante_id %}
+                        <li>{{ partilha }} <span class="data">{{ partilha.data_str }}
+                    {% elif partilha.participante.id == participante_id %}
+                        <li>{{ partilha }} <span class="data">{{ partilha.data_str }} {{ partilha.participante.nome }}
+                    {% endif %}
+                </span></li>
+                {% endfor %}
+                {% else %}
+                <li>Sem partilhas</li>
+            {% endif %}
         {% else %}
-        <li>Sem partilhas</li>
+            {% if partilhas|length > 0 %}
+                {% for partilha in partilhas %}
+                <li>{{ partilha }} <span class="data">{{ partilha.data_str }}
+                    {% if partilha.partilha_dinamizador %}
+                        {{ partilha.partilha_dinamizador.nome }}
+                    {% elif partilha.partilha_mentor %}
+                        {{ partilha.partilha_mentor.nome }}
+                    {% elif partilha.cuidador %}
+                        {{ partilha.cuidador.nome }}
+                    {% elif partilha.participante %}
+                        {{ partilha.participante.nome }}
+                    {% endif %}
+                </span></li>
+                {% endfor %}
+                {% else %}
+                <li>Sem partilhas</li>
+            {% endif %}
         {% endif %}
     </ul>
 </div>
 
-<div id="respostas" data-participante="{{ participante.id }}">
+<div id="respostas" style="display: none" data-participante="{{ participante.id }}">
     {% for pergunta,parte,pg,form in form_list %}
     <div id="flex-container">
         <div class="row">
@@ -108,51 +140,53 @@
     </button>
 </div>
 
-<div id="informacoes">
+<div id="informacoes" style="display: none">
     <table style="width:100%">
         <tr style="color:white; background-color:cornflowerblue;">
             <th><div class="titulo">Nome Completo:</div></th>
-            <td style="padding:10px;"><div class="detalhe">{{participante.info_sensivel.nome}}</div></td>
+            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.info_sensivel.nome}}</div></td>
         </tr>
 
         <tr>
             <th><div class="titulo">Idade:</div></th>
-            <td style="padding:10px;"><div class="detalhe">{{participante.idade}}</div></td>
+            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.idade}}</div></td>
         </tr>
 
         <tr style="color:white; background-color:cornflowerblue;">
             <th><div class="titulo">Sexo:</div></th>
-            <td style="padding:10px;"><div class="detalhe">{{participante.sexo}}</div></td>
+            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.sexo}}</div></td>
         </tr>
 
         <tr>
             <th><div class="titulo">Data de Nascimento:</div></th>
-            <td style="padding:10px;"><div class="detalhe">{{participante.nascimento}}</div></td>
+            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.nascimento}}</div></td>
         </tr>
 
         <tr style="color:white; background-color:cornflowerblue;">
             <th><div class="titulo">Nacionalidade:</div></th>
-            <td style="padding:10px;"><div class="detalhe">{{participante.nacionalidade}}</div></td>
+            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.nacionalidade}}</div></td>
         </tr>
 
         <tr>
             <th><div class="titulo">Diagnósticos:</div></th>
-            <td style="padding:10px;"><div class="detalhe">{{participante.doencas}}</div></td>
+            <td style="padding:10px; text-align: left"><div class="detalhe">
+                {{ participante.doencas_string }}
+            </div></td>
         </tr>
 
         <tr style="color:white; background-color:cornflowerblue;">
             <th><div class="titulo">Telemóvel:</div></th>
-            <td style="padding:10px;"><div class="detalhe">{{participante.info_sensivel.telemovel}}</div></td>
+            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.info_sensivel.telemovel}}</div></td>
         </tr>
 
         <tr>
             <th><div class="titulo">Email:</div></th>
-            <td style="padding:10px;"><div class="detalhe">{{participante.info_sensivel.email}}</div></td>
+            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.info_sensivel.email}}</div></td>
         </tr>
     </table>
 </div>
 
-<div id="presencas">
+<div id="presencas" style="display: none">
 
     <h1>Presencas do grupo {{ grupo_id }}</h1>
 

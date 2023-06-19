@@ -1,4 +1,7 @@
 {% load static %}
+{% block head %}
+<script src="{% static 'protocolo/js/profile.js' %}"></script>
+{% endblock %}
 {% load tags %}
 
 <div id="wrapper">
@@ -133,7 +136,7 @@
             <div class="container-fluid" style="margin-top: 25px">
                 <div class="card shadow">
                     <div class="card-header py-3">
-                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">AGENDAMENTOS</p>
+                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">AVALIAÇÕES</p>
                     </div>
                     <div class="card-body">
                         <div class="card-body">
@@ -142,7 +145,7 @@
                                 <table class="table my-0 table-hover-light" id="dataTable">
                                     <thead>
                                         <tr>
-                                            <th style="text-align:center; width:15%">Parte</th>
+                                            <th style="text-align:center; width:15%">Avaliação</th>
                                             <th style="text-align:center; width:15%">Data</th>
                                             <th style="text-align:center; width:15%">Hora</th>
                                             <th style="text-align:center; width:20%">Progresso</th>
@@ -194,6 +197,7 @@
                                             {% endif %}
                                             
                                             <!-- Report Button -->
+                                            {% if part.part.name != "MentHA-Risk" %}
                                             <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
                                                 <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"  style="text-align: center;">
                                                     <button class="btn btn-secondary" type="button" style="border-radius: 217px;">
@@ -201,7 +205,16 @@
                                                     </button>
                                                 </a>
                                             </td>
-
+                                            {% else %}
+                                            {% comment %} <a href="{{ part.resolution.relatorio.url }}"> {% endcomment %}
+                                            <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                                <a href="{{ part.risk.relatorio.url }}" >
+                                                    <button class="btn btn-secondary" type="button" style="border-radius: 217px;">
+                                                        <i class="fa fa-file-text-o" style="border-left-width: 0px;font-size: 15px;text-align: center;"></i>
+                                                    </button>
+                                                </a>
+                                            </td>
+                                            {% endif %}
                                             <!-- Area Button -->
                                             <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
                                                 <a href="#" class="jq-btn"
@@ -249,9 +262,12 @@
             <div class="container-fluid" style="margin-top: 25px">
                 <div class="card shadow">
                     <div class="card-header py-3">
-                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">VISÃO GERAL DA AVALIAÇÃO</p>
+                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">VISÃO GERAL PROTOCOLO MENTHA</p>
+                        <button id="btn-abrir" class="btn btn-primary flex-left" type="button"> 
+                            <i class="fa fa-plus"></i> click me!
+                        </button>                                                    
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" id="card-profile" style="display:none">
                         <div class="table-responsive" style="overflow-x:auto;">
                             <table class="table">
                                 <thead>
@@ -295,12 +311,61 @@
                     </div>
                 </div>
             </div>
+            <div class="container-fluid" style="margin-top: 25px">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">VISÃO GERAL MENTHA RISK</p>
+                        <button id="btn-fechar" class="btn btn-primary flex-left"> 
+                            <i class="fa fa-calendar-plus-o"></i> Click me!
+                        </button> 
+                    </div>
+                    <div class="card-body" id="card-profile-risk" style="display:none">
+                        <div class="table-responsive" style="overflow-x:auto;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="position:sticky; left:0; background-color: rgba(255,255,255, 1); width:15ch;"></th>
+                                        {% for part in partedoutilizador %}
+                                            {% if part.part.name == 'MentHA-Risk' %}
+                                                <th style="text-align: center; width:15ch;">{{ part.part.name }} <p style="font-weight:normal;">{{part.data.day}}/{{part.data.month}}/{{part.data.year}}</p></th>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                    </tr>
+                                    {% for part in partedoutilizador %}  
+                                        {% comment %} {% if parte != "MentHA-Risk-area - MentHA-Risk-instrument" and text != "None" and text != "None - Fumadores" %} {% endcomment %}
+                                        {% if part.part.name == 'MentHA-Risk' %}    
+                                        <tr>
+                                            <td style="position:sticky; left: 0; background-color: rgba(255,255,255, 1)">Status:</td>   
+                                              
+                                                    <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
+                                                        <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
+                                                
+                                                    <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
+                                                        <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i>
+                                                    </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <tr></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% comment %} <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
+                                                            <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i> {% endcomment %}
             {% elif user_risk is not None %}
              <!-- Agendamentos-->
             <div class="container-fluid" style="margin-top: 25px">
                 <div class="card shadow">
                     <div class="card-header py-3">
-                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">AGENDAMENTOS</p>
+                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">AVALIAÇÕES</p>
                     </div>
                     <div class="card-body">
                         <div class="card-body">
@@ -359,6 +424,7 @@
                                             {% endif %}
                                             
                                             <!-- Report Button -->
+                                            {% if part.part.name != "MentHA-Risk" %}
                                             <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
                                                 <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"  style="text-align: center;">
                                                     <button class="btn btn-secondary" type="button" style="border-radius: 217px;">
@@ -366,7 +432,15 @@
                                                     </button>
                                                 </a>
                                             </td>
-
+                                            {% else %}
+                                            <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                                <a href="#" class="jq-btn"  data-href="{% url 'protocolo:question' 1 part.id risk_area.id pergunta_risk.section.dimension.instrument.id pergunta_risk.section.dimension.id pergunta_risk.section.id  patient.id %}"  style="text-align: center;">
+                                                    <button class="btn btn-secondary" type="button" style="border-radius: 217px;">
+                                                        <i class="fa fa-file-text-o" style="border-left-width: 0px;font-size: 15px;text-align: center;"></i>
+                                                    </button>
+                                                </a>
+                                            </td>
+                                            {% endif %}
                                             <!-- Area Button -->
                                             <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
                                                 <a href="#" class="jq-btn"
@@ -394,7 +468,6 @@
                                 </table>
                             </div>
                             <!-- Appointment Button -->
-
                             <form id="appointment-form" action="" method="POST" style="display:flex; align-items:flex-end; gap:10px">
                                 {% csrf_token %}
                                 <select>

@@ -93,23 +93,24 @@ class Risk(models.Model):
     imc = models.IntegerField(default=0)
     pressao_arterial = models.IntegerField(default=0)
     colestrol_total = models.FloatField(default=0)
-    colestrol_hdl = models.IntegerField(default=0)
-    colestrol_nao_hdl = models.IntegerField(default=0)
-    hemoglobina_gliciada = models.IntegerField(default=0)
+    colestrol_hdl = models.FloatField(default=0)
+    colestrol_nao_hdl = models.FloatField(default=0)
+    hemoglobina_gliciada = models.FloatField(default=0)
     fumador = models.CharField(max_length=10,choices=FUMADOR,null=True)
-    diabetes = models.CharField(max_length=10,choices=DIABETES)
+    diabetes = models.BooleanField(default=False)
     anos_diabetes = models.IntegerField(default=0,blank=True)
-    avc = models.CharField(max_length=10,choices=AVC)
-    enfarte = models.CharField(max_length=10,choices=ENFARTE)
-    doenca_rins = models.CharField(max_length=10,choices=RINS)
-    doenca_pernas = models.CharField(max_length=10,choices=PERNAS)
-    hipercolestrol = models.CharField(max_length=10,choices=HIPERCOLESTROL)
+    avc = models.BooleanField(default=False)
+    enfarte = models.BooleanField(default=False)
+    doenca_rins = models.BooleanField(default=False)
+    doenca_pernas = models.BooleanField(default=False)
+    hipercolestrol = models.BooleanField(default=False)
     data_atual = models.DateField(default=timezone.now)
     comentario2 = models.CharField(max_length=200,blank=True)
     comentario = models.CharField(max_length=200,blank=True)
     risco_de_enfarte = models.IntegerField(default=0,null=True) #propriedade
-    parteDoUtilizador = models.OneToOneField('ParteDoUtilizador',on_delete=models.CASCADE,null=True,blank=True,default=None)
+    parteDoUtilizador = models.OneToOneField('ParteDoUtilizador',on_delete=models.CASCADE,null=True,blank=True,default=None,related_name='risk')
     relatorio = models.FileField(upload_to='relatorio_risk/', null=True, blank=True)
+    relatorio_word = models.FileField(upload_to='relatorio_risk_word/', null=True, blank=True)
     concluido = models.BooleanField(default=False)
     
 
@@ -231,7 +232,7 @@ class ParteDoUtilizador(models.Model):
         return self.part.order
 
     def __str__(self) -> str:
-        return self.part.name
+        return f'{self.part.name} {self.participante}'
 
 class Instrument(Common):
     area = models.ManyToManyField('Area',
@@ -428,7 +429,7 @@ class PossibleAnswer(Common):
 class Resolution(models.Model):
     patient = models.ForeignKey(Participante,
                                 on_delete=models.CASCADE, default=None, blank=True, null=True)
-    part = models.ForeignKey('ParteDoUtilizador', on_delete=models.CASCADE,null=True, blank=True)
+    part = models.ForeignKey('ParteDoUtilizador', on_delete=models.CASCADE,null=True, blank=True, related_name='resolution')
     date = models.DateTimeField(default=timezone.now)
     doctor = models.ForeignKey(settings.AUTH_USER_MODEL,
                                on_delete=models.CASCADE, default=None, blank=True, null=True)
