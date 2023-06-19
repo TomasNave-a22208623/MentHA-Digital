@@ -767,87 +767,289 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
 def report_view(request, resolution_id):
     start = time.time()
     r = Resolution.objects.get(pk=resolution_id)
+    nome_parte = r.part.part.name
     areas = Area.objects.filter(part=r.part.part)
-    # print(r)
-    # É necessário o ensure_ascii = False para mostrar caracteres UTF-8
     report_json = r.statistics
     report_json_dumps = json.dumps(report_json, indent=1, sort_keys=False, ensure_ascii=False)
+    
     report = {}
     answers = Answer.objects.filter(resolution=r).order_by("question__section__order")
-    # print(answers)
     done = []
+    nr_areas = len(areas) - 3
+    nr_total_instrumentos = -3
 
-    
-
+    report_obj = Report.objects.get(resolution=r)
+    report_obj.refresh_report(answers)
 
     for area in areas.order_by('order'):
-        report[area.id] = {}
+        nr_total_instrumentos += area.number_of_instruments
+        report[area.name] = {
+            'nr_instrumentos': area.number_of_instruments,
+        }
         instruments = Instrument.objects.all().order_by('order').filter(area=area)
-        for instrument in instruments:
-            quotations = []
-            names = []
-            report[area.id][instrument.name] = {}
-            dimensions = Dimension.objects.all().order_by('order').filter(instrument=instrument)
-            report[area.id][instrument.name]["Total"] = 0
-            report[area.id][instrument.name]["Graph"] = None
-            for dimension in dimensions:
-                if dimension.name != 'None':
-                    names.append(dimension.name)
-                report[area.id][instrument.name][dimension.name] = {}
-                report[area.id][instrument.name][dimension.name]['Total'] = 0
-                sections = Section.objects.all().order_by('order').filter(dimension=dimension)
-                for section in sections:
-                    if dimension.name == 'None' and section.name != 'None':
-                        names.append(section.name)
-                    report[area.id][instrument.name][dimension.name][section.name] = {}
-                    questions = Question.objects.filter(section=section)
-                    report[area.id][instrument.name][dimension.name][section.name] = \
-                        report_json[str(area.id)][str(instrument.id)][str(dimension.id)][str(section.id)].get(
-                            'quotation')
-                    for question in questions:
-                        answer = Answer.objects.filter(question=question, resolution=r)
-                        if answer.exists():
-                            report[area.id][instrument.name]["Total"] += answer.get().quotation
-                            report[area.id][instrument.name][dimension.name]["Total"] += answer.get().quotation
-                            if dimension.name == 'None' and section.name != 'None':
-                                quotations.append(answer.get().quotation)
-                if dimension.name != 'None':
-                    quotations.append(report[area.id][instrument.name][dimension.name]["Total"])
-
-            if len(quotations) == len(names) and dimension.name != 'None' or len(quotations) == len(
-                    names) and section.name != 'None' and len(quotations) != 0:
-                for answer in answers:
-                    if answer.instrument == instrument.name and instrument.name not in done:
-                        print(
-                            f"Creating Graph for {instrument.name} ; h-max={instrument.highest_max_quotation}, min={instrument.minimum_quotation}")
-                        report[area.id][instrument.name]["Graph"] = make_graph(names, quotations,
-                                                                               0,
-                                                                               instrument.highest_max_quotation)
-                        done.append(instrument.name)
 
         for instrument in instruments:
-            if instrument.name == "BSI":
-                for answer in answers:
-                    if answer.instrument == instrument.name:
-                        names = ['Somatização', 'Obsessões-Compulsões', 'Depressão', 'Sensibilidade Interpessoal',
-                                 'Ansiedade', 'Hostilidade', 'Ansiedade Fóbica', 'Ideação Paranóide', 'Psicotismo']
-                        quotations = bsi_quotation(answers)
-                        report[area.id]["BSI"]["Graph"] = make_graph(names, quotations, 0, 28)
-                        done.append(instrument.name)
+            if instrument.name != None:
+                if 'ABVD' in instrument.name:
+                    names = ['Atividades Corporais', 'Atividades Motoras', 'Atividades Mentais', 'Atividades Sensoriais']
+                    quotations = [report_obj.abvd_atividades_corporais_quotation, report_obj.abvd_atividades_motoras_quotation, report_obj.abvd_atividades_mentais_quotation, report_obj.abvd_atividades_sensoriais_quotation]
+                    total = sum(quotations)
+                    done.append(instrument.name)
+                    print(f"Creating Graph for {instrument.name} ; h-max={instrument.highest_max_quotation}, min={instrument.minimum_quotation}")
+                    report[area.name][instrument.name] = {
+                        'evaluation': report_obj.abvd_evaluation,
+                        'atividades_corporais': report_obj.abvd_atividades_corporais_quotation,
+                        'atividades_motoras': report_obj.abvd_atividades_motoras_quotation,
+                        'atividades_mentais': report_obj.abvd_atividades_mentais_quotation,
+                        'atividades_sensoriais': report_obj.abvd_atividades_sensoriais_quotation,
+                        'total': total,
+                        'graph': make_graph(names, quotations, 0, instrument.highest_max_quotation),
+                        'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
+                        'notes': 'abvd_notes',
+                    }
+                
+                elif 'AIVD' in instrument.name:
+                    report[area.name][instrument.name] = {
+                        'evaluation': report_obj.aivd_evaluation,
+                        'utilizacao_telefone': report_obj.aivd_utilizacao_telefone_quotation,
+                        'fazer_compras': report_obj.aivd_fazer_compras_quotation,
+                        'preparar_refeicoes': report_obj.aivd_preparacao_refeicoes_quotation,
+                        'tarefas_domesticas': report_obj.aivd_tarefas_domesticas_quotation,
+                        'lavar_roupa' : report_obj.aivd_lavar_roupa_quotation,
+                        'utilizar_transportes': report_obj.aivd_utilizar_transportes_quotation,
+                        'manejo_medicacao': report_obj.aivd_manejo_mediacao_quotation,
+                        'responsabilidade_financeira': report_obj.aivd_responsabilidades_financeiras_quotation,
+                        'respondido': False,
+                        'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
+                        'notes': 'aivd_notes',
+                    }
+                
+                elif 'BSI' in instrument.name:
+                    names = ['Somatização','Obsessão-Compulsão','Sensibilidade Interpessoal','Depressão','Ansiedade','Hostilidade','Ansiedade Fóbica','Ideação Paranóide','Psicoticismo']
+                    quotations = [report_obj.bsi_somatizacao, report_obj.bsi_obssessivo_compulsivo, report_obj.bsi_sensibilidade_interpessoal, report_obj.bsi_depressao, report_obj.bsi_ansiedade, report_obj.bsi_hostilidade, report_obj.bsi_ansiedade_fobica, report_obj.bsi_paranoide, report_obj.bsi_psicoticismo]
+                    done.append(instrument.name)
+                    print(f"Creating Graph for {instrument.name} ; h-max={instrument.highest_max_quotation}, min={instrument.minimum_quotation}")
+                    report[area.name][instrument.name] = {
+                        'somatizacao': report_obj.bsi_somatizacao,
+                        'obsessao': report_obj.bsi_obssessivo_compulsivo,
+                        'depressao': report_obj.bsi_depressao,
+                        'sensibilidade_interpessoal': report_obj.bsi_sensibilidade_interpessoal,
+                        'ansiedade': report_obj.bsi_ansiedade,
+                        'hostilidade': report_obj.bsi_hostilidade,
+                        'ansiedade_fobica': report_obj.bsi_ansiedade_fobica,
+                        'paranoide': report_obj.bsi_paranoide,
+                        'psicoticismo': report_obj.bsi_psicoticismo,
+                        'igs': round(report_obj.bsi_igs, 2),
+                        'tsp': round(report_obj.bsi_tsp, 2),
+                        'isp': round(report_obj.bsi_isp, 2),
+                        'graph': make_graph(names, quotations, 0, 28),
+                        'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
+                        'notes': 'bsi_notes',
+                    }
+                
+                elif 'ACE-R' in instrument.name:
+                    names = ['Atenção e Orientação','Memória','Fluência','Linguagem','Visuo-Espacial']
+                    quotations = [report_obj.acer_atencao_orientacao_quotation, report_obj.acer_memoria_quotation, report_obj.acer_fluencia_quotation, report_obj.acer_linguagem_quotation, report_obj.acer_visuo_espacial_quotation]
+                    done.append(instrument.name)
+                    print(f"Creating Graph for {instrument.name} ; h-max={instrument.highest_max_quotation}, min={instrument.minimum_quotation}")
+                    report[area.name][instrument.name] = {
+                        'total': sum(quotations),
+                        'evaluation': report_obj.acer_evaluation,
+                        'acer_atencao_orientacao': report_obj.acer_atencao_orientacao_quotation,
+                        'acer_memoria': report_obj.acer_memoria_quotation,
+                        'acer_fluencia': report_obj.acer_fluencia_quotation,
+                        'acer_linguagem': report_obj.acer_linguagem_quotation,
+                        'acer_visuo_espacial': report_obj.acer_visuo_espacial_quotation,
+                        'graph': make_graph(names, quotations, 0, instrument.highest_max_quotation),
+                        'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
+                        'notes': 'acer_notes',
+                    }
+                
+                elif 'MMSE' in instrument.name:
+                    names = ['Atenção e Orientação','Memória','Linguagem','Visuo-Espacial']
+                    quotations = [report_obj.mmse_atencao_orientacao_quotation, report_obj.mmse_memoria_quotation, report_obj.mmse_lingua_quotation, report_obj.mmse_visuo_espacial_quotation]
+                    total = sum(quotations)
+                    done.append(instrument.name)
+                    print(f"Creating Graph for {instrument.name} ; h-max={instrument.highest_max_quotation}, min={instrument.minimum_quotation}")
+                    report[area.name][instrument.name] = {
+                        'total': total,
+                        'evaluation': report_obj.mmse_evaluation,
+                        'mmse_atencao_orientacao': report_obj.mmse_atencao_orientacao_quotation,
+                        'mmse_memoria': report_obj.mmse_memoria_quotation,
+                        'mmse_linguagem': report_obj.mmse_lingua_quotation,
+                        'mmse_visuo_espacial': report_obj.mmse_visuo_espacial_quotation,
+                        'graph': make_graph(names, quotations, 0, instrument.highest_max_quotation),
+                        'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
+                        'notes': 'mmse_notes',
+                    }
+
+                elif 'PANAS' in instrument.name:
+                    done.append(instrument.name)
+                    report[area.name][instrument.name] = {
+                        'interessado': report_obj.panas_interessado,
+                        'nervoso': report_obj.panas_nervoso,
+                        'entusiasmado': report_obj.panas_entusiasmado,
+                        'amedrontado': report_obj.panas_amedrontado,
+                        'inspirado': report_obj.panas_inspirado,
+                        'ativo': report_obj.panas_ativo,
+                        'assustado': report_obj.panas_assustado,
+                        'culpado': report_obj.panas_culpado,
+                        'determinado': report_obj.panas_determinado,
+                        'atormentado': report_obj.panas_atormentado,
+                        'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
+                        'notes': 'panas_notes',
+                    }
+                
+                elif 'HADS' in instrument.name:
+                    done.append(instrument.name)
+                    report[area.name][instrument.name] = {
+                        'ansiedade_evaluation': report_obj.hads_estado_ansiedade_evaluation,
+                        'ansiedade_quotation': report_obj.hads_estado_ansiedade_quotation,
+                        'depressao_evaluation': report_obj.hads_estado_depressao_evaluation,
+                        'depressao_quotation': report_obj.hads_estado_depressao_quotation,
+                        'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
+                        'notes': 'hads_notes',
+                    }
+                
+                elif 'GDS' in instrument.name:
+                    done.append(instrument.name)
+                    report[area.name][instrument.name] = {
+                        'gds': report_obj.gds_nivel,
+                        'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
+                        'notes': 'gds_notes',
+                    }
+
+                elif 'Áreas Complementares' in instrument.name:
+                    done.append(instrument.name)
+                    report[area.name][instrument.name] = {
+                        'memoria_visual_imediata': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('21').get('quotation'),
+                        'memoria_visual_diferida': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('22').get('quotation'),
+                        'atencao_mantida': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('23').get('quotation'),
+                        'atencao_dividida': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('24').get('quotation'),
+                        'orientacao_esq_dir': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('25').get('quotation'),
+                        'abstracao_verbal': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('26').get('quotation'),
+                        'compreensao_instrucoes': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('27').get('quotation'),
+                        'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
+                        'notes': 'ac_notes',
+                    }
+
+
+                elif 'None' in instrument.name:
+                    if area.name == 'Consciência, Humor e Comportamento':
+                        cons = MultipleChoicesCheckbox.objects.filter(answer__resolution=r, answer__question__name='Consciência')
+                        cons_list = [self.choice.name for self in cons]
+                        mot = MultipleChoicesCheckbox.objects.filter(answer__resolution=r, answer__question__name='Atividade Motora')
+                        mot_list = [self.choice.name for self in mot]
+                        hum = MultipleChoicesCheckbox.objects.filter(answer__resolution=r, answer__question__name='Humor')
+                        hum_list = [self.choice.name for self in hum]
+                        report[area.name][area.name] = {               
+                            'chc_consciencia': ", ".join(cons_list),
+                            'chc_motora': ", ".join(mot_list),
+                            'chc_humor': ", ".join(hum_list),
+                            'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
+                            'notes': 'chc_notes',
+                        }
+                    
+                    elif area.name == 'Cooperação dada na entrevista':
+                        respondido = r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0
+                        report[area.name][area.name] = {               
+                            'respondido': respondido,
+                            'notes': 'coop_notes',
+                        }
+                        if respondido:
+                            coop = Answer.objects.filter(resolution=r, question__name='Cooperação dada na entrevista').get().multiple_choice_answer.name
+                            report[area.name][area.name]['coop'] = coop
+                        
+                        
+                    
+                    elif area.name == 'Relação com o Avaliador':
+                        respondido = r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0
+                        report[area.name][area.name] = {               
+                            'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
+                            'notes': 'rel_notes',
+                        }
+                        if respondido:
+                            rel = Answer.objects.filter(resolution=r, question__name='Relação com o Avaliador').get().multiple_choice_answer.name
+                            report[area.name][area.name]['rel'] = rel
+                        
+                        
     
-    # print(json.dumps(report_json, indent=1, sort_keys=False, ensure_ascii=False))
+    # for area in areas.order_by('order'):
+    #     report[area.id] = {}
+    #     instruments = Instrument.objects.all().order_by('order').filter(area=area)
+    #     for instrument in instruments:
+    #         quotations = []
+    #         names = []
+    #         report[area.id][instrument.name] = {}
+    #         dimensions = Dimension.objects.all().order_by('order').filter(instrument=instrument)
+    #         report[area.id][instrument.name]["Total"] = 0
+    #         report[area.id][instrument.name]["Graph"] = None
+    #         for dimension in dimensions:
+    #             if dimension.name != 'None':
+    #                 names.append(dimension.name)
+    #             report[area.id][instrument.name][dimension.name] = {}
+    #             report[area.id][instrument.name][dimension.name]['Total'] = 0
+    #             sections = Section.objects.all().order_by('order').filter(dimension=dimension)
+    #             for section in sections:
+    #                 if dimension.name == 'None' and section.name != 'None':
+    #                     names.append(section.name)
+    #                 report[area.id][instrument.name][dimension.name][section.name] = {}
+    #                 questions = Question.objects.filter(section=section)
+    #                 report[area.id][instrument.name][dimension.name][section.name] = \
+    #                     report_json[str(area.id)][str(instrument.id)][str(dimension.id)][str(section.id)].get(
+    #                         'quotation')
+    #                 for question in questions:
+    #                     answer = Answer.objects.filter(question=question, resolution=r)
+    #                     if answer.exists():
+    #                         report[area.id][instrument.name]["Total"] += answer.get().quotation
+    #                         report[area.id][instrument.name][dimension.name]["Total"] += answer.get().quotation
+    #                         if dimension.name == 'None' and section.name != 'None':
+    #                             quotations.append(answer.get().quotation)
+    #             if dimension.name != 'None':
+    #                 quotations.append(report[area.id][instrument.name][dimension.name]["Total"])
+
+    #         if len(quotations) == len(names) and dimension.name != 'None' or len(quotations) == len(
+    #                 names) and section.name != 'None' and len(quotations) != 0:
+    #             for answer in answers:
+    #                 if answer.instrument == instrument.name and instrument.name not in done:
+    #                     print(f"Creating Graph for {instrument.name} ; h-max={instrument.highest_max_quotation}, min={instrument.minimum_quotation}")
+    #                     report[area.id][instrument.name]["Graph"] = make_graph(names, quotations,
+    #                                                                            0,
+    #                                                                            instrument.highest_max_quotation)
+    #                     done.append(instrument.name)
+
+    #     for instrument in instruments:
+    #         if instrument.name == "BSI":
+    #             for answer in answers:
+    #                 if answer.instrument == instrument.name:
+    #                     names = ['Somatização', 'Obsessões-Compulsões', 'Depressão', 'Sensibilidade Interpessoal',
+    #                              'Ansiedade', 'Hostilidade', 'Ansiedade Fóbica', 'Ideação Paranóide', 'Psicotismo']
+    #                     quotations = bsi_quotation(answers)
+    #                     report[area.id]["BSI"]["Graph"] = make_graph(names, quotations, 0, 28)
+    #                     done.append(instrument.name)
+    
+    #print(json.dumps(r.statistics, indent=1, sort_keys=False, ensure_ascii=False))
     # Funcionalidade
     end = time.time()
     print("Report", (end - start))
     # gera_relatorio_parte()
-    context = {'report_json': report_json, 'report_json_dumps': report_json_dumps, 'report': report, 'resolution': r,
-               'answers': answers, 'instruments': Instrument.objects.all(), 'questions': Question.objects.all(),
-               'areas': areas}
+    context = {'report_json': report_json, 
+               'report_json_dumps': report_json_dumps, 
+               'report': report, 
+               'resolution': r,
+               'answers': answers, 
+               'instruments': Instrument.objects.all(), 
+               'questions': Question.objects.all(),
+               'areas': areas, 
+               'nome_parte': nome_parte,
+               'nr_areas': nr_areas,
+               'nr_total_instrumentos': nr_total_instrumentos*2,
+               }
     # print(Question.objects.all())
     end = time.time()
     print("Report", (end - start))
-    renderizado = render(request, 'protocolo/report.html', context)
 
+    renderizado = render(request, 'protocolo/report2.html', context)
     return renderizado
 
 

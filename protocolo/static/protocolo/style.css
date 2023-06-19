@@ -11,6 +11,10 @@
     padding-top: 25px;
 }
 
+.mt-10{
+    margin-top: 10px;
+}
+
 .card-header{
      height: 4em!important;
 }

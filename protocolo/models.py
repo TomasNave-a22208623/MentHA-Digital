@@ -7,6 +7,8 @@ from .functions import percentage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from diario.models import *
 
+from .functions import * 
+
 # Create your models here.
 
 SMALL_LEN = 50
@@ -474,8 +476,8 @@ class Resolution(models.Model):
                         #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['percentage'] = 0
                         #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['quotation'] = 0
         self.save()
+        Report.objects.create(resolution=self)
         # json.dumps(self.statistics)
-
 
     def increment_statistics(self, part_id: int, area_id: int, instrument_id: int, dimension_id: int, section_id: int):
         part = ParteDoUtilizador.objects.get(pk=part_id).part
@@ -608,6 +610,10 @@ class Answer(models.Model):
     @property
     def instrument_obj(self):
         return self.question.section.dimension.instrument
+    
+    @property
+    def dimension_obj(self):
+        return self.question.section.dimension
 
 
 class TextInputAnswer(models.Model):
@@ -632,6 +638,358 @@ class MultipleChoicesCheckbox(Common):
 
     def __str__(self):
         return f"{self.choice.name}"
+    
+class Report(models.Model):
+
+    ABVD_CHOICES = (
+        ('N', 'Nulo'),
+        ('L', 'Ligeiro'),
+        ('M','Moderado'),
+        ('S','Severo'),
+        ('MS','Muito Severo'),
+    )
+    
+    AIVD_CHOICES = (
+        ('I', 'Independente'),
+        ('L', 'Ligeiro'),
+        ('M','Moderado'),
+        ('G','Grave'),
+        ('T','Total'),
+    )
+    
+    ACER_CHOICES = (
+        ('SDC', 'Sem Declíneo Cognitivo'),
+        ('D', 'Demência'),
+        ('DCL','Declíneo Cognitivo Ligeiro'),
+    )
+
+    MMSE_CHOICES = (
+        ('SDC', 'Sem Declíneo Cognitivo'),
+        ('CDC','Com Declíneo Cognitivo'),
+    )
+
+    HADS_CHOICES = (
+        ('N', 'Normal'),
+        ('L', 'Ligeiro'),
+        ('M', 'Moderado'),
+        ('S', 'Severo'),
+    )
+
+
+    resolution = models.ForeignKey('Resolution', on_delete=models.CASCADE, related_name='report')
+
+    #ABVD
+    abvd_evaluation = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True, choices=ABVD_CHOICES)
+    abvd_atividades_corporais_quotation = models.IntegerField(default=0, blank=True, null=True)
+    abvd_atividades_motoras_quotation = models.IntegerField(default=0, blank=True, null=True)
+    abvd_atividades_sensoriais_quotation = models.IntegerField(default=0, blank=True, null=True)
+    abvd_atividades_mentais_quotation = models.IntegerField(default=0, blank=True, null=True)
+    
+    #AIVD
+    aivd_evaluation = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True, choices=AIVD_CHOICES)
+    aivd_utilizacao_telefone_quotation = models.IntegerField(default=0, blank=True, null=True)
+    aivd_fazer_compras_quotation = models.IntegerField(default=0, blank=True, null=True)
+    aivd_preparacao_refeicoes_quotation = models.IntegerField(default=0, blank=True, null=True)
+    aivd_tarefas_domesticas_quotation = models.IntegerField(default=0, blank=True, null=True)
+    aivd_lavar_roupa_quotation = models.IntegerField(default=0, blank=True, null=True)
+    aivd_utilizar_transportes_quotation = models.IntegerField(default=0, blank=True, null=True)
+    aivd_manejo_mediacao_quotation = models.IntegerField(default=0, blank=True, null=True)
+    aivd_responsabilidades_financeiras_quotation = models.IntegerField(default=0, blank=True, null=True)
+    
+    #BSI
+    bsi_igs = models.IntegerField(default=0, blank=True, null=True)
+    bsi_tsp = models.IntegerField(default=0, blank=True, null=True)
+    bsi_isp = models.IntegerField(default=0, blank=True, null=True)
+    bsi_somatizacao = models.IntegerField(default=0, blank=True, null=True)
+    bsi_obssessivo_compulsivo = models.IntegerField(default=0, blank=True, null=True)
+    bsi_depressao = models.IntegerField(default=0, blank=True, null=True)
+    bsi_sensibilidade_interpessoal = models.IntegerField(default=0, blank=True, null=True)
+    bsi_ansiedade = models.IntegerField(default=0, blank=True, null=True)
+    bsi_hostilidade = models.IntegerField(default=0, blank=True, null=True)
+    bsi_ansiedade_fobica = models.IntegerField(default=0, blank=True, null=True)
+    bsi_paranoide = models.IntegerField(default=0, blank=True, null=True)
+    bsi_psicoticismo = models.IntegerField(default=0, blank=True, null=True)
+
+    #ACER
+    acer_evaluation = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True, choices=ACER_CHOICES)
+    acer_atencao_orientacao_quotation = models.IntegerField(default=0, blank=True, null=True)
+    acer_memoria_quotation = models.IntegerField(default=0, blank=True, null=True)
+    acer_fluencia_quotation = models.IntegerField(default=0, blank=True, null=True)
+    acer_linguagem_quotation = models.IntegerField(default=0, blank=True, null=True)
+    acer_visuo_espacial_quotation = models.IntegerField(default=0, blank=True, null=True)
+    
+    #MMSE
+    mmse_evaluation = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True, choices=MMSE_CHOICES)
+    mmse_atencao_orientacao_quotation = models.IntegerField(default=0, blank=True, null=True)
+    mmse_memoria_quotation = models.IntegerField(default=0, blank=True, null=True)
+    mmse_lingua_quotation = models.IntegerField(default=0, blank=True, null=True)
+    mmse_visuo_espacial_quotation = models.IntegerField(default=0, blank=True, null=True)
+
+    #AREAS COMPLEMENTAS
+    ac_memoria_visual_imediata_quotation = models.IntegerField(default=0, blank=True, null=True)
+    ac_memoria_diferida_quotation = models.IntegerField(default=0, blank=True, null=True)
+    ac_tmt_a_quotation = models.IntegerField(default=0, blank=True, null=True)
+    ac_tmt_b_quotation = models.IntegerField(default=0, blank=True, null=True)
+    ac_gnosias_quotation = models.IntegerField(default=0, blank=True, null=True)
+    ac_proverbios_quotation = models.IntegerField(default=0, blank=True, null=True)
+    ac_token_test_quotation = models.IntegerField(default=0, blank=True, null=True)
+
+    #PANAS
+    panas_interessado = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True,)
+    panas_nervoso = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True)
+    panas_entusiasmado = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True)
+    panas_amedrontado = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True)
+    panas_inspirado = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True)
+    panas_ativo = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True)
+    panas_assustado = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True)
+    panas_culpado = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True)
+    panas_determinado = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True)
+    panas_atormentado = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True)
+
+    #HADS
+    hads_estado_ansiedade_evaluation = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True, choices=HADS_CHOICES)
+    hads_estado_ansiedade_quotation = models.IntegerField(default=0, blank=True, null=True)
+    hads_estado_depressao_evaluation = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True, choices=HADS_CHOICES)
+    hads_estado_depressao_quotation = models.IntegerField(default=0, blank=True, null=True)
+    
+    #GDS
+    gds_nivel = models.IntegerField(default=0, blank=True, null=True)
+    gds_text = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True)
+    def calculate_abvd(self, answers):
+        for a in answers:
+            if 'ABVD'in a.instrument:
+                if a.question.order == 1:
+                    self.abvd_atividades_corporais_quotation = a.quotation
+                elif a.question.order == 2:
+                    self.abvd_atividades_mentais_quotation = a.quotation
+                elif a.question.order == 3:
+                    self.abvd_atividades_motoras_quotation = a.quotation
+                elif a.question.order == 4:
+                    self.abvd_atividades_sensoriais_quotation = a.quotation
+
+        val = self.abvd_atividades_corporais_quotation + \
+        self.abvd_atividades_mentais_quotation + \
+        self.abvd_atividades_motoras_quotation +  \
+        self.abvd_atividades_sensoriais_quotation 
+        
+        eval = "Nulo"
+        if val > 0 and val <= 7:
+            eval = "Ligeiro"
+        elif val <= 14:
+            eval = "Moderado"
+        elif val <= 19:
+            eval = "Severo"
+        elif val <= 24:
+            eval = "Muito Severo"
+
+        self.abvd_evaluation = eval
+        self.save()
+        return 
+
+    def calculate_aivd(self, answers, sex):
+        for a in answers:
+            if 'AIVD'in a.instrument:
+                if a.question.order == 1:
+                    self.aivd_utilizacao_telefone_quotation = a.quotation
+                elif a.question.order == 2:
+                    self.aivd_fazer_compras_quotation = a.quotation
+                elif a.question.order == 3:
+                    self.aivd_preparacao_refeicoes_quotation = a.quotation
+                elif a.question.order == 4:
+                    self.aivd_tarefas_domesticas_quotation = a.quotation
+                elif a.question.order == 5:
+                    self.aivd_lavar_roupa_quotation = a.quotation
+                elif a.question.order == 6:
+                    self.aivd_utilizar_transportes_quotation = a.quotation
+                elif a.question.order == 7:
+                    self.aivd_manejo_mediacao_quotation = a.quotation
+                elif a.question.order == 8:
+                    self.aivd_responsabilidades_financeiras_quotation = a.quotation
+
+        val = self.aivd_fazer_compras_quotation + \
+        self.aivd_lavar_roupa_quotation + \
+        self.aivd_manejo_mediacao_quotation + \
+        self.aivd_preparacao_refeicoes_quotation + \
+        self.aivd_responsabilidades_financeiras_quotation + \
+        self.aivd_tarefas_domesticas_quotation + \
+        self.aivd_utilizacao_telefone_quotation + \
+        self.aivd_utilizar_transportes_quotation
+
+        if sex == 'Masculino':
+            self.aivd_evaluation = calculate_aivd_evaluation_men(val)
+        elif sex == 'Feminino':
+            self.aivd_evaluation = calculate_aivd_evaluation_men(val)
+        
+        self.save()
+        return
+    
+    def calculate_hads(self, answers):
+        self.hads_estado_ansiedade_evaluation = hads_anxiety_quotation(answers)
+        self.hads_estado_depressao_evaluation = hads_depression_quotation(answers)
+        self.save()
+        return
+
+    def calculate_bsi(self, answers):
+        somatizacao = 0
+        obs_comp = 0
+        sens_interp = 0
+        depressao = 0
+        ansiedade = 0
+        hostilidade = 0
+        ansiedade_fob = 0
+        ideacao_paranoide = 0
+        psicoticismo = 0
+        
+        count_ = 0
+        count_q_gt_0 = 0
+        sum_ = 0
+
+        for a in answers:
+            if a.instrument == 'BSI':
+                if a.question.order in [2, 7, 23, 29, 30, 33, 37]:
+                    somatizacao += somatizacao + a.multiple_choice_answer.quotation
+                elif a.question.order in [5, 15, 26, 27, 32, 36]:
+                    obs_comp += a.multiple_choice_answer.quotation
+                elif a.question.order in [20, 21, 22, 42]:
+                    sens_interp +=  a.multiple_choice_answer.quotation
+                elif a.question.order in [9, 16, 17, 18, 35, 50]:
+                    depressao +=  a.multiple_choice_answer.quotation
+                elif a.question.order in [1, 12, 19, 38, 45, 49]:
+                    ansiedade += a.multiple_choice_answer.quotation
+                elif a.question.order in [6, 13, 40, 41, 46]:
+                    hostilidade += a.multiple_choice_answer.quotation
+                elif a.question.order in [8, 28, 31, 43, 47]:
+                    ansiedade_fob += a.multiple_choice_answer.quotation
+                elif a.question.order in [4, 10, 24, 48, 51]:
+                    ideacao_paranoide += a.multiple_choice_answer.quotation
+                elif a.question.order in [3, 14, 34, 44, 53]:
+                    psicoticismo += a.multiple_choice_answer.quotation
+
+                if a.quotation > 0:
+                    count_q_gt_0 += 1
+                sum_ += a.quotation
+                count_ += 1
+
+        self.bsi_somatizacao = somatizacao
+        self.bsi_obssessivo_compulsivo = obs_comp
+        self.bsi_sensibilidade_interpessoal = sens_interp
+        self.bsi_depressao = depressao
+        self.bsi_ansiedade = ansiedade
+        self.bsi_hostilidade = hostilidade
+        self.bsi_ansiedade_fobica = ansiedade_fob
+        self.bsi_paranoide = ideacao_paranoide
+        self.bsi_psicoticismo = psicoticismo
+        self.bsi_tsp = count_q_gt_0
+        self.bsi_isp = sum_/max(1, count_q_gt_0)
+        self.bsi_igs = sum_/max(1,count_)
+        self.save()
+        return
+
+    def calculate_acer(self, answers):
+        r = Resolution.objects.get(pk=self.resolution.id)
+        s = r.statistics
+        a = Area.objects.filter(name='Cognição', part= self.resolution.part.part).get()
+        for a in answers:
+            if s.get(f'{a.id}') is not None:
+                self.acer_atencao_orientacao_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{9}').get('quotation')
+                self.acer_memoria_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{10}').get('quotation')
+                self.acer_fluencia_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{11}').get('quotation')
+                self.acer_linguagem_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{12}').get('quotation') 
+                self.acer_visuo_espacial_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{13}').get('quotation')
+        self.save()
+        return
+
+    def calculate_mmse(self, answers):
+        r = Resolution.objects.get(pk=self.resolution.id)
+        s = r.statistics
+        a = Area.objects.filter(name='Cognição', part= self.resolution.part.part).get()
+        for a in answers:
+            if s.get(f'{a.id}') is not None:
+                self.mmse_atencao_orientacao_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{17}').get('quotation')
+                self.mmse_memoria_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{18}').get('quotation')
+                self.mmse_lingua_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{19}').get('quotation')
+                self.mmse_visuo_espacial_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{20}').get('quotation')
+        self.save()
+
+        q = self.mmse_atencao_orientacao_quotation + \
+        self.mmse_memoria_quotation + \
+        self.mmse_lingua_quotation + \
+        self.mmse_visuo_espacial_quotation
+
+        self.mmse_evaluation = 'Sem Declíneo Cognitivo'
+        if mmse_evaluation(self.resolution.patient, q):
+            self.mmse_evaluation = 'Com Declíneo Cognitivo'
+        
+        self.save()
+        return
+
+    def calculate_panas(self, answers):
+        for a in answers:
+            if a.instrument == 'PANAS':
+                if a.question.order == 1:
+                    self.panas_interessado = a.multiple_choice_answer.name
+                elif a.question.order == 2:
+                    self.panas_nervoso = a.multiple_choice_answer.name
+                elif a.question.order == 3:
+                    self.panas_entusiasmado = a.multiple_choice_answer.name
+                elif a.question.order == 4:
+                    self.panas_amedrontado = a.multiple_choice_answer.name
+                elif a.question.order == 5:
+                    self.panas_inspirado = a.multiple_choice_answer.name
+                elif a.question.order == 6:
+                    self.panas_ativo = a.multiple_choice_answer.name
+                elif a.question.order == 7:
+                    self.panas_assustado = a.multiple_choice_answer.name
+                elif a.question.order == 8:
+                    self.panas_culpado = a.multiple_choice_answer.name
+                elif a.question.order == 9:
+                    self.panas_determinado = a.multiple_choice_answer.name
+                elif a.question.order == 10:
+                    self.panas_atormentado = a.multiple_choice_answer.name
+        self.save()
+        return
+
+    def calculate_hads(self, answers):
+        anxiety = 0
+        depression = 0
+        for a in answers:
+            if a.instrument == 'HADS':
+                if a.question.order % 2 == 0:
+                    depression += a.quotation
+                else:
+                    anxiety += a.quotation
+
+        self.hads_estado_ansiedade_quotation = anxiety
+        self.hads_estado_depressao_quotation = depression
+        self.save()
+
+        self.hads_estado_ansiedade_evaluation = hads_evaluation(anxiety)
+        self.hads_estado_depressao_evaluation = hads_evaluation(depression)
+
+        self.save()
+        return
+
+    def calculate_gds(self, answers):
+        for a in answers:
+            if a.instrument == 'GDS' and a.question.name == 'Atribuição de Estadio':
+                self.gds_nivel = a.quotation
+                self.gds_text = a.multiple_choice_answer.name
+        self.save()
+        return
+
+    def refresh_report(self, answers):
+        answers = Answer.objects.filter(resolution=self.resolution)
+        self.calculate_abvd(answers)
+        print(self.resolution.patient.sexo)
+        self.calculate_aivd(answers, self.resolution.patient.sexo)
+        self.calculate_hads(answers)
+        self.calculate_bsi(answers)
+        self.calculate_acer(answers)
+        self.calculate_mmse(answers)
+        self.calculate_panas(answers)
+        self.calculate_gds(answers)
+        self.save()
+        return
 
 #class agendamentos(model.Model):
 #    dia = models.ForeignKey('Dia',on_delete=moodels.CASCADE)
@@ -639,7 +997,3 @@ class MultipleChoicesCheckbox(Common):
 
 #    def __str__(self):
 #        return f"{self.choice.name}"    
-
-
-
-

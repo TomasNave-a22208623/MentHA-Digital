@@ -230,3 +230,65 @@ def calculate_timer_quotation(question, i):
             return 6
         elif i > 21:
             return 7
+        
+def calculate_aivd_evaluation_men(val):
+        if val == 0:
+            return "Total"
+        elif val <= 1:
+            return "Grave"
+        elif val <= 3:
+            return "Moderada"
+        elif val <= 4:
+            return "Ligeira"
+        else:
+            return "Independente"
+    
+def calculate_aivd_evaluation_women(val):
+    if val <= 1:
+        return "Total"
+    elif val <= 3:
+        return "Grave"
+    elif val <= 5:
+        return "Moderada"
+    elif val <= 7:
+        return "Ligeira"
+    else:
+        return "Independente"
+    
+
+def hads_anxiety_quotation(answers):
+    q = 0
+    for a in answers:
+        if a.instrument == 'HADS':
+            if a.question.order % 2 != 0:
+                q = q + a.quotation
+    return q
+
+
+def hads_depression_quotation(answers):
+    q = 0
+    for a in answers:
+        if a.instrument == 'HADS':
+            if a.question.order % 2 == 0:
+                q = q + a.quotation
+    return q
+
+def hads_evaluation(quotation):
+    if quotation <= 7:
+        return "Normal"
+    elif quotation <= 10:
+        return "Ligeiro"
+    elif quotation <= 14:
+        return "Moderado"
+    else:
+        return "Severo"
+    
+def mmse_evaluation(patient, quotation):
+    # True = Com declinio
+    # False = Sem declinio
+    if patient.escolaridade == 'Analfabeto':
+        return quotation <= 15
+    elif patient.escolaridade in ['1-4', '5-10', '11+']:
+        return quotation <= 22
+    else:
+        return quotation <= 27

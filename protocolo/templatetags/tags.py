@@ -411,7 +411,12 @@ def area_from_instrument_and_part(q, instrument):
 
 @register.simple_tag
 def get_area_from_id(areas, id):
+    return 0
     return areas.get(id=id)
+
+@register.simple_tag
+def multiply(a, b):
+    return a * b
 
 @register.simple_tag
 def get_if_done_from_percentage_list(percentages, id, area):
