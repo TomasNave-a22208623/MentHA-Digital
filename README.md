@@ -56,13 +56,6 @@ passos:
     * sudo systemctl restart gunicorn
 5. login a psql com admin da máquina (leda)
 
-
-
-#### Logs
-
-sudo systemctl status gunicorn
-
-
 #### psql 
 
 https://stackoverflow.com/questions/12720967/how-can-i-change-a-postgresql-user-password
@@ -72,6 +65,12 @@ manipular base de dados:
 * postgres=# create database mydb;
 * postgres=# create user myuser with encrypted password 'mypass';
 * postgres=# grant all privileges on database mydb to myuser;
+
+
+🔖 Logs
+
+sudo systemctl status gunicorn
+
 
 
 🔖 Passar DB para PSQL
