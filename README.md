@@ -41,9 +41,8 @@ acesso ao servidor onde está o menthadigital.com:
 * dns: jupiter.ulusofona.pt
 * ip: 193.137.75.199
 * ports: 80[http],443[https],8822[ssh]
-* u: leda (lua de Jupiter)
-* p: AiraeZeech6Bis (alterar na primeira utilização)
-
+* user: ***
+* password: ***
 
 #### usar Putty
 
