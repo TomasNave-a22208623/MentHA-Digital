@@ -32,11 +32,12 @@ pip install channels==3.0.5
 1. Abrir o Link https://menthadigital.com/
 2. Fazer login com as credenciais user:"superuser" pw:"super123"
 
-🔖 Acesso à VM onde está o menthadigital.com
+🔖 Acesso à VM
 ======
 
 #### acesso
 
+acesso ao servidor onde está o menthadigital.com:
 * dns: jupiter.ulusofona.pt
 * ip: 193.137.75.199
 * ports: 80[http],443[https],8822[ssh]
