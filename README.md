@@ -32,6 +32,42 @@ pip install channels==3.0.5
 1. Abrir o Link https://menthadigital.com/
 2. Fazer login com as credenciais user:"superuser" pw:"super123"
 
+🔖 Acesso à VM onde está o menthadigital.com
+======
+
+#### acesso
+
+* dns: jupiter.ulusofona.pt
+* ip: 193.137.75.199
+* ports: 80[http],443[https],8822[ssh]
+* u: leda (lua de Jupiter)
+* p: AiraeZeech6Bis (alterar na primeira utilização)
+
+
+#### usar Putty
+
+passos:
+1. fazer push para o master no gitHub
+2. login no servidor
+3. fazer pull
+4. fazer source/env/bin/activate
+    # makemigrations
+    # migrate
+    # sudo systemctl restart gunicorn
+5. login a psql com admin da máquina (leda)
+
+
+#### psql 
+
+https://stackoverflow.com/questions/12720967/how-can-i-change-a-postgresql-user-password
+
+manipular base de dados:
+* sudo -u postgres psql
+* postgres=# create database mydb;
+* postgres=# create user myuser with encrypted password 'mypass';
+* postgres=# grant all privileges on database mydb to myuser;
+
+
 🔖 Passar DB para PSQL
 ======
 
