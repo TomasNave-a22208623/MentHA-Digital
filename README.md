@@ -57,6 +57,12 @@ passos:
 5. login a psql com admin da máquina (leda)
 
 
+
+#### Logs
+
+sudo systemctl status gunicorn
+
+
 #### psql 
 
 https://stackoverflow.com/questions/12720967/how-can-i-change-a-postgresql-user-password
