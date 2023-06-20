@@ -51,9 +51,9 @@ passos:
 2. login no servidor
 3. fazer pull
 4. fazer source/env/bin/activate
-    # makemigrations
-    # migrate
-    # sudo systemctl restart gunicorn
+    * makemigrations
+    * migrate
+    * sudo systemctl restart gunicorn
 5. login a psql com admin da máquina (leda)
 
 
