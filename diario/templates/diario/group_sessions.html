@@ -83,17 +83,17 @@
                             Misto
                             {% endif %}
                         </td>
-                        <td style="text-align: center;">{% if sessao_do_grupo.estado == 'PR' %}
-                            &#10060;
+                        <td style="text-align: center;">
+                            {% if sessao_do_grupo.estado == 'PR' %}
+
                             {% elif sessao_do_grupo.estado == 'EC' %}
-                            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><path d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM188.3 147.1c-7.6 4.2-12.3 12.3-12.3 20.9V344c0 8.7 4.7 16.7 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5-16.7-4.7-24.3-.5z"/></svg>
+                                <i class="fa fa-play-circle-o" aria-hidden="true" style="font-size:31px;"></i>
                             {% else %}
-                            &#x2714;
+                                <i class="fa fa-check" aria-hidden="true" style="color: #008000; font-size:31px;"></i>
                             {% endif %}
                         </td>
 
                         <td style="text-align: center;">
-
                             {% if sessao_do_grupo.id == proxima_sessao and  sessao_do_grupo.data is not Null and grupos_permissoes.exists %}
                             <form action="{% url 'diario:presencas_sessao' sessao_do_grupo.id %}">
                                 <button class="btn btn-primary btn-sessao ee button">Iniciar</button>
@@ -103,41 +103,45 @@
                                 <button class="btn btn-primary btn-sessao">Continuar</button>
                             </form>
                             {% else %}
-                            <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
-                                <button class="btn btn-outline-secondary btn-sessao">CARE {{ sessao_do_grupo.sessao.numeroSessao }}</button>
-                            </a>
+                                {% if sessao_do_grupo.grupo.programa == 'CARE' %}
+                                    <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
+                                        <button class="btn btn-outline-secondary btn-sessao">CARE {{ sessao_do_grupo.sessao.numeroSessao }}</button>
+                                    </a>
+                                {% elif sessao_do_grupo.grupo.programa == 'COG' %}
+                                    <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
+                                        <button class="btn btn-outline-secondary btn-sessao">COG {{ sessao_do_grupo.sessao.numeroSessao }}</button>
+                                    </a>
+                                {% endif %}
                             {% endif %}
                         </td>
                         <td style="text-align: center;">
                             {% if sessao_do_grupo.sessao.materiais|length > 0 %}
 
                                  <a href="{{ sessao_do_grupo.sessao.materiais.url }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="2em" viewBox="0 0 512 512"><path d="M256 464a208 208 0 1 1 0-416 208 208 0 1 1 0 416zM256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM376.9 294.6c4.5-4.2 7.1-10.1 7.1-16.3c0-12.3-10-22.3-22.3-22.3H304V160c0-17.7-14.3-32-32-32l-32 0c-17.7 0-32 14.3-32 32v96H150.3C138 256 128 266 128 278.3c0 6.2 2.6 12.1 7.1 16.3l107.1 99.9c3.8 3.5 8.7 5.5 13.8 5.5s10.1-2 13.8-5.5l107.1-99.9z"/></svg>
+                                    <i class="fa fa-file-text-o" aria-hidden="true" style="font-size:31px;"></i>
                                 </a>
 
                             {% else %}
-                                &#10060;
+                                <i class="fa fa-times" aria-hidden="true" style="color: #ff0000; font-size:31px;"></i>
                             {% endif %}
                         </td>
                         {% if grupos_permissoes.exists %}
                             <td style="text-align: center;">
                                 {% if sessao_do_grupo.relatorio|length > 0 %}
-
                                     <a href="{{ sessao_do_grupo.relatorio.url }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="2em" viewBox="0 0 512 512"><path d="M256 464a208 208 0 1 1 0-416 208 208 0 1 1 0 416zM256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM376.9 294.6c4.5-4.2 7.1-10.1 7.1-16.3c0-12.3-10-22.3-22.3-22.3H304V160c0-17.7-14.3-32-32-32l-32 0c-17.7 0-32 14.3-32 32v96H150.3C138 256 128 266 128 278.3c0 6.2 2.6 12.1 7.1 16.3l107.1 99.9c3.8 3.5 8.7 5.5 13.8 5.5s10.1-2 13.8-5.5l107.1-99.9z"/></svg>
+                                        <i class="fa fa-file-text-o" aria-hidden="true" style="font-size:31px;"></i>
                                     </a>
                                 {% else %}
-                                    &#10060;
+                                    <i class="fa fa-times" aria-hidden="true" style="color: #ff0000; font-size:31px;"></i>
                                 {% endif %}
                             </td>
                             <td style="text-align: center;">
                             {% if sessao_do_grupo.diario_bordo|length > 0 %}
-
                                 <a href="{{ sessao_do_grupo.diario_bordo.url }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="2em" viewBox="0 0 512 512"><path d="M256 464a208 208 0 1 1 0-416 208 208 0 1 1 0 416zM256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM376.9 294.6c4.5-4.2 7.1-10.1 7.1-16.3c0-12.3-10-22.3-22.3-22.3H304V160c0-17.7-14.3-32-32-32l-32 0c-17.7 0-32 14.3-32 32v96H150.3C138 256 128 266 128 278.3c0 6.2 2.6 12.1 7.1 16.3l107.1 99.9c3.8 3.5 8.7 5.5 13.8 5.5s10.1-2 13.8-5.5l107.1-99.9z"/></svg>
+                                    <i class="fa fa-book" aria-hidden="true" style="font-size:31px;"></i>
                                 </a>
                             {% else %}
-                                &#10060;
+                                <i class="fa fa-times" aria-hidden="true" style="color: #ff0000; font-size:31px;"></i>
                             {% endif %}
                         </td>
                         {% endif %}

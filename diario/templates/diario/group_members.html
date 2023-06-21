@@ -64,13 +64,10 @@
                                 {% if grupos_permissoes.exists %}
                                 <td style="text-align: center;">
                                     <form action="{% url 'diario:caregiver_update' cuidador.id grupo.id %}">
-                                        <button class="btn btn-warning">Alterar</button>
+                                        <button class="btn btn-outline-warning">Alterar</button>
                                     </form>
                                 </td>
                                 <td style="text-align: center;">
-                                    <form action="{% url 'diario:caregiver_delete' cuidador.id grupo.id %}">
-                                        <button class="btn btn-danger">Apagar</button>
-                                    </form>
                                 </td>
                                 {% endif %}
                             </tr>
@@ -147,13 +144,10 @@
                                         <td></td>
                                         <td>
                                             <form action="{% url 'diario:dinamizador_update' dinamizador.id grupo.id %}">
-                                                <button class="btn btn-warning">Alterar</button>
+                                                <button class="btn btn-outline-warning">Alterar</button>
                                             </form>
                                         </td>
                                         <td>
-                                            <form action="{% url 'diario:dinamizador_delete' dinamizador.id grupo.id %}">
-                                                <button class="btn btn-danger">Apagar</button>
-                                            </form>
                                         </td>
                                         {% endif %}
                                     </tr>

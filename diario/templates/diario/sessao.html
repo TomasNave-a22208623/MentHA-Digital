@@ -140,7 +140,7 @@
                                 <th scope="col">Atividades</th>
                             {% endif %}
                             {% if grupos_permissoes.exists %}
-                                <th></th>
+                                <th scope="col">Estado</th>
                                 <th scope="col">Duração</th>
                             {% endif %}
                             <th scope="col"></th>
@@ -180,7 +180,6 @@
                                         X
                                     {% endif %}
                                 {% endif %}
-
                                 </td>
                                 {% if grupos_permissoes.exists %}
                                     <td>

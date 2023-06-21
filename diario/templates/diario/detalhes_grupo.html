@@ -77,9 +77,6 @@
                                     </td>
                                     -->
                     <td style="text-align: center">
-                      <form action="{% url 'diario:delete_grupos' grupo.id %}">
-                        <button class="btn btn-danger">Apagar</button>
-                      </form>
                     </td>
                   </tr>
                 </tbody>
@@ -104,15 +101,6 @@
                         style="width: 200px"
                       >
                         Membros
-                      </button>
-                    </form>
-                    <form action="{% url 'diario:group_notes' grupo.id %}">
-                      <button
-                        type="submit"
-                        class="btn btn-primary"
-                        style="width: 200px"
-                      >
-                        Notas
                       </button>
                     </form>
                   </div>
@@ -204,9 +192,6 @@
                                     -->
                     {% if grupos_permissoes.exists %}
                     <td style="text-align: center">
-                      <form action="{% url 'diario:delete_grupos' grupo.id %}">
-                        <button class="btn btn-danger">Apagar</button>
-                      </form>
                     </td>
                     {% endif %}
                   </tr>
@@ -232,15 +217,6 @@
                         style="width: 200px"
                       >
                         Membros
-                      </button>
-                    </form>
-                    <form action="{% url 'diario:group_notes' grupo.id %}">
-                      <button
-                        type="submit"
-                        class="btn btn-primary"
-                        style="width: 200px"
-                      >
-                        Notas
                       </button>
                     </form>
                   </div>
