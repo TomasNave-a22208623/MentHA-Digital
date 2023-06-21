@@ -105,7 +105,7 @@ $(document).ready(function () {
         var href = $(this).attr("data-href");
         const csrf_token = Cookies.get('csrftoken');
         var post_data = $("#question-form").serialize();
-
+        
         $.ajax({
             method: 'POST',
             url: href,

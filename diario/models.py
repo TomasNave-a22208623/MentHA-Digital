@@ -619,7 +619,7 @@ class Parte(models.Model):
     ]
     fase = models.CharField(max_length=10, choices=FASE, null=True, blank=True)
     objetivo = models.TextField(max_length=1000, null=True, blank=True)
-    descrição = models.TextField(max_length=1000, null=True, blank=True)
+    descricao = models.TextField(max_length=1000, null=True, blank=True)
     materiais = models.TextField(max_length=1000, null=True, blank=True)
     duracao = models.IntegerField(null=True, blank=True)
     atividades = models.ManyToManyField(Atividade, blank=True)

@@ -201,11 +201,9 @@
                                         {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
                                             <button type="button" class="btn btn-primary iniciar btn-sessao"
                                                     {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                                    data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}"
-                                                        >
+                                                        data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
                                                     {% elif sessaoGrupo.grupo.programa == "COG" %}
-                                                        data-parte="{{ parte_do_grupo.exercicio.id }}/
-                                                        {{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
+                                                        data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
                                                     {% endif %}
                                             Iniciar
                                             </button>
@@ -214,11 +212,9 @@
                                         {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
                                             <button type="button" class="btn btn-primary continuar btn-sessao"
                                                     {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                                    data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}"
-                                                        >
+                                                        data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
                                                     {% elif sessaoGrupo.grupo.programa == "COG" %}
-                                                        data-parte="{{ parte_do_grupo.exercicio.id }}/
-                                                        {{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
+                                                        data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
                                                     {% endif %}
                                             Continuar
                                             </button>
@@ -226,11 +222,9 @@
                                     {% elif grupos_permissoes.exists %}
                                         <button type="button" class="btn btn-outline-secondary ver btn-sessao"
                                                 {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                                data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}"
-                                                    >
+                                                    data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}">
                                                 {% elif sessaoGrupo.grupo.programa == "COG" %}
-                                                    data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}
-                                                    /ver/{{ proxima_parte }}">
+                                                    data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}">
                                                 {% endif %}
                                         Ver
                                         </button>

@@ -1,8 +1,3 @@
-
-
-console.log('olateste')
-// console.log($(document).on("click", ".btn-submit-risk"))
-console.log('olateste2')
 $(document).on("click", ".btn-submit-risk", async () => {
     document.getElementById('btn-report').style.display = "block";
     var idsSelecionados;
@@ -54,7 +49,7 @@ $(document).on("click", ".btn-submit-risk", async () => {
 //     var button = document.getElementById('btn-submit-risk')[0];
 //     button.style.display = "none";
 // }
-console.log('chegou aqui');
+
 
 
 // $(document).on("click", ".btn-submit-risk", function () {
