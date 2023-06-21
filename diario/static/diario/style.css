@@ -310,7 +310,7 @@ position: relative;
 }
 
 .carousel-inner{
-    overflow: auto;
+    overflow-x: hidden;
     width: 100%;
 }
 
