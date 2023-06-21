@@ -163,6 +163,43 @@ def parte_ativa(request, sg_id):
     contexto['parte'] = sg.parte_ativa
     contexto['sg'] = sg
 
+    respostas_existentes = {}
+    lista_ids_escolhas_multiplas = []
+
+    parte = Parte_Exercicio.objects.get(id=sg.parte_ativa.id)
+
+    form_list = []
+
+    if parte.perguntas.all():
+        for pergunta in parte.perguntas.all():
+            r = Resposta.objects.filter(
+                participante__user=request.user,
+                sessao_grupo=sg,
+                pergunta=pergunta,
+                # parte_grupo__id = parte_do_grupo_id,
+                parte_exercicio=parte,
+            )
+
+            if len(r) > 0:
+                r = r.get()
+                initial_data = {
+                    'resposta_escrita': r.resposta_escrita
+                }
+                if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+                    lista_ids_escolhas_multiplas.append(r.resposta_escolha.id)
+
+            if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+                form = RespostaForm_RespostaEscrita(None, initial=initial_data)
+            elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
+                form = RespostaForm_RespostaSubmetida(None)
+            elif pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+                form = None
+
+            tuplo = (pergunta, parte.ordem, form)
+            form_list.append(tuplo)
+
+    contexto['form_list'] = form_list
+
     return render(request, 'diario/parte_ativa.html', contexto)
 
 
@@ -1102,6 +1139,8 @@ def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
         exercicio = Exercicio.objects.get(id=parte_do_grupo_id)
         parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
 
+        
+
     q = parte.questionarios.all()
     if len(q) > 0:
         q = parte.questionarios.all()[0]
@@ -1624,9 +1663,14 @@ def view_resultados(request, idPergunta, idParte, sessaoGrupo):
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def finalizar_parte(request, idParte, sessao_grupo_id, estado):
-    parte_group = ParteGrupo.objects.get(parte_id=idParte, sessaoGrupo_id=sessao_grupo_id)
     sessao_grupo = SessaoDoGrupo.objects.get(id=sessao_grupo_id)
     grupo_id = sessao_grupo.grupo.id
+    programa = sessao_grupo.grupo.programa
+
+    if programa == "CARE":
+        parte_group = ParteGrupo.objects.get(parte__id=idParte, sessaoGrupo=sessao_grupo)
+    else:
+         parte_group = ParteGrupo.objects.get(exercicio__id=idParte, sessaoGrupo=sessao_grupo)
 
     if estado == "finalizar":
         parte_group.fim = datetime.utcnow()

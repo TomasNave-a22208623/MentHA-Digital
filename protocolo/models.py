@@ -756,6 +756,7 @@ class Report(models.Model):
     #GDS
     gds_nivel = models.IntegerField(default=0, blank=True, null=True)
     gds_text = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True)
+    
     def calculate_abvd(self, answers):
         for a in answers:
             if 'ABVD'in a.instrument:

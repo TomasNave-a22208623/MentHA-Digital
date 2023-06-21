@@ -1002,6 +1002,7 @@ def report_view(request, resolution_id):
                         }
                     
                     elif area.name == 'Cooperação dada na entrevista':
+                        coop = ''
                         respondido = r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0
                         report[area.name][area.name] = {               
                             'respondido': respondido,
@@ -1014,6 +1015,7 @@ def report_view(request, resolution_id):
                         
                     
                     elif area.name == 'Relação com o Avaliador':
+                        rel = ''
                         respondido = r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0
                         report[area.name][area.name] = {               
                             'respondido': r.statistics.get(f'{area.id}').get(f'{instrument.id}').get('answered') > 0,
@@ -2122,12 +2124,10 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
     os.remove(pdf_path)
 
 
+def gera_relatorio_parte(resolution, chc, coop, rel):
+    # chc vai ser uma lista de listas
 
-
-
-def gera_relatorio_parte(parte,patient, request):
     document = Document()
-
     # Cabeçalho
     paragraph = document.add_paragraph(f'Relatório do Protocolo de Avaliação MentHA')
 
@@ -2136,60 +2136,89 @@ def gera_relatorio_parte(parte,patient, request):
         run.font.italic = True
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-    paragraph = document.add_heading(f'Relatório de {patient.__str__()}', 0)
+    paragraph = document.add_heading(f'{resolution.part.part.name} de {resolution.patient.info_sensivel.nome}', 0)
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-    # Relatório
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Idade do paciente: {parte.idade}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Sexo do paciente: {parte.sexo}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Fumador: {parte.fumador}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Pressão arterial sistólica: {parte.pressao_arterial}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Colesterol total: {parte.colestrol_total}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Probabilidade de ter um Risco Cardiovascular: {parte.risco_de_enfarte}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    paragraph = document.add_paragraph(f'Comentário do Avaliador: {parte.comentario}')
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-    print("CHEGA A  ZIMBORA")
+    # Tabela
+    nr_areas = resolution.part.part.number_of_areas
+    areas = resolution.part.part.area
+    table = document.add_table(rows=1, cols=3, style="Table Grid")
+
+    # Cabeçalho da Tabela
+    heading_row = table.rows[0].cells
+    heading_row[0].text = "Área de Avaliação"
+    heading_row[1].text = "Resultado"
+
+    for area in areas:
+        name = area.name
+        # add new row to table
+        data_row = table.add_row().cells
+
+        # add headings
+        if name == "Questionário Sociodemográfico":
+            continue
+
+        data_row[0].text = area.name
+
+        if name == 'Consciência, Humor e Comportamento':
+            chc_consciencia = ", ".join(chc[0])
+            chc_motora = ", ".join(chc[1])
+            chc_humor = ", ".join(chc[2])
+
+            if len(chc_consciencia) > 0:
+                p = data_row[1].paragraphs[0]
+                p.add_run('Consciência: ').bold = True
+                p.add_run(chc_consciencia)
+
+            if len(chc_motora) > 0:
+                p = data_row[1].add_paragraph()
+                p.add_run('Atividade Motora: ').bold = True
+                p.add_run(chc_motora)
+
+            if len(chc_humor) > 0:
+                p = data_row[1].add_paragraph()
+                p.add_run('Humor: ').bold = True
+                p.add_run(chc_humor)
+        
+        if name == 'Cooperação dada na Entrevista':
+             if len(coop) > 0:
+                p = data_row[1].paragraphs[0]
+                p.add_run(coop)
+
+        if name == 'Relação com o Avaliador':
+             if len(rel) > 0:
+                p = data_row[1].paragraphs[0]
+                p.add_run(rel)
+                
+        #data_row[1].text = "Texto"
+
     # Assinatura
-    paragraph = document.add_paragraph(f'O avaliador, {request.user.username}')
+    paragraph = document.add_paragraph(f'O avaliador, {resolution.doctor.username}')
 
     # Save the Word document
-    nome_ficheiro = 'Risco_Cardiovascular' +'_'+ patient.__str__()
+    nome_ficheiro = 'Risco_Cardiovascular' +'_'+ resolution.patient.info_sensivel.nome
     nome_ficheiro = nome_ficheiro.replace(" ", "")
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     print(docx_path)
     document.save(docx_path)
-    print("CHEGA A  ZIMBORA2")
     # Convert the Word document to PDF
 
     pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
     pythoncom.CoInitialize()
     
     
-    print("CHEGA A  ZIMBORA3")
     word_app = win32.gencache.EnsureDispatch('Word.Application')
     doc = word_app.Documents.Open(docx_path)
     doc.SaveAs(pdf_path, FileFormat=17)
     doc.Close()
     word_app.Quit()
-    print("CHEGA A  ZIMBORA4")
     # Create a Django File object from the PDF file
     with open(pdf_path, 'rb') as f:
         pdf_data = io.BytesIO(f.read())
 
-    # Assign the PDF file to the file field of sessaoDoGrupo
-    parte.relatorio.save(f'{nome_ficheiro}.pdf', pdf_data)
-    parte.save()
-    print("CHEGA A  ZIMBORA5")
     # Delete the temporary files
-    os.remove(docx_path)
-    os.remove(pdf_path)
+    # os.remove(docx_path)
+    # os.remove(pdf_path)
 
 
 def word ():

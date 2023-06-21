@@ -23,22 +23,28 @@
             {% csrf_token %}
             <button class="btn btn-outline-primary">Voltar à Sessão</button>
         </form>
-
-        {% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase != parte.FINAL and grupos_permissoes.exists %}
-            {% if sessaoGrupo.grupo.programa == "CARE" %}
+        {% if sessaoGrupo.grupo.programa == "CARE" %}
+            {% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase != parte.FINAL and grupos_permissoes.exists %}
                 <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
-            {% elif sessaoGrupo.grupo.programa == "COG" %}
-                <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'finalizar'%}" method="POST">
-            {% endif %}
-            {% csrf_token %}
-                <button class="btn btn-danger">Terminar Parte</button>
+                    {% csrf_token %}
+                    <button class="btn btn-danger">Terminar Parte</button>
                 </form>
-        {% elif parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase == parte.FINAL and grupos_permissoes.exists %}
-        <form action="{% url 'diario:finalizar_sessao' sessaoGrupo.grupo.id sessaoGrupo.id %}" method="POST">
-            {% csrf_token %}
-            <button class="btn btn-danger">Terminar Sessão</button>
-        </form>
+            {% elif parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase == parte.FINAL and grupos_permissoes.exists %}
+                <form action="{% url 'diario:finalizar_sessao' sessaoGrupo.grupo.id sessaoGrupo.id %}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-danger">Terminar Sessão</button>
+                </form>
+            {% endif %}
+
+        {% else %}
+            {% if parteGrupo.concluido == False  and exercicio.id == proxima_parte and parteGrupo.inicio != None %}
+                <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'finalizar'%}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-danger">Terminar Exercício</button>
+                </form>
+            {% endif %}
         {% endif %}
+        
 
     </div>
 </div>
@@ -215,7 +221,7 @@
 </div>
 <div class="partes-exercicio">
     <a href="{% url 'diario:parte_ativa' sessaoGrupo.id %}" target="_blank">
-    <i style="margin-top:15px;margin-right:15px;float:right"class="fas fa-window-restore"></i>
+    <i style="margin-top:15px;margin-right:15px;float:right;text-size:30px"class="fas fa-window-restore"></i>
     </a>
     <div id="carousel" class="carousel slide" data-ride="carousel" style="height: 100%;">
         <ol class="carousel-indicators">
