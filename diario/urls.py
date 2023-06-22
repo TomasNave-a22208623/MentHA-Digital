@@ -89,5 +89,7 @@ urlpatterns = [
                        name="parte_ativa"),
                 path('user_dashboard', views.user_dashboard,
                      name="user_dashboard"),
+                    path('streamss/', views.streams,name="streams")
+                    
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -50,6 +50,9 @@ matplotlib.use('Agg')
 # Para permitir acesso a views por grupo
 # @user_passes_test(lambda u: u.groups.filter(name='YourGroupName').exists())
 
+def streams(request):
+    return render(request,'diario/streams.html')
+
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
