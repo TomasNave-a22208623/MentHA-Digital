@@ -336,21 +336,29 @@
                                     <tr>
                                         <td>
                                     </tr>
-                                    {% for part in partedoutilizador %}  
-                                        {% comment %} {% if parte != "MentHA-Risk-area - MentHA-Risk-instrument" and text != "None" and text != "None - Fumadores" %} {% endcomment %}
-                                        {% if part.part.name == 'MentHA-Risk' %}    
-                                        <tr>
-                                            <td style="position:sticky; left: 0; background-color: rgba(255,255,255, 1)">Status:</td>   
-                                              
+                                     <tr> 
+                                          
+                                            {% for exist in existing_risk %}
+                                                 {% if forloop.counter == 1 %}
+                                                    <td style="position:sticky; left: 0; background-color: rgba(255,255,255, 1)">Risco:</td> 
+                                                {% endif %}
+                                                {% if exist.risk.concluido  %}
                                                     <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
-                                                        <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
-                                                
-                                                    <td style="text-align: center; background-color: rgba(255,0,0,0.1)">
-                                                        <i class="fa fa-close" style="color: rgba(255,0,0,0.5)"></i>
+                                                        {{exist.risk.risco_de_enfarte}} %
                                                     </td>
-                                        </tr>
-                                        {% endif %}
-                                    {% endfor %}
+                                                {% else %}
+                                                    <td style="text-align: center;background-color: rgba(255,0,0,0.1)">
+                                                    Por avaliar...
+                                                </td>
+                                                {% endif %}
+                                                {% empty %}
+                                                <td style="text-align: center;background-color: rgba(255,0,0,0.1)">
+                                                    Por avaliar...
+                                                </td>
+                                            {% endfor %}
+                                        
+                                        
+                                    </tr>
                                     <tr></tr>
                                 </tbody>
                             </table>

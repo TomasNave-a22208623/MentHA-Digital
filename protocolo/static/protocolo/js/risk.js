@@ -1,5 +1,5 @@
 $(document).on("click", ".btn-submit-risk", async () => {
-    document.getElementById('btn-report').style.display = "block";
+   
     var idsSelecionados;
     var csrf_token = Cookies.get('csrftoken');
     var href = document.getElementsByClassName('btn-submit-risk')[0].getAttribute('data-href'); //var href = document.getElementsByClassName('btn-submit-risk')[0].getAttribute('data-href');
@@ -33,15 +33,17 @@ $(document).on("click", ".btn-submit-risk", async () => {
             processData: false,  // tell jQuery not to process the data
             contentType: false   // tell jQuery not to set contentType
             
+
         }).then(response => response.text())
             .then(html => {
                 // console.log(html);
-                document.getElementById('content').innerHTML = html;
-
-            })
+                document.getElementsByClassName('page-content').innerHTML = html;
+                document.getElementById('btn-report').style.display = "block";
+                document.getElementById('btn-report-word').style.display = "block";
+            }) 
     // } catch (error) {
     //     console.error("Error:", error);
-    // }
+    // }$('.page-content').html(data);
 });
 // document.getElementById('data_atual').value = new Date().toISOString();
 // function hideButton() {

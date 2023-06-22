@@ -43,12 +43,23 @@ import os
 # Create your views here.
 @login_required(login_url='login')
 def dashboard_view(request):
-    return render(request, 'protocolo/dashboard.html')
+    doctor = request.user
+    participants = Participante.objects.filter(avaliador=doctor)
+    resolutions = Resolution.objects.filter(doctor=doctor)
+
+    context = {'participants': participants, 'resolutions': resolutions}
+    return render(request, 'protocolo/dashboard.html', context)
 
 
 @login_required(login_url='login')
 def dashboard_content_view(request):
-    return render(request, 'protocolo/dashboardcontent.html')
+    doctor = request.user
+    participants = Participante.objects.filter(avaliador=doctor)
+    resolutions = Resolution.objects.filter(doctor=doctor)
+
+    context = {'participants': participants, 'resolutions': resolutions}
+    return render(request, 'protocolo/dashboardcontent.html', context)
+    
 
 @login_required(login_url='login')
 def teste(resquest):
@@ -731,9 +742,6 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             new_risk.doenca_pernas = request.POST.get('doenca_pernas')
             new_risk.hipercolestrol = request.POST.get('hipercolestrol')
             new_risk.comentario = request.POST.get('comentario')
-            print("VER ISTO URGENTE!!!!!!!!!!")
-            print(new_risk.colestrol_total)
-            print("VER ISTO URGENTE!!!!!!!!!!")
             colestrol_virgula = new_risk.colestrol_total
             colestrol_virgula = str(colestrol_virgula)
             if request.POST.get('colestrol_total')[1] == ',':
@@ -751,6 +759,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 new_risk.risco_de_enfarte = risco
             new_risk.parteDoUtilizador = parteDoUtilizador
             new_risk.concluido = True
+            r.part.concluido = True
+            r.save()
             new_risk.imc = calcular_imc(new_risk.peso, new_risk.altura)
             
             if existing_risk is None:
@@ -1202,16 +1212,12 @@ def profile_view(request, participant_id):
     parteDoUtilizador = ParteDoUtilizador.objects.filter(participante=patient)
     parte = Part.objects.all()
     
+    # r = Resolution.objects.filter(patient = patient, part__part__name = "MentHA-Risk")
+    existing_risk = ParteDoUtilizador.objects.filter(part__name = "MentHA-Risk")
 
-    existing_risk = None
-    for risk in Risk.objects.all():
-        if risk.parteDoUtilizador == parteDoUtilizador:
-            existing_risk = risk
-   
-    print('existing_risk:')
+    print("Existing_risk")
     print(existing_risk)
-    print("'Risk.objects.all():")
-    print(Risk.objects.all())
+    print("existing risk")
 
     user = request.user
     # print(request.user.groups.all())
@@ -1221,13 +1227,10 @@ def profile_view(request, participant_id):
     user_tudo = None
 
     if request.user.groups.filter(name='Administrador').exists():
-        print("ele entra aqui")
         user_tudo = request.user.groups.filter(name='Administrador')
     if request.user.groups.filter(name='Avaliador').exists():
-        print("ele entra aqui2")
         user_tudo = request.user.groups.filter(name='Avaliador' )
     if request.user.groups.filter(name='Avaliador-Risk').exists():
-        print("ele entra aqui3")
         user_risk = request.user.groups.filter(name='Avaliador-Risk')
 
     risk_area = Area.objects.get(id = 47)
@@ -1305,7 +1308,6 @@ def profile_view(request, participant_id):
                     instruments = Instrument.objects.filter(area=this_area, area__part=part).order_by('order')
                     for instrument in instruments:
                         if instrument.name != 'None':
-                            #print(this_area)
                             p = r.statistics[f"{this_area.id}"][f"{instrument.id}"].get('percentage')
                             
                         else:
@@ -1634,10 +1636,6 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
     # Cabeçalho
     paragraph = document.add_paragraph(f'MentHA-Risk')
 
-    #testes
-    print("Teste nos reports do risk")
-    print(parte_risk.diabetes)
-    print("Teste nos reports do risk")
 
     # para pôr em itálico (chato... talvez exista algo melhor)
     for run in paragraph.runs:
@@ -1927,28 +1925,9 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
 
         # nome_ficheiro_imagem = 'SCORE-2-1-' +patient.__str__()+generate_id()+'.png'
         img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\SCORE-2-1.png')
-        new_img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\img-report\SCORE-2-1-'+patient.__str__()+generate_id()+'.png')
-        
+        # new_img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\img-report\SCORE-2-1-'+patient.__str__()+generate_id()+'.png')
 
-        with Image.open(img_path) as image:
-            new_image = image.copy()
-        
-        # Encontre o número que deseja destacar na imagem
-        numero_destaque = parte_risk.risco_de_enfarte  # Use a função calcular_resultado() que você definiu anteriormente
-
-        
-        # Destaque o número na imagem
-        new_image = Image.open(img_path)
-        draw = ImageDraw.Draw(new_image)
-        # font = ImageFont.truetype("caminho_para_a_fonte.ttf", size=20)  # Substitua "caminho_para_a_fonte.ttf" pelo caminho da sua fonte
-        
-        numero_x = 10  # Substitua pelos valores corretos de posição do número na imagem
-        numero_y = 10
-        draw.text((numero_x, numero_y), str(numero_destaque), fill=(0, 0, 0))  # Substitua (255, 0, 0) pela cor desejada do destaque
-        
-        new_image.save(new_img_path)
-
-        document.add_picture(new_img_path, width=Inches(4.5), height=Inches(4.5))
+        document.add_picture(img_path, width=Inches(4.5), height=Inches(4.5))
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
         
 

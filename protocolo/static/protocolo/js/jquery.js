@@ -1,7 +1,7 @@
 console.log("jquery.js loaded");
 $(document).ready(function () {
 
-    section = "dashboard-content"
+    section = "participants"
     history.pushState({ section: section }, "", ``);
 
     window.onpopstate = function (event) {
@@ -25,7 +25,8 @@ $(document).ready(function () {
                 alert("Pagina não disponível.");
             }
         });
-    }
+    } 
+    showSection(section)
 
     $(document).on("click", ".jq-btn", function () {
         NProgress.start()
