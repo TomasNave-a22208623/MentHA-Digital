@@ -1,17 +1,52 @@
 {% load static %}
 {% block head %}
-
+<script src="{% static 'protocolo/js/registo.js' %}?{% now 'U' %}"></script>
+<link href="{% static 'protocolo/stylingForm.css' %}" rel="stylesheet">
 {% endblock %}    
 
 <form id="patient-form" action="" method="POST">
     {% csrf_token %}
-    {% for field in form %}
-        <div>
-            {{ field.label }}: {{ field }}
+    <div>
+        <label for="nome"><b>Nome</b></label>
+        <div class="input-class">
+                <input class="form-input-registo" type="text" id="nome" name="nome" required>
+        </div>
+    </div>
+    <br>
+    <div>
+            <label for="email"><b>Indique o seu email</b></label>
+            <div class="input-class">
+                <input class="form-input-registo" type="text" id="email" name="email" required>
+            </div>
+    </div>
+    <br>
+    <div>
+            <label for="telemovel"><b>Indique o seu telemovel</b></label>
+            <div class="input-class">
+                <input class="form-input-registo" type="text" id="telemovel" name="telemovel" required>
+            </div>
+    </div>
+    <div>
+            <label for="nascimento"><b>Indique a sua data de Nascimento</b></label>
+            <div class="input-class">
+                <input class="form-input-registo" type="text" id="nascimento" name="nascimento" required>
+            </div>
+    </div>
+    <br>
+     <div>
+            <label for="referenciacao"><b>Indique o seu sexo</b></label>
+            <div class="select-containers">
+                <select class="select" id="referenciacao" name="referenciacao">
+                    <option value="ADEB"> ADEB</option>
+                    <option value="Cruz Vermelha"> Cruz Vermelha</option>
+                    <option value="Elo Social"> Elo Social </option>
+                    <option value="Familiarmente"> Familiarmente </option>
+                    <option value="GIRA"> GIRA </option>
+                    <option value="ASMAL"> ASMAL </option>
+                </select>
+            </div>
         </div>
         <br>
-    {% endfor %} 
-
     <button id="btn-popup" class="btn btn-primary btn-registar flex-left" type="submit" data-href="{% url 'protocolo:participantes_registo' %}"> 
         <i class="fa fa-calendar-plus-o"></i>&nbsp Registar
     </button>                                                

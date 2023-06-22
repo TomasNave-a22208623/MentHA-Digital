@@ -74,10 +74,12 @@
                                             <!-- Grupo COG -->
                                             <label class="form-label">Grupo COG</label>
                                             <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold;">
-                                                {% if not patient.grupoCog %}
+                                                {% if not patient.grupo %}
                                                     Não tem grupo COG
                                                 {% else %}
-                                                    {{ patient.grupoCog.nome }}
+                                                    {% for grupo in patient.grupo.all %}
+                                                        {{ grupo.nome }}
+                                                    {% endfor %}
                                                 {% endif %}
                                             </p>
                                         </td>
@@ -92,13 +94,15 @@
                                         </td>
                                         <td></td>
                                         <td>
-                                            <!-- Grupo CARE -->
-                                            <label class="form-label">Grupo CARE</label>
+                                            <!-- Cuidadores -->
+                                            <label class="form-label">Cuidador(es)</label>
                                             <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                                {% if not patient.grupoCare %}
-                                                    Não tem grupo CARE
+                                                {% if not patient.cuidadores %}
+                                                    Não tem cuidador
                                                 {% else %}
-                                                    {{ patient.grupoCare.nome }}
+                                                    {% for cuidador in patient.cuidadores.all %}
+                                                        {{ cuidador.nome }}
+                                                    {% endfor %}
                                                 {% endif %}
                                             </p>
                                         </td>
@@ -113,14 +117,18 @@
                                         </td>
                                         <td></td>
                                         <td>
-                                            <!-- Cuidadores -->
-                                            <label class="form-label">Cuidador(es)</label>
+                                            <!-- Grupo CARE dos cuidadores-->
+                                            <label class="form-label">Grupo CARE do(s) cuidador(es)</label>
                                             <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                                {% if cuidadores|length == 0 %}
-                                                    Não tem cuidador
-                                                {% else %}
-                                                    {{ cuidadores }}
-                                                {% endif %}
+                                                {% for cuidador in patient.cuidadores.all %}
+                                                    {% if not cuidador.grupo %}
+                                                        Não tem grupo CARE
+                                                    {% else %}
+                                                        {% for grupo in cuidador.grupo.all %}
+                                                            {{ grupo.nome }}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endfor %}
                                             </p>
                                         </td>
                                     </tr>
@@ -258,14 +266,14 @@
                 </div>
             </div>
 
-            <!-- Visao Geral Da Avaliacao-->
+            <!-- Visao Geral PROTOCOLO MENTHA-->
             <div class="container-fluid" style="margin-top: 25px">
                 <div class="card shadow">
-                    <div class="card-header py-3">
+                    <div class="card-header py-3" style="display:flex; justify-content:space-between; align-items:center;">
                         <p style="font-size: 20px" class="text-primary m-0 fw-bold">VISÃO GERAL PROTOCOLO MENTHA</p>
                         <button id="btn-abrir" class="btn btn-primary flex-left" type="button"> 
-                            <i class="fa fa-plus"></i> click me!
-                        </button>                                                    
+                            <i class="fa fa-chevron-down"></i>&nbsp Expandir
+                        </button>
                     </div>
                     <div class="card-body" id="card-profile" style="display:none">
                         <div class="table-responsive" style="overflow-x:auto;">
@@ -311,12 +319,14 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Visao Geral MENTHA RISK-->
             <div class="container-fluid" style="margin-top: 25px">
                 <div class="card shadow">
-                    <div class="card-header py-3">
+                    <div class="card-header py-3" style="display:flex; justify-content:space-between; align-items:center;">
                         <p style="font-size: 20px" class="text-primary m-0 fw-bold">VISÃO GERAL MENTHA RISK</p>
                         <button id="btn-fechar" class="btn btn-primary flex-left"> 
-                            <i class="fa fa-calendar-plus-o"></i> Click me!
+                            <i class="fa fa-chevron-down"></i>&nbsp Expandir
                         </button> 
                     </div>
                     <div class="card-body" id="card-profile-risk" style="display:none">
@@ -497,7 +507,6 @@
                     <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
                 </div>
             </div>
-
             {% endif %}
         </div>
     </div>

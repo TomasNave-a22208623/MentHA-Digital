@@ -84,17 +84,40 @@ def popup_view(request):
 
 @login_required(login_url='login')
 def registo_view(request):
+    doctor = request.user
+    # participants = Participante.objects.filter(avaliador=doctor)
+    if request.method == 'POST':
+        new_registo= InformacaoSensivel()
+        new_registo.nome = request.POST.get('nome')
+        new_registo.email =  request.POST.get('email')
+        new_registo.telemovel = request.POST.get('telemovel')
+        new_registo.save()
 
-    form = PatientForm(request.POST or None)
-    avaliador = request.user
+        referefiacaos = Reference.objects.filter(nome = request.POST.get('referenciacao')).get()
+        new_participante = Participante()
+        new_participante.info_sensivel = new_registo
+        new_participante.referenciacao = referefiacaos
+        new_participante.avaliador = doctor
+        new_participante.nascimento ==  request.POST.get('nascimento')
+        new_participante.save()
+    # ew_risk.idade = request.POST.get('idade')
+    # form = PatientForm(request.POST or None)
+    # avaliador = request.user
 
-    if request.method == "POST":
-        form = PatientForm(request.POST)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.save()
-    context ={'form' : form, 'avaliador': avaliador}
-    return render(request, 'protocolo/participantes_registo.html',context)
+    # if request.method == "POST":
+    #     form = PatientForm(request.POST)
+    #     if form.is_valid():
+    #         obj = form.save(commit=False)
+    #         obj.save()
+    # context ={'form' : form, 'avaliador': avaliador}
+
+    context = {}
+
+
+
+
+
+    return render(request, 'protocolo/participantes_registo.html')
 
 @login_required(login_url='login')
 def incrementar(request, part_id, participant_id):
@@ -1935,28 +1958,8 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
 
         # nome_ficheiro_imagem = 'SCORE-2-1-' +patient.__str__()+generate_id()+'.png'
         img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\SCORE-2-90.png')
-        new_img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\img-report\SCORE-2-90-'+patient.__str__()+generate_id()+'.png')
         
-
-        with Image.open(img_path) as image:
-            new_image = image.copy()
-        
-        # Encontre o número que deseja destacar na imagem
-        numero_destaque = parte_risk.risco_de_enfarte  # Use a função calcular_resultado() que você definiu anteriormente
-
-        
-        # Destaque o número na imagem
-        new_image = Image.open(img_path)
-        draw = ImageDraw.Draw(new_image)
-        # font = ImageFont.truetype("caminho_para_a_fonte.ttf", size=20)  # Substitua "caminho_para_a_fonte.ttf" pelo caminho da sua fonte
-        
-        numero_x = 10  # Substitua pelos valores corretos de posição do número na imagem
-        numero_y = 10
-        draw.text((numero_x, numero_y), str(numero_destaque), fill=(0, 0, 0))  # Substitua (255, 0, 0) pela cor desejada do destaque
-        
-        new_image.save(new_img_path)
-        
-        document.add_picture(new_img_path, width=Inches(4.5), height=Inches(4.5))
+        document.add_picture(img_path, width=Inches(4.5), height=Inches(4.5))
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     #fazer parte dinamica para mostrar os valores de risco
 
