@@ -760,7 +760,10 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             new_risk.fumador = request.POST.get('fumador')
             new_risk.diabetes = request.POST.get('diabetes')
             new_risk.hemoglobina_gliciada = request.POST.get('hemoglobina_gliciada')
-            new_risk.anos_diabetes = request.POST.get('anos_diabetes')
+            anos_diabete = request.POST.get('anos_diabetes')
+            if anos_diabete == '':
+                anos_diabete = 0
+            new_risk.anos_diabetes= anos_diabete
             new_risk.avc = request.POST.get('avc')
             new_risk.enfarte = request.POST.get('enfarte')
             new_risk.doenca_rins = request.POST.get('doenca_rins')
@@ -796,6 +799,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 ris = new_risk
             else:
                 # modifica a resposta existente
+                existing_risk.peso = float(existing_risk.peso)
+
                 existing_risk.idade = request.POST.get('idade')
                 existing_risk.sexo = request.POST.get('sexo')
                 existing_risk.peso = request.POST.get('peso')
