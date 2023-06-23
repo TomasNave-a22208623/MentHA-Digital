@@ -45,6 +45,7 @@ $(document).on("click", ".btn-submit-risk", async () => {
     //     console.error("Error:", error);
     // }$('.page-content').html(data);
 });
+//teste
 // document.getElementById('data_atual').value = new Date().toISOString();
 // function hideButton() {
 //     // Oculta o botão de envio

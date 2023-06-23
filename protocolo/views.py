@@ -95,6 +95,7 @@ def registo_view(request):
         new_registo.email =  request.POST.get('email')
         new_registo.telemovel = request.POST.get('telemovel')
         new_registo.save()
+        # new_registo = InformacaoSensivel(nome = request.POST.get('nome'), email = request.POST.get('email'), telemovel = request.POST.get('telemovel'))
 
         referefiacaos = Reference.objects.filter(nome = request.POST.get('referenciacao')).get()
         new_participante = Participante()
