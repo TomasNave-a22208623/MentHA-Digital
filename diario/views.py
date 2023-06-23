@@ -37,11 +37,9 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 from docx import Document
-import win32com.client as win32
 from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import os
-import pythoncom
 import tempfile
 from django.core.files import File
 
@@ -86,10 +84,10 @@ def dashboard(request):
         return redirect('diario:new_group')
 
     # Retrieve all objects without a name
-    cuidadores_without_name = Cuidador.objects.filter(info_sensivel__nome__isnull=True)
+    dinamizador = DinamizadorConvidado.objects.filter(info_sensivel__nome__isnull=True)
 
     # Delete the objects without a name
-    cuidadores_without_name.delete()
+    dinamizador.delete()
 
     dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
     mentor = Mentor.objects.filter(user=request.user).first()
@@ -584,6 +582,48 @@ def create_caregiver(request, grupo_id):
 
     return render(request, "diario/create_caregiver.html", contexto)
 
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def create_dinamizador(request, grupo_id):
+    grupo = Grupo.objects.get(id=grupo_id)
+
+    if request.method == 'POST':
+        formDinamizador = DinamizadorForm(request.POST, request.FILES)
+        if formDinamizador.is_valid():
+            informacao_sensivel = InformacaoSensivel()
+            informacao_sensivel.nome = formDinamizador.cleaned_data['nome']
+            informacao_sensivel.email = formDinamizador.cleaned_data['email']
+            informacao_sensivel.telemovel = formDinamizador.cleaned_data['telemovel']
+            informacao_sensivel.save()
+
+            user = User()
+            user.username = formDinamizador.cleaned_data['username']
+            user.password = formDinamizador.cleaned_data['password']
+            user.email = formDinamizador.cleaned_data['email']
+            user.save()
+
+            dinamizador = DinamizadorConvidado()
+            dinamizador.user = user
+            dinamizador.nacionalidade = formDinamizador.cleaned_data['nacionalidade']
+            dinamizador.localizacao = formDinamizador.cleaned_data['localizacao']
+            dinamizador.nascimento = formDinamizador.cleaned_data['nascimento']
+            dinamizador.funcao = formDinamizador.cleaned_data['funcao']
+            dinamizador.info_sensivel = informacao_sensivel
+            dinamizador.save()
+
+            dinamizador.grupo.add(grupo)
+            dinamizador.save()
+
+        return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
+    else:
+        formDinamizador = DinamizadorForm()
+
+    contexto = {
+        'formDinamizador': formDinamizador,
+        'grupo_id': grupo_id,
+    }
+
+    return render(request, "diario/new_dinamizador.html", contexto)
 
 
 @login_required(login_url='diario:login')
@@ -1993,30 +2033,6 @@ def gera_relatorio_questinarios(sessaoDoGrupo, request):
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
 
-    # Convert the Word document to PDF
-
-    pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
-
-    pythoncom.CoInitialize()
-
-    word_app = win32.gencache.EnsureDispatch('Word.Application')
-    doc = word_app.Documents.Open(docx_path)
-    doc.SaveAs(pdf_path, FileFormat=17)
-    doc.Close()
-    word_app.Quit()
-
-    # Create a Django File object from the PDF file
-    with open(pdf_path, 'rb') as f:
-        pdf_data = io.BytesIO(f.read())
-
-    # Assign the PDF file to the file field of sessaoDoGrupo
-    sessaoDoGrupo.relatorio.save(f'{nome_ficheiro}.pdf', pdf_data)
-    sessaoDoGrupo.save()
-
-    # Delete the temporary files
-    os.remove(docx_path)
-    os.remove(pdf_path)
-
 def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     document = Document()
     partilhas = Partilha.objects.all().filter(sessao_grupo=sessaoDoGrupo).order_by('-data')
@@ -2128,30 +2144,6 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     nome_ficheiro = nome_ficheiro.replace(" ", "")
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
-
-    # Convert the Word document to PDF
-
-    pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
-
-    pythoncom.CoInitialize()
-
-    word_app = win32.gencache.EnsureDispatch('Word.Application')
-    doc = word_app.Documents.Open(docx_path)
-    doc.SaveAs(pdf_path, FileFormat=17)
-    doc.Close()
-    word_app.Quit()
-
-    # Create a Django File object from the PDF file
-    with open(pdf_path, 'rb') as f:
-        pdf_data = io.BytesIO(f.read())
-
-    # Assign the PDF file to the file field of sessaoDoGrupo
-    sessaoDoGrupo.diario_bordo.save(f'{nome_ficheiro}.pdf', pdf_data)
-    sessaoDoGrupo.save()
-
-    # Delete the temporary files
-    os.remove(docx_path)
-    os.remove(pdf_path)
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Cuidador')

@@ -94,18 +94,28 @@ class CuidadorForm(ModelForm):
 
 # NOME, TELEMOVEL E EMAIL AGORA ESTÁ EM INFO_SENSIVEL POR ISSO O FORM NAO FUNCIONA
 class DinamizadorForm(ModelForm):
+    username = forms.CharField(max_length=100, required=True)
+    password = forms.CharField(max_length=100, required=True, widget=forms.PasswordInput())
+    nome = forms.CharField(max_length=100, required=True)
+    sexo = forms.ChoiceField(choices=Utilizador.opSexo)
+    nacionalidade = forms.CharField(max_length=20, required=True)
+    funcao = forms.CharField(max_length=100, required=True)
+    email = forms.EmailField(max_length=100, required=True)
+    localizacao = forms.CharField(max_length=20, required=True)
+    telemovel = forms.CharField(max_length=20, required=True)
+
     class Meta:
         model = DinamizadorConvidado
-        fields = {'sexo', 'idade', 'nascimento', 'nacionalidade', 'funcao'}
         widgets = {
-            'sexo': Select(attrs={'class': 'form-control'}),
-            'idade': NumberInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a idade ...'}),
             'nascimento': DateInput(
-                attrs={'class': 'form-control', 'type': 'date', 'placeholder': 'Escreva a data de nascimento ...'}),
-            'nacionalidade': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a nacionalidade ...'}),
-            'funcao': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a função ...'}),
+                format='%d/%m/%Y',
+                attrs={'class': 'form-control', 'type': 'date',
+                       'required': 'true'
+                       }
+            ),
         }
-
+        fields = ['username', 'password', 'nome', 'sexo', 'nascimento', 'nacionalidade',
+                  'localizacao', 'email', 'funcao', 'telemovel']
 
 class AvaliacaoParticipanteForm(ModelForm):
     class Meta:
