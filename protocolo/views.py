@@ -85,8 +85,11 @@ def popup_view(request):
 @login_required(login_url='login')
 def registo_view(request):
     doctor = request.user
+
+    
     # participants = Participante.objects.filter(avaliador=doctor)
     if request.method == 'POST':
+        
         new_registo= InformacaoSensivel()
         new_registo.nome = request.POST.get('nome')
         new_registo.email =  request.POST.get('email')
@@ -95,10 +98,13 @@ def registo_view(request):
 
         referefiacaos = Reference.objects.filter(nome = request.POST.get('referenciacao')).get()
         new_participante = Participante()
+        new_participante.sexo = request.POST.get('sexo')
         new_participante.info_sensivel = new_registo
         new_participante.referenciacao = referefiacaos
         new_participante.avaliador = doctor
-        new_participante.nascimento ==  request.POST.get('nascimento')
+        nascimento_str = request.POST.get('nascimento')
+        nascimento_datetime = datetime.strptime(nascimento_str, '%Y-%m-%d')
+        new_participante.nascimento = nascimento_datetime
         new_participante.save()
     # ew_risk.idade = request.POST.get('idade')
     # form = PatientForm(request.POST or None)
@@ -1236,11 +1242,9 @@ def profile_view(request, participant_id):
     parte = Part.objects.all()
     
     # r = Resolution.objects.filter(patient = patient, part__part__name = "MentHA-Risk")
-    existing_risk = ParteDoUtilizador.objects.filter(part__name = "MentHA-Risk")
+    existing_risk = ParteDoUtilizador.objects.filter(participante=patient,part__name = "MentHA-Risk")
 
-    print("Existing_risk")
-    print(existing_risk)
-    print("existing risk")
+    
 
     user = request.user
     # print(request.user.groups.all())

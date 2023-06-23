@@ -110,3 +110,16 @@ $(document).on("click", ".btn-submit-risk", async () => {
 //         }
 //     })
 // });
+// $(document).ready( () => {
+//     $('#loading-image').hide();
+
+//     $('.btn-submit-risk').click( () => {
+//         $('.btn-submit-risk').hide();
+//         $('#loading-image').show();
+
+//         setTimeout( () => {
+//             $('.btn-submit-risk').hide();
+//             $('#my-button').show();
+//         }, 5000);
+//     });
+// });
