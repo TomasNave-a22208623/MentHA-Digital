@@ -252,13 +252,15 @@
                             <form id="appointment-form" action="" method="POST" style="display:flex; align-items:flex-end; gap:10px">
                                 {% csrf_token %}
                                 {% for field in form %}
-                                    <div style="display:flex; flex-direction:row; align-items:center; gap:4px">
-                                        {{ field.label }}: {{ field }}
+                                    <div style="display:flex; flex-direction:row; align-items:center; text-align:center; width:15%">
+                                        {{ field }}
                                     </div>
                                 {% endfor %}
-                                <button id="btn-popup" class="btn btn-primary btn-appointment flex-left" type="submit" data-href="{% url 'protocolo:participant' patient.id %}"> 
-                                    <i class="fa fa-calendar-plus-o"></i>&nbsp Agendar
-                                </button>                                                    
+                                <div style="display:flex; text-align:center; width:20%; justify-content:center">
+                                    <button id="btn-popup" class="btn btn-primary btn-appointment flex-left" type="submit" data-href="{% url 'protocolo:participant' patient.id %}"> 
+                                        <i class="fa fa-calendar-plus-o"></i>&nbsp Agendar
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -488,19 +490,16 @@
                             <!-- Appointment Button -->
                             <form id="appointment-form" action="" method="POST" style="display:flex; align-items:flex-end; gap:10px">
                                 {% csrf_token %}
-                                <select>
-                                    <option value="1">MentHA-Risk</option>
-                                </select>
-
                                 {% for field in form %}
-                                    <div style="display:flex; flex-direction:row; align-items:center; gap:4px">
-                                        
-                                        {{ field.label }}: {{ field }}
+                                    <div style="display:flex; flex-direction:row; align-items:center; text-align:center; width:15%">
+                                        {{ field }}
                                     </div>
                                 {% endfor %}
-                                <button id="btn-popup" class="btn btn-primary btn-appointment flex-left" type="submit" data-href="{% url 'protocolo:participant' patient.id %}"> 
-                                    <i class="fa fa-calendar-plus-o"></i>&nbsp Agendar
-                                </button>                                                    
+                                <div style="display:flex; text-align:center; width:20%; justify-content:center">
+                                    <button id="btn-popup" class="btn btn-primary btn-appointment flex-left" type="submit" data-href="{% url 'protocolo:participant' patient.id %}"> 
+                                        <i class="fa fa-calendar-plus-o"></i>&nbsp Agendar
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
