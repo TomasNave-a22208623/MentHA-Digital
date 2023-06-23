@@ -57,9 +57,7 @@
                                 <td style="text-align: center;">{{ cuidador.email }}</td>
                                 <td style="text-align: center;">{{ cuidador.localizacao }}</td>
                                 <td style="text-align: center;">
-                                    {% for referencia in cuidador.obter_reference %}
-                                        {{ referencia }}
-                                    {% endfor %}
+                                {{ cuidador.referenciacao }}
                                 </td>
                                 {% if grupos_permissoes.exists %}
                                 <td style="text-align: center;">
@@ -299,10 +297,7 @@
                 <td>{{ cuidador }}</td>
                 <td>{{ cuidador.escolaridade }}</td>
                 <td>
-                    {% for referencia in cuidador.obter_reference %}
                     {{ cuidador.referenciacao }}
-                    {% endfor %}
-
                 </td>
                 <td>
                     <form action="{% url 'diario:assign_caregiver' grupo.id cuidador.id %}">

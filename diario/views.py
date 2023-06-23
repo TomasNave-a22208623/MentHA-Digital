@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -83,6 +84,12 @@ def dashboard(request):
     if formGrupo.is_valid():
         formGrupo.save()
         return redirect('diario:new_group')
+
+    # Retrieve all objects without a name
+    cuidadores_without_name = Cuidador.objects.filter(info_sensivel__nome__isnull=True)
+
+    # Delete the objects without a name
+    cuidadores_without_name.delete()
 
     dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
     mentor = Mentor.objects.filter(user=request.user).first()
@@ -536,18 +543,47 @@ def caregiver_update(request, cuidador_id, grupo_id):
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def create_caregiver(request, grupo_id):
-    # formCuidador = CuidadorForm(request.POST or None)
+    grupo = Grupo.objects.get(id=grupo_id)
 
-    # if formCuidador.is_valid():
-    #     formCuidador.save()
-    #     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
+    if request.method == 'POST':
+        formCuidador = CuidadorForm(request.POST, request.FILES)
+        if formCuidador.is_valid():
+            informacao_sensivel = InformacaoSensivel()
+            informacao_sensivel.nome = formCuidador.cleaned_data['nome']
+            informacao_sensivel.email = formCuidador.cleaned_data['email']
+            informacao_sensivel.telemovel = formCuidador.cleaned_data['telemovel']
+            informacao_sensivel.save()
+
+            user = User()
+            user.username = formCuidador.cleaned_data['username']
+            user.password = formCuidador.cleaned_data['password']
+            user.email = formCuidador.cleaned_data['email']
+            user.save()
+
+            cuidador = Cuidador()
+            cuidador.user = user
+            cuidador.escolaridade = formCuidador.cleaned_data['escolaridade']
+            cuidador.nascimento = formCuidador.cleaned_data['nascimento']
+            cuidador.nacionalidade = formCuidador.cleaned_data['nacionalidade']
+            cuidador.localizacao = formCuidador.cleaned_data['localizacao']
+            cuidador.referenciacao = Reference.objects.filter(nome=formCuidador.cleaned_data['referenciacao']).first()
+            cuidador.info_sensivel = informacao_sensivel
+            cuidador.save()
+
+            cuidador.grupo.add(grupo)
+            cuidador.save()
+
+        return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
+    else:
+        formCuidador = CuidadorForm()
 
     contexto = {
-        # 'formCuidador': formCuidador,
+        'formCuidador': formCuidador,
         'grupo_id': grupo_id,
     }
 
     return render(request, "diario/create_caregiver.html", contexto)
+
 
 
 @login_required(login_url='diario:login')

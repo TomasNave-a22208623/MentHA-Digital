@@ -1,7 +1,6 @@
-from django.forms import ModelForm, TextInput, Textarea, Select, NumberInput, DateTimeInput, EmailInput, DateInput, \
+from django.forms import ModelForm, TextInput, Textarea, Select, NumberInput, EmailInput, DateInput, TimeInput, \
     FileInput, SelectMultiple
 from .models import *
-
 
 class NotaForm(ModelForm):
     class Meta:
@@ -34,21 +33,42 @@ class InfoSensivelForm(ModelForm):
 
 
 class CuidadorForm(ModelForm):
+    opEscolaridade = (
+        ("Analfabeto", "Analfabeto"),
+        ("1-4", "1-4"),
+        ("5-10", "5-10"),
+        ("11+", "11+")
+    )
+
+    opRegime = (
+        ("Online", "Online"),
+        ("Presencial", "Presencial"),
+        ("Misto", "Misto")
+    )
+
+    username = forms.CharField(max_length=100, required=True)
+    password = forms.CharField(max_length=100, required=True, widget=forms.PasswordInput())
+    nome = forms.CharField(max_length=100, required=True)
+    sexo = forms.ChoiceField(choices=Utilizador.opSexo)
+    nacionalidade = forms.CharField(max_length=20, required=True)
+    escolaridade = forms.ChoiceField(choices=opEscolaridade)
+    referenciacao = forms.ModelChoiceField(queryset=Reference.objects.all(), required=True)
+    localizacao = forms.CharField(max_length=20, required=True)
+    email = forms.EmailField(max_length=100, required=True)
+    telemovel = forms.CharField(max_length=20, required=True)
+
     class Meta:
         model = Cuidador
-        fields = {'sexo', 'idade', 'nascimento', 'nacionalidade', 'escolaridade',
-                  'referenciacao', 'regime', 'localizacao'}
         widgets = {
-            'idade': NumberInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a idade ...'}),
-            'email': EmailInput(attrs={'class': 'form-control', 'placeholder': 'Escreva o email ...'}),
             'nascimento': DateInput(
-                attrs={'class': 'form-control', 'type': 'date', 'placeholder': 'Escreva a data de nascimento ...'}),
-            'nacionalidade': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a nacionalidade ...'}),
-            'escolaridade': Select(attrs={'class': 'form-control'}),
-            'referenciacao': TextInput(attrs={'class': 'form-control'}),
-            'regime': Select(attrs={'class': 'form-control'}),
-            'localizacao': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a localização ...'}),
+                format='%d/%m/%Y',
+                attrs={'class': 'form-control', 'type': 'date',
+                       'required': 'true'
+                       }
+            ),
         }
+        fields = ['username', 'password', 'nome', 'nascimento', 'sexo', 'email', 'nacionalidade', 'localizacao',
+                  'escolaridade', 'referenciacao', 'telemovel']
 
 
 """class CuidadorUpdateForm(ModelForm):
@@ -70,6 +90,7 @@ class CuidadorForm(ModelForm):
         'image': FileInput(attrs={'class': 'form-control'})
     }
 """
+
 
 # NOME, TELEMOVEL E EMAIL AGORA ESTÁ EM INFO_SENSIVEL POR ISSO O FORM NAO FUNCIONA
 class DinamizadorForm(ModelForm):
@@ -212,7 +233,7 @@ class SessaoDataForm(ModelForm):
         model = SessaoDoGrupo
         fields = ('data',)
         widgets = {
-            'data': DateTimeInput(
+            'data': DateInput(
                 format='%d/%m/%Y %H:%M',
                 attrs={'class': 'form-control', 'type': 'datetime-local',
                        'placeholder': 'Escreva a data da sessao ...',
