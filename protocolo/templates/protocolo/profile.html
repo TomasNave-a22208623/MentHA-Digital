@@ -507,7 +507,63 @@
                     <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
                 </div>
             </div>
+            <div class="container-fluid" style="margin-top: 25px">
+                <div class="card shadow">
+                    <div class="card-header py-3" style="display:flex; justify-content:space-between; align-items:center;">
+                        <p style="font-size: 20px" class="text-primary m-0 fw-bold">VISÃO GERAL MENTHA RISK</p>
+                        <button id="btn-fechar" class="btn btn-primary flex-left"> 
+                            <i class="fa fa-chevron-down"></i>&nbsp Expandir
+                        </button> 
+                    </div>
+                    <div class="card-body" id="card-profile-risk-risk" style="display:none">
+                        <div class="table-responsive" style="overflow-x:auto;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="position:sticky; left:0; background-color: rgba(255,255,255, 1); width:15ch;"></th>
+                                        {% for part in partedoutilizador %}
+                                            {% if part.part.name == 'MentHA-Risk' %}
+                                                <th style="text-align: center; width:15ch;">{{ part.part.name }} <p style="font-weight:normal;">{{part.data.day}}/{{part.data.month}}/{{part.data.year}}</p></th>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                    </tr>
+                                     <tr> 
+                                          
+                                            {% for exist in existing_risk %}
+                                                 {% if forloop.counter == 1 %}
+                                                    <td style="position:sticky; left: 0; background-color: rgba(255,255,255, 1)">Risco:</td> 
+                                                {% endif %}
+                                                {% if exist.risk.concluido  %}
+                                                    <td style="text-align: center;background-color: rgba(0,255,0,0.1)">
+                                                        {{exist.risk.risco_de_enfarte}} %
+                                                    </td>
+                                                {% else %}
+                                                    <td style="text-align: center;background-color: rgba(255,0,0,0.1)">
+                                                    Por avaliar...
+                                                </td>
+                                                {% endif %}
+                                                {% empty %}
+                                                <td style="text-align: center;background-color: rgba(255,0,0,0.1)">
+                                                    Por avaliar...
+                                                </td>
+                                            {% endfor %}
+                                        
+                                        
+                                    </tr>
+                                    <tr></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% endif %}
+            
         </div>
     </div>
     <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
