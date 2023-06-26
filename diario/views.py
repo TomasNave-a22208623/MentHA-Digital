@@ -169,10 +169,17 @@ def parte_ativa(request, sg_id):
     respostas_existentes = {}
     lista_ids_escolhas_multiplas = []
 
-    parte = Parte_Exercicio.objects.get(id=sg.parte_ativa.id)
+    parte_ativa = sg.parte_ativa
 
-    form_list = []
+    if not parte_ativa:
+        sem_parte_ativa = True
+        return render(request, 'diario/parte_ativa.html', contexto)
 
+    parte = Parte_Exercicio.objects.get(id=parte_ativa.id)
+
+    form_list = []  
+    initial_data = {}
+    
     if parte.perguntas.all():
         for pergunta in parte.perguntas.all():
             r = Resposta.objects.filter(
