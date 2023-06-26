@@ -98,10 +98,7 @@
                             <td>{{ cuidador }}</td>
                             <td>{{ cuidador.escolaridade }}</td>
                             <td>
-                                {% for referencia in cuidador.obter_reference %}
                                 {{ cuidador.referenciacao }}
-                                {% endfor %}
-
                             </td>
                             <td>
                                 <form action="{% url 'diario:filter_group' cuidador.id %}">

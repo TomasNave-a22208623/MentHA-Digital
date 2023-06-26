@@ -8,26 +8,7 @@
 
 {% endblock %}     
 
-<div class="card-body" id="btn-report"
-        {% if existing_risk.concluido == True %} 
-        style="display:block">
-        <a href="{{ existing_risk.relatorio.url }}">
-        {% else %}
-        style="display:none">
-        <a href="">
-        {% endif %}
-        <div class="row">
-            <div class="col-md-12 text-nowrap">
-                <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
-                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
-                            data-bs-target="#modalReport">
-                        <i class="fa fa-print"></i> Gerar PDF
-                    </button>
-                </div>
-        </div>
-        </a>
-    </div>
-</div>
+
 <div class="card-body" id="btn-report-word"
         {% if existing_risk.concluido == True %} 
         style="display:block">
@@ -313,3 +294,4 @@
 data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}"
 class="btn btn-submit-risk btn-primary flex-right"
 style="margin-left: 835px">&nbsp;Submeter</button>
+<img id="loading-image" src="{% static 'protocolo/gif/Reload-1s-200px.gif' %}" alt="Carregando..." />

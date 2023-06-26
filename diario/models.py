@@ -402,10 +402,6 @@ class Cuidador(Utilizador):
     def lista_description_documents(self):
         return [documents.description for documents in self.documents.all()]
 
-    @property
-    def obter_reference(self):
-        return set([participante.referenciacao.nome for participante in self.participantes.all()])
-
     def __str__(self):
         return f'{self.info_sensivel.nome}'
 

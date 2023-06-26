@@ -38,13 +38,13 @@ $(document).on("click", ".btn-submit-risk", async () => {
             .then(html => {
                 // console.log(html);
                 document.getElementsByClassName('page-content').innerHTML = html;
-                document.getElementById('btn-report').style.display = "block";
                 document.getElementById('btn-report-word').style.display = "block";
             }) 
     // } catch (error) {
     //     console.error("Error:", error);
     // }$('.page-content').html(data);
 });
+//teste
 // document.getElementById('data_atual').value = new Date().toISOString();
 // function hideButton() {
 //     // Oculta o botão de envio
@@ -110,3 +110,18 @@ $(document).on("click", ".btn-submit-risk", async () => {
 //         }
 //     })
 // });
+$(document).ready( () => {
+    $('#loading-image').hide();
+
+    $('.btn-submit-risk').click( () => {
+        $('.btn-submit-risk').hide();
+        $('.jq-btn').hide();
+        $('#loading-image').show();
+
+        setTimeout( () => {
+            $('#loading-image').hide();
+            $('.btn-submit-risk').show();
+            $('.jq-btn').show();
+        }, 5000);
+    });
+});

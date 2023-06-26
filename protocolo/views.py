@@ -11,10 +11,8 @@ from .forms import *
 from diario.models import *
 import json
 import os
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
-from reportlab.lib.pagesizes import letter 
-from xhtml2pdf import pisa
+
+
 
 # Other Imports
 import plotly.graph_objects as go
@@ -29,14 +27,13 @@ from docx.shared import Pt
 
 #word Imports to PDF
 from docx import Document
-import win32com.client as win32
 from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.shared import RGBColor
 from docx.oxml.ns import nsdecls
 from docx.oxml import parse_xml
 
-import pythoncom
+
 import os
 
 
@@ -84,17 +81,47 @@ def popup_view(request):
 
 @login_required(login_url='login')
 def registo_view(request):
+    doctor = request.user
 
-    form = PatientForm(request.POST or None)
-    avaliador = request.user
+    
+    # participants = Participante.objects.filter(avaliador=doctor)
+    if request.method == 'POST':
+        
+        new_registo= InformacaoSensivel()
+        new_registo.nome = request.POST.get('nome')
+        new_registo.email =  request.POST.get('email')
+        new_registo.telemovel = request.POST.get('telemovel')
+        new_registo.save()
+        # new_registo = InformacaoSensivel(nome = request.POST.get('nome'), email = request.POST.get('email'), telemovel = request.POST.get('telemovel'))
 
-    if request.method == "POST":
-        form = PatientForm(request.POST)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.save()
-    context ={'form' : form, 'avaliador': avaliador}
-    return render(request, 'protocolo/participantes_registo.html',context)
+        referefiacaos = Reference.objects.filter(nome = request.POST.get('referenciacao')).get()
+        new_participante = Participante()
+        new_participante.sexo = request.POST.get('sexo')
+        new_participante.info_sensivel = new_registo
+        new_participante.referenciacao = referefiacaos
+        new_participante.avaliador = doctor
+        nascimento_str = request.POST.get('nascimento')
+        nascimento_datetime = datetime.strptime(nascimento_str, '%Y-%m-%d')
+        new_participante.nascimento = nascimento_datetime
+        new_participante.save()
+    # ew_risk.idade = request.POST.get('idade')
+    # form = PatientForm(request.POST or None)
+    # avaliador = request.user
+
+    # if request.method == "POST":
+    #     form = PatientForm(request.POST)
+    #     if form.is_valid():
+    #         obj = form.save(commit=False)
+    #         obj.save()
+    # context ={'form' : form, 'avaliador': avaliador}
+
+    context = {}
+
+
+
+
+
+    return render(request, 'protocolo/participantes_registo.html')
 
 @login_required(login_url='login')
 def incrementar(request, part_id, participant_id):
@@ -403,9 +430,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     form_risk = FormRisk(request.POST or None)
     patient = Participante.objects.get(pk=patient_id)
     r = Resolution.objects.filter(patient=patient, doctor=request.user, part=parteDoUtilizador)
-    print('VOU DAR UMA PRINT')
-    print(parteDoUtilizador)
-    print('VOU DAR UMA PRINT')
+   
     
     if len(r) == 0 and parteDoUtilizador.part.name == 'MentHA-Risk':
         r = Resolution.objects.create(patient=patient, doctor=request.user, part=parteDoUtilizador)
@@ -735,7 +760,10 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             new_risk.fumador = request.POST.get('fumador')
             new_risk.diabetes = request.POST.get('diabetes')
             new_risk.hemoglobina_gliciada = request.POST.get('hemoglobina_gliciada')
-            new_risk.anos_diabetes = request.POST.get('anos_diabetes')
+            anos_diabete = request.POST.get('anos_diabetes')
+            if anos_diabete == '':
+                anos_diabete = 0
+            new_risk.anos_diabetes= anos_diabete
             new_risk.avc = request.POST.get('avc')
             new_risk.enfarte = request.POST.get('enfarte')
             new_risk.doenca_rins = request.POST.get('doenca_rins')
@@ -771,6 +799,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 ris = new_risk
             else:
                 # modifica a resposta existente
+                existing_risk.peso = float(existing_risk.peso)
+
                 existing_risk.idade = request.POST.get('idade')
                 existing_risk.sexo = request.POST.get('sexo')
                 existing_risk.peso = request.POST.get('peso')
@@ -1213,11 +1243,9 @@ def profile_view(request, participant_id):
     parte = Part.objects.all()
     
     # r = Resolution.objects.filter(patient = patient, part__part__name = "MentHA-Risk")
-    existing_risk = ParteDoUtilizador.objects.filter(part__name = "MentHA-Risk")
+    existing_risk = ParteDoUtilizador.objects.filter(participante=patient,part__name = "MentHA-Risk")
 
-    print("Existing_risk")
-    print(existing_risk)
-    print("existing risk")
+    
 
     user = request.user
     # print(request.user.groups.all())
@@ -1935,28 +1963,8 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
 
         # nome_ficheiro_imagem = 'SCORE-2-1-' +patient.__str__()+generate_id()+'.png'
         img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\SCORE-2-90.png')
-        new_img_path = os.path.join(os.getcwd(), 'protocolo\static\protocolo\img\img-report\SCORE-2-90-'+patient.__str__()+generate_id()+'.png')
         
-
-        with Image.open(img_path) as image:
-            new_image = image.copy()
-        
-        # Encontre o número que deseja destacar na imagem
-        numero_destaque = parte_risk.risco_de_enfarte  # Use a função calcular_resultado() que você definiu anteriormente
-
-        
-        # Destaque o número na imagem
-        new_image = Image.open(img_path)
-        draw = ImageDraw.Draw(new_image)
-        # font = ImageFont.truetype("caminho_para_a_fonte.ttf", size=20)  # Substitua "caminho_para_a_fonte.ttf" pelo caminho da sua fonte
-        
-        numero_x = 10  # Substitua pelos valores corretos de posição do número na imagem
-        numero_y = 10
-        draw.text((numero_x, numero_y), str(numero_destaque), fill=(0, 0, 0))  # Substitua (255, 0, 0) pela cor desejada do destaque
-        
-        new_image.save(new_img_path)
-        
-        document.add_picture(new_img_path, width=Inches(4.5), height=Inches(4.5))
+        document.add_picture(img_path, width=Inches(4.5), height=Inches(4.5))
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     #fazer parte dinamica para mostrar os valores de risco
 
@@ -2022,7 +2030,7 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
     # img_path = os.path.join(os.getcwd(), 'img', 'example.jpg')
     # document.add_picture(img_path, width=Inches(3), height=Inches(3))asdsad
     
-    print("CHEGA A  ZIMBORA")
+    
     # Assinatura
     paragraph = document.add_paragraph()
     paragraph = document.add_paragraph(f'O avaliador, {username}')
@@ -2070,37 +2078,15 @@ def gera_relatorio_risk_pdf(parte_risk,patient, username):
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     print(docx_path)
     document.save(docx_path)
-    print("CHEGA A  ZIMBORA2")
-    # Convert the Word document to PDF
-
-    pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
-    pythoncom.CoInitialize()
-    
-    
-    print("CHEGA A  ZIMBORA3")
-    word_app = win32.gencache.EnsureDispatch('Word.Application')
-    doc = word_app.Documents.Open(docx_path)
-    doc.SaveAs(pdf_path, FileFormat=17)
-    doc.Close()
-    word_app.Quit()
-    print("CHEGA A  ZIMBORA4")
-    # Create a Django File object from the PDF file
-    with open(pdf_path, 'rb') as f:
-        pdf_data = io.BytesIO(f.read())
 
     # Create a Django File object from the Word document
     with open(docx_path, 'rb') as f:
         docx_data = io.BytesIO(f.read())
         
-    # Assign the PDF file to the file field of sessaoDoGrupo
-    parte_risk.relatorio.save(f'{nome_ficheiro}.pdf', pdf_data)
-    parte_risk.save()
+    
+    
     parte_risk.relatorio_word.save(f'{nome_ficheiro}.docx', docx_data)
     parte_risk.save()
-    print("CHEGA A  ZIMBORA5")
-    # Delete the temporary files
-    os.remove(docx_path)
-    os.remove(pdf_path)
 
 
 def gera_relatorio_parte(resolution, chc, coop, rel):
@@ -2180,20 +2166,16 @@ def gera_relatorio_parte(resolution, chc, coop, rel):
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     print(docx_path)
     document.save(docx_path)
-    # Convert the Word document to PDF
-
-    pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
-    pythoncom.CoInitialize()
     
     
-    word_app = win32.gencache.EnsureDispatch('Word.Application')
+    
+   
     doc = word_app.Documents.Open(docx_path)
-    doc.SaveAs(pdf_path, FileFormat=17)
+    
     doc.Close()
     word_app.Quit()
     # Create a Django File object from the PDF file
-    with open(pdf_path, 'rb') as f:
-        pdf_data = io.BytesIO(f.read())
+    
 
     # Delete the temporary files
     # os.remove(docx_path)

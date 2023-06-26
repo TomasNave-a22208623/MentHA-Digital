@@ -13,6 +13,7 @@ urlpatterns = [
                   path('p_view/<str:cuidador_id>/<str:grupo_id>', views.profile_care_view, name='p_view'),
                   path('', views.dashboard, name="dashboard_Care"),
                   path('create_caregiver/<str:grupo_id>', views.create_caregiver, name="create_caregiver"),
+                  path('create_dinamizador/<str:grupo_id>', views.create_dinamizador, name="create_dinamizador"),
                   path('grupo_details/<int:grupo_id>', views.view_group_details, name="grupo_details"),
                   path('delete_groups/<str:grupo_id>', views.delete_groups, name='delete_grupos'),
                   path('update_groups/<str:grupo_id>', views.update_groups, name="update_groups"),
