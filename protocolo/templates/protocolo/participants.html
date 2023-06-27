@@ -39,7 +39,7 @@
                                                 {% endif %}
                                             </td>
                                             <td style="text-align: center;">
-                                                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participant' p.id %}">{{ p.nome }}</a>
+                                                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participant' p.id %}"><b>{{ p.nome }}</b></a>
                                             </td>
                                             <td style="text-align: center;">{% calculate_age p.nascimento %}</td>
                                             <td style="text-align: center;">{{ p.referenciacao }}</td>
@@ -58,24 +58,11 @@
                                     <tr></tr>
                                 </tbody>
                                 <!-- Bold footer line -->
-                                <tfoot>
-                                    <tr>
-                                        <td><strong></strong></td>
-                                        <td><strong></strong></td>
-                                        <td><strong></strong></td>
-                                        <td><strong></strong></td>
-                                        <td><strong></strong></td>
-                                        <td><strong></strong></td>
-                                        <td><strong></strong></td>
-                                        <td><strong></strong></td>
-                                        <td><strong></strong></td>
-                                        <td><strong></strong></td>
-                                    </tr>
-                                </tfoot>
+                                
                             </table>
                         </div>
                          <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participantes_registo' %}">
-                            <button id="btn-popup" class="btn btn-primary flex-left"  > 
+                            <button id="btn-popup" class="btn btn-primary flex-left" style="width:1070px"> 
                                     <i class="fa fa-user-plus"></i>&nbsp Registar
                             </button>  
                         </a>

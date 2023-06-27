@@ -240,12 +240,6 @@
                                         {% endfor %}
                                         <tr></tr>
                                     </tbody>
-                                    <!-- Bold footer line -->
-                                    <tfoot>
-                                        <tr>
-                                            <td><strong></strong></td>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                             <!-- Appointment Button -->
@@ -257,7 +251,7 @@
                                     </div>
                                 {% endfor %}
                                 <div style="display:flex; text-align:center; width:20%; justify-content:center">
-                                    <button id="btn-popup" class="btn btn-primary btn-appointment flex-left" type="submit" data-href="{% url 'protocolo:participant' patient.id %}"> 
+                                    <button id="btn-popup" class="btn btn-primary btn-appointment flex-left" type="submit" data-href="{% url 'protocolo:participant' patient.id %}" style="max-width:125px;"> 
                                         <i class="fa fa-calendar-plus-o"></i>&nbsp Agendar
                                     </button>
                                 </div>
@@ -273,7 +267,7 @@
                 <div class="card shadow">
                     <div class="card-header py-3" style="display:flex; justify-content:space-between; align-items:center;">
                         <p style="font-size: 20px" class="text-primary m-0 fw-bold">VISÃO GERAL PROTOCOLO MENTHA</p>
-                        <button id="btn-abrir" class="btn btn-primary flex-left" type="button"> 
+                        <button id="btn-abrir" class="btn btn-primary flex-left" type="button" style="max-width:125px;"> 
                             <i class="fa fa-chevron-down"></i>&nbsp Expandir
                         </button>
                     </div>
@@ -327,7 +321,7 @@
                 <div class="card shadow">
                     <div class="card-header py-3" style="display:flex; justify-content:space-between; align-items:center;">
                         <p style="font-size: 20px" class="text-primary m-0 fw-bold">VISÃO GERAL MENTHA RISK</p>
-                        <button id="btn-fechar" class="btn btn-primary flex-left"> 
+                        <button id="btn-fechar" class="btn btn-primary flex-left" style="max-width:125px"> 
                             <i class="fa fa-chevron-down"></i>&nbsp Expandir
                         </button> 
                     </div>
@@ -510,7 +504,7 @@
                 <div class="card shadow">
                     <div class="card-header py-3" style="display:flex; justify-content:space-between; align-items:center;">
                         <p style="font-size: 20px" class="text-primary m-0 fw-bold">VISÃO GERAL MENTHA RISK</p>
-                        <button id="btn-fechar" class="btn btn-primary flex-left"> 
+                        <button id="btn-fechar" class="btn btn-primary flex-left" style="max-width:125px;"> 
                             <i class="fa fa-chevron-down"></i>&nbsp Expandir
                         </button> 
                     </div>
