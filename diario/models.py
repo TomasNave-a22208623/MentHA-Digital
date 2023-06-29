@@ -593,7 +593,7 @@ class Exercicio(models.Model):
     sessao = models.ManyToManyField(Sessao, default=None, blank=True, related_name='exercicios')
     dominio = models.CharField(max_length=100, default='')
     numero = models.IntegerField(default=0)
-    duracao = models.CharField(max_length=10, null=True, blank=True)
+    duracao = models.IntegerField(default=0)
     descricao = models.TextField(max_length=1000, null=True, blank=True)
     material = models.TextField(max_length=1000, null=True, blank=True)
     instrucao = models.TextField(max_length=2000, null=True, blank=True)

@@ -2,11 +2,7 @@ var menuAtivo;
 
 function ativaBotaoParticipante(idParticipante) {
     // desativa todos os botões
-    document.querySelectorAll(".participantes button").forEach((button) => {
-        button.style.backgroundColor = "whitesmoke";
-        button.style.color = "black";
-        button.style.font_weight = "600";
-    });
+    desativaBotoesParticipantesEGrupo();
     //mostra botao respostas
     let buttonAnswer = document.querySelector('[data-menu="respostas"]');
     buttonAnswer.style.display = "block";
@@ -21,24 +17,32 @@ function ativaBotaoParticipante(idParticipante) {
     });
     // obtém e ativa o botão do participante
     let buttonAtivo = document.querySelector(`[data-participante="${idParticipante}"]`);
-    buttonAtivo.style.backgroundColor = "#0d6efd";
-    buttonAtivo.style.color = "white";
-    buttonAtivo.style.font_weight = "600";
+    buttonAtivo.classList.add("selecionado");
+}
+
+function desativaBotoesParticipantesEGrupo(){
+    // desativa todos os botões de participante e grupo
+    document.querySelectorAll(".participante").forEach((button) => {
+        button.classList.remove("selecionado");
+    });
+}
+
+function desativaBotoesMenu(){
+    // desativa todos os botões de participante e grupo
+    
+    document.querySelectorAll(".menu").forEach((button) => {
+        document.querySelector(`#${button.dataset.menu}`).style.display = "none";
+        button.classList.remove("selecionado");
+    });
 }
 
 //Grupo
 function ativaBotaoGrupo() {
     // desativa todos os botões
-    document.querySelectorAll(".participantes button").forEach((button) => {
-        button.style.backgroundColor = "white";
-        button.style.color = "black";
-        button.style.font_weight = "600";
-    });
+    desativaBotoesParticipantesEGrupo();
     // obtém e ativa o botão do grupo
     let buttonAtivo = document.querySelector(`[id="botao-grupo"]`);
-    buttonAtivo.style.backgroundColor = "#0d6efd";
-    buttonAtivo.style.color = "white";
-    buttonAtivo.style.font_weight = "600";
+    buttonAtivo.classList.add("selecionado");
     let buttonPresences = document.querySelector('[data-menu="presencas"]');
     buttonPresences.style.display = "block";
     //esconde botao respostas
@@ -49,25 +53,13 @@ function ativaBotaoGrupo() {
 //Fim grupo
 function ativaMenu() {
     // põe botões de menu a branco + esconde respetiva info
-    document.querySelectorAll(".menu").forEach((m) => {
-        m.style.backgroundColor = "white";
-        m.style.color = "black";
-        m.font_weight = "normal";
-        document.querySelector(`#${m.dataset.menu}`).style.display = "none";
-    });
-    menuAtivo.style.color = "white";
-    menuAtivo.style.font_weight = "bold";
-    menuAtivo.style.backgroundColor = "#0d6efd";
+    desativaBotoesMenu();
+    
+    menuAtivo.classList.add("selecionado");
+
     document.querySelector(`#${menuAtivo.dataset.menu}`).style.display = "block";
 }
 
-// function descarregaInfoParticipante(id) {
-//   /* vai buscar a informação do participante id */
-//   fetch("/diario_participante/" + id)
-//     .then((response) => response.text())
-//     .then((text) => (document.querySelector(".info").innerHTML = text))
-//     .then(() => ativaMenu());
-// }
 
 function descarregaInfoParticipante(idSG, idParticipante) {
     /* vai buscar a informação do participante id */
@@ -93,6 +85,10 @@ function descarregaInfoGrupo(idSessaoGrupo) {
 /********** DOMContentLoaded ***********************************************/
 /***************************************************************************/
 document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".participantes button, .menu, button.grupo").forEach((button) => {
+        button.classList.add("btn-diario")
+    });
+
     var participante_logado = document.getElementById("participante_notas");
     menuAtivo = document.querySelector("[data-menu='notas']");
 
@@ -118,6 +114,9 @@ document.addEventListener("DOMContentLoaded", function () {
         //Grupo
         // onclick num grupo
         document.querySelectorAll(".grupo button").forEach((botaoGrupo) => {
+            ativaBotaoGrupo(botaoGrupo.dataset.idgrupo);
+            descarregaInfoGrupo(botaoGrupo.dataset.idgrupo);
+            
             botaoGrupo.onclick = () => {
                 ativaBotaoGrupo(botaoGrupo.dataset.idgrupo);
                 descarregaInfoGrupo(botaoGrupo.dataset.idgrupo);

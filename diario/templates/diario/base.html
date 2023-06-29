@@ -30,7 +30,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     
     <link href="{% static 'diario/new_layout.css' %}?{% now 'U' %}" rel="stylesheet">
+    <link href="{% static 'diario/hover.css' %}?{% now 'U' %}" rel="stylesheet">
     <script src="{% static 'diario/js/diario.js' %}?{% now 'U' %}"></script>
+    <script src="{% static 'diario/js/jquery.js' %}?{% now 'U' %}"></script>
 
 
     {% block head %} {% endblock %}
@@ -41,8 +43,8 @@
 
 </head>
 
-<body class="wrapper">
-    <div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary gap-4 shadow-lg sidebar" style="width: 250px; height:100vh; left:0px;">
+<body class="wrapper h-100 w-100">
+    <div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary gap-4 shadow-lg sidebar h-100">
         <!-- Botao fechar sidebar -->
             <button type="button" 
             class="sidebar-toggle-btn shadow-lg">
@@ -51,39 +53,75 @@
         <div id="sidebar-content" style="display:block;">
 
             <!-- Logo -->
-            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto ml-auto link-body-emphasis undecorated nooverflow-nowrap">
-                <span id="logo" class="fs-5 brand-text">MENTHA DIGITAL</span>  
-            </a>
+            <div id="container-logo" style="display: flex;
+            flex-direction: column;
+            align-content: center;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0 0 15px 0px;">
+                <img src="{% static 'diario/img/mentha-logo.png' %}" alt="logo" class="me-2" width="150px" height="150px">
+                <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto ml-auto link-body-emphasis undecorated nooverflow-nowrap" style="height: 1.5rem;">
+                    <span id="logo" class="fs-5 brand-text" style="display:none;">MENTHA DIGITAL</span>  
+                </a>
+            </div>
             
             <!-- Paginas -->
             <ul class="nav nav-pills flex-column mb-auto gap-2 nooverflow-nowrap">
                 <li class="nav-item">
-                    <a class="nav-link active jq-btn" href="#" data-href="{% url 'diario:dashboard_Care' %}">
+                    <a class="nav-link active" href="{% url 'diario:dashboard_Care' %}">
                         <i class="fa-solid fa-people-group"></i>
-                        <span class="sidebar-text">Grupos</span>
+                        <span class="sidebar-text" style="display:none;">Grupos</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a href="#" class="nav-link videoconf-button">
+                    <a href="#" class="nav-link active videoconf-button">
                         <i class="fa-solid fa-video"></i>
-                        <span class="sidebar-text">Videoconferência</span>
+                        <span class="sidebar-text" style="display:none;">Videoconferência</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a href="#" class="nav-link jq-btn">
-                        <i class="fas fa-compass"></i>
-                        <span class="sidebar-text">Navegação</span>
+                    <a href="#" class="nav-link active jq-btn">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span class="sidebar-text" style="display:none;">Próxima Sessão</span>
                     </a>
                 </li>
 
             </ul>
         </div>
 
+        <div id="sidebar-content-bottom" style="display:block;">
 
+            <!-- Apps -->
+            <ul class="nav nav-pills flex-column mb-auto gap-2 nooverflow-nowrap">   
+                <li class="nav-item ">
+                    <a href="#" class="nav-link active jq-btn" href="#" data-href="#">
+                        <i class="fa-solid fa-user-check"></i>
+                        <span class="sidebar-text" style="display:none;">Eval</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link active jq-btn" href="#" data-href="#">
+                        <i class="fa-solid fa-user-doctor"></i>
+                        <span class="sidebar-text" style="display:none;">Care</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="#" class="nav-link active jq-btn" href="#" data-href="#">
+                        <img src="{% static 'diario/img/cog.svg' %}" style="width:35px;display:inline-block"></i>
+                        <span class="sidebar-text" style="display:none;">Cog</span>
+                    </a>
+                </li>
+            </ul>
         </div>
-        <div id="content">
+
+
+
+    </div>
+    <div id="content" class="h-100">
         <div id="videoconf">
             <div class="cameras">
                 <div class="user-camera">
@@ -108,6 +146,8 @@
         </div>
         {% block main %}
         {% endblock main %}
-        </div>
+        {% block diario %}
+        {% endblock %}
+    </div>
 </body>
 </html>

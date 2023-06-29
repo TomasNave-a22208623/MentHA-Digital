@@ -56,205 +56,22 @@
     });
 {% endblock %}
 
-{% block menu %}
-    <button onclick="mostraDiarioBordo()" class="btn btn-primary">
-        Diário de bordo
-    </button>
-{% endblock %}
+{% block diario %}
 
-{% block style %}
 
-{% endblock %}
-
-{% block main %}
-    {% load markdownify %}
-    <!--Esquerda-->
-
-    <div class="card esquerda" style="width:100%; border-color:white;">
-        <div class="card-body">
-            <div id="exercicio" data-estado="{{ estado }}">
-                <div class="titulo" style="padding-top: 1.25rem;margin-top: 5px;">
-                    <p class="text-primary m-0 fw-bold">
-                        {{ sessaoGrupo.grupo }} - Sessão
-                        {{ sessaoGrupo.sessao.numeroSessao }}{% if sessaoGrupo.grupo.programa == "CARE" %}:
-                            {{ sessaoGrupo.sessao.nome }}{% endif %}
-                    </p>
-                    <div>
-                        <form action="{% url 'diario:group_sessions' sessaoGrupo.grupo.id %}">
-                            <button type="submit" class="btn btn-outline-primary" style="width: 150px">
-                                Sessões
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <br>
-                <br>
-                <div style="width:25%" class="esquerda">
-                    <h5 class="text-primary m-0 fw-bold">
-                        Duração
-                        <span class=" m-6 fw-normal text-muted">
-                        {{ tempo_total_partes }} minutos
-                    </span>
-                    </h5>
-                    {% if tempo_total_partes_grupo > tempo_total_partes %}
-                        <div style="width:100%; margin-top: 5px;" class="progress">
-                            <div id="timer" class="progress-bar" role="progressbar"
-                                 style="width: {{ tempo_total_partes_grupo }}%; background-color: #dc3545;"
-                                 aria-valuenow="{{ tempo_total_partes_grupo }}" aria-valuemin="0"
-                                 aria-valuemax="{{ tempo_total_partes }}">
-                                {{ tempo_total_partes_grupo }}m
-                            </div>
-                        </div>
-                    {% else %}
-                        <div style="width:100%; margin-top: 5px;" class="progress">
-                            <div id="timer" class="progress-bar" role="progressbar"
-                                 style="width: {{ tempo_total_partes_grupo }}%;"
-                                 aria-valuenow="{{ tempo_total_partes_grupo }}" aria-valuemin="0"
-                                 aria-valuemax="{{ tempo_total_partes }}">
-                                {{ tempo_total_partes_grupo }}m
-                            </div>
-                        </div>
-                    {% endif %}
-                </div>
-
-                <br>
-
-                {% if sessaoGrupo.grupo.programa == "CARE" %}
-                    <h5 class="text-primary m-0 fw-bold">
-                        Tema
-                    </h5>
-                    {{ sessaoGrupo.sessao.tema | markdownify }}
-                {% endif %}
-                <h5 class="text-primary m-0 fw-bold">
-                    Planificação da Sessão </h5>
-                <br>
-                <div style=" border: 1px solid #4886d3; padding:10px;border-radius:10px; ">
-                    <table class="table table-hover ee">
-                        <thead class="table-light">
-                        <tr>
-                            {% if sessaoGrupo.grupo.programa ==  'CARE' %}
-                                <th scope="col">Fase</th>
-                                <th scope="col">Objetivo</th>
-                            {% elif sessaoGrupo.grupo.programa ==  'COG' %}
-                                <th scope="col">Domínio</th>
-                                <th scope="col">Atividades</th>
-                            {% endif %}
-                            {% if grupos_permissoes.exists %}
-                                <th scope="col" style="text-align:center;">Estado</th>
-                                <th scope="col" style="text-align:center;">Duração</th>
-                            {% endif %}
-                            <th scope="col"></th>
-                        </tr>
-                        </thead>
-                        <tbody class="table-group-divider">
-                        {% for parte_do_grupo in partesGrupo %}
-                            <tr>
-                                {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                    <td>
-                                        {% if parte_do_grupo.parte.fase == 'I' %}
-                                            Inicial
-                                        {% endif %}
-                                        {% if parte_do_grupo.parte.fase == 'D' %}
-                                            Desenvolvimento
-                                        {% endif %}
-                                        {% if parte_do_grupo.parte.fase == 'F' %}
-                                            Final
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {{ parte_do_grupo.parte.objetivo }}
-                                    </td>
-                                {% elif sessaoGrupo.grupo.programa == "COG" %}
-                                    <td>
-                                        {{ parte_do_grupo.exercicio.dominio }}
-                                    </td>
-                                    <td>
-                                        {{ parte_do_grupo.exercicio.descricao | markdownify }}
-                                    </td>
-                                {% endif %}
-                                {% if grupos_permissoes.exists %}
-                                    <td style="text-align: center;">
-                                    {% if parte_do_grupo.concluido == True %}
-                                        <i class="fa fa-check" aria-hidden="true" style="color: #008000; font-size:27px;"></i>
-                                    {% else %}
-                                        <i class="fa fa-times" aria-hidden="true" style="color: #ff0000; font-size:27px;"></i>
-                                    {% endif %}
-                                    </td>
-                                {% endif %}
-                                {% if grupos_permissoes.exists %}
-                                    <td style="text-align: center;">
-                                        {% if parte_do_grupo.duracao != None %}
-                                            {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                                {{ parte_do_grupo.duracao_em_horas_minutos }} -
-                                                {{ parte_do_grupo.parte.duracao }} min
-                                            {% elif sessaoGrupo.grupo.programa == "COG" %}
-                                                {{ parte_do_grupo.duracao_em_horas_minutos }} -
-                                                {{ parte_do_grupo.exercicio.duracao }} min
-                                            {% endif %}
-
-                                        {% endif %}
-                                    </td>
-                                {% endif %}
-                                <td>
-                                    {% if parte_do_grupo.inicio == None and pode_iniciar and grupos_permissoes.exists %}
-                                        {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
-                                            <button type="button" class="btn btn-primary iniciar btn-sessao"
-                                                    {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                                        data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
-                                                    {% elif sessaoGrupo.grupo.programa == "COG" %}
-                                                        data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
-                                                    {% endif %}
-                                            Iniciar
-                                            </button>
-                                        {% endif %}
-                                    {% elif  parte_do_grupo.inicio != None and grupos_permissoes.exists %}
-                                        {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
-                                            <button type="button" class="btn btn-primary continuar btn-sessao"
-                                                    {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                                        data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
-                                                    {% elif sessaoGrupo.grupo.programa == "COG" %}
-                                                        data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
-                                                    {% endif %}
-                                            Continuar
-                                            </button>
-                                        {% endif %}
-                                    {% elif grupos_permissoes.exists %}
-                                        <button type="button" class="btn btn-outline-secondary ver btn-sessao"
-                                                {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                                    data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}">
-                                                {% elif sessaoGrupo.grupo.programa == "COG" %}
-                                                    data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}">
-                                                {% endif %}
-                                        Ver
-                                        </button>
-                                    {% endif %}
-
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            {% if sessaoGrupo.id == proxima_sessao %}
-                <div class="flex-buttons">
-                    <form action="{% url 'diario:finalizar_sessao' grupo.id sessaoGrupo.id %}" method="POST">
-                        {% csrf_token %}
-                        <button class="btn btn-primary" style="margin:10px">Terminar Sessão</button>
-                    </form>
-                </div>
-            {% endif %}
-        </div>
-    </div>
     <!--Direita-->
-    <div id="direita" class="card" style="width: 100%; height: 100%; padding:15px; border-color: white; display:none;">
+    <div id="diario" class="card">
+        <button type="button" class="diario-toggle-btn shadow-lg" style="left: -3px;">
+            <i id="btn-diario" class="fa-solid fa-chevron-left"></i>
+        </button>
+        <span id="logo" class="fs-5 brand-text" style="text-align:left;margin-top:0.9rem;">Diário de Bordo</span>  
         <div class="card-body" id="diario-de-bordo">
             {% if grupos_permissoes.exists %}
                 <!-- Participantes -->
                 <div class="participantes diario">
 
                     {% for participante in participantes %}
-                        <button type="button" class="btn btn-primary" data-participante="{{ participante.id }}"
+                        <button type="button" class="btn btn-diario participante" data-participante="{{ participante.id }}"
                                 data-sessaogrupo="{{ sessaoGrupo.id }}">{{ participante.info_sensivel.nome }}
                         </button>
                     {% endfor %}
@@ -262,29 +79,28 @@
                 <div>
                     <!-- Grupo -->
                     <div class="grupo">
-                        <button id="botao-grupo" type="button" class="btn btn-primary"
+                        <button id="botao-grupo" type="button" class="btn btn-diario participante"
                                 data-idgrupo="{{ sessaoGrupo.id }}"
                                 style="width:100%; margin-top: 10px">Grupo
                         </button>
                     </div>
                     <!--class="btn btn-primary" -->
                     <!-- Parte de Baixo da informacao-->
-                    <div class="diario">
-                        <button class="menu" data-menu="informacoes">Informações
+                    <div class="diario" style="margin-top:10px">
+                        <button class="menu btn btn-diario" data-menu="informacoes">Info
                         </button>
-                        <button class="menu" data-menu="presencas">Presenças
+                        <button class="menu btn btn-diario" data-menu="presencas">Presenças
                         </button>
                         {% if sessaoGrupo.grupo.programa == 'CARE' %}
-                            <button class="menu" data-menu="respostas" hidden>Respostas
+                            <button class="menu btn btn-diario" data-menu="respostas" hidden>Respostas
                             </button>
                         {% else %}
-                            <button class="menu" data-menu="respostas">Respostas
+                            <button class="menu btn btn-diario" data-menu="respostas">Respostas
                             </button>
                         {% endif %}
-                        <button class="menu" data-menu="notas">Notas
+                        <button class="menu btn btn-diario" data-menu="notas">Notas
                         </button>
-                        <button class="menu" data-menu="partilhas"
-                                style="color:white;">Partilhas
+                        <button class="menu btn btn-diario" data-menu="partilhas">Partilhas
                         </button>
                         <div class="info">
                         </div>
@@ -307,4 +123,185 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+<form action="{% url 'diario:group_sessions' sessaoGrupo.grupo.id %}">
+    <button type="submit" class="btn btn-outline-primary" style="width: 150px">
+        Sessões
+    </button>
+</form>
+
+{% block main %}
+    {% load markdownify %}
+    <!--Esquerda-->
+
+<div class="esquerda container-fluid" style="width:100%; border-color:white;">
+    <div id="exercicio" data-estado="{{ estado }}" style="padding: 8px;">
+        <div class="topo-exercicio">
+            <div class="bcca-breadcrumb">
+                <form action="{% url 'diario:finalizar_sessao' grupo.id sessaoGrupo.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="bcca-breadcrumb-item-last fw-normal fs-4"><button>Terminar</button></div>
+                </form>
+                <div class="bcca-breadcrumb-item fw-normal fs-4">{{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}</div>
+                <div class="bcca-breadcrumb-item fw-normal fs-4">
+                    <a href="{% url 'diario:group_sessions' grupo.id %}" >
+                        Sessões
+                    </a>
+                </div>
+                <div class="bcca-breadcrumb-item fw-normal fs-4">
+                    <a href="{% url 'diario:grupo_details' grupo.id %}">
+                        {{sessaoGrupo.grupo}}
+                    </a>
+                </div>
+              </div>
+              <div style="width:250px" class="esquerda">
+                {% if tempo_total_partes_grupo > tempo_total_partes %}
+                    <div style="width:100%; height:40px;" class="progress">
+                        <div id="timer" class="progress-bar" role="progressbar"
+                                style="width: {{ tempo_total_partes_grupo }}%; background-color: #dc3545;"
+                                aria-valuenow="{{ tempo_total_partes_grupo }}" aria-valuemin="0"
+                                aria-valuemax="{{ tempo_total_partes }}">
+                            {{ tempo_total_partes_grupo }}m / {{ tempo_total_partes }}m
+                        </div>
+                    </div>
+                {% else %}
+                    <div style="width:100%; height:40px;" class="progress">
+                        <div id="timer" class="progress-bar" role="progressbar"
+                                style="width: {{ tempo_total_partes_grupo }}%;"
+                                aria-valuenow="{{ tempo_total_partes_grupo }}" aria-valuemin="0"
+                                aria-valuemax="{{ tempo_total_partes }}">
+                                {{ tempo_total_partes_grupo }}m / {{ tempo_total_partes }}m
+
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if sessaoGrupo.grupo.programa == "CARE" %}
+            <h5 class="m-0 fw-bold mb-text fs-4 mt-2">
+                Tema
+            </h5>
+            <span id="tema" style="margin-bottom:15px"> {{ sessaoGrupo.sessao.tema | markdownify }} </span>
+            
+        {% endif %}
+        <h5 class="m-0 fw-bold mb-text fs-4 mt-4 mb-2">
+            Planificação da Sessão 
+        </h5>
+
+
+        <table class="table tabela-sessao table-hover ee">
+            <thead class="table-light">
+            <tr>
+                {% if sessaoGrupo.grupo.programa ==  'CARE' %}
+                    <th scope="col">Fase</th>
+                    <th scope="col">Objetivo</th>
+                {% elif sessaoGrupo.grupo.programa ==  'COG' %}
+                    <th scope="col">Domínio</th>
+                    <th scope="col">Atividades</th>
+                {% endif %}
+                {% if grupos_permissoes.exists %}
+                    <th scope="col" style="text-align:center;">Estado</th>
+                    <th scope="col" style="text-align:center;">Duração</th>
+                {% endif %}
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+            {% for parte_do_grupo in partesGrupo %}
+                <tr>
+                    {% if sessaoGrupo.grupo.programa == "CARE" %}
+                        <td>
+                            {% if parte_do_grupo.parte.fase == 'I' %}
+                                Inicial
+                            {% endif %}
+                            {% if parte_do_grupo.parte.fase == 'D' %}
+                                Desenvolvimento
+                            {% endif %}
+                            {% if parte_do_grupo.parte.fase == 'F' %}
+                                Final
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ parte_do_grupo.parte.objetivo }}
+                        </td>
+                    {% elif sessaoGrupo.grupo.programa == "COG" %}
+                        <td>
+                            {{ parte_do_grupo.exercicio.dominio }}
+                        </td>
+                        <td>
+                            {{ parte_do_grupo.exercicio.descricao | markdownify }}
+                        </td>
+                    {% endif %}
+                    {% if grupos_permissoes.exists %}
+                        <td style="text-align: center;">
+                        {% if parte_do_grupo.concluido == True %}
+                        <div class="w-10 h-10 mb-bg rounded-circle flex m-auto justify-content-center align-items-center align-self-center">
+                            <i class="fa fa-check icon-bg" aria-hidden="true"></i>
+                        </div>
+                        {% else %}
+                        <div class="w-10 h-10 mb-bg rounded-circle flex m-auto justify-content-center align-items-center align-self-center" style="background-color:red;">
+                            <i class="fa fa-times icon-bg" aria-hidden="true"></i>
+                        </div>
+                            
+                        {% endif %}
+                        </td>
+                    {% endif %}
+                    {% if grupos_permissoes.exists %}
+                        <td style="text-align: center;">
+                            {% if parte_do_grupo.duracao != None %}
+                                {% if sessaoGrupo.grupo.programa == "CARE" %}
+                                    {{ parte_do_grupo.duracao_em_horas_minutos }} -
+                                    {{ parte_do_grupo.parte.duracao }} min
+                                {% elif sessaoGrupo.grupo.programa == "COG" %}
+                                    {{ parte_do_grupo.duracao_em_horas_minutos }} -
+                                    {{ parte_do_grupo.exercicio.duracao }} min
+                                {% endif %}
+
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                    <td>
+                        {% if parte_do_grupo.inicio == None and pode_iniciar and grupos_permissoes.exists %}
+                            {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
+                                <button type="button" class="btn btn-primary iniciar mb-btn btn-sessao"
+                                        {% if sessaoGrupo.grupo.programa == "CARE" %}
+                                            data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
+                                        {% elif sessaoGrupo.grupo.programa == "COG" %}
+                                            data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
+                                        {% endif %}
+                                Iniciar
+                                </button>
+                            {% endif %}
+                        {% elif  parte_do_grupo.inicio != None and grupos_permissoes.exists %}
+                            {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
+                                <button type="button" class="btn btn-primary continuar mb-btn btn-sessao"
+                                        {% if sessaoGrupo.grupo.programa == "CARE" %}
+                                            data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
+                                        {% elif sessaoGrupo.grupo.programa == "COG" %}
+                                            data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
+                                        {% endif %}
+                                Continuar
+                                </button>
+                            {% endif %}
+                        {% elif grupos_permissoes.exists %}
+                            <button type="button" class="btn btn-outline-secondary ver mb-btn btn-sessao"
+                                    {% if sessaoGrupo.grupo.programa == "CARE" %}
+                                        data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}">
+                                    {% elif sessaoGrupo.grupo.programa == "COG" %}
+                                        data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}">
+                                    {% endif %}
+                            Ver
+                            </button>
+                        {% endif %}
+
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 {% endblock %}

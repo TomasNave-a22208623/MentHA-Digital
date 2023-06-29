@@ -2,71 +2,61 @@
 {% load static %}
 
 {% block main %}
-    <div class="container-fluid" style="margin-top:15px">
-        <div class="card shadow">
-            <div class="card-body">
-            <div class="card-body" style="padding: 8px">
-                <p class="text-primary m-0 fw-bold" style="margin: 5px; font-size: 26px">MentHA CARE - Lista de Grupos</p>
-        </div>
-                <div class="table-responsive" style="margin-top:15px">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th style="text-align: center;"><strong>Grupo</strong></th>
-                            <th style="text-align: center;"><strong>Programa</strong></th>
-                            <th style="text-align: center;"><strong>Diagnóstico</strong></th>
-                            <th style="text-align: center;"><strong>Localização</strong></th>
-                            <th style="text-align: center;"><strong>Referenciação</strong></th>
-                            <th style="text-align: center;"><strong>Nº Membros</strong></th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for grupo in grupos %}
-                        <tr>
-                            <td style="text-align: center;">{{ grupo }}</td>
-                            <td style="text-align: center;">{{ grupo.programa }}</td>
-                            <td style="text-align: center;">{{ grupo.diagnostico }}</td>
-                            <td style="text-align: center;">{{ grupo.localizacao }}</td>
-                            <td style="text-align: center;">{{ grupo.referenciacao }}</td>
-                            <td style="text-align: center;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                    fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
-                                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                                    <path fill-rule="evenodd"
-                                        d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
-                                    <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
-                                </svg>
-                                {{ grupo.nr_membros }}
-                            </td>
-                            <td style="text-align: center;">
-                                <form action="{% url 'diario:grupo_details' grupo.id %}">
-                                    <button class="btn btn-primary">Detalhes</button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <div class="alert alert-warning" role="alert">
-                            Não tem Grupos associados
-                        </div>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    <div class="d-grid gap-3 d-md-flex justify-content-md-end">
-                        <button class="btn btn-outline-primary " type="button" style="border-radius: 8px"
-                                data-bs-toggle="modal"  data-toggle="modal" data-target="#Cuidador_grupo" data-bs-target="#Cuidador_grupo">
-                            Cuidadores
-                            sem grupo
-                        </button>
-                        <form action="{% url 'diario:new_group' %}">
-                            <button class="btn btn-outline-primary" style="border-radius: 8px">Criar grupo</button>
-                        </form>
+    <div class="container-fluid">
+        <div  style="padding: 8px">
+            <p class="m-0 fw-bold mb-text fs-4">Grupos</p>
+            <div class="table-responsive" >
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th style="text-align: center;"><strong>Grupo</strong></th>
+                        <th style="text-align: center;"><strong>Programa</strong></th>
+                        <th style="text-align: center;"><strong>Diagnóstico</strong></th>
+                        <th style="text-align: center;"><strong>Localização</strong></th>
+                        <th style="text-align: center;"><strong>Referenciação</strong></th>
+                        <th style="text-align: center;"><strong>Nº Membros</strong></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for grupo in grupos %}
+                    <tr>
+                        <td style="text-align: center;">
+                            <form action="{% url 'diario:grupo_details' grupo.id %}">
+                                <button class="btn mb-bg btn-group" style="width:90%;justify-content: center;">
+                                    <i class="fa-solid fa-user-group" style="top: 10px;left: 25px;position: absolute;"></i>
+                                    <span>{{ grupo }}</span>
+                                </button>
+                            </form>
+                        </td>
+                        <td style="text-align: center;">{{ grupo.programa }}</td>
+                        <td style="text-align: center;">{{ grupo.diagnostico }}</td>
+                        <td style="text-align: center;">{{ grupo.localizacao }}</td>
+                        <td style="text-align: center;">{{ grupo.referenciacao }}</td>
+                        <td style="text-align: center;">
+                            {{ grupo.nr_membros }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <div class="alert alert-warning" role="alert">
+                        Não tem Grupos associados
                     </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="d-grid gap-3 d-md-flex justify-content-md-end">
+                    <button class="btn btn-outline-primary mb-btn-outline" type="button" style="border-radius: 8px"
+                            data-bs-toggle="modal"  data-toggle="modal" data-target="#Cuidador_grupo" data-bs-target="#Cuidador_grupo">
+                        Cuidadores
+                        sem grupo
+                    </button>
+                    <form action="{% url 'diario:new_group' %}">
+                        <button class="btn btn-outline-primary mb-btn-outline" style="border-radius: 8px">Criar grupo</button>
+                    </form>
                 </div>
             </div>
         </div>
-
     </div>
+    
     <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
 
     <!-- The Modal  Cuidador sem grupo -->

@@ -3,36 +3,46 @@
     grid-area: grupo;
     }
 #diario-de-bordo .participantes {
+
 display: grid;
 grid-template-columns: repeat(4, 1fr);
 }
+
+#diario-de-bordo .diario{
+    grid-gap: 5px;
+}
+
 #diario-de-bordo .diario .ver-notas {
 grid-area: notas;
 }
+
 #diario-de-bordo .diario .ver-respostas {
 grid-area: respostas;
 }
+
 #diario-de-bordo .diario .ver-informacoes {
 grid-area: informacoes;
 }
+
 #diario-de-bordo .diario .ver-partilhas {
 grid-area: partilhas;
 }
-#diario-de-bordo .diario .info {
-grid-area: info;
-height: 600px;
-background-color: whitesmoke;
-border: 1px solid #0d6efd;
-border-radius: 6px;
 
+#diario-de-bordo .diario .info {
+    grid-area: info;
+    height: 600px;
+    background-color: whitesmoke;
+    border: 1px solid var(--mentha-blue);
+    margin-top: 5px;
+    border-radius: 6px;
 }
+
 /* configuração dos formulários das notas e partilhas */
 #diario-de-bordo .diario .info form {
 display: flex;
 flex-direction: column;
 justify-content: flex-start;
 gap: 0.2em;
-
 }
 /* configuração da data */
 #diario-de-bordo .info .data {
@@ -100,13 +110,13 @@ margin-left: auto;
 font-size: 25px;
 }
 
-#diario-de-bordo .menu{
+/* #diario-de-bordo .menu{
 background-color:#0d6efd;
 text-color:white;
 border: 1px solid #0d6efd;
 border-radius: 6px;
 padding:8px;
-}
+} */
 
 #diario-de-bordo  #exercicio td, #exercicio th{
 text-align:left;

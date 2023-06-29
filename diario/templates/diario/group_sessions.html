@@ -1,156 +1,162 @@
 {% extends 'diario/base.html' %}
 {% load static %}
 {% block main %}
-<div class="container-fluid" style="margin-top:15px">
-    <div class="container ">
-        <div class="card shadow">
-            <div class="card-body">
-            <div class="titulo">
-        <div class="card-body" style="padding: 8px">
-            <p class="text-primary m-0 fw-bold"
-                style="margin: 5px; font-size: 26px">Sessões do
-                Grupo {{ grupo }}</p>
-        </div>
-        <form action="{% url 'diario:grupo_details' grupo.id %}">
-            <button type="submit" class="btn btn-outline-primary" style="width: 150px">
-                Anterior
-            </button>
-        </form>
+
+    <div class="container-fluid">
+    <div class="titulo">
+        <div class="card-body card-flex" style="padding: 8px">
+            <div class="bcca-breadcrumb">
+                <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;">
+                </div>
+                <div class="bcca-breadcrumb-item fw-normal fs-4">
+                    <a href="{% url 'diario:group_sessions' grupo.id %}" >
+                        Sessões
+                    </a>
+                </div>
+                <div class="bcca-breadcrumb-item fw-normal fs-4">
+                    <a href="{% url 'diario:grupo_details' grupo.id %}">
+                        {{grupo}}
+                    </a>
+                </div>
+              </div>
+            <form action="{% url 'diario:grupo_details' grupo.id %}">
+                <button type="submit" class="btn mb-btn-outline" style="width: 150px">
+                    Anterior
+                </button>
+            </form>
+        </div>   
     </div>
-            <div class="table-responsive" style="margin-top:15px">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th style="text-align: center;"><strong>Sessão</strong></th>
-                        {% if programa == "CARE" %}
-                        <th style="text-align: center;"><strong>Nome</strong></th>
+    <div class="table-responsive" >
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th style="text-align: center;"><strong>Sessão</strong></th>
+                {% if programa == "CARE" %}
+                <th style="text-align: center;"><strong>Nome</strong></th>
+                {% endif %}
+                <th style="text-align: center;"><strong>Data e hora</strong></th>
+                <th style="text-align: center;"><strong>Regime</strong></th>
+                <th style="text-align: center;"><strong>Estado</strong></th>
+                <th style="text-align: center;">Materiais</th>
+            {% if grupos_permissoes.exists %}
+                <th style="text-align: center;">Relatório</th>
+                <th style="text-align: center;">Diário</th>
+            {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for sessao_do_grupo in sessoes_do_grupo %}
+            <tr>
+                <td style="text-align: center;">
+                    {% if sessao_do_grupo.id == proxima_sessao and  sessao_do_grupo.data is not Null and grupos_permissoes.exists %}
+                    <form action="{% url 'diario:presencas_sessao' sessao_do_grupo.id %}">
+                        <button class="btn mb-btn btn-sessao ee button w-100">Iniciar</button>
+                    </form>
+                    {% elif sessao_do_grupo.id == sessao_em_curso and grupos_permissoes.exists %}
+                    <form action="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
+                        <button class="btn mb-btn btn-sessao w-100">Continuar</button>
+                    </form>
+                    {% else %}
+                        {% if sessao_do_grupo.grupo.programa == 'CARE' %}
+                            <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
+                                <button class="btn btn-outline-secondary btn-sessao w-100">CARE {{ sessao_do_grupo.sessao.numeroSessao }}</button>
+                            </a>
+                        {% elif sessao_do_grupo.grupo.programa == 'COG' %}
+                            <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
+                                <button class="btn btn-outline-secondary btn-sessao w-100">COG {{ sessao_do_grupo.sessao.numeroSessao }}</button>
+                            </a>
                         {% endif %}
-                        <th style="text-align: center;"><strong>Data e hora</strong></th>
-                        <th style="text-align: center;"><strong>Regime</strong></th>
-                        <th style="text-align: center;"><strong>Estado</strong></th>
-                        <th style="text-align: center;">Plano</th>
-                        <th style="text-align: center;">Materiais</th>
-                    {% if grupos_permissoes.exists %}
-                        <th style="text-align: center;">Relatório</th>
-                        <th style="text-align: center;">Diário</th>
                     {% endif %}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for sessao_do_grupo in sessoes_do_grupo %}
-                    <tr {% if sessao_do_grupo.estado == 'R' %} style="background-color: #ededed" {% endif %}>
-                        <td style="text-align: center;">{{ sessao_do_grupo.sessao.numeroSessao }}
-                        </td>
-                        {% if programa == "CARE" %}
-                        <td style="text-align: center;">{{ sessao_do_grupo.sessao.nome }}</td>
-                        {% endif %}
-                        <td style="text-align: center;">
-                        {% if grupos_permissoes.exists %}
-                            {% if sessao_do_grupo.estado == 'R' %}
-                                {{ sessao_do_grupo.data }}
-                            {% else %}
-                                <a href="{% url 'diario:changeDate' sessao_do_grupo.sessao.id grupo.id %}">
-                                {% if sessao_do_grupo.data == None %}
-                                    <button class="btn btn-link">
-                                        Não agendada
-                                    </button>
-
-                                {% else %}
-                                    <!--                                            {{ sessao_do_grupo.data }}-->
-                                    <button class="btn btn-link">
-                                        {{ sessao_do_grupo.data }}
-                                    </button>
-                                    </a>
-                                {% endif %}
-                            {% endif %}
-                        {% else %}
-                            {% if sessao_do_grupo.data == None %}
+                </td>
+                <td style="text-align: center;">
+                {% if grupos_permissoes.exists %}
+                    {% if sessao_do_grupo.estado == 'R' %}
+                        {{ sessao_do_grupo.data }}
+                    {% else %}
+                        <a href="{% url 'diario:changeDate' sessao_do_grupo.sessao.id grupo.id %}">
+                        {% if sessao_do_grupo.data == None %}
+                            <button class="btn btn-link">
                                 Não agendada
-                            {% else %}
+                            </button>
+
+                        {% else %}
+                            <!--                                            {{ sessao_do_grupo.data }}-->
+                            <button class="btn btn-link">
                                 {{ sessao_do_grupo.data }}
-                            {% endif %}
+                            </button>
+                            </a>
                         {% endif %}
+                    {% endif %}
+                {% else %}
+                    {% if sessao_do_grupo.data == None %}
+                        Não agendada
+                    {% else %}
+                        {{ sessao_do_grupo.data }}
+                    {% endif %}
+                {% endif %}
 
 
-                        </td>
-                        <td style="text-align: center;">{% if sessao_do_grupo.regime == 'P' %}
-                            Presencial
-                            {% endif %}
-                            {% if sessao_do_grupo.regime == 'O' %}
-                            Online
-                            {% endif %}
-                            {% if sessao_do_grupo.regime == 'M' %}
-                            Misto
-                            {% endif %}
-                        </td>
-                        <td style="text-align: center;">
-                            {% if sessao_do_grupo.estado == 'PR' %}
+                </td>
+                <td style="text-align: center;">{% if sessao_do_grupo.regime == 'P' %}
+                    Presencial
+                    {% endif %}
+                    {% if sessao_do_grupo.regime == 'O' %}
+                    Online
+                    {% endif %}
+                    {% if sessao_do_grupo.regime == 'M' %}
+                    Misto
+                    {% endif %}
+                </td>
+                <td >
+                    {% if sessao_do_grupo.estado == 'PR' %}
 
-                            {% elif sessao_do_grupo.estado == 'EC' %}
-                                <i class="fa fa-play-circle-o" aria-hidden="true" style="font-size:31px;"></i>
-                            {% else %}
-                                <i class="fa fa-check" aria-hidden="true" style="color: #008000; font-size:31px;"></i>
-                            {% endif %}
-                        </td>
+                    {% elif sessao_do_grupo.estado == 'EC' %}
+                        <div class="w-10 h-10 mb-bg rounded-circle flex m-auto justify-content-center align-items-center align-self-center">
+                            <i class="fa-solid fa-hourglass-half icon-bg"></i>
+                        </div>
+                    {% else %}
+                    <div class="w-10 h-10 mb-bg rounded-circle flex m-auto justify-content-center align-items-center align-self-center">
+                        <i class="fa fa-check icon-bg"></i>
+                    </div>
+                    {% endif %}
+                </td>
 
-                        <td style="text-align: center;">
-                            {% if sessao_do_grupo.id == proxima_sessao and  sessao_do_grupo.data is not Null and grupos_permissoes.exists %}
-                            <form action="{% url 'diario:presencas_sessao' sessao_do_grupo.id %}">
-                                <button class="btn btn-primary btn-sessao ee button">Iniciar</button>
-                            </form>
-                            {% elif sessao_do_grupo.id == sessao_em_curso and grupos_permissoes.exists %}
-                            <form action="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
-                                <button class="btn btn-primary btn-sessao">Continuar</button>
-                            </form>
-                            {% else %}
-                                {% if sessao_do_grupo.grupo.programa == 'CARE' %}
-                                    <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
-                                        <button class="btn btn-outline-secondary btn-sessao">CARE {{ sessao_do_grupo.sessao.numeroSessao }}</button>
-                                    </a>
-                                {% elif sessao_do_grupo.grupo.programa == 'COG' %}
-                                    <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
-                                        <button class="btn btn-outline-secondary btn-sessao">COG {{ sessao_do_grupo.sessao.numeroSessao }}</button>
-                                    </a>
-                                {% endif %}
-                            {% endif %}
-                        </td>
-                        <td style="text-align: center;">
-                            {% if sessao_do_grupo.sessao.materiais|length > 0 %}
+                <td style="text-align: center;">
+                    {% if sessao_do_grupo.sessao.materiais|length > 0 %}
 
-                                 <a href="{{ sessao_do_grupo.sessao.materiais.url }}">
-                                    <i class="fa fa-file-text-o" aria-hidden="true" style="font-size:31px;"></i>
-                                </a>
+                            <a href="{{ sessao_do_grupo.sessao.materiais.url }}">
+                            <i class="fa fa-file-text-o" aria-hidden="true" style="font-size:31px;"></i>
+                        </a>
 
-                            {% else %}
-                                <i class="fa fa-times" aria-hidden="true" style="color: #ff0000; font-size:31px;"></i>
-                            {% endif %}
-                        </td>
-                        {% if grupos_permissoes.exists %}
-                            <td style="text-align: center;">
-                                {% if sessao_do_grupo.relatorio|length > 0 %}
-                                    <a href="{{ sessao_do_grupo.relatorio.url }}">
-                                        <i class="fa fa-file-text-o" aria-hidden="true" style="font-size:31px;"></i>
-                                    </a>
-                                {% else %}
-                                    <i class="fa fa-times" aria-hidden="true" style="color: #ff0000; font-size:31px;"></i>
-                                {% endif %}
-                            </td>
-                            <td style="text-align: center;">
-                            {% if sessao_do_grupo.diario_bordo|length > 0 %}
-                                <a href="{{ sessao_do_grupo.diario_bordo.url }}">
-                                    <i class="fa fa-book" aria-hidden="true" style="font-size:31px;"></i>
-                                </a>
-                            {% else %}
-                                <i class="fa fa-times" aria-hidden="true" style="color: #ff0000; font-size:31px;"></i>
-                            {% endif %}
-                        </td>
+                    {% else %}
+                    <i class="fa-solid fa-minus icon-gray" aria-hidden="true"></i>
+                    {% endif %}
+                </td>
+                {% if grupos_permissoes.exists %}
+                    <td style="text-align: center;">
+                        {% if sessao_do_grupo.relatorio|length > 0 %}
+                            <a href="{{ sessao_do_grupo.relatorio.url }}">
+                                <i class="fa fa-file-text-o" aria-hidden="true" style="font-size:31px;"></i>
+                            </a>
+                        {% else %}
+                            <i class="fa-solid fa-minus icon-gray" aria-hidden="true"></i>
                         {% endif %}
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                    </td>
+                    <td style="text-align: center;">
+                    {% if sessao_do_grupo.diario_bordo|length > 0 %}
+                        <a href="{{ sessao_do_grupo.diario_bordo.url }}">
+                            <i class="fa fa-book" aria-hidden="true" style="font-size:31px;"></i>
+                        </a>
+                    {% else %}
+                        <i class="fa-solid fa-minus icon-gray" aria-hidden="true"></i>
+                    {% endif %}
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
-</div>
+
+
 {% endblock %}

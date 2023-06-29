@@ -1,234 +1,89 @@
 {% extends 'diario/base.html' %} {% load static %} {% block main %}
-{% if grupo.programa == "COG" %}
-<div class="container" style="margin-top: 15px">
-  <div class="row">
-    <div class="col align-self-center">
-      <div class="card shadow">
-        <div class="card-body">
-          <div class="container-fluid">
-            <div class="titulo">
-              <div class="card-body" style="padding: 8px">
-                <p class="text-primary m-0 fw-bold">Grupo: {{grupo.nome}}</p>
-              </div>
-              <form action="{% url 'diario:dashboard_Care' %}">
-                <button
-                  type="submit"
-                  class="btn btn-outline-primary"
-                  style="width: 150px"
-                >
-                  Anterior
-                </button>
-              </form>
-            </div>
-            <div class="table-responsive">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th style="text-align: center">
-                      <strong>Diagnóstico</strong>
-                    </th>
-                    <th style="text-align: center">
-                      <strong>Localização</strong>
-                    </th>
-                    <th style="text-align: center">
-                      <strong>Escolaridade</strong>
-                    </th>
-                    <th style="text-align: center">
-                      <strong>Referenciação</strong>
-                    </th>
-                    <th style="text-align: center">
-                      <strong>Nº Membros</strong>
-                    </th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style="text-align: center">{{ grupo.diagnostico_most_frequent }}</td>
-                    <td style="text-align: center">{{ grupo.localizacao_most_frequent }}</td>
-                    <td style="text-align: center">{{ grupo.escolaridade_most_frequent }}</td>
-                    <td style="text-align: center">
-                      {{ grupo.referenciacao_most_frequent }}
-                    </td>
-                    <td style="text-align: center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        fill="currentColor"
-                        class="bi bi-people-fill"
-                        viewBox="0 0 16 16"
-                      >
-                        <path
-                          d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"
-                        />
-                        <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
-                      </svg>
-                      {{ grupo.nr_membros }}
-                    </td>
-                    <!--<td style="text-align: center;">
-                                        <form action="{% url 'diario:update_groups' grupo.id %}">
-                                            <button class="btn btn-warning">Alterar</button>
-                                        </form>
-                                    </td>
-                                    -->
-                    <td style="text-align: center">
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
 
-              <div class="card-body" style="margin-top: 15px">
-                <div class="col align-self-center">
-                  <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                    <form action="{% url 'diario:group_sessions' grupo.id %}">
-                      <button
-                        type="submit"
-                        class="btn btn-primary"
-                        style="width: 200px"
-                      >
-                        Sessões
-                      </button>
-                    </form>
-                    <form action="{% url 'diario:group_members' grupo.id %}">
-                      <button
-                        type="submit"
-                        class="btn btn-primary"
-                        style="width: 200px"
-                      >
-                        Membros
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+  <div class="container-fluid">
+    <div class="titulo">
+      <div class="card-flex" style="padding: 8px">
+        <div class="bcca-breadcrumb">
+          <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;"></div>
+          <div class="bcca-breadcrumb-item fw-normal fs-4">
+              <a href="{% url 'diario:grupo_details' grupo.id %}">
+                  {{grupo}}
+              </a>
+          </div>
+        </div>
+        <form action="{% url 'diario:dashboard_Care' %}">
+          <button type="submit" class="btn mb-btn-outline" style="width: 150px">
+            Anterior
+          </button>
+        </form>
+      </div>
+      
+    </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="text-align: center">
+              <strong>Diagnóstico</strong>
+            </th>
+            <th style="text-align: center">
+              <strong>Localização</strong>
+            </th>
+            <th style="text-align: center">
+              <strong>Escolaridade</strong>
+            </th>
+            <th style="text-align: center">
+              <strong>Referenciação</strong>
+            </th>
+            <th style="text-align: center">
+              <strong>Nº Membros</strong>
+            </th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align: center">{{ grupo.diagnostico_most_frequent }}</td>
+            <td style="text-align: center">{{ grupo.localizacao_most_frequent }}</td>
+            <td style="text-align: center">{{ grupo.escolaridade_most_frequent }}</td>
+            <td style="text-align: center">
+              {{ grupo.referenciacao_most_frequent }}
+            </td>
+            <td style="text-align: center">
+              <i class="fa-solid fa-user-group"></i>
+              {{ grupo.nr_membros }}
+            </td>
+            <td style="text-align: center">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="card-body" style="margin-top: 15px">
+        <div class="col align-self-center">
+          <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+            <form action="{% url 'diario:group_sessions' grupo.id %}">
+              <button
+                type="submit"
+                class="btn mb-btn"
+                style="width: 200px">
+                Sessões
+              </button>
+            </form>
+            <form action="{% url 'diario:group_members' grupo.id %}">
+              <button
+                type="submit"
+                class="btn mb-btn"
+                style="width: 200px"
+              >
+                Membros
+              </button>
+            </form>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-{% endif %}
-
-{% if grupo.programa == "CARE" %}
-<div class="container" style="margin-top: 15px">
-  <div class="row">
-    <div class="col align-self-center">
-      <div class="card shadow">
-        <div class="card-body">
-          <div class="container-fluid">
-            <div class="titulo">
-              <div class="card-body" style="padding: 8px">
-                <p class="text-primary m-0 fw-bold">Grupo: {{grupo.nome}}</p>
-              </div>
-              <form action="{% url 'diario:dashboard_Care' %}">
-                <button
-                  type="submit"
-                  class="btn btn-outline-primary"
-                  style="width: 150px"
-                >
-                  Anterior
-                </button>
-              </form>
-            </div>
-            <div class="table-responsive">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th style="text-align: center">
-                      <strong>Grupo Diagnóstico</strong>
-                    </th>
-                    <th style="text-align: center">
-                      <strong>Localização</strong>
-                    </th>
-                    <th style="text-align: center">
-                      <strong>Escolaridade</strong>
-                    </th>
-                    <th style="text-align: center">
-                      <strong>Referenciação</strong>
-                    </th>
-                    <th style="text-align: center">
-                      <strong>Nº Membros</strong>
-                    </th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style="text-align: center">{{ grupo.diagnostico }}</td>
-                    <td style="text-align: center">{{ grupo.localizacao }}</td>
-                    <td style="text-align: center">{{ grupo.escolaridade }}</td>
-                    <td style="text-align: center">{{ grupo.referenciacao }}</td>
-                    <td style="text-align: center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        fill="currentColor"
-                        class="bi bi-people-fill"
-                        viewBox="0 0 16 16"
-                      >
-                        <path
-                          d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"
-                        />
-                        <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
-                      </svg>
-                      {{ grupo.nr_membros }}
-                    </td>
-                    <!--<td style="text-align: center;">
-                                        <form action="{% url 'diario:update_groups' grupo.id %}">
-                                            <button class="btn btn-warning">Alterar</button>
-                                        </form>
-                                    </td>
-                                    -->
-                    {% if grupos_permissoes.exists %}
-                    <td style="text-align: center">
-                    </td>
-                    {% endif %}
-                  </tr>
-                </tbody>
-              </table>
-
-              <div class="card-body" style="margin-top: 15px">
-                <div class="col align-self-center">
-                  <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                    <form action="{% url 'diario:group_sessions' grupo.id %}">
-                      <button
-                        type="submit"
-                        class="btn btn-primary"
-                        style="width: 200px"
-                      >
-                        Sessões
-                      </button>
-                    </form>
-                    <form action="{% url 'diario:group_members' grupo.id %}">
-                      <button
-                        type="submit"
-                        class="btn btn-primary"
-                        style="width: 200px"
-                      >
-                        Membros
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
-
 {% endblock %}

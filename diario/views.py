@@ -468,7 +468,9 @@ def group_members(request, grupo_id):
 @check_user_able_to_see_page('Todos')
 def group_sessions(request, grupo_id):
     # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
+
     sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
+
     sessoes = Sessao.objects.all()
     grupo = Grupo.objects.get(id=grupo_id)
     sessao_em_curso = None
@@ -917,21 +919,31 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
             break
     else:
         proxima_parte = 0
-
-    if grupo.programa == "CARE":
-        participantes = Cuidador.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
-    elif grupo.programa == "COG":
-        participantes = Participante.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
-    # print(sessao.sessao.partes)
-
+    
     tempo_total_partes = 0
     tempo_total_partes_grupo = 0
 
-    for parte in sessao.sessao.partes.all():
-        tempo_total_partes += parte.duracao
+    if grupo.programa == "CARE":
+        participantes = Cuidador.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
+        for parte in sessao.sessao.partes.all():
+            tempo_total_partes += int(parte.duracao)
 
-    for parte_grupo in partes_grupo:
-        tempo_total_partes_grupo += parte_grupo.duracao_minutos
+        for parte_grupo in partes_grupo:
+            tempo_total_partes_grupo += int(parte_grupo.duracao_minutos)
+
+    elif grupo.programa == "COG":
+        participantes = Participante.objects.filter(grupo=grupo_id).order_by('info_sensivel__nome')
+        for exercicio in sessao.sessao.exercicios.all():
+            tempo_total_partes += int(exercicio.duracao)
+
+        for parte_grupo in partes_grupo:
+            tempo_total_partes_grupo += int(parte_grupo.duracao_minutos)
+    # print(sessao.sessao.partes)
+
+   
+
+
+    
 
     contexto = {
         'parte': sessao.sessao.partes,
@@ -2081,7 +2093,7 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
                 "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.parte.duracao) + " min")
         if grupo.programa == "COG":
             paragraph = document.add_paragraph(
-                "Fase" + parte_grupo.exercicio + " - " + parte_grupo.exercicio.objetivo)
+                "Exercício" + str(parte_grupo.exercicio))
             paragraph = document.add_paragraph(
                 "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.exercicio.duracao) + " min")
 
