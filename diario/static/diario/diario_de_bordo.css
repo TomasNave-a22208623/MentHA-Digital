@@ -89,7 +89,7 @@ left:0px;
 
 #diario-de-bordo .title {
 grid-area: title;
-background-color: #D7EDF0;
+background-color: #4EB4BE;
 text-align: center;
 }
 #diario-de-bordo h1{
@@ -101,9 +101,9 @@ font-size: 25px;
 }
 
 #diario-de-bordo .menu{
-background-color:#0d6efd;
+background-color:#4EB4BE;
 text-color:white;
-border: 1px solid #0d6efd;
+border: 1px solid #4EB4BE;
 border-radius: 6px;
 padding:8px;
 }
