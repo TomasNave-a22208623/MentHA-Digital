@@ -138,6 +138,7 @@ $(document).ready(function () {
             async: false,
             success: function (data) {
                 console.log("Success!")
+                console.log($('.page-content'))
                 $('.page-content').html(data);
                 return false;
             },
