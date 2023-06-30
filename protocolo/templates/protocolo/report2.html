@@ -3,7 +3,7 @@
 <div class="container-fluid">
     <div style="padding:8px;">
         <div class="card-flex">
-            <p class="m-0 fw-bold mb-text fs-4">Relatório {{ resolution.part }} - {{ resolution.patient }} ({{ resolution.date }})</p>
+            <p class="m-0 fw-bold mb-text fs-4">Relatório do {{ resolution.part.part }} de {{ resolution.patient }} ({{ resolution.date }})</p>
             <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participantes_registo' %}">
                 <button class="btn btn-primary mb-btn" type="button" data-bs-toggle="modal"
                 data-bs-target="#modalReport">
