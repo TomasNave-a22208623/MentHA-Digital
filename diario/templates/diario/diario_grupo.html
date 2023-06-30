@@ -50,7 +50,7 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
         {{ notaGrupoForm.notaGrupo }}
         <input type="hidden" name="grupo" value={{ grupo_id }}>
 
-        <button type="submit" name="nota" class="btn btn-primary">Guardar nota</button>
+        <button type="submit" name="nota" class="btn btn-save">Guardar nota</button>
     </form>
 
 
@@ -81,7 +81,7 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
         {% csrf_token %}
         {{ partilhaGrupoForm.descricao }}
         <input type="hidden" name="grupo" value={{ sessaoGrupo.id }}>
-        <button type="submit" class="btn btn-primary" name="partilha">Guardar partilha</button>
+        <button type="submit" class="btn btn-save" name="partilha">Guardar partilha</button>
     </form>
 
     <h2><b>Partilhas de {{ grupo.nome }}</b></h2>
@@ -154,7 +154,7 @@ document.querySelector("#" + element.id + " > .detalhe").style.display="none"
             {% endfor %}
             </tbody>
         </table>
-        <button type="submit" class="btn btn-primary" name="presencas">Atualizar presenças</button>
+        <button type="submit" class="btn btn-save" name="presencas">Atualizar presenças</button>
     </form>
 
 </div>
