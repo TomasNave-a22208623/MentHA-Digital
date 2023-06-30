@@ -640,7 +640,6 @@ def create_dinamizador(request, grupo_id):
         return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
     else:
         formDinamizador = DinamizadorForm()
-
     contexto = {
         'formDinamizador': formDinamizador,
         'grupo_id': grupo_id,
