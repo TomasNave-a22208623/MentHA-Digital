@@ -1267,6 +1267,7 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
     if len(participante) > 0:
         participante = participante.get()
     programa = sg.grupo.programa
+    
     contexto = {
         'proxima_parte': proxima_parte,
         'estado': estado,
@@ -1274,6 +1275,7 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
         'participante': participante,
         'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
+
     parte_group = None
     if programa == "CARE":
         parte = Parte.objects.get(id=parte_do_grupo_id)
@@ -1336,11 +1338,12 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
 
     contexto['respostas_existentes'] = respostas_existentes
     contexto['parteGrupo'] = parte_group
-
+    contexto['duracao_segundos'] = parte_group.duracao_minutos * 60
+    
     if estado != "ver" and estado != "continuar":
         parte_group.inicio = datetime.utcnow()
         parte_group.save()
-
+    
     return render(request, "diario/parte.html", contexto)
 
 

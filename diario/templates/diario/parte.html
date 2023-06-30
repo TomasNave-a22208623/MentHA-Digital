@@ -2,114 +2,69 @@
 
 {% block navegacao %}
 <div class="titulo" style="padding-top: 1.25rem;margin-top: 5px;">
-    <p class="text-primary m-0 fw-bold">
-        Sessão {{ sessaoGrupo.sessao.numeroSessao}} > Fase
-        {% if parte.fase == 'I' %}
-        Inicial
-        {% endif %}
-        {% if parte.fase == 'D' %}
-        Desenvolvimento
-        {% endif %}
-        {% if parte.fase == 'F' %}
-        Final
-        {% endif %}
-    </p>
-    <div style="display: flex;gap: 10px;">
-        {% if sessaoGrupo.grupo.programa == "CARE" %}
-            <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'continuar' %}" method="POST">
-        {% elif sessaoGrupo.grupo.programa == "COG" %}
-            <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'continuar' %}" method="POST">
-        {% endif %}
-            {% csrf_token %}
-            <button class="btn btn-outline-primary">Voltar à Sessão</button>
-        </form>
-        {% if sessaoGrupo.grupo.programa == "CARE" %}
-            {% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase != parte.FINAL and grupos_permissoes.exists %}
-                <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
-                    {% csrf_token %}
-                    <button class="btn btn-danger">Terminar Parte</button>
-                </form>
-            {% elif parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase == parte.FINAL and grupos_permissoes.exists %}
-                <form action="{% url 'diario:finalizar_sessao' sessaoGrupo.grupo.id sessaoGrupo.id %}" method="POST">
-                    {% csrf_token %}
-                    <button class="btn btn-danger">Terminar Sessão</button>
-                </form>
-            {% endif %}
+    <div class="topo-exercicio">
+        <div class="bcca-breadcrumb">
+            <form action="{% url 'diario:finalizar_sessao' sessaoGrupo.grupo.id sessaoGrupo.id %}" method="POST">
+                {% csrf_token %}
+                <div class="bcca-breadcrumb-item-last fw-normal fs-4"><button>Terminar</button></div>
+            </form>
+            <div class="bcca-breadcrumb-item fw-normal fs-4">{{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}</div>
+            <div class="bcca-breadcrumb-item fw-normal fs-4">
+                <a href="{% url 'diario:group_sessions' sessaoGrupo.grupo.id %}" >
+                    Sessões
+                </a>
+            </div>
+            <div class="bcca-breadcrumb-item fw-normal fs-4">
+                <a href="{% url 'diario:grupo_details' sessaoGrupo.grupo.id %}">
+                    {{sessaoGrupo.grupo}}
+                </a>
+            </div>
+          </div>
+          <div style="width:250px" class="esquerda">
+            {% if parteGrupo.duracao_minutos > dura %}
+                <div style="width:100%; height:40px;" class="progress">
+                    <div id="timer" class="progress-bar" role="progressbar"
+                            style="width: {{ parteGrupo.duracao_minutos }}%; background-color: #dc3545;"
+                            aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0"
+                            aria-valuemax="{{ dura }}">
+                            {{ duracao_segundos }} 
+                    </div>
+                </div>
+            {% else %}
+                <div style="width:100%; height:40px;" class="progress">
+                    <div id="timer" class="progress-bar" role="progressbar"
+                            style="width: {{ parteGrupo.duracao_minutos }}%;"
+                            aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0"
+                            aria-valuemax="{{ dura }}">
+                            {{ duracao_segundos }} 
 
-        {% else %}
-            {% if parteGrupo.concluido == False  and exercicio.id == proxima_parte and parteGrupo.inicio != None %}
-                <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'finalizar'%}" method="POST">
-                    {% csrf_token %}
-                    <button class="btn btn-danger">Terminar Exercício</button>
-                </form>
+                    </div>
+                </div>
             {% endif %}
-        {% endif %}
-        
-
+        </div> 
     </div>
 </div>
 {% endblock %}
-</p>
+
 {% if sessaoGrupo.grupo.programa == "CARE"%}
-    <div style ="width:25%" class="direita">
-        {% if estado != "ver" %}
-            <h5 class="text-primary m-0 fw-bold">
-                Duração
-                <span class=" m-6 fw-normal text-muted">
-                    {{ dura }} minutos
-                </span>
-            </h5>
-            {% if parteGrupo.duracao_minutos > dura %}
-                <div style ="width:100%; margin-top: 5px;"class="progress">
-                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%; background-color: #dc3545" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
-                        {{ parteGrupo.duracao_minutos }}m
-                    </div>
-                </div>
-            {% else %}
-                <div style ="width:100%; margin-top: 5px;"class="progress">
-                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%;" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
-                        {{ parteGrupo.duracao_minutos }}m
-                    </div>
-                </div>
-            {% endif %}
-        {% elif estado == "ver" %}
-            {% if parteGrupo.concluido %}
-            <h5 class="text-primary m-0 fw-bold">
-                Duração
-                <span class=" m-6 fw-normal text-muted">
-                    {{ parteGrupo.duracao_em_horas_minutos }} de {{ dura }} minutos
-                </span>
-            </h5>
-            {% else %}
-            <h5 class="text-primary m-0 fw-bold">
-                Duração
-                <span class=" m-6 fw-normal text-muted ">
-                    {{ dura }} minutos
-                </span>
-            </h5>
-            {% endif %}
-        {% endif %}
-    </div>
-    <br>
-    <h5 class="text-primary m-0 fw-bold">Objetivo</h5>
-    <p>{{ parte.objetivo }}</p>
+    <h5 class="m-0 fw-bold mb-text fs-5">Objetivo</h5>
+    <span>{{ parte.objetivo }}</span>
 
-    <h5 class="text-primary m-0 fw-bold">Sumário</h5>
-    {{ parte.descrição | markdownify }}
 
+    <h5 class="m-0 fw-bold mb-text fs-4 mt-4">Sumário</h5>
+    
+    {{ parte.descricao | markdownify }}</span>
     {% if parte.materiais|length > 0 %}
-
-    <h5 class="text-primary m-0 fw-bold">Materiais</h5>
-    {{ parte.materiais | markdownify }}
-
+    
+        <h5 class="m-0 fw-bold mb-text fs-5 mt-4">Materiais</h5>
+        <span class="">{{ parte.materiais | markdownify }}</span>
+   
     {% endif %}
 
 
     {% if parte.apresentacao|length > 0 %}
-
-    <h5 class="text-primary m-0 fw-bold">Apresentação</h5>
-
-    <ul>
+    <h5 class="m-0 fw-bold mb-text fs-5 mt-4">Apresentação</h5>
+    <ul class="">
         <li>
             <a href="{{ parte.apresentacao.url }}">
                 Descarregar apresentação 📃
@@ -119,31 +74,32 @@
     {% endif %}
 
     {% if parte.atividades.all|length > 0 %}
-    <h5 class="text-primary m-0 fw-bold">Atividades</h5>
+    
+    <h5 class="m-0 fw-bold mb-text fs-5 mt-4">Atividades</h5>
     {% for atividade in parte.atividades.all %}
-    <b>
-        Atividade {{ atividade.numero }} - {{ atividade.nome }}
-    </b>
+    
+    <span class="">Atividade {{ atividade.numero }} - {{ atividade.nome }}</span>
 
-
+    <span class="">
     {{ atividade.descricao | markdownify }}
-
+    </span>
     {% endfor %}
     {% endif %}
 
     {% if parte.questionarios.all|length > 0 %}
-    <h5 class="text-primary m-0 fw-bold">Questionario</h5>
 
-    <ul>
-    {% for qu in parte.questionarios.all %}
-    <li>
-    <a href="{% url 'diario:view_abrirQuestionario' qu.id parte.id sessaoGrupo.id  %}">
-        <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{qu.id}}">Questionário {{ qu.numeroOrdem }}</button>
-    </a>
-    </li>
-    {% endfor %}
-    </ul>
-    
+        <h5 class="m-0 fw-bold mb-text fs-5 mt-4">Questionario</h5>
+
+        <ul class="">
+        {% for qu in parte.questionarios.all %}
+        <li>
+        <a href="{% url 'diario:view_abrirQuestionario' qu.id parte.id sessaoGrupo.id  %}">
+            <button type="button" class="btn mb-btn-outline btn-sm" style="margin:5px" data-parte="{{qu.id}}">Questionário {{ qu.numeroOrdem }}</button>
+        </a>
+        </li>
+        {% endfor %}
+        </ul>
+
     {% endif %}
 {% elif sessaoGrupo.grupo.programa == "COG" %}
 <div class="side-by-side">
@@ -192,7 +148,7 @@
     <div class="card">
       <div class="card-header" id="headingOne">
         <h5 class="mb-0">
-          <button class="btn btn-link no-decor text-primary m-0 fw-bold" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <button class="btn btn-link no-decor m-0 fw-bold mb-text fs-5" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
             Material
           </button>
         </h5>
@@ -207,7 +163,7 @@
     <div class="card">
       <div class="card-header" id="headingTwo">
         <h5 class="mb-0">
-          <button class="btn btn-link collapsed no-decor text-primary m-0 fw-bold" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          <button class="btn btn-link collapsed no-decor m-0 fw-bold mb-text fs-5" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
             Instrução
           </button>
         </h5>

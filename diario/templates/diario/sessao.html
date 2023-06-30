@@ -16,40 +16,24 @@
     .then((data) => {
     const div = document.querySelector("div#exercicio");
     div.innerHTML = data;
-    nav = document.querySelector('#navegacao');
-    const string = "Sessão {{ sessaoGrupo.sessao.numeroSessao }} > Fase";
-    /* NN: NAO ESTÁ A FUNCIONAR PORQUE PARTE.FASE SÓ VEM DA VIEW DA PARTE, E AQUI ESTÁ NA SESSAO */
-    /* ISTO É USADO PARA FAZER O BREADCRUMB, VER MAIS TARDE */
-    /*const fase = {{ parte.fase }};
-    if (fase == 'I') {
-    string += 'Inicial';
-    }
-    if (fase == 'D') {
-    string += 'Desenvolvimento';
-    }
-    if (fase == 'F') {
-    string += 'Final';
-    }*/
-    nav.innerHTML = string;
     })
     .then((data) => {
-    const div = document.querySelector("div#exercicio");
-    if (div.dataset.estado != "ver") {
-    function startTimer(duration, display) {
-    setInterval(function () {
-    duration_minutes = Math.trunc(duration / 60);
-    max = display.getAttribute('aria-valuemax')
-    display.innerHTML = duration_minutes + "m";
-    perc = calcula_percentagem(duration_minutes, max)
-    display.style.width = perc+'%';
-    duration++;
-    }, 1000);
-    }
-    display = document.querySelector("#timer"); // selecionando o timer
-    var duration = parseInt(display.innerHTML, 10) * 60; // Converter para segundos  -  {{ part.duracao }};
-    console.log("duration = ", duration);
-    startTimer(duration, display); // iniciando o timer
-    }
+        const div = document.querySelector("div#exercicio");
+        if (div.dataset.estado != "ver") {
+            function startTimer(duration, display) {
+                setInterval(function () {
+                    duration_minutes = Math.trunc(duration / 60);
+                    max = display.getAttribute('aria-valuemax')
+                    display.innerHTML = duration_minutes + "m / " + max + "m";
+                    perc = calcula_percentagem(duration_minutes, max)
+                    display.style.width = perc+'%';
+                    duration++;
+            }, 1000);
+            }   
+        display = document.querySelector("#timer");
+        var duration = parseInt(display.innerHTML, 10) // 60;
+        startTimer(duration, display);
+        }   
     });
     };
     });

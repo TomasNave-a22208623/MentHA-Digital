@@ -42,17 +42,14 @@ margin:0.4em auto;
 
 {% endblock %}
 {% block main %}
-<div id="content-questionario-db">
-    <body>
-    <h1 style="text-align: center;">
-        Questionário da sessão
+<div class="container-fluid">
+    <div class="card-flex" style="padding: 8px">
+        <p class="m-0 fw-bold mb-text fs-4">Questionário da sessão</p>
+    
         <a class="no-decor" onclick="history.back()">
-            <button class="btn btn-outline-primary">Voltar</button>
+            <button class="btn mb-btn-outline" style="width:150px">Voltar</button>
         </a>
-    </h1>
-
-    <br>
-
+    </div>
 
     <div class="input-group mb-3">
         <div style="margin: auto">
@@ -65,7 +62,7 @@ margin:0.4em auto;
             {% for parte in parte %}
             {% for qu in questionario %}
             <a class="no-decor" href="{% url 'diario:view_questionario' qu.id parte.id sessaoGrupo %}">
-                <button class="btn btn-primary">Abrir Questionário</button>
+                <button class="btn mb-btn">Abrir Questionário</button>
             </a>
             {% endfor %}
             {% endfor %}
@@ -74,13 +71,13 @@ margin:0.4em auto;
             {% for parte in parte %}
             {% for qu in questionario %}
             <a class="no-decor" href="{% url 'diario:resultados' qu.id parte.id sessaoGrupo %}">
-                <button class="btn btn-outline-primary">Resultados</button>
+                <button class="btn mb-btn-outline">Resultados</button>
             </a>
             {% endfor %}
             {% endfor %}
         </div>
     </div>
 
-    </body>
+
 </div>
 {% endblock %}
