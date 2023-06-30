@@ -231,18 +231,18 @@
                                 {% endfor %}
                                 <form id="appointment-form" action="" method="POST" style="display:flex; align-items:flex-end; gap:10px">
                                     {% csrf_token %}
-                                <tr>
+                                        <tr>
                                         {% for field in form %}
                                             <td>{{field}}</td>
                                         {% endfor %}
+                                    </form>
                                         <td>
                                             <button id="btn-popup" class="btn btn-primary btn-appointment mb-btn flex-left" type="submit" data-href="{% url 'protocolo:participant' patient.id %}" style="max-width:125px;"> 
                                                 <i class="fa fa-calendar-plus-o"></i>&nbsp Agendar
                                             </button>
                                         </td>
                                         <td></td>
-                                    </form>
-                                </tr>
+                                    </tr>
                             </tbody>
                         </table>
                     </div>
