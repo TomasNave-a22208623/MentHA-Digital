@@ -1,63 +1,68 @@
 {% load tags %}
-<ul class="breadcrumb">
-    {% if protocol is not None %}
-        <li class="breadcrumb-item">
-            <a class="jq-btn btn" style="display: contents;" role="button"
-               data-href="{% url 'protocolo:parts' protocol.id patient.id %}">
-                {{ protocol.name }}
-            </a>
-        </li>
-    {% endif %}
 
-    {% if part is not None %}
-        <li class="breadcrumb-item">
-            <a class="jq-btn btn" style="display: contents;" role="button"
-               data-href="{% url 'protocolo:areas' protocol.id part.id patient.id %}">
-                {{ part.name|truncatechars:9 }}
-            </a>
-        </li>
-    {% endif %}
 
-    {% if area is not None and area.name != "None" %}
-        <li class="breadcrumb-item">
-            <a class="jq-btn btn" style="display: contents;" role="button"
-                    {% if instrument is not None and instrument.name == "None" %}
-                        {% if dimension.name == "None"  and section.name == "None" %}
-               data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}"
-                        {% else %}
-               data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id instrument.id patient.id %}"
-                        {% endif %}
-                    {% endif %}
-               data-href="{% url 'protocolo:instruments' protocol.id part.id area.id patient.id %}">
-                {% truncated_second_word area.name 9 %}
+<div class="bcca-breadcrumb">
+    <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;">
+    </div>
+    
+    {% if section is not None and section.name != "None" %}
+        <div class="bcca-breadcrumb-item fw-normal fs-4">
+            <a class="jq-btn" style="display: contents;" role="button"
+               data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}">
+                Secções
             </a>
-        </li>
-    {% endif %}
-
-    {% if instrument is not None and instrument.name != "None" %}
-        <li class="breadcrumb-item">
-            <a class="jq-btn btn" style="display: contents;" role="button"
-               data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id instrument.id patient.id %}">
-                {{ instrument.name|truncatechars:9 }}
-            </a>
-        </li>
+        </div>
     {% endif %}
 
     {% if dimension is not None and dimension.name != "None" %}
-        <li class="breadcrumb-item">
-            <a class="jq-btn btn" style="display: contents;" role="button"
+        <div class="bcca-breadcrumb-item fw-normal fs-4">
+            <a class="jq-btn" style="display: contents;" role="button"
                data-href="{% url 'protocolo:sections' protocol.id part.id area.id instrument.id dimension.id patient.id %}">
-                {% truncated_second_word dimension.name 9 %}
+                Dimensões
             </a>
-        </li>
+        </div>
+    {% endif %}
+    
+    {% if instrument is not None and instrument.name != "None" %}
+        <div class="bcca-breadcrumb-item fw-normal fs-4">
+            <a class="jq-btn" style="display: contents;" role="button"
+               data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id instrument.id patient.id %}">
+                Instrumentos
+            </a>
+        </div>
     {% endif %}
 
-    {% if section is not None and section.name != "None" %}
-        <li class="breadcrumb-item">
-            <a class="jq-btn btn" style="display: contents;" role="button"
-               data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}">
-                {% truncated_second_word section.name 9 %}
+    {% if area is not None and area.name != "None" %}
+        <div class="bcca-breadcrumb-item fw-normal fs-4">
+            <a class="jq-btn" style="display: contents;" role="button"
+                    {% if instrument is not None and instrument.name == "None" %}
+                        {% if dimension.name == "None"  and section.name == "None" %}
+                            data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}"
+                        {% else %}
+                            data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id instrument.id patient.id %}"
+                        {% endif %}
+                    {% endif %}
+               data-href="{% url 'protocolo:instruments' protocol.id part.id area.id patient.id %}">
+               Áreas
             </a>
-        </li>
+        </div>
     {% endif %}
-</ul>
+
+    {% if part is not None %}
+
+    <div class="bcca-breadcrumb-item fw-normal fs-4">
+        <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' protocol.id part.id patient.id %}">
+            Partes
+        </a>
+    </div>
+
+    {% endif %}
+
+    {% if protocol is not None %}
+    <div class="bcca-breadcrumb-item fs-4">
+        <a href="#" class="jq-btn" data-href="{% url 'protocolo:parts' protocol.id patient.id %}">
+            Protocolo
+        </a>
+    </div>
+    {% endif %}
+</div>

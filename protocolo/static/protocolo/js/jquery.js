@@ -32,7 +32,6 @@ $(document).ready(function () {
         NProgress.start()
         element = $(this)
         var href = element.attr("data-href").replace('#', '');
-        console.log(href)
         var section = ""
 
         if (href == "dashboard") {

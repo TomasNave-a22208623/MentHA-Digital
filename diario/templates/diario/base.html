@@ -97,29 +97,27 @@
             <!-- Apps -->
             <ul class="nav nav-pills flex-column mb-auto gap-2 nooverflow-nowrap">   
                 <li class="nav-item ">
-                    <a href="#" class="nav-link active jq-btn" href="#" data-href="#">
+                    <a href="#" class="nav-link active jq-btn" href="{% url 'protocolo:dashboard' %}" data-href="#">
                         <i class="fa-solid fa-user-check"></i>
                         <span class="sidebar-text" style="display:none;">Eval</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link active jq-btn" href="#" data-href="#">
+                    <a class="nav-link active jq-btn" href="{% url 'diario:dashboard_Care' %}" data-href="#">
                         <i class="fa-solid fa-user-doctor"></i>
                         <span class="sidebar-text" style="display:none;">Care</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a href="#" class="nav-link active jq-btn" href="#" data-href="#">
+                    <a href="#" class="nav-link active jq-btn" href="{% url 'diario:dashboard_Care' %}" data-href="#">
                         <img src="{% static 'diario/img/cog.svg' %}" style="width:35px;display:inline-block"></i>
                         <span class="sidebar-text" style="display:none;">Cog</span>
                     </a>
                 </li>
             </ul>
         </div>
-
-
 
     </div>
     <div id="content" class="h-100">

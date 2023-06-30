@@ -1,119 +1,106 @@
 {% load tags %}
 {% load markdownify %}
-<div id="wrapper">
-    <div class="d-flex flex-column" id="content-wrapper">
-        <div id="content">
-            <div class="container-fluid">
-                <div class="card shadow">
-                    <div class="card-header py-3">
-                        <p class="text-primary m-0 fw-bold">Relatório {{ resolution.part }} - {{ resolution.patient }}
-                            ({{ resolution.date }})</p>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-12 text-nowrap">
-                                <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
-                                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
-                                            data-bs-target="#modalReport">
-                                        <i class="fa fa-print"></i> Gerar Word
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th style="width: 20%;text-align: left">Área de Avaliação
-                                    </th>
-                                    <th style="width: 35%;text-align: left;">Resultados</th>
-                                    <th style="width: 40%;text-align: left;color: var(--bs-blue);"></th>
-                                    {% comment %} <th style="width: 5%;text-align: left;color: var(--bs-blue);"></th> {% endcomment %}
-                                </tr>
-                                </thead>
-                                <tbody>
-                                    {% for area, dict in report.items %}
-                                        {% for instrumento, dict_ in dict.items %}
-                                            {% if instrumento != 'nr_instrumentos' %}
-                                                <tr>
-                                                {% if forloop.counter == 2 %}
-                                                    {% if not dict_.respondido %}
-                                                        <td rowspan='{{ dict.nr_instrumentos}}'>{{ area }}</td> 
-                                                    {% else %}
-                                                        <td rowspan='{% multiply dict.nr_instrumentos 2%}'>{{ area }}</td> 
-                                                    {% endif %}
-
-                                                {% endif %}
-                                        
-                                                {% if not dict_.respondido %}
-                                                <td>
-                                                    <ul class="list-group list-unstyled">
-                                                        <li>
-                                                            <span class="badge bg-secondary"> 
-                                                                <i class="fa fa-warning"></i> Não Respondido
-                                                            </span>
-                                                        </li>
-                                                    </ul>
-                                                </td>
-
-                                                <td>
-                                                </td>
-                                            </tr>
-                                                {% else %}
-                                                <td style="vertical-align:middle;">
-                                                    {% if instrumento == "ABVD - MDA" %}
-                                                        {% include "protocolo/report/abvd.html" %}
-                                                    {% elif instrumento == "AIVD" %}
-                                                        {% include "protocolo/report/aivd.html" %}
-                                                    {% elif instrumento == "BSI" %}
-                                                        {% include "protocolo/report/bsi.html" %}
-                                                    {% elif instrumento == "ACE-R" %}
-                                                        {% include "protocolo/report/acer.html" %}
-                                                    {% elif instrumento == "MMSE" %}
-                                                        {% include "protocolo/report/mmse.html" %}
-                                                    {% elif instrumento == "Áreas Complementares" %}
-                                                        {% include "protocolo/report/ac.html" %}
-                                                    {% elif instrumento == "PANAS" %}
-                                                        {% include "protocolo/report/panas.html" %}
-                                                    {% elif instrumento == "HADS" %}
-                                                        {% include "protocolo/report/hads.html" %}
-                                                    {% elif instrumento == "HADS" %}
-                                                        {% include "protocolo/report/hads.html" %}
-                                                    {% elif instrumento == "GDS" %}
-                                                        {% include "protocolo/report/gds.html" %}
-                                                    {% elif instrumento == "Consciência, Humor e Comportamento" %}
-                                                        {% include "protocolo/report/chc.html" %}
-                                                    {% elif instrumento == "Cooperação dada na entrevista" %}
-                                                        {% include "protocolo/report/coop.html" %}
-                                                    {% elif instrumento == "Relação com o Avaliador" %}
-                                                        {% include "protocolo/report/rel.html" %}
-                                                    {% endif %}
-                                                </td>
-                                                <td rowspan='2' style="vertical-align:middle;" >
-                                                    {{dict_.graph|safe}}
-                                                </td>
-                                            </tr>
-                                            <tr>    
-                                                <td>
-                                                    <textarea id="{{dict_.notes}}" name="{{dict_.notes}}" rows="3" cols="50" class="notes-area form-control mt-10">Observações...</textarea>
-                                                </td>
-                                                <td></td>
-                                            </tr>
-                                                {% endif %}
-            
-                                                
+<div class="container-fluid">
+    <div style="padding:8px;">
+        <div class="card-flex">
+            <p class="m-0 fw-bold mb-text fs-4">Relatório do {{ resolution.part.part }} de {{ resolution.patient }} ({{ resolution.date }})</p>
+            <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participantes_registo' %}">
+                <button class="btn btn-primary mb-btn" type="button" data-bs-toggle="modal"
+                data-bs-target="#modalReport">
+                    <i class="fa fa-print"></i> Gerar Word
+                </button> 
+            </a>
+        </div>
+        <div class="">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th style="width: 20%;text-align: left">Área de Avaliação
+                        </th>
+                        <th style="width: 35%;text-align: left;">Resultados</th>
+                        <th style="width: 40%;text-align: left;color: var(--bs-blue);"></th>
+                        {% comment %} <th style="width: 5%;text-align: left;color: var(--bs-blue);"></th> {% endcomment %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for area, dict in report.items %}
+                            {% for instrumento, dict_ in dict.items %}
+                                {% if instrumento != 'nr_instrumentos' %}
+                                    <tr>
+                                    {% if forloop.counter == 2 %}
+                                        {% if not dict_.respondido %}
+                                            <td rowspan='{{ dict.nr_instrumentos}}'>{{ area }}</td> 
+                                        {% else %}
+                                            <td rowspan='{% multiply dict.nr_instrumentos 2%}'>{{ area }}</td> 
                                         {% endif %}
-                                        {% endfor %}
-                                    {% endfor%}
-                                </tbody>
-                            </table>
-                        </div>
 
-                    </div>
-                </div>
+                                    {% endif %}
+                            
+                                    {% if not dict_.respondido %}
+                                    <td>
+                                        <ul class="list-group list-unstyled">
+                                            <li>
+                                                <span class="badge bg-secondary"> 
+                                                    <i class="fa fa-warning"></i> Não Respondido
+                                                </span>
+                                            </li>
+                                        </ul>
+                                    </td>
+
+                                    <td>
+                                    </td>
+                                </tr>
+                                    {% else %}
+                                    <td style="vertical-align:middle;">
+                                        {% if instrumento == "ABVD - MDA" %}
+                                            {% include "protocolo/report/abvd.html" %}
+                                        {% elif instrumento == "AIVD" %}
+                                            {% include "protocolo/report/aivd.html" %}
+                                        {% elif instrumento == "BSI" %}
+                                            {% include "protocolo/report/bsi.html" %}
+                                        {% elif instrumento == "ACE-R" %}
+                                            {% include "protocolo/report/acer.html" %}
+                                        {% elif instrumento == "MMSE" %}
+                                            {% include "protocolo/report/mmse.html" %}
+                                        {% elif instrumento == "Áreas Complementares" %}
+                                            {% include "protocolo/report/ac.html" %}
+                                        {% elif instrumento == "PANAS" %}
+                                            {% include "protocolo/report/panas.html" %}
+                                        {% elif instrumento == "HADS" %}
+                                            {% include "protocolo/report/hads.html" %}
+                                        {% elif instrumento == "HADS" %}
+                                            {% include "protocolo/report/hads.html" %}
+                                        {% elif instrumento == "GDS" %}
+                                            {% include "protocolo/report/gds.html" %}
+                                        {% elif instrumento == "Consciência, Humor e Comportamento" %}
+                                            {% include "protocolo/report/chc.html" %}
+                                        {% elif instrumento == "Cooperação dada na entrevista" %}
+                                            {% include "protocolo/report/coop.html" %}
+                                        {% elif instrumento == "Relação com o Avaliador" %}
+                                            {% include "protocolo/report/rel.html" %}
+                                        {% endif %}
+                                    </td>
+                                    <td rowspan='2' style="vertical-align:middle;" >
+                                        {{dict_.graph|safe}}
+                                    </td>
+                                </tr>
+                                <tr>    
+                                    <td>
+                                        <textarea id="{{dict_.notes}}" name="{{dict_.notes}}" rows="3" cols="50" class="notes-area form-control mt-10">Observações...</textarea>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                    {% endif %}
+
+                                    
+                            {% endif %}
+                            {% endfor %}
+                        {% endfor%}
+                    </tbody>
+                </table>
             </div>
+
         </div>
     </div>
-    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
 </div>
