@@ -25,15 +25,16 @@
     <br>
 
     <div class="flex-buttons">
-        <button class="btn jq-btn btn-primary flex-left" {% if question.section.dimension.number_of_questions > 1 %}
+        <button class="btn jq-btn btn-primary flex-left mb-btn" {% if question.section.dimension.number_of_questions > 1 %}
             data-href="{% url 'protocolo:sections' protocol.id part.id area.id instrument.id dimension.id patient.id %}"
             {% else %}
             data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id instrument.id patient.id %}"
             {% endif %}
             type="button">
-            <i class="fa fa-plus"></i>&nbsp; Anterior
+            
+            <i class="fa-solid fa-chevron-left"></i>&nbsp; Anterior
         </button>
-        <button class="btn btn-submit btn-primary flex-right"
+        <button class="btn btn-submit btn-primary mb-btn flex-right"
             data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}"
             style="" type="submit">
             <i class="fa fa-check"></i>&nbsp; Submeter

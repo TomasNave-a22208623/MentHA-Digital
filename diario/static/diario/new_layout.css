@@ -34,6 +34,9 @@ body{
     transition: 0.5 ease;
 }
 
+
+
+
 .transicao{
     transition: transform 0.3s ease-in-out;
 }
@@ -63,8 +66,8 @@ body{
 }
 
 .container-fluid{
-    padding: 30px;
-    grid-area: main;
+    padding: 30px!important;
+    grid-area: main!important;
 }
 
 #content {
@@ -263,7 +266,7 @@ body{
     display: flex;
     padding: 8px;
     justify-content: space-between;
-    align-items: center;
+    /* align-items: center; */
 }
 
 .btn-diario{

@@ -45,7 +45,7 @@
     </div>
 
     <div style="padding-top: 15px" class="flex-buttons">
-        <button class="btn jq-btn btn-primary flex-left"
+        <button class="btn jq-btn btn-primary flex-left mb-btn"
                 {% if question.section.dimension.number_of_questions > 1 %}
                 data-href="{% url 'protocolo:sections' protocol.id part.id area.id instrument.id dimension.id patient.id %}"
                 {% else %}
