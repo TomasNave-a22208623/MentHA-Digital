@@ -1,6 +1,5 @@
 {% extends 'diario/base.html' %}
 {% load static %}
-
 {% block main %}
     <div class="container-fluid">
         <div  style="padding: 8px">
@@ -71,7 +70,7 @@
                 <div class="modal-body">
 
                     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Pesquisar por ..."
-                        style="background-position: 10px 12px;width: 100%;font-size: 16px;padding: 12px 20px 12px 40px;border: 1px solid #ddd;margin-bottom: 12px;border-radius: 10px;">
+                           style="background-position: 10px 12px;width: 100%;font-size: 16px;padding: 12px 20px 12px 40px;border: 1px solid #ddd;margin-bottom: 12px;border-radius: 10px;">
                     <table class="table table-hover" id="myTable">
                         <thead>
                         <tr>
@@ -103,10 +102,12 @@
                 </div>
                 <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" data-bs-dismiss="modal">Close
+                    </button>
                 </div>
 
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

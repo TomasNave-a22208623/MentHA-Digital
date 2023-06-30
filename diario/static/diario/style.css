@@ -413,7 +413,7 @@ position: relative;
     display: flex;
     flex-direction: row;
     height: 100%;
-    background: cornflowerblue;
+    background: #4EB4BE;
     transition: all 0.5s ease;
     align-items: center;
     gap: 35px;

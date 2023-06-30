@@ -37,9 +37,11 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 from docx import Document
+import win32com.client as win32
 from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import os
+import pythoncom
 import tempfile
 from django.core.files import File
 
@@ -84,10 +86,10 @@ def dashboard(request):
         return redirect('diario:new_group')
 
     # Retrieve all objects without a name
-    dinamizador = DinamizadorConvidado.objects.filter(info_sensivel__nome__isnull=True)
+    cuidadores_without_name = Cuidador.objects.filter(info_sensivel__nome__isnull=True)
 
     # Delete the objects without a name
-    dinamizador.delete()
+    cuidadores_without_name.delete()
 
     dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
     mentor = Mentor.objects.filter(user=request.user).first()
@@ -107,6 +109,23 @@ def dashboard(request):
     if request.user.is_superuser:
         grupos = Grupo.objects.all()
 
+    datas = SessaoDoGrupo.objects.exclude(data=None)
+    #Caso um dinamizador/mentor tenha mais do que um grupo da porcaria
+    datas = datas.filter(estado='PR', grupo=grupos[0])
+
+    if bool(datas) == True:
+        datas = datas.filter(estado='PR').order_by('data')[0]
+
+    factory = qrcode.image.svg.SvgImage
+    uri = request.build_absolute_uri('zoom')
+    uri = uri.replace('abrirZ', 'z')
+    img = qrcode.make(uri, image_factory=factory, box_size=5)
+    img_pop = qrcode.make(uri, image_factory=factory, box_size=45)
+    stream = BytesIO()
+    stream_pop = BytesIO()
+    img.save(stream)
+    img_pop.save(stream_pop)
+
     contexto = {
     # 'grupos': Grupo.objects.filter(doctor=doctor),
     # Apagar a linha de baixo ao descomentar a linha de cima
@@ -114,6 +133,10 @@ def dashboard(request):
     'grupos': grupos,
     'cuidadores': Cuidador.objects.filter(grupo=None),
     'formGrupo': formGrupo,
+    'proxima': datas,
+    'ss': bool(datas),
+    'svg': stream.getvalue().decode(),
+    'svg_pop': stream_pop.getvalue().decode(),
     }
 
     if is_participante and len(sg) > 1:
@@ -626,14 +649,12 @@ def create_dinamizador(request, grupo_id):
         return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
     else:
         formDinamizador = DinamizadorForm()
-
     contexto = {
         'formDinamizador': formDinamizador,
         'grupo_id': grupo_id,
     }
 
     return render(request, "diario/new_dinamizador.html", contexto)
-
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
@@ -1237,7 +1258,7 @@ def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
         exercicio = Exercicio.objects.get(id=parte_do_grupo_id)
         parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
 
-        
+
 
     q = parte.questionarios.all()
     if len(q) > 0:
@@ -2055,6 +2076,30 @@ def gera_relatorio_questinarios(sessaoDoGrupo, request):
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
 
+    # Convert the Word document to PDF
+
+    pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
+
+    pythoncom.CoInitialize()
+
+    word_app = win32.gencache.EnsureDispatch('Word.Application')
+    doc = word_app.Documents.Open(docx_path)
+    doc.SaveAs(pdf_path, FileFormat=17)
+    doc.Close()
+    word_app.Quit()
+
+    # Create a Django File object from the PDF file
+    with open(pdf_path, 'rb') as f:
+        pdf_data = io.BytesIO(f.read())
+
+    # Assign the PDF file to the file field of sessaoDoGrupo
+    sessaoDoGrupo.relatorio.save(f'{nome_ficheiro}.pdf', pdf_data)
+    sessaoDoGrupo.save()
+
+    # Delete the temporary files
+    os.remove(docx_path)
+    os.remove(pdf_path)
+
 def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     document = Document()
     partilhas = Partilha.objects.all().filter(sessao_grupo=sessaoDoGrupo).order_by('-data')
@@ -2166,6 +2211,30 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     nome_ficheiro = nome_ficheiro.replace(" ", "")
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
+
+    # Convert the Word document to PDF
+
+    pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
+
+    pythoncom.CoInitialize()
+
+    word_app = win32.gencache.EnsureDispatch('Word.Application')
+    doc = word_app.Documents.Open(docx_path)
+    doc.SaveAs(pdf_path, FileFormat=17)
+    doc.Close()
+    word_app.Quit()
+
+    # Create a Django File object from the PDF file
+    with open(pdf_path, 'rb') as f:
+        pdf_data = io.BytesIO(f.read())
+
+    # Assign the PDF file to the file field of sessaoDoGrupo
+    sessaoDoGrupo.diario_bordo.save(f'{nome_ficheiro}.pdf', pdf_data)
+    sessaoDoGrupo.save()
+
+    # Delete the temporary files
+    os.remove(docx_path)
+    os.remove(pdf_path)
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Cuidador')

@@ -89,24 +89,39 @@
                         <div class="info">
                         </div>
                     </div>
-                </div>
-            {% else %}
-                <div class="diario">
-                    <button id="participante_notas" class="menu" data-menu="notas" data-participante="{{ cuidador.id }}"
-                                data-sessaogrupo="{{ sessaoGrupo.id }}">Notas
-                    </button>
-                    <button id="participante_partilhas" class="menu" data-menu="partilhas"
-                            style="color:white;" data-participante="{{ cuidador.id }}"
-                                data-sessaogrupo="{{ sessaoGrupo.id }}">Partilhas
-                    </button>
-                    <div class="info">
+                    <div>
                     </div>
-                </div>
-                <div>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
     </div>
+
+    <div id="open-panel-btn" onclick="togglePopoutPanel()">
+        <i class="fa fa-chevron-left" style="font-size: 25px; right: -1%; padding-left: 0%;"></i>
+    </div>
+
+    <script>
+        function togglePopoutPanel() {
+            const sidePanelContainer = document.getElementById('side-panel-container');
+            const openPanelButton = document.getElementById('open-panel-btn');
+            var button = document.getElementById('open-panel-btn');
+            mostraDiarioBordo()
+
+            if (sidePanelContainer.style.right === '0%') {
+                // Close the panel
+                sidePanelContainer.style.right = '-50%';
+                openPanelButton.style.right = '-1%';
+                button.style.transform = 'rotate(0deg) scale(1.2)';
+                button.style.paddingLeft = '0%';
+            } else {
+                // Open the panel
+                sidePanelContainer.style.right = '0%';
+                openPanelButton.style.right = '49%'; // Adjust this value to match the width of the side panel
+                button.style.transform = 'rotate(180deg) scale(1.2)';
+                button.style.paddingLeft = '1.9%';
+            }
+        }
+    </script>
 {% endblock %}
 
 <form action="{% url 'diario:group_sessions' sessaoGrupo.grupo.id %}">
