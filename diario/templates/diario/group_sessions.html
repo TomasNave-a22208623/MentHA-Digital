@@ -10,12 +10,12 @@
                 </div>
                 <div class="bcca-breadcrumb-item fw-normal fs-4">
                     <a href="{% url 'diario:group_sessions' grupo.id %}" >
-                        Sessões
+                        <i class="fa-solid fa-list" style="color:white;"></i>  Sessões
                     </a>
                 </div>
                 <div class="bcca-breadcrumb-item fw-normal fs-4">
                     <a href="{% url 'diario:grupo_details' grupo.id %}">
-                        {{grupo}}
+                        <i class="fa-solid fa-user-group" style="color:white;"></i>  {{grupo}}
                     </a>
                 </div>
               </div>
@@ -58,7 +58,7 @@
                     </form>
                     {% elif sessao_do_grupo.id == sessao_em_curso and  not grupos_permissoes %}
                     <form action="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
-                        <button class="btn mb-btn btn-sessao w-100">Entrar</button>
+                        <button class="btn mb-btn btn-sessao w-100"><i class="fa-solid fa-door-open"></i> Entrar</button>
                     </form>
                     {% else %}
                         {% if sessao_do_grupo.grupo.programa == 'CARE' %}

@@ -48,9 +48,9 @@ justify-content: flex-start;
                             <tbody>
                             {% for cuidador in cuidadores %}
                             <tr>
-                                <td style="text-align: center;">
+                                <td class="btn-link"  style="text-align: center;">
                                     {% if grupos_permissoes.exists %}
-                                    <a href="{% url 'diario:p_view' cuidador.id grupo.id %}">
+                                    <a style="color: #4eb4be;" href="{% url 'diario:p_view' cuidador.id grupo.id %}">
                                         {{ cuidador }}
                                     </a>
                                     {% else %}
@@ -202,7 +202,7 @@ justify-content: flex-start;
 
                 <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn mb-btn-outline-danger" data-bs-dismiss="modal">Cancelar</button>
                 </div>
 
             </div>
@@ -217,7 +217,6 @@ justify-content: flex-start;
                 <!-- Modal Header -->
                 <div class="modal-header">
                     <h4 class="modal-title">Lista de Dinamizadores</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <!-- Modal body -->
@@ -238,7 +237,7 @@ justify-content: flex-start;
                             <td>{{ dinamizador.funcao }}</td>
                             <td>
                                 <form action="{% url 'diario:assign_dinamizador' grupo.id dinamizador.id %}">
-                                    <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir
+                                    <button class="btn mb-btn" style="border-radius: 10px">Atribuir
                                         grupo
                                     </button>
                                 </form>
@@ -251,7 +250,7 @@ justify-content: flex-start;
 
                 <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancelar</button>
                 </div>
 
             </div>
@@ -290,7 +289,7 @@ justify-content: flex-start;
                             </td>
                             <td>
                                 <form action="{% url 'diario:filter_group' cuidador.id %}">
-                                    <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir
+                                    <button class="btn mb-btn" style="border-radius: 10px">Atribuir
                                         grupo
                                     </button>
                                 </form>
@@ -303,7 +302,7 @@ justify-content: flex-start;
                 </div>
                 <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal" data-bs-dismiss="modal">Close
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal" data-bs-dismiss="modal">Cancelar
                     </button>
                 </div>
 

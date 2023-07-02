@@ -127,16 +127,16 @@
             <div class="bcca-breadcrumb">
                 <div class="bcca-breadcrumb-item-last fw-normal fs-4" style="display:none"></div>
                 <div class="bcca-breadcrumb-item fw-normal fs-4">
-                    {{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}
+                    <i class="fa-solid fa-chalkboard-user" style="color:white;"></i>  {{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}
                 </div>
                 <div class="bcca-breadcrumb-item fw-normal fs-4">
-                    <a href="{% url 'diario:group_sessions' grupo.id %}" >
-                        Sessões
+                    <a href="{% url 'diario:group_sessions' grupo.id %}">
+                        <i class="fa-solid fa-list" style="color:white;"></i> Sessões
                     </a>
                 </div>
                 <div class="bcca-breadcrumb-item fw-normal fs-4">
                     <a href="{% url 'diario:grupo_details' grupo.id %}">
-                        {{sessaoGrupo.grupo}}
+                        <i class="fa-solid fa-user-group" style="color:white;"></i> {{sessaoGrupo.grupo}}
                     </a>
                 </div>
               </div>

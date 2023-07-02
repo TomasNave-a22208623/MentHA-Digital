@@ -6,7 +6,7 @@
           <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;"></div>
           <div class="bcca-breadcrumb-item fw-normal fs-4">
               <a href="{% url 'diario:grupo_details' grupo.id %}">
-                  {{grupo}}
+                  <i class="fa-solid fa-user-group" style="color:white;"></i>  {{grupo}}
               </a>
           </div>
         </div>
@@ -66,7 +66,7 @@
                 type="submit"
                 class="btn mb-btn"
                 style="width: 200px">
-                <i class="fa-solid fa-chalkboard-user"></i> Sessões
+                <i class="fa-solid fa-list"></i> Sessões
               </button>
             </form>
             <form action="{% url 'diario:group_members' grupo.id %}">

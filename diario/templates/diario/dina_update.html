@@ -16,13 +16,13 @@
                         <div class="col align-self-center">
                             <div style="display: flex;flex-direction: row;justify-content: space-between">
                                 <div class="card-body" style="padding: 8px">
-                                    <p class="text-primary m-0 fw-bold"
-                                       style="margin: 5px; font-size: 26px">Atualização do Dinamizador</p>
+                                    <p class="m-0 fw-bold"
+                                       style="margin: 5px; font-size: 26px; color: #4eb4be">Atualização do Dinamizador</p>
                                 </div>
                                 <div>
                                     <form action="{% url 'diario:group_members' grupo_id %}">
-                                        <button type="submit" class="btn btn-outline-primary" style="width: 150px">
-                                            Anterior
+                                        <button type="submit" class="btn mb-btn-outline" style="width: 150px">
+                                            <i class="fa-solid fa-angle-left"></i> Anterior
                                         </button>
                                     </form>
                                 </div>
@@ -73,17 +73,11 @@
                                                 <p>{{ formDinamizador.funcao }}</p>
                                             </div>
                                             <div style="display: flex;flex-direction: row;justify-content: space-between">
-                                                <div class="card-body" style="padding: 8px">
-                                                    <form action="{% url 'diario:group_members' grupo_id %}">
-                                                        <button type="submit" class="btn btn-outline-primary"
-                                                                style="width: 150px">
-                                                            Cancelar
-                                                        </button>
-                                                    </form>
-                                                </div>
                                                 <div>
-                                                    <input type="submit" value="Guardar" class="btn btn-primary"
+                                                    <button type="submit" value="Guardar" class="btn mb-btn-outline"
                                                            style="width: 150px">
+                                                        <i class="fa fa-floppy-disk"></i> Guardar
+                                                    </button>
                                                 </div>
                                             </div>
                                         </form>

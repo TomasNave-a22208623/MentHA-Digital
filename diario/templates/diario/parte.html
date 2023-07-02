@@ -60,7 +60,7 @@
                             style="width: {{ parteGrupo.duracao_minutos }}%; background-color: #4eb4be"
                             aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0"
                             aria-valuemax="{{ dura }}">
-                            {{ duracao_segundos }} 
+                            {{ duracao_segundos }}
                     </div>
                 </div>
             {% else %}
@@ -74,7 +74,7 @@
                     </div>
                 </div>
             {% endif %}
-        </div> 
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -85,13 +85,13 @@
 
 
     <h5 class="m-0 fw-bold mb-text fs-4 mt-4">Sumário</h5>
-    
+
     {{ parte.descricao | markdownify }}</span>
     {% if parte.materiais|length > 0 %}
-    
+
         <h5 class="m-0 fw-bold mb-text fs-5 mt-4">Materiais</h5>
         <span class="">{{ parte.materiais | markdownify }}</span>
-   
+
     {% endif %}
 
 
@@ -107,10 +107,10 @@
     {% endif %}
 
     {% if parte.atividades.all|length > 0 %}
-    
+
     <h5 class="m-0 fw-bold mb-text fs-5 mt-4">Atividades</h5>
     {% for atividade in parte.atividades.all %}
-    
+
     <span class="">Atividade {{ atividade.numero }} - {{ atividade.nome }}</span>
 
     <span class="">
@@ -147,36 +147,44 @@
     </div>
     <div style ="width:25%" class="direita">
         {% if estado != "ver" %}
-        <h5 class=" m-6 fw-bold">
-            Duração
-            <span class=" m-6 fw-normal text-muted">
-                {{ dura }} minutos
-            </span> 
-        </h5>
-        <div style ="width:100%"class="progress">
-            <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%;" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
-                    {{ parteGrupo.duracao_minutos }}m
-            </div>
-        </div>
+            <h5 class=" m-6 fw-bold">
+                Duração
+                <span class=" m-6 fw-normal text-muted">
+                    {{ dura }} minutos
+                </span>
+            </h5>
+            {% if parteGrupo.duracao_minutos > dura %}
+                <div style ="width:100%; margin-top: 5px;"class="progress">
+                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%; background-color: #dc3545" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
+                        {{ parteGrupo.duracao_minutos }}m
+                    </div>
+                </div>
+            {% else %}
+                <div style ="width:100%; margin-top: 5px;"class="progress">
+                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%;" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
+                        {{ parteGrupo.duracao_minutos }}m
+                    </div>
+                </div>
+            {% endif %}
         {% elif estado == "ver" %}
-            {% if parteGrupo.concluido %} 
+            {% if parteGrupo.concluido %}
             <h5 class=" m-6 fw-bold">
                 Duração
                 <span class=" m-6 fw-normal text-muted">
                     {{ parteGrupo.duracao_em_horas_minutos }} de {{ dura }} minutos
-                </span> 
+                </span>
             </h5>
             {% else %}
             <h5 class=" m-6 fw-bold">
                 Duração
                 <span class=" m-6 fw-normal text-muted">
                     {{ dura }} minutos
-                </span> 
+                </span>
             </h5>
             {% endif %}
         {% endif %}
     </div>
-</div>  
+</div>
 <div style= "padding-top:15px;" id="accordion">
     <div class="card">
       <div class="card-header" id="headingOne">
@@ -186,7 +194,7 @@
           </button>
         </h5>
       </div>
-  
+
       <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
         <div class="card-body">
           {{ exercicio.material | markdownify }}
@@ -203,7 +211,7 @@
       </div>
       <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
         <div class="card-body">
-        {{ exercicio.instrucao | markdownify }}  
+        {{ exercicio.instrucao | markdownify }}
         </div>
       </div>
     </div>
@@ -234,8 +242,8 @@
             {% endif %}
 
             {% if parte.descricao|length > 0 %}
-                
-            <div style ="padding-bottom: 3%;"class = "exercicio-descricao center 
+
+            <div style ="padding-bottom: 3%;"class = "exercicio-descricao center
             {% if parte.descricao|length > 150 %}
             h5
             {% else %}
@@ -245,7 +253,7 @@
                 {{ parte.descricao|markdownify }}
             </div>
             {% endif %}
-            
+
             {% if parte.perguntas.all|length > 0%}
                 {% csrf_token %}
                 <div class = "flex-container">
@@ -256,7 +264,7 @@
                             {{ pergunta.dificuldade }}
                         </div>
                         {% endif%}
-                   
+
                     {% for perg,parte_ordem,form in form_list %}
                         {% if perg == pergunta and parte_ordem == parte.ordem %}
                             {% if pergunta.tipo_resposta == 'UPLOAD_FOTOGRAFIA' %}
@@ -264,7 +272,7 @@
                                     {% for field in form %}
                                         <label>{{ pergunta.nome }}</label>
                                         <div>
-                                            {{ field }} 
+                                            {{ field }}
                                             <span style="display:none">{{perg.id}}</span>
                                             <span style="display:none">{{parte.id}}</span>
                                         </div>
@@ -276,7 +284,7 @@
                                 {% for field in form %}
                                     <label>{{ pergunta.nome }}</label>
                                     <div>
-                                        {{ field }} 
+                                        {{ field }}
                                         <span style="display:none">{{perg.id}}</span>
                                         <span style="display:none">{{parte.id}}</span>
                                     </div>
@@ -289,11 +297,11 @@
                             {% endif %}
                         {% endif %}
                     {% endfor %}
-                </div> 
-            
+                </div>
+
                 {% endfor %}
                 <button onclick="submete({{sessaoGrupo.id}},{{parteGrupo.id}},{{participante.id}})" type="button" class="btn btn-primary">Submeter</button>
-            
+
             </div>
             {% endif %}
 
