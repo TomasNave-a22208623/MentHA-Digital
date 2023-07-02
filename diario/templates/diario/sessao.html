@@ -91,6 +91,21 @@
                     </div>
                     <div>
                     </div>
+                {% else %}
+                    <div class="diario">
+                        <button id="participante_notas" class="menu" data-menu="notas"
+                                data-participante="{{ cuidador.id }}"
+                                data-sessaogrupo="{{ sessaoGrupo.id }}">Notas
+                        </button>
+                        <button id="participante_partilhas" class="menu" data-menu="partilhas"
+                                style="color:white;" data-participante="{{ cuidador.id }}"
+                                data-sessaogrupo="{{ sessaoGrupo.id }}">Partilhas
+                        </button>
+                        <div class="info">
+                        </div>
+                    </div>
+                    <div>
+                    </div>
                 {% endif %}
             </div>
         </div>

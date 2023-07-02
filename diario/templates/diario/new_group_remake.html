@@ -2,55 +2,44 @@
 {% load static %}
 {% load diario_tags %}
 
-{%block head %}
-    <script src="{% static 'diario/js/cria_grupo.js'%}?{% now 'U' %}"></script>
+{% block head %}
+    <script src="{% static 'diario/js/cria_grupo.js' %}?{% now 'U' %}"></script>
 {% endblock %}
 
 {% block main %}
-    <div id="wrapper" style="padding-top:15px;width:100%" >
+    <div id="wrapper" style="padding-top:15px;width:100%">
         <div class="container-fluid card" style="width:75%">
             <div class="card-body" style="padding: 8px">
-                <p class="text-primary m-0 fw-bold"
-                    style="margin: 5px; font-size: 26px">Criar Novo Grupo
+                <p class="m-0 fw-bold"
+                   style="margin: 5px; font-size: 26px; color:#4EB4BE">Criar Novo Grupo
                 </p>
                 {% csrf_token %}
-                <div class="flex-container" style="flex-direction: row;justify-content: space-between;">
+                <div class="flex-container" style="flex-direction: row; justify-content: space-between;">
                     <div style="width:45%">
-                        <label for="nome" >Nome:</label>
+                        <label for="nome">Nome:</label>
                         <input type="text" name="nome" class="form-control">
                     </div>
-                <div style = "width:45%">
-                    <label for="programa" >Programa: </label>
-                    <select class="form-control" onchange="atualiza_filtros(), atualiza_candidatos()" name="programa" id="programa">
-                        <option selected disabled value="">Escolha o programa</option>
-                        <option value="CARE">MentHA-CARE</option>
-                        <option value="COG">MentHA-COG</option>
-                    </select>
+                    <div style="width:45%">
+                        <label for="programa">Programa: </label>
+                        <select class="form-control" onchange="atualiza_filtros(), atualiza_candidatos()"
+                                name="programa"
+                                id="programa">
+                            <option selected disabled value="">Escolha o programa</option>
+                            <option value="CARE">MentHA-CARE</option>
+                            <option value="COG">MentHA-COG</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="table-responsive" style="padding-top:15px">
-            <table class="table">
-                {% comment %} <thead>
-                <tr>
-                    <th style="text-align: left;">
-                        <strong>Diagnóstico</strong></th>
-                    <th style="text-align: left;">
-                        <strong>Localização</strong></th>
-                    <th style="text-align: left;">
-                        <strong>Escolaridade</strong></th>
-                    <th style="text-align: left;">
-                        <strong>Referenciação</strong></th>
-                    <th style="text-align: left;"></th>
-                </tr> {% endcomment %}
-                </thead>
-                <tbody>
-
-                <tr class="filtro_care" style="display:none;">
+            <div class="table-responsive" style="padding-top:15px">
+                <table class="table">
+                    <tbody>
+                    <tr class="filtro_care" style="display:none;">
                         {% for campo,opcoes in lista_pesquisa_cuidadores.items %}
                             <td class="opcao">
-                                <select name="{{ campo }}_care" onchange="atualiza_candidatos()" id="{{ campo }}_care" style="width:100%" class="form-control shadow-on-hover">
-                                    <option value="" disabled selected>{{campo}} disponíveis</option>
+                                <select name="{{ campo }}_care" onchange="atualiza_candidatos()" id="{{ campo }}_care"
+                                        style="width:100%" class="form-control shadow-on-hover">
+                                    <option value="" disabled selected>{{ campo }} disponíveis</option>
                                     <option value="">------</option>
                                     {% for opcao in opcoes %}
                                         {% if opcao != None %}
@@ -66,18 +55,16 @@
                                 </select>
                             </td>
                         {% endfor %}
-                                            <td>
-                        {% comment %} <input form="filtro" type="submit" value="Filtrar"
-                                class="btn btn-primary"> {% endcomment %}
+                        <td>
                         </td>
 
-                </tr>
-
-                <tr class="filtro_cog" style="display:none;">
+                    </tr>
+                    <tr class="filtro_cog" style="display:none;">
                         {% for campo,opcoes in lista_pesquisa_participantes.items %}
                             <td class="opcao">
-                                <select name="{{ campo }}_cog" onchange="atualiza_candidatos()" id="{{ campo }}_cog" style="width:100%" class="form-control shadow-on-hover">
-                                    <option value="" disabled selected>{{campo}} disponíveis</option>
+                                <select name="{{ campo }}_cog" onchange="atualiza_candidatos()" id="{{ campo }}_cog"
+                                        style="width:100%" class="form-control shadow-on-hover">
+                                    <option value="" disabled selected>{{ campo }} disponíveis</option>
                                     <option value="">------</option>
                                     {% for opcao in opcoes %}
                                         {% if opcao != None %}
@@ -93,34 +80,32 @@
                                 </select>
                             </td>
                         {% endfor %}
-                                            <td>
-                        {% comment %} <input form="filtro" type="submit" value="Filtrar"
-                                class="btn btn-primary"> {% endcomment %}
+                        <td>
                         </td>
-
-                </tr>
-                </tbody>
-            </table>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
 
-        <div class="container-fluid card" style="width:75%;display:none">
+        <div class="container-fluid card" style="margin-top:15px;width:75%;display:none">
             <div class="card-body" style="padding: 8px">
 
-                <p class="text-primary m-0 fw-bold"
-                    style="margin: 5px; font-size: 26px">Candidatos
+                <p class="m-0 fw-bold"
+                   style="margin: 5px; font-size: 26px; color:#4EB4BE">Candidatos
                 </p>
 
-                    <div class="table-responsive" style="padding-top:15px">
+                <div class="table-responsive" style="padding-top:15px">
                     <table class="table container-candidatos">
 
                     </table>
-                    <input type="submit" onclick="cria_grupo()" style="margin-top:15px;float:right;" value="Criar Grupo" class="left btn btn-outline-primary">
-                    </div>
+                    <input type="submit" onclick="cria_grupo()" style="margin-top:15px;float:right;" value="Criar Grupo"
+                           class="left btn mb-btn-outline">
+                </div>
 
             </div>
 
         </div>
 
-</div>
+    </div>
 {% endblock %}

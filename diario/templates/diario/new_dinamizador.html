@@ -16,11 +16,11 @@
                             <div class="col align-self-center">
                                 <div style="display: flex;flex-direction: row;justify-content: space-between">
                                     <div class="card-body" style="padding: 8px">
-                                        <p class="text-primary m-0 fw-bold" style="margin: 5px; font-size: 26px">Registar Dinamizador</p>
+                                        <p class="m-0 fw-bold" style="margin: 5px; font-size: 26px; color: #4EB4BE">Registar Dinamizador</p>
                                     </div>
                                     <div>
                                         <form action="{% url 'diario:group_members' grupo_id %}">
-                                            <button type="submit" class="btn btn-outline-primary" style="width: 150px">
+                                            <button type="submit" class="btn mb-btn-outline" style="width: 150px">
                                                 Anterior
                                             </button>
                                         </form>
@@ -38,10 +38,16 @@
                                         <div class="row">
                                             <form action="" class="row g-3" method="post" enctype="multipart/form-data">
                                                 {% csrf_token %}
-                                                {{ formDinamizador.as_p }}
+                                                {% for field in formDinamizador %}
+                                                    <div class="fieldWrapper" style="flex-direction: row">
+                                                        {{ field.errors }}
+                                                        <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
+                                                        {{ field }}
+                                                    </div>
+                                                {% endfor %}
                                                 <div style="display: flex; flex-direction: row; justify-content: space-between">
                                                     <div class="col-md-6">
-                                                        <button type="submit" class="btn btn-primary" style="width: 150px">
+                                                        <button type="submit" class="btn mb-btn-outline" style="width: 150px">
                                                             Guardar
                                                         </button>
                                                     </div>

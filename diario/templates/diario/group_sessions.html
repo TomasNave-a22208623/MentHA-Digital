@@ -56,6 +56,10 @@
                     <form action="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
                         <button class="btn mb-btn btn-sessao w-100">Continuar</button>
                     </form>
+                    {% elif sessao_do_grupo.id == sessao_em_curso and  not grupos_permissoes %}
+                    <form action="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
+                        <button class="btn mb-btn btn-sessao w-100">Entrar</button>
+                    </form>
                     {% else %}
                         {% if sessao_do_grupo.grupo.programa == 'CARE' %}
                             <a href="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
@@ -125,7 +129,7 @@
                     {% if sessao_do_grupo.sessao.materiais|length > 0 %}
                         <a href="{{ sessao_do_grupo.sessao.materiais.url }}">
                             <div class="w-10 h-10 mb-bg rounded-circle flex m-auto justify-content-center align-items-center align-self-center">
-                                <i class="fa fa-books icon-bg" aria-hidden="true" style="font-size:31px;"></i>
+                                <i class="fa-solid fa-pen-ruler icon-bg" aria-hidden="true" style="font-size:31px;"></i>
                             </div>
                         </a>
                     {% else %}
