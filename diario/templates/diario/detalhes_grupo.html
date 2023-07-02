@@ -6,13 +6,13 @@
           <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;"></div>
           <div class="bcca-breadcrumb-item fw-normal fs-4">
               <a href="{% url 'diario:grupo_details' grupo.id %}">
-                  {{grupo}}
+                  <i class="fa-solid fa-user-group" style="color:white;"></i>  {{grupo}}
               </a>
           </div>
         </div>
         <form action="{% url 'diario:dashboard_Care' %}">
           <button type="submit" class="btn mb-btn-outline" style="width: 150px">
-            Anterior
+            <i class="fa-solid fa-angle-left"></i> Anterior
           </button>
         </form>
       </div>
@@ -49,7 +49,7 @@
               {{ grupo.referenciacao_most_frequent }}
             </td>
             <td style="text-align: center">
-              <i class="fa-solid fa-user-group"></i>
+              <i class="fa-solid fa-users"></i>
               {{ grupo.nr_membros }}
             </td>
             <td style="text-align: center">
@@ -66,16 +66,15 @@
                 type="submit"
                 class="btn mb-btn"
                 style="width: 200px">
-                Sessões
+                <i class="fa-solid fa-list"></i> Sessões
               </button>
             </form>
             <form action="{% url 'diario:group_members' grupo.id %}">
               <button
                 type="submit"
                 class="btn mb-btn"
-                style="width: 200px"
-              >
-                Membros
+                style="width: 200px">
+                <i class="fa-solid fa-users"></i> Membros
               </button>
             </form>
           </div>

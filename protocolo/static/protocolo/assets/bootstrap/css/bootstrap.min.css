@@ -3939,7 +3939,7 @@ fieldset:disabled .btn {
 }
 
 .btn-link:hover {
-    color: #3e5cb2
+    color: #4EB4BE;
 }
 
 .btn-link:disabled,
@@ -5718,7 +5718,7 @@ fieldset:disabled .btn {
     height: 1rem;
     overflow: hidden;
     font-size: 0.75rem;
-    background-color: #eaecf4;
+    background-color: #4EB4BE;
     border-radius: .35rem
 }
 
@@ -8627,7 +8627,7 @@ fieldset:disabled .btn {
 
 .text-primary {
     --bs-text-opacity: 1;
-    color: rgba(var(--bs-primary-rgb), var(--bs-text-opacity)) !important
+    color: var(--bs-blue)!important
 }
 
 .text-secondary {

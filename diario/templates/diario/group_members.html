@@ -3,25 +3,26 @@
 
 {% block style %}
 #content{
-    flex-direction: column;
-    justify-content: flex-start;
+flex-direction: column;
+justify-content: flex-start;
 }
 {% endblock %}
 {% block main %}
+<div class="column-orientation">
     <div class="container-fluid">
         <div class="container text-start">
             <div class="row">
                 <div class="col align-self-center">
                     <div class="titulo" style="display: flex;flex-direction: row;justify-content: space-between">
                         <div class="card-body" style="padding: 8px">
-                            <p class="text-primary m-0 fw-bold"
-                                style="margin: 5px; font-size: 26px">Membros do Grupo:
+                            <p class="m-0 fw-bold"
+                               style="margin: 5px; font-size: 26px; color: #4eb4be">Membros do Grupo:
                                 {{grupo}}</p>
                         </div>
                         <div>
                             <form action="{% url 'diario:grupo_details' grupo.id %}">
-                                <button type="submit" class="btn btn-outline-primary" style="width: 150px">
-                                    Anterior
+                                <button type="submit" class="btn mb-btn-outline" style="width: 150px">
+                                    <i class="fa-solid fa-angle-left"></i> Anterior
                                 </button>
                             </form>
                         </div>
@@ -47,27 +48,100 @@
                             <tbody>
                             {% for cuidador in cuidadores %}
                             <tr>
-                                <td style="text-align: center;">
+                                <td class="btn-link"  style="text-align: center;">
                                     {% if grupos_permissoes.exists %}
-                                        <a href="{% url 'diario:p_view' cuidador.id grupo.id %}">
+                                    <a style="color: #4eb4be;" href="{% url 'diario:p_view' cuidador.id grupo.id %}">
                                         {{ cuidador }}
-                                        </a>
+                                    </a>
                                     {% else %}
-                                        {{ cuidador }}
+                                    {{ cuidador }}
                                     {% endif %}
                                 </td>
                                 <td style="text-align: center;">{{ cuidador.email }}</td>
                                 <td style="text-align: center;">{{ cuidador.localizacao }}</td>
                                 <td style="text-align: center;">
-                                {{ cuidador.referenciacao }}
+                                    {{ cuidador.referenciacao }}
                                 </td>
                                 {% if grupos_permissoes.exists %}
                                 <td style="text-align: center;">
                                     <form action="{% url 'diario:caregiver_update' cuidador.id grupo.id %}">
-                                        <button class="btn btn-outline-warning">Alterar</button>
+                                        <button class="btn btn-outline-warning"><i class="fa fa-user-pen"></i> Alterar</button>
                                     </form>
                                 </td>
                                 <td style="text-align: center;">
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if grupos_permissoes.exists %}
+        <div class="container-fluid">
+            <div class="container text-center">
+                <div class="row">
+                    <div class="d-grid gap-4 d-md-flex justify-content-md-center" style="padding: 25px">
+                        <form action="{% url 'diario:create_caregiver' grupo.id %}">
+                            <button class="btn mb-btn-outline" style="border-radius: 8px;margin-right: 30px"><i class="fa fa-user-plus"></i> Registar
+                                Cuidador
+                            </button>
+                        </form>
+                        <button class="btn mb-btn-outline" type="button" style="border-radius: 8px"
+                                data-bs-toggle="modal" data-toggle="modal" data-target="#Cuidador_grupo"
+                                data-bs-target="#Cuidador_grupo">
+                            <i class="fa fa-user-tag"></i> Associar Cuidador
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+
+    <div class="container-fluid">
+        <div class="container text-start">
+            <div class="row">
+                <div class="col align-self-center">
+                    <div class="titulo">
+                        <div class="card-body" style="padding: 8px">
+                            <p class="m-0 fw-bold"
+                               style="margin: 5px; font-size: 26px; color: #4eb4be;">Dinamizadores do Grupo: {{grupo}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="card ">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th style="text-align: center;"><strong>Nome</strong></th>
+                                <th style="text-align: center;"><strong>E-mail</strong></th>
+                                <th style="text-align: center;"><strong>Localidade</strong></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for dinamizador in dinamizadores %}
+                            <tr>
+                                <td style="text-align: center;">{{ dinamizador }}</td>
+                                <td style="text-align: center;">{{ dinamizador.email }}</td>
+                                <td style="text-align: center;">{{ dinamizador.localizacao }}</td>
+                                <td style="text-align: center;"></td>
+                                {% if grupos_permissoes.exists %}
+                                <td>
+                                    <form action="{% url 'diario:dinamizador_update' dinamizador.id grupo.id %}">
+                                        <button class="btn btn-outline-warning"><i class="fa fa-user-pen"></i> Alterar</button>
+                                    </form>
                                 </td>
                                 {% endif %}
                             </tr>
@@ -83,188 +157,107 @@
             <div class="container text-center">
                 <div class="row">
                     <div class="d-grid gap-4 d-md-flex justify-content-md-center" style="padding: 25px">
-                        <form action="{% url 'diario:create_caregiver' grupo.id %}">
-                            <button class="btn btn-primary" style="border-radius: 8px;margin-right: 30px">Registar Cuidador</button>
+                        <form action="{% url 'diario:create_dinamizador' grupo.id %}">
+                            <button class="btn mb-btn-outline">
+                                <i class="fa fa-user-plus"></i> Registar Dinamizador
+                            </button>
                         </form>
-                        <button class="btn btn-primary " type="button" style="border-radius: 8px"
-                                data-bs-toggle="modal"  data-toggle="modal" data-target="#Cuidador_grupo" data-bs-target="#Cuidador_grupo">
-                            Associar Cuidador
+                        <button type="button" class="btn mb-btn-outline" data-bs-toggle="modal"
+                                data-bs-target="#Dinamizador_sem_grupo">
+                            <i class="fa fa-user-tag"></i> Associar Dinamizador
                         </button>
                     </div>
                 </div>
             </div>
+            <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
         </div>
         {% endif %}
     </div>
 
 
+    <!-- Create_dinamizador -->
+    <div class="modal" id="Create_dinamizador">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
 
-
-    <div class="container-fluid">
-        <div class="container text-start">
-            <div class="row">
-                <div class="col align-self-center">
-                    <div class="titulo">
-                        <div class="card-body" style="padding: 8px">
-                            <p class="text-primary m-0 fw-bold"
-                                style="margin: 5px; font-size: 26px">Dinamizadores do Grupo:
-                                {{grupo}}</p>
-                        </div>
-                    </div>
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Criação de um novo Dinamizador</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-        </div>
-                <div class="container">
-                    <div class="card ">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                    <tr>
-                                        <th style="text-align: center;"><strong>Nome</strong></th>
-                                        <th style="text-align: center;"><strong>E-mail</strong></th>
-                                        <th style="text-align: center;"><strong>Localidade</strong></th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for dinamizador in dinamizadores %}
-                                    <tr>
-                                        <td style="text-align: center;">{{ dinamizador }}</td>
-                                        <td style="text-align: center;">{{ dinamizador.email }}</td>
-                                        <td style="text-align: center;">{{ dinamizador.localizacao }}</td>
-                                        <td style="text-align: center;"></td>
-                                        {% if grupos_permissoes.exists %}
-                                        <td>
-                                            <form action="{% url 'diario:dinamizador_update' dinamizador.id grupo.id %}">
-                                                <button class="btn btn-outline-warning">Alterar</button>
-                                            </form>
-                                        </td>
-                                        {% endif %}
-                                    </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% if grupos_permissoes.exists %}
-                <div class="container-fluid">
-                    <div class="container text-center">
-                        <div class="row">
-                            <div class="d-grid gap-4 d-md-flex justify-content-md-center" style="padding: 25px">
-                                <form action="{% url 'diario:create_dinamizador' grupo.id %}">
-                                    <button class="btn btn-primary me-md-4" data-bs-toggle="modal"
-                                            data-bs-target="#Create_dinamizador">
-                                        Registar Dinamizador
-                                    </button>
-                                </form>
-                                <button type="button" class="btn btn-primary me-md-4" data-bs-toggle="modal"
-                                        data-bs-target="#Dinamizador_sem_grupo">
-                                    Associar Dinamizador
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                </div>
-                {% endif %}
-        </div>
-    </div>
-    
 
-    
-</div>
-</div>
-
-
-
-<!-- Create_dinamizador -->
-<div class="modal" id="Create_dinamizador">
-<div class="modal-dialog modal-lg">
-<div class="modal-content">
-
-    <!-- Modal Header -->
-    <div class="modal-header">
-        <h4 class="modal-title">Criação de um novo Dinamizador</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-    </div>
-
-    <!-- Modal body -->
-    <div class="modal-body">
-        <form action="" method="post">
-            {% csrf_token %}
-            <b>{{ formDinamizador.nome.label }}</b>
-            <p>{{ formDinamizador.nome }}</p>
-            <b>{{ formDinamizador.funcao.label }}</b>
-            <p>{{ formDinamizador.funcao }}</p>
-            <button type="submit" class="btn btn-primary">
-                Guardar
-            </button>
-        </form>
-    </div>
-
-    <!-- Modal footer -->
-    <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-    </div>
-
-</div>
-</div>
-</div>
-
-<!-- Dinamizador_sem_grupo -->
-<div class="modal" id="Dinamizador_sem_grupo">
-<div class="modal-dialog modal-lg modal-dialog-scrollable">
-<div class="modal-content">
-
-    <!-- Modal Header -->
-    <div class="modal-header">
-        <h4 class="modal-title">Lista de Dinamizadores</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-    </div>
-
-    <!-- Modal body -->
-    <div class="modal-body">
-        <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Pesquisar por ..."
-                style="background-position: 10px 12px;width: 100%;font-size: 16px;padding: 12px 20px 12px 40px;border: 1px solid #ddd;margin-bottom: 12px;border-radius: 10px;">
-        <table class="table table-hover" id="myTable">
-            <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Função</th>
-            </tr>
-            </thead>
-            {% for dinamizador in dinami %}
-            <tbody>
-            <tr>
-                <td>{{ dinamizador }}</td>
-                <td>{{ dinamizador.funcao }}</td>
-                <td>
-                    <form action="{% url 'diario:assign_dinamizador' grupo.id dinamizador.id %}">
-                        <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir
-                            grupo
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <b>{{ formDinamizador.nome.label }}</b>
+                        <p>{{ formDinamizador.nome }}</p>
+                        <b>{{ formDinamizador.funcao.label }}</b>
+                        <p>{{ formDinamizador.funcao }}</p>
+                        <button type="submit" class="btn btn-primary">
+                            Guardar
                         </button>
                     </form>
-                </td>
-            </tr>
-            <tbody>
-            {% endfor %}
-        </table>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn mb-btn-outline-danger" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+
+            </div>
+        </div>
     </div>
 
-    <!-- Modal footer -->
-    <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+    <!-- Dinamizador_sem_grupo -->
+    <div class="modal" id="Dinamizador_sem_grupo">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Lista de Dinamizadores</h4>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Pesquisar por ..."
+                           style="background-position: 10px 12px;width: 100%;font-size: 16px;padding: 12px 20px 12px 40px;border: 1px solid #ddd;margin-bottom: 12px;border-radius: 10px;">
+                    <table class="table table-hover" id="myTable">
+                        <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Função</th>
+                        </tr>
+                        </thead>
+                        {% for dinamizador in dinami %}
+                        <tbody>
+                        <tr>
+                            <td>{{ dinamizador }}</td>
+                            <td>{{ dinamizador.funcao }}</td>
+                            <td>
+                                <form action="{% url 'diario:assign_dinamizador' grupo.id dinamizador.id %}">
+                                    <button class="btn mb-btn" style="border-radius: 10px">Atribuir
+                                        grupo
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+
+            </div>
+        </div>
     </div>
 
-</div>
-</div>
-</div>
-
-<!-- The Modal  Cuidador sem grupo -->
+    <!-- The Modal  Cuidador sem grupo -->
     <div class="modal" id="Cuidador_grupo">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -276,7 +269,7 @@
                 <div class="modal-body">
 
                     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Pesquisar por ..."
-                        style="background-position: 10px 12px;width: 100%;font-size: 16px;padding: 12px 20px 12px 40px;border: 1px solid #ddd;margin-bottom: 12px;border-radius: 10px;">
+                           style="background-position: 10px 12px;width: 100%;font-size: 16px;padding: 12px 20px 12px 40px;border: 1px solid #ddd;margin-bottom: 12px;border-radius: 10px;">
                     <table class="table table-hover" id="myTable">
                         <thead>
                         <tr>
@@ -296,7 +289,7 @@
                             </td>
                             <td>
                                 <form action="{% url 'diario:filter_group' cuidador.id %}">
-                                    <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir
+                                    <button class="btn mb-btn" style="border-radius: 10px">Atribuir
                                         grupo
                                     </button>
                                 </form>
@@ -309,10 +302,12 @@
                 </div>
                 <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal" data-bs-dismiss="modal">Cancelar
+                    </button>
                 </div>
 
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

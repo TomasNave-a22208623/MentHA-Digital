@@ -4,30 +4,63 @@
 <div class="titulo" style="padding-top: 1.25rem;margin-top: 5px;">
     <div class="topo-exercicio">
         <div class="bcca-breadcrumb">
-            <form action="{% url 'diario:finalizar_sessao' sessaoGrupo.grupo.id sessaoGrupo.id %}" method="POST">
-                {% csrf_token %}
-                <div class="bcca-breadcrumb-item-last fw-normal fs-4"><button>Terminar</button></div>
-            </form>
-            <div class="bcca-breadcrumb-item fw-normal fs-4">{{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}</div>
+            {% if sessaoGrupo.grupo.programa == "CARE" %}
+                {% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase != parte.FINAL and grupos_permissoes.exists %}
+                    <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
+                        {% csrf_token %}
+                        <div class="bcca-breadcrumb-item-last fw-normal fs-4"><button>Terminar Parte</button></div>
+                    </form>
+                {% elif parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase == parte.FINAL and grupos_permissoes.exists %}
+                    <form action="{% url 'diario:finalizar_sessao' sessaoGrupo.grupo.id sessaoGrupo.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="bcca-breadcrumb-item-last fw-normal fs-4"><button>Terminar Sessão</button></div>
+                    </form>
+                {% endif %}
+            {% else %}
+                {% if parteGrupo.concluido == False  and exercicio.id == proxima_parte and parteGrupo.inicio != None %}
+                    <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'finalizar'%}" method="POST">
+                        {% csrf_token %}
+                        <div class="bcca-breadcrumb-item-last fw-normal fs-4"><button>Terminar Parte</button></div>
+                    </form>
+                {% endif %}
+            {% endif %}
+
+            {% if sessaoGrupo.grupo.programa == "CARE" %}
+                <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'continuar' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="bcca-breadcrumb-item fw-normal fs-4">
+                        <button>&ensp;<i class="fa-solid fa-chalkboard-user" style="color:white;"></i> {{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}} &nbsp;</button>
+                    </div>
+                </form>
+            {% elif sessaoGrupo.grupo.programa == "COG" %}
+                <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'continuar' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="bcca-breadcrumb-item fw-normal fs-4">
+                        <button>&ensp;<i class="fa-solid fa-chalkboard-user" style="color:white;"></i> {{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}</button>
+                    </div>
+                </form>
+            {% endif %}
+
             <div class="bcca-breadcrumb-item fw-normal fs-4">
                 <a href="{% url 'diario:group_sessions' sessaoGrupo.grupo.id %}" >
-                    Sessões
+                    <i class="fa-solid fa-list" style="color:white;"></i> Sessões
                 </a>
             </div>
             <div class="bcca-breadcrumb-item fw-normal fs-4">
                 <a href="{% url 'diario:grupo_details' sessaoGrupo.grupo.id %}">
-                    {{sessaoGrupo.grupo}}
+                    <i class="fa-solid fa-user-group" style="color:white;"></i> {{sessaoGrupo.grupo}}
                 </a>
             </div>
           </div>
+
           <div style="width:250px" class="esquerda">
             {% if parteGrupo.duracao_minutos > dura %}
                 <div style="width:100%; height:40px;" class="progress">
                     <div id="timer" class="progress-bar" role="progressbar"
-                            style="width: {{ parteGrupo.duracao_minutos }}%; background-color: #dc3545;"
+                            style="width: {{ parteGrupo.duracao_minutos }}%; background-color: #4eb4be"
                             aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0"
                             aria-valuemax="{{ dura }}">
-                            {{ duracao_segundos }} 
+                            {{ duracao_segundos }}
                     </div>
                 </div>
             {% else %}
@@ -36,12 +69,12 @@
                             style="width: {{ parteGrupo.duracao_minutos }}%;"
                             aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0"
                             aria-valuemax="{{ dura }}">
-                            {{ duracao_segundos }} 
+                            {{ duracao_segundos }}
 
                     </div>
                 </div>
             {% endif %}
-        </div> 
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -52,13 +85,13 @@
 
 
     <h5 class="m-0 fw-bold mb-text fs-4 mt-4">Sumário</h5>
-    
+
     {{ parte.descricao | markdownify }}</span>
     {% if parte.materiais|length > 0 %}
-    
+
         <h5 class="m-0 fw-bold mb-text fs-5 mt-4">Materiais</h5>
         <span class="">{{ parte.materiais | markdownify }}</span>
-   
+
     {% endif %}
 
 
@@ -67,17 +100,19 @@
     <ul class="">
         <li>
             <a href="{{ parte.apresentacao.url }}">
-                Descarregar apresentação 📃
+                <button type="button" class="btn mb-btn-outline btn-sm" style="margin:5px">
+                    <i class="fa-solid fa-display"></i> Descarregar apresentação
+                </button>
             </a>
         </li>
     </ul>
     {% endif %}
 
     {% if parte.atividades.all|length > 0 %}
-    
+
     <h5 class="m-0 fw-bold mb-text fs-5 mt-4">Atividades</h5>
     {% for atividade in parte.atividades.all %}
-    
+
     <span class="">Atividade {{ atividade.numero }} - {{ atividade.nome }}</span>
 
     <span class="">
@@ -94,7 +129,7 @@
         {% for qu in parte.questionarios.all %}
         <li>
         <a href="{% url 'diario:view_abrirQuestionario' qu.id parte.id sessaoGrupo.id  %}">
-            <button type="button" class="btn mb-btn-outline btn-sm" style="margin:5px" data-parte="{{qu.id}}">Questionário {{ qu.numeroOrdem }}</button>
+            <button type="button" class="btn mb-btn-outline btn-sm" style="margin:5px" data-parte="{{qu.id}}"><i class="fa-solid fa-clipboard-question"></i> Questionário {{ qu.numeroOrdem }}</button>
         </a>
         </li>
         {% endfor %}
@@ -114,36 +149,44 @@
     </div>
     <div style ="width:25%" class="direita">
         {% if estado != "ver" %}
-        <h5 class=" m-6 fw-bold">
-            Duração
-            <span class=" m-6 fw-normal text-muted">
-                {{ dura }} minutos
-            </span> 
-        </h5>
-        <div style ="width:100%"class="progress">
-            <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%;" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
-                    {{ parteGrupo.duracao_minutos }}m
-            </div>
-        </div>
+            <h5 class=" m-6 fw-bold">
+                Duração
+                <span class=" m-6 fw-normal text-muted">
+                    {{ dura }} minutos
+                </span>
+            </h5>
+            {% if parteGrupo.duracao_minutos > dura %}
+                <div style ="width:100%; margin-top: 5px;"class="progress">
+                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%; background-color: #dc3545" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
+                        {{ parteGrupo.duracao_minutos }}m
+                    </div>
+                </div>
+            {% else %}
+                <div style ="width:100%; margin-top: 5px;"class="progress">
+                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%;" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
+                        {{ parteGrupo.duracao_minutos }}m
+                    </div>
+                </div>
+            {% endif %}
         {% elif estado == "ver" %}
-            {% if parteGrupo.concluido %} 
+            {% if parteGrupo.concluido %}
             <h5 class=" m-6 fw-bold">
                 Duração
                 <span class=" m-6 fw-normal text-muted">
                     {{ parteGrupo.duracao_em_horas_minutos }} de {{ dura }} minutos
-                </span> 
+                </span>
             </h5>
             {% else %}
             <h5 class=" m-6 fw-bold">
                 Duração
                 <span class=" m-6 fw-normal text-muted">
                     {{ dura }} minutos
-                </span> 
+                </span>
             </h5>
             {% endif %}
         {% endif %}
     </div>
-</div>  
+</div>
 <div style= "padding-top:15px;" id="accordion">
     <div class="card">
       <div class="card-header" id="headingOne">
@@ -153,7 +196,7 @@
           </button>
         </h5>
       </div>
-  
+
       <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
         <div class="card-body">
           {{ exercicio.material | markdownify }}
@@ -170,7 +213,7 @@
       </div>
       <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
         <div class="card-body">
-        {{ exercicio.instrucao | markdownify }}  
+        {{ exercicio.instrucao | markdownify }}
         </div>
       </div>
     </div>
@@ -201,8 +244,8 @@
             {% endif %}
 
             {% if parte.descricao|length > 0 %}
-                
-            <div style ="padding-bottom: 3%;"class = "exercicio-descricao center 
+
+            <div style ="padding-bottom: 3%;"class = "exercicio-descricao center
             {% if parte.descricao|length > 150 %}
             h5
             {% else %}
@@ -212,7 +255,7 @@
                 {{ parte.descricao|markdownify }}
             </div>
             {% endif %}
-            
+
             {% if parte.perguntas.all|length > 0%}
                 {% csrf_token %}
                 <div class = "flex-container">
@@ -223,7 +266,7 @@
                             {{ pergunta.dificuldade }}
                         </div>
                         {% endif%}
-                   
+
                     {% for perg,parte_ordem,form in form_list %}
                         {% if perg == pergunta and parte_ordem == parte.ordem %}
                             {% if pergunta.tipo_resposta == 'UPLOAD_FOTOGRAFIA' %}
@@ -231,7 +274,7 @@
                                     {% for field in form %}
                                         <label>{{ pergunta.nome }}</label>
                                         <div>
-                                            {{ field }} 
+                                            {{ field }}
                                             <span style="display:none">{{perg.id}}</span>
                                             <span style="display:none">{{parte.id}}</span>
                                         </div>
@@ -243,7 +286,7 @@
                                 {% for field in form %}
                                     <label>{{ pergunta.nome }}</label>
                                     <div>
-                                        {{ field }} 
+                                        {{ field }}
                                         <span style="display:none">{{perg.id}}</span>
                                         <span style="display:none">{{parte.id}}</span>
                                     </div>
@@ -256,11 +299,11 @@
                             {% endif %}
                         {% endif %}
                     {% endfor %}
-                </div> 
-            
+                </div>
+
                 {% endfor %}
                 <button onclick="submete({{sessaoGrupo.id}},{{parteGrupo.id}},{{participante.id}})" type="button" class="btn btn-primary">Submeter</button>
-            
+
             </div>
             {% endif %}
 

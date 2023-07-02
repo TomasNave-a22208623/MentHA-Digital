@@ -29,11 +29,11 @@
                     display.style.width = perc+'%';
                     duration++;
             }, 1000);
-            }   
+            }
         display = document.querySelector("#timer");
         var duration = parseInt(display.innerHTML, 10) // 60;
         startTimer(duration, display);
-        }   
+        }
     });
     };
     });
@@ -42,13 +42,13 @@
 
 {% block diario %}
 
-
+<body style="overflow: hidden;">
     <!--Direita-->
     <div id="diario" class="card">
         <button type="button" class="diario-toggle-btn shadow-lg" style="left: -3px;">
-            <i id="btn-diario" class="fa-solid fa-chevron-left"></i>
+            <i id="btn-diario" class="fa-solid fa-chevron-left" style="margin-right: 30%"></i>
         </button>
-        <span id="logo" class="fs-5 brand-text" style="text-align:left;margin-top:0.9rem;">Diário de Bordo</span>  
+        <span id="logo" class="fs-5 brand-text" style="text-align:left;margin-top:0.9rem;">Diário de Bordo</span>
         <div class="card-body" id="diario-de-bordo">
             {% if grupos_permissoes.exists %}
                 <!-- Participantes -->
@@ -91,37 +91,25 @@
                     </div>
                     <div>
                     </div>
+                {% else %}
+                    <div class="diario">
+                        <button id="participante_notas" class="menu" data-menu="notas"
+                                data-participante="{{ cuidador.id }}"
+                                data-sessaogrupo="{{ sessaoGrupo.id }}">Notas
+                        </button>
+                        <button id="participante_partilhas" class="menu" data-menu="partilhas"
+                                style="color:white;" data-participante="{{ cuidador.id }}"
+                                data-sessaogrupo="{{ sessaoGrupo.id }}">Partilhas
+                        </button>
+                        <div class="info">
+                        </div>
+                    </div>
+                    <div>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
-
-    <div id="open-panel-btn" onclick="togglePopoutPanel()">
-        <i class="fa fa-chevron-left" style="font-size: 25px; right: -1%; padding-left: 0%;"></i>
-    </div>
-
-    <script>
-        function togglePopoutPanel() {
-            const sidePanelContainer = document.getElementById('side-panel-container');
-            const openPanelButton = document.getElementById('open-panel-btn');
-            var button = document.getElementById('open-panel-btn');
-            mostraDiarioBordo()
-
-            if (sidePanelContainer.style.right === '0%') {
-                // Close the panel
-                sidePanelContainer.style.right = '-50%';
-                openPanelButton.style.right = '-1%';
-                button.style.transform = 'rotate(0deg) scale(1.2)';
-                button.style.paddingLeft = '0%';
-            } else {
-                // Open the panel
-                sidePanelContainer.style.right = '0%';
-                openPanelButton.style.right = '49%'; // Adjust this value to match the width of the side panel
-                button.style.transform = 'rotate(180deg) scale(1.2)';
-                button.style.paddingLeft = '1.9%';
-            }
-        }
-    </script>
 {% endblock %}
 
 <form action="{% url 'diario:group_sessions' sessaoGrupo.grupo.id %}">
@@ -133,24 +121,22 @@
 {% block main %}
     {% load markdownify %}
     <!--Esquerda-->
-
 <div class="esquerda container-fluid" style="width:100%; border-color:white;">
     <div id="exercicio" data-estado="{{ estado }}" style="padding: 8px;">
         <div class="topo-exercicio">
             <div class="bcca-breadcrumb">
-                <form action="{% url 'diario:finalizar_sessao' grupo.id sessaoGrupo.id %}" method="POST">
-                    {% csrf_token %}
-                    <div class="bcca-breadcrumb-item-last fw-normal fs-4"><button>Terminar</button></div>
-                </form>
-                <div class="bcca-breadcrumb-item fw-normal fs-4">{{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}</div>
+                <div class="bcca-breadcrumb-item-last fw-normal fs-4" style="display:none"></div>
                 <div class="bcca-breadcrumb-item fw-normal fs-4">
-                    <a href="{% url 'diario:group_sessions' grupo.id %}" >
-                        Sessões
+                    <i class="fa-solid fa-chalkboard-user" style="color:white;"></i>  {{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}
+                </div>
+                <div class="bcca-breadcrumb-item fw-normal fs-4">
+                    <a href="{% url 'diario:group_sessions' grupo.id %}">
+                        <i class="fa-solid fa-list" style="color:white;"></i> Sessões
                     </a>
                 </div>
                 <div class="bcca-breadcrumb-item fw-normal fs-4">
                     <a href="{% url 'diario:grupo_details' grupo.id %}">
-                        {{sessaoGrupo.grupo}}
+                        <i class="fa-solid fa-user-group" style="color:white;"></i> {{sessaoGrupo.grupo}}
                     </a>
                 </div>
               </div>
@@ -171,7 +157,6 @@
                                 aria-valuenow="{{ tempo_total_partes_grupo }}" aria-valuemin="0"
                                 aria-valuemax="{{ tempo_total_partes }}">
                                 {{ tempo_total_partes_grupo }}m / {{ tempo_total_partes }}m
-
                         </div>
                     </div>
                 {% endif %}
@@ -183,16 +168,17 @@
                 Tema
             </h5>
             <span id="tema" style="margin-bottom:15px"> {{ sessaoGrupo.sessao.tema | markdownify }} </span>
-            
+
         {% endif %}
         <h5 class="m-0 fw-bold mb-text fs-4 mt-4 mb-2">
-            Planificação da Sessão 
+            Planificação da Sessão
         </h5>
 
 
         <table class="table tabela-sessao table-hover ee">
             <thead class="table-light">
             <tr>
+                <th scope="col"></th>
                 {% if sessaoGrupo.grupo.programa ==  'CARE' %}
                     <th scope="col">Fase</th>
                     <th scope="col">Objetivo</th>
@@ -204,14 +190,54 @@
                     <th scope="col" style="text-align:center;">Estado</th>
                     <th scope="col" style="text-align:center;">Duração</th>
                 {% endif %}
-                <th scope="col"></th>
             </tr>
             </thead>
-            <tbody class="table-group-divider">
+            <tbody class="table-group-divider" style="vertical-align: middle;">
             {% for parte_do_grupo in partesGrupo %}
                 <tr>
+                    <td
+                    {% if parte_do_grupo.concluido == True %}
+                        style="color: grey;"
+                    {% endif %} >
+                        {% if parte_do_grupo.inicio == None and pode_iniciar and grupos_permissoes.exists %}
+                            {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
+                                <button type="button" class="btn btn-primary iniciar mb-btn btn-sessao" style="width: 100%"
+                                        {% if sessaoGrupo.grupo.programa == "CARE" %}
+                                            data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
+                                        {% elif sessaoGrupo.grupo.programa == "COG" %}
+                                            data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
+                                        {% endif %}
+                                Iniciar
+                                </button>
+                            {% endif %}
+                        {% elif  parte_do_grupo.inicio != None and grupos_permissoes.exists %}
+                            {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
+                                <button type="button" class="btn btn-primary continuar mb-btn btn-sessao" style="width: 100%"
+                                        {% if sessaoGrupo.grupo.programa == "CARE" %}
+                                            data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
+                                        {% elif sessaoGrupo.grupo.programa == "COG" %}
+                                            data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
+                                        {% endif %}
+                                Continuar
+                                </button>
+                            {% endif %}
+                        {% elif grupos_permissoes.exists %}
+                            <button type="button" class="btn btn-outline-secondary ver mb-btn btn-sessao" style="width: 100%"
+                                    {% if sessaoGrupo.grupo.programa == "CARE" %}
+                                        data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}">
+                                    {% elif sessaoGrupo.grupo.programa == "COG" %}
+                                        data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}">
+                                    {% endif %}
+                            Ver
+                            </button>
+                        {% endif %}
+                    </td>
+
                     {% if sessaoGrupo.grupo.programa == "CARE" %}
-                        <td>
+                        <td
+                    {% if parte_do_grupo.concluido == True %}
+                        style="color:grey;"
+                    {% endif %} >
                             {% if parte_do_grupo.parte.fase == 'I' %}
                                 Inicial
                             {% endif %}
@@ -222,14 +248,23 @@
                                 Final
                             {% endif %}
                         </td>
-                        <td>
+                        <td
+                    {% if parte_do_grupo.concluido == True %}
+                        style="color:grey;"
+                    {% endif %} >
                             {{ parte_do_grupo.parte.objetivo }}
                         </td>
                     {% elif sessaoGrupo.grupo.programa == "COG" %}
-                        <td>
+                        <td
+                    {% if parte_do_grupo.concluido == True %}
+                        style="color:grey;"
+                    {% endif %} >
                             {{ parte_do_grupo.exercicio.dominio }}
                         </td>
-                        <td>
+                        <td
+                    {% if parte_do_grupo.concluido == True %}
+                        style="color:grey;"
+                    {% endif %} >
                             {{ parte_do_grupo.exercicio.descricao | markdownify }}
                         </td>
                     {% endif %}
@@ -243,12 +278,16 @@
                         <div class="w-10 h-10 mb-bg rounded-circle flex m-auto justify-content-center align-items-center align-self-center" style="background-color:red;">
                             <i class="fa fa-times icon-bg" aria-hidden="true"></i>
                         </div>
-                            
                         {% endif %}
                         </td>
                     {% endif %}
                     {% if grupos_permissoes.exists %}
-                        <td style="text-align: center;">
+                        <td
+                    {% if parte_do_grupo.concluido == True %}
+                        style="color:grey; text-align:center;"
+                    {% else %}
+                        style="text-align:center;"
+                    {% endif %} >
                             {% if parte_do_grupo.duracao != None %}
                                 {% if sessaoGrupo.grupo.programa == "CARE" %}
                                     {{ parte_do_grupo.duracao_em_horas_minutos }} -
@@ -257,45 +296,9 @@
                                     {{ parte_do_grupo.duracao_em_horas_minutos }} -
                                     {{ parte_do_grupo.exercicio.duracao }} min
                                 {% endif %}
-
                             {% endif %}
                         </td>
                     {% endif %}
-                    <td>
-                        {% if parte_do_grupo.inicio == None and pode_iniciar and grupos_permissoes.exists %}
-                            {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
-                                <button type="button" class="btn btn-primary iniciar mb-btn btn-sessao"
-                                        {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                            data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
-                                        {% elif sessaoGrupo.grupo.programa == "COG" %}
-                                            data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
-                                        {% endif %}
-                                Iniciar
-                                </button>
-                            {% endif %}
-                        {% elif  parte_do_grupo.inicio != None and grupos_permissoes.exists %}
-                            {% if parte_do_grupo.parte.id == proxima_parte or parte_do_grupo.exercicio.id == proxima_parte %}
-                                <button type="button" class="btn btn-primary continuar mb-btn btn-sessao"
-                                        {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                            data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
-                                        {% elif sessaoGrupo.grupo.programa == "COG" %}
-                                            data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
-                                        {% endif %}
-                                Continuar
-                                </button>
-                            {% endif %}
-                        {% elif grupos_permissoes.exists %}
-                            <button type="button" class="btn btn-outline-secondary ver mb-btn btn-sessao"
-                                    {% if sessaoGrupo.grupo.programa == "CARE" %}
-                                        data-parte="{{ parte_do_grupo.parte.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}">
-                                    {% elif sessaoGrupo.grupo.programa == "COG" %}
-                                        data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}">
-                                    {% endif %}
-                            Ver
-                            </button>
-                        {% endif %}
-
-                    </td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -304,3 +307,4 @@
 </div>
 
 {% endblock %}
+</body>

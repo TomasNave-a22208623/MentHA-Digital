@@ -47,7 +47,7 @@ margin:0.4em auto;
         <p class="m-0 fw-bold mb-text fs-4">Questionário da sessão</p>
     
         <a class="no-decor" onclick="history.back()">
-            <button class="btn mb-btn-outline" style="width:150px">Voltar</button>
+            <button class="btn mb-btn-outline" style="width:150px"><i class="fa-solid fa-angle-left"></i> Voltar</button>
         </a>
     </div>
 
@@ -62,7 +62,7 @@ margin:0.4em auto;
             {% for parte in parte %}
             {% for qu in questionario %}
             <a class="no-decor" href="{% url 'diario:view_questionario' qu.id parte.id sessaoGrupo %}">
-                <button class="btn mb-btn">Abrir Questionário</button>
+                <button class="btn mb-btn-outline"><i class="fa-solid fa-clipboard-question"></i> Abrir Questionário</button>
             </a>
             {% endfor %}
             {% endfor %}
@@ -71,7 +71,7 @@ margin:0.4em auto;
             {% for parte in parte %}
             {% for qu in questionario %}
             <a class="no-decor" href="{% url 'diario:resultados' qu.id parte.id sessaoGrupo %}">
-                <button class="btn mb-btn-outline">Resultados</button>
+                <button class="btn mb-btn-outline"><i class="fa-solid fa-chart-column"></i> Resultados</button>
             </a>
             {% endfor %}
             {% endfor %}

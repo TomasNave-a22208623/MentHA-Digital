@@ -2,7 +2,7 @@
 {% load static %}
 {% block main %}
     <div class="container-fluid">
-        <div  style="padding: 8px">
+        <div style="padding: 8px">
             <p class="m-0 fw-bold mb-text fs-4">Grupos</p>
             <div class="table-responsive" >
                 <table class="table table-hover">
@@ -18,11 +18,11 @@
                     </thead>
                     <tbody>
                     {% for grupo in grupos %}
-                    <tr>
+                    <tr style="vertical-align: middle;">
                         <td style="text-align: center;">
                             <form action="{% url 'diario:grupo_details' grupo.id %}">
-                                <button class="btn mb-bg btn-group" style="width:90%;justify-content: center;">
-                                    <i class="fa-solid fa-user-group" style="top: 10px;left: 25px;position: absolute;"></i>
+                                <button class="btn mb-btn btn-group" style="width:100%;justify-content: center;">
+                                    <i class="fa-solid fa-user-group" style="top: 25%; left: 5%; position: absolute;"></i>
                                     <span>{{ grupo }}</span>
                                 </button>
                             </form>
@@ -32,7 +32,7 @@
                         <td style="text-align: center;">{{ grupo.localizacao }}</td>
                         <td style="text-align: center;">{{ grupo.referenciacao }}</td>
                         <td style="text-align: center;">
-                            {{ grupo.nr_membros }}
+                            <i class="fa-solid fa-users"></i> {{ grupo.nr_membros }}
                         </td>
                     </tr>
                     {% empty %}
@@ -45,11 +45,10 @@
                 <div class="d-grid gap-3 d-md-flex justify-content-md-end">
                     <button class="btn btn-outline-primary mb-btn-outline" type="button" style="border-radius: 8px"
                             data-bs-toggle="modal"  data-toggle="modal" data-target="#Cuidador_grupo" data-bs-target="#Cuidador_grupo">
-                        Cuidadores
-                        sem grupo
+                        <i class="fa-solid fa-user-plus"></i> Cuidadores sem grupo
                     </button>
                     <form action="{% url 'diario:new_group' %}">
-                        <button class="btn btn-outline-primary mb-btn-outline" style="border-radius: 8px">Criar grupo</button>
+                        <button class="btn btn-outline-primary mb-btn-outline" style="border-radius: 8px"> <i class="fa-solid fa-plus"></i> Criar grupo</button>
                     </form>
                 </div>
             </div>
@@ -89,8 +88,7 @@
                             </td>
                             <td>
                                 <form action="{% url 'diario:filter_group' cuidador.id %}">
-                                    <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir
-                                        grupo
+                                    <button class="btn btn-primary btn-sm" style="border-radius: 10px">Atribuir grupo
                                     </button>
                                 </form>
                             </td>
@@ -102,7 +100,7 @@
                 </div>
                 <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal" data-bs-dismiss="modal">Close
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal" data-bs-dismiss="modal">Close
                     </button>
                 </div>
 
