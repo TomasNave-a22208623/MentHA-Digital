@@ -29,26 +29,26 @@
                 <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'continuar' %}" method="POST">
                     {% csrf_token %}
                     <div class="bcca-breadcrumb-item fw-normal fs-4">
-                        <button>&ensp; {{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}} &nbsp;</button>
+                        <button>&ensp;<i class="fa-solid fa-chalkboard-user" style="color:white;"></i> {{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}} &nbsp;</button>
                     </div>
                 </form>
             {% elif sessaoGrupo.grupo.programa == "COG" %}
                 <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'continuar' %}" method="POST">
                     {% csrf_token %}
                     <div class="bcca-breadcrumb-item fw-normal fs-4">
-                        <button>&ensp; {{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}</button>
+                        <button>&ensp;<i class="fa-solid fa-chalkboard-user" style="color:white;"></i> {{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}</button>
                     </div>
                 </form>
             {% endif %}
 
             <div class="bcca-breadcrumb-item fw-normal fs-4">
                 <a href="{% url 'diario:group_sessions' sessaoGrupo.grupo.id %}" >
-                    Sessões
+                    <i class="fa-solid fa-list" style="color:white;"></i> Sessões
                 </a>
             </div>
             <div class="bcca-breadcrumb-item fw-normal fs-4">
                 <a href="{% url 'diario:grupo_details' sessaoGrupo.grupo.id %}">
-                    {{sessaoGrupo.grupo}}
+                    <i class="fa-solid fa-user-group" style="color:white;"></i> {{sessaoGrupo.grupo}}
                 </a>
             </div>
           </div>
@@ -100,7 +100,9 @@
     <ul class="">
         <li>
             <a href="{{ parte.apresentacao.url }}">
-                Descarregar apresentação 📃
+                <button type="button" class="btn mb-btn-outline btn-sm" style="margin:5px">
+                    <i class="fa-solid fa-display"></i> Descarregar apresentação
+                </button>
             </a>
         </li>
     </ul>
