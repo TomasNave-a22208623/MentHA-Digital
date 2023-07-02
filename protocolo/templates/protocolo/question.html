@@ -3,6 +3,7 @@
 <div class="container-fluid">
     <div class="" style="padding: 8px">
         <div class="card-body card-flex" style="padding: 8px">
+            {% if concluido_risk is False %}
             {% include 'protocolo/tree.html' %}
             <a class="btn jq-btn btn-primary mb-btn btn-sm d-none d-sm-inline-block report-button"
                 role="button"
@@ -11,6 +12,7 @@
                 style="display: flex!important;height: 40px;width: 150px;align-items: center;justify-content: space-around;">
                 <i class="fas fa-download fa-sm text-white-50"></i>&nbsp;Gerar Relatório
             </a>
+            {% endif %}
         </div>
         <div class="">
             {% if question.description %}

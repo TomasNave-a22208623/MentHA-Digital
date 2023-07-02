@@ -3,18 +3,18 @@
 <script src="{% static 'protocolo/js/registo.js' %}?{% now 'U' %}"></script>
 <link href="{% static 'protocolo/stylingForm.css' %}" rel="stylesheet">
 {% endblock %}    
-<div class="container-form">
+<div class="container-form-registo">
     <form id="patient-form" action="" method="POST">
         {% csrf_token %}
         <div>
-            <label for="nome"><b>Nome</b></label>
+            <label for="nome" class="label"><b>Nome</b></label>
             <div class="input-class">
                     <input class="form-input-registo" type="text" id="nome" name="nome" required>
             </div>
         </div>
         <br>
         <div>
-                <label for="email"><b>Indique o seu email</b></label>
+                <label for="email" class="label"><b>Indique o seu email</b></label>
                 <div class="input-class">
                     <input class="form-input-registo" type="text" id="email" name="email" required>
                 </div>
@@ -22,7 +22,7 @@
         <br>
         <div>
 
-            <label for="sexo"><b>Indique o seu sexo</b></label>
+            <label for="sexo" class="label"><b>Indique o seu sexo</b></label>
             <div class="select-containers">
                 <select class="select" id="sexo" name="sexo">
                     <option value="Masculino">Masculino</option>
@@ -33,20 +33,20 @@
         </div>
         <br>
         <div>
-                <label for="telemovel"><b>Indique o seu telemovel</b></label>
+                <label for="telemovel" class="label"><b>Indique o seu telemovel</b></label>
                 <div class="input-class">
                     <input class="form-input-registo" type="text" id="telemovel" name="telemovel" required>
                 </div>
         </div>
         <div>
-                <label for="nascimento"><b>Indique a sua data de Nascimento</b></label>
+                <label for="nascimento" class="label"><b>Indique a sua data de Nascimento</b></label>
                 <div class="input-class">
                     <input class="form-input-registo" type="date" id="nascimento" name="nascimento" required>
                 </div>
         </div>
         <br>
         <div>
-                <label for="referenciacao"><b>Qual é a referenciacao</b></label>
+                <label for="referenciacao" class="label"><b>Qual é a referenciacao</b></label>
                 <div class="select-containers">
                     <select class="select" id="referenciacao" name="referenciacao">
                         <option value="ADEB"> ADEB</option>
@@ -59,9 +59,12 @@
                 </div>
             </div>
             <br>
-        <button id="btn-popup" class="btn btn-primary btn-registar flex-left" type="submit" data-href="{% url 'protocolo:participantes_registo' %}"> 
+        <button id="btn-popup" class="btn    mb-btn-outline btn-registar flex-left" type="submit" data-href="{% url 'protocolo:participantes_registo' %}"> 
             <i class="fa fa fa-user-plus"></i>&nbsp Registar
-        </button>                                                
+        </button>
+        <button id="btn-popup" class="btn mb-btn-outline flex-left" data-href="{% url 'protocolo:participants' %}"> 
+            <i class="fa fa fa-chevron-left"></i> Anterior
+        </button>                                                  
     </form>
 </div>
     {% comment %} {% for field in form %}

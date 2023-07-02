@@ -430,7 +430,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     form_risk = FormRisk(request.POST or None)
     patient = Participante.objects.get(pk=patient_id)
     r = Resolution.objects.filter(patient=patient, doctor=request.user, part=parteDoUtilizador)
-   
+    concluido_risk= False
     
     if len(r) == 0 and parteDoUtilizador.part.name == 'MentHA-Risk':
         r = Resolution.objects.create(patient=patient, doctor=request.user, part=parteDoUtilizador)
@@ -742,24 +742,29 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 patient.save()
 
         elif question.question_type == 12:
+            concluido_risk = True
             ris = None
             cwd = os.getcwd()
             cwd2 = os.path.join(cwd, 'protocolo', 'static', 'protocolo', 'data_risk')
             file_path_men = os.path.join(cwd2, 'risk_men.json')
             file_path_women = os.path.join(cwd2, 'risk_women.json')
             new_risk= Risk()
-            colestrol_virgula = 0.0
             new_risk.idade = request.POST.get('idade')
             new_risk.sexo = request.POST.get('sexo')
             new_risk.peso = request.POST.get('peso')
+            new_risk.peso = new_risk.peso.replace(',', '.')
             new_risk.altura = request.POST.get('altura')
             new_risk.pressao_arterial = request.POST.get('pressao_arterial')
             new_risk.colestrol_total = request.POST.get('colestrol_total') 
+            new_risk.colestrol_total = new_risk.colestrol_total.replace(',', '.')
             new_risk.colestrol_hdl = request.POST.get('colestrol_hdl')
+            new_risk.colestrol_hdl = new_risk.colestrol_hdl.replace(',', '.')
             new_risk.colestrol_nao_hdl = request.POST.get('colestrol_nao_hdl')
+            new_risk.colestrol_nao_hdl = new_risk.colestrol_nao_hdl.replace(',', '.')
             new_risk.fumador = request.POST.get('fumador')
             new_risk.diabetes = request.POST.get('diabetes')
             new_risk.hemoglobina_gliciada = request.POST.get('hemoglobina_gliciada')
+            new_risk.hemoglobina_gliciada = new_risk.hemoglobina_gliciada.replace(',', '.')
             anos_diabete = request.POST.get('anos_diabetes')
             if anos_diabete == '':
                 anos_diabete = 0
@@ -770,20 +775,11 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             new_risk.doenca_pernas = request.POST.get('doenca_pernas')
             new_risk.hipercolestrol = request.POST.get('hipercolestrol')
             new_risk.comentario = request.POST.get('comentario')
-            colestrol_virgula = new_risk.colestrol_total
-            colestrol_virgula = str(colestrol_virgula)
-            if request.POST.get('colestrol_total')[1] == ',':
-                print("ENTROU NO IF")
-                colestrol_virgula = colestrol_virgula.replace(',','.')
-                print(colestrol_virgula)
-                print("SAIU DO IF")
-            elif request.POST.get('colestrol_total')[1] == '.':
-                colestrol_virgula = colestrol_virgula
             if request.POST.get('sexo') == 'F':
-                risco = risk_json(file_path_women, new_risk.fumador, new_risk.idade, colestrol_virgula,new_risk.pressao_arterial)
+                risco = risk_json(file_path_women, new_risk.fumador, new_risk.idade, float(new_risk.hemoglobina_gliciada),new_risk.pressao_arterial)
                 new_risk.risco_de_enfarte = risco
             elif request.POST.get('sexo') == 'M':
-                risco = risk_json(file_path_men, new_risk.fumador, new_risk.idade, colestrol_virgula,new_risk.pressao_arterial)
+                risco = risk_json(file_path_men, new_risk.fumador, new_risk.idade, float(new_risk.hemoglobina_gliciada),new_risk.pressao_arterial)
                 new_risk.risco_de_enfarte = risco
             new_risk.parteDoUtilizador = parteDoUtilizador
             new_risk.concluido = True
@@ -799,19 +795,26 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 ris = new_risk
             else:
                 # modifica a resposta existente
+                existing_risk.peso = request.POST.get('peso')
+                for i in range(len(existing_risk.peso)):
+                    if existing_risk.peso[i] == ',':
+                        existing_risk.peso = existing_risk.peso.replace(',','.')
                 existing_risk.peso = float(existing_risk.peso)
-
+                #outro
                 existing_risk.idade = request.POST.get('idade')
                 existing_risk.sexo = request.POST.get('sexo')
-                existing_risk.peso = request.POST.get('peso')
                 existing_risk.altura = request.POST.get('altura')
                 existing_risk.pressao_arterial = request.POST.get('pressao_arterial')
                 existing_risk.colestrol_total = request.POST.get('colestrol_total')
+                existing_risk.colestrol_total = existing_risk.colestrol_total.replace(',','.')
                 existing_risk.colestrol_hdl = request.POST.get('colestrol_hdl')
+                existing_risk.colestrol_hdl = existing_risk.colestrol_hdl.replace(',','.')
                 existing_risk.colestrol_nao_hdl = request.POST.get('colestrol_nao_hdl') 
+                existing_risk.colestrol_nao_hdl = existing_risk.colestrol_nao_hdl.replace(',','.')
                 existing_risk.fumador = request.POST.get('fumador')
                 existing_risk.diabetes = request.POST.get('diabetes')
                 existing_risk.hemoglobina_gliciada = request.POST.get('hemoglobina_gliciada')
+                existing_risk.hemoglobina_gliciada = existing_risk.hemoglobina_gliciada.replace(',','.')
                 existing_risk.anos_diabetes = request.POST.get('anos_diabetes')
                 existing_risk.avc = request.POST.get('avc')
                 existing_risk.enfarte = request.POST.get('enfarte')
@@ -821,10 +824,10 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 existing_risk.comentario = request.POST.get('comentario') 
                 existing_risk.imc = calcular_imc(existing_risk.peso, existing_risk.altura)
                 if request.POST.get('sexo') == 'F':
-                    risco = risk_json(file_path_women, existing_risk.fumador, existing_risk.idade, existing_risk.colestrol_total,existing_risk.pressao_arterial)
+                    risco = risk_json(file_path_women, existing_risk.fumador, existing_risk.idade, float(existing_risk.hemoglobina_gliciada),existing_risk.pressao_arterial)
                     existing_risk.risco_de_enfarte = risco
                 elif request.POST.get('sexo') == 'M':
-                    risco = risk_json(file_path_men, existing_risk.fumador, existing_risk.idade, existing_risk.colestrol_total,existing_risk.pressao_arterial)
+                    risco = risk_json(file_path_men, existing_risk.fumador, existing_risk.idade, float(existing_risk.hemoglobina_gliciada),existing_risk.pressao_arterial)
                     existing_risk.risco_de_enfarte = risco
                 existing_risk.save()
                 ris = existing_risk
@@ -832,8 +835,12 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                                new_risk.risco_de_enfarte)
             username = request.user.username
 
+            concluido_risk = True
+
             gera_relatorio_risk_pdf(ris, patient, username)
-            
+
+            #este context serve para desaparecer o breadcrumb do risk
+            context['concluido_risk'] = concluido_risk
         if question.question_type == 3:
             return redirect('protocolo:instruments', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
                             patient_id=patient_id)
@@ -2191,9 +2198,10 @@ def word ():
 def calcular_imc(peso,altura):
     #altura em metros
     #peso em kg
-    peso = int(peso)
-    altura = int(altura)
-    imc = peso/(altura*altura)
+    # peso = float(peso)
+    # altura = int(altura)
+    #imc = peso/(altura*altura)
+    imc = 1
     return imc
 #funcao para por cores no word
 def add_cores(paragraph, color):

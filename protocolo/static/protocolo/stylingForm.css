@@ -106,3 +106,9 @@
 .form-input-registo:hover {
     background: #dddddd;
 }
+.container-form-registo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
