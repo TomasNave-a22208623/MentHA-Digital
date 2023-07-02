@@ -4,11 +4,43 @@
 <div class="titulo" style="padding-top: 1.25rem;margin-top: 5px;">
     <div class="topo-exercicio">
         <div class="bcca-breadcrumb">
-            <form action="{% url 'diario:finalizar_sessao' sessaoGrupo.grupo.id sessaoGrupo.id %}" method="POST">
-                {% csrf_token %}
-                <div class="bcca-breadcrumb-item-last fw-normal fs-4"><button>Terminar</button></div>
-            </form>
-            <div class="bcca-breadcrumb-item fw-normal fs-4">{{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}</div>
+            {% if sessaoGrupo.grupo.programa == "CARE" %}
+                {% if parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase != parte.FINAL and grupos_permissoes.exists %}
+                    <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'finalizar'%}" method="POST">
+                        {% csrf_token %}
+                        <div class="bcca-breadcrumb-item-last fw-normal fs-4"><button>Terminar Parte</button></div>
+                    </form>
+                {% elif parteGrupo.concluido == False  and parte.id == proxima_parte and parteGrupo.inicio != None and parte.fase == parte.FINAL and grupos_permissoes.exists %}
+                    <form action="{% url 'diario:finalizar_sessao' sessaoGrupo.grupo.id sessaoGrupo.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="bcca-breadcrumb-item-last fw-normal fs-4"><button>Terminar Sessão</button></div>
+                    </form>
+                {% endif %}
+            {% else %}
+                {% if parteGrupo.concluido == False  and exercicio.id == proxima_parte and parteGrupo.inicio != None %}
+                    <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'finalizar'%}" method="POST">
+                        {% csrf_token %}
+                        <div class="bcca-breadcrumb-item-last fw-normal fs-4"><button>Terminar Parte</button></div>
+                    </form>
+                {% endif %}
+            {% endif %}
+
+            {% if sessaoGrupo.grupo.programa == "CARE" %}
+                <form action="{% url 'diario:finalizar_parte' parte.id sessaoGrupo.id 'continuar' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="bcca-breadcrumb-item fw-normal fs-4">
+                        <button>&ensp; {{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}} &nbsp;</button>
+                    </div>
+                </form>
+            {% elif sessaoGrupo.grupo.programa == "COG" %}
+                <form action="{% url 'diario:finalizar_parte' exercicio.id sessaoGrupo.id 'continuar' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="bcca-breadcrumb-item fw-normal fs-4">
+                        <button>&ensp; {{sessaoGrupo.grupo.programa}} {{sessaoGrupo.sessao.numeroSessao}}</button>
+                    </div>
+                </form>
+            {% endif %}
+
             <div class="bcca-breadcrumb-item fw-normal fs-4">
                 <a href="{% url 'diario:group_sessions' sessaoGrupo.grupo.id %}" >
                     Sessões
@@ -20,11 +52,12 @@
                 </a>
             </div>
           </div>
+
           <div style="width:250px" class="esquerda">
             {% if parteGrupo.duracao_minutos > dura %}
                 <div style="width:100%; height:40px;" class="progress">
                     <div id="timer" class="progress-bar" role="progressbar"
-                            style="width: {{ parteGrupo.duracao_minutos }}%; background-color: #dc3545;"
+                            style="width: {{ parteGrupo.duracao_minutos }}%; background-color: #4eb4be"
                             aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0"
                             aria-valuemax="{{ dura }}">
                             {{ duracao_segundos }} 
@@ -36,7 +69,7 @@
                             style="width: {{ parteGrupo.duracao_minutos }}%;"
                             aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0"
                             aria-valuemax="{{ dura }}">
-                            {{ duracao_segundos }} 
+                            {{ duracao_segundos }}
 
                     </div>
                 </div>
@@ -94,7 +127,7 @@
         {% for qu in parte.questionarios.all %}
         <li>
         <a href="{% url 'diario:view_abrirQuestionario' qu.id parte.id sessaoGrupo.id  %}">
-            <button type="button" class="btn mb-btn-outline btn-sm" style="margin:5px" data-parte="{{qu.id}}">Questionário {{ qu.numeroOrdem }}</button>
+            <button type="button" class="btn mb-btn-outline btn-sm" style="margin:5px" data-parte="{{qu.id}}"><i class="fa-solid fa-clipboard-question"></i> Questionário {{ qu.numeroOrdem }}</button>
         </a>
         </li>
         {% endfor %}

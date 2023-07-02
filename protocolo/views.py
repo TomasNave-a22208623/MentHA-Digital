@@ -1272,6 +1272,7 @@ def profile_view(request, participant_id):
 
     if request.method == "POST":
         form = AppointmentForm(request.POST)
+        print(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.participante = patient

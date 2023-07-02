@@ -66,9 +66,21 @@ def nextSession(request):
     if bool(datas) == True:
         datas = datas.filter(estado='PR').order_by('data')[0]
 
+    factory = qrcode.image.svg.SvgImage
+    uri = request.build_absolute_uri('zoom')
+    uri = uri.replace('abrirZ', 'z')
+    img = qrcode.make(uri, image_factory=factory, box_size=5)
+    img_pop = qrcode.make(uri, image_factory=factory, box_size=45)
+    stream = BytesIO()
+    stream_pop = BytesIO()
+    img.save(stream)
+    img_pop.save(stream_pop)
+
     contexto = {
         'proxima': datas,
-        'ss': bool(datas)
+        'ss': bool(datas),
+        'svg': stream.getvalue().decode(),
+        'svg_pop': stream_pop.getvalue().decode(),
     }
 
     return render(request, 'diario/nextSession.html', contexto)
@@ -959,12 +971,6 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
 
         for parte_grupo in partes_grupo:
             tempo_total_partes_grupo += int(parte_grupo.duracao_minutos)
-    # print(sessao.sessao.partes)
-
-   
-
-
-    
 
     contexto = {
         'parte': sessao.sessao.partes,
@@ -1792,7 +1798,7 @@ def finalizar_parte(request, idParte, sessao_grupo_id, estado):
     if programa == "CARE":
         parte_group = ParteGrupo.objects.get(parte__id=idParte, sessaoGrupo=sessao_grupo)
     else:
-         parte_group = ParteGrupo.objects.get(exercicio__id=idParte, sessaoGrupo=sessao_grupo)
+        parte_group = ParteGrupo.objects.get(exercicio__id=idParte, sessaoGrupo=sessao_grupo)
 
     if estado == "finalizar":
         parte_group.fim = datetime.utcnow()

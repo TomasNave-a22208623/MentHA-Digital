@@ -2,7 +2,6 @@
 {% load static %}
 <html lang="pt">
 <head>
-
     <meta charset="UTF-8">
     <title>MentHA Digital</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,6 +32,7 @@
     <link href="{% static 'diario/hover.css' %}?{% now 'U' %}" rel="stylesheet">
     <script src="{% static 'diario/js/diario.js' %}?{% now 'U' %}"></script>
     <script src="{% static 'diario/js/jquery.js' %}?{% now 'U' %}"></script>
+    <script src="{% static 'diario/js/js.cookie.js' %}?{% now 'U' %}"></script>
 
 
     {% block head %} {% endblock %}
@@ -41,14 +41,12 @@
         {% block script %} 
         {% endblock %}
     </script>
-   
 </head>
 
 <body class="wrapper h-100 w-100">
     <div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary gap-4 shadow-lg sidebar h-100">
         <!-- Botao fechar sidebar -->
-            <button type="button" 
-            class="sidebar-toggle-btn shadow-lg">
+            <button type="button" class="sidebar-toggle-btn shadow-lg">
                 <i id="sidebar-icon" class="fa-solid fa-chevron-right"></i>
             </button>
         <div id="sidebar-content" style="display:block;">
@@ -83,7 +81,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="#" class="nav-link active jq-btn">
+                    <a href="{% url 'diario:nextSession' %}" class="nav-link active jq-btn">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                         <span class="sidebar-text" style="display:none;">Próxima Sessão</span>
                     </a>
@@ -93,7 +91,6 @@
         </div>
 
         <div id="sidebar-content-bottom" style="display:block;">
-
             <!-- Apps -->
             <ul class="nav nav-pills flex-column mb-auto gap-2 nooverflow-nowrap">   
                 <li class="nav-item ">

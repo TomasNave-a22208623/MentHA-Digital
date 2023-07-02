@@ -127,17 +127,24 @@ $(document).ready(function () {
     $(document).on("click", ".btn-appointment", function () {
         event.preventDefault();
         var href = $(this).attr("data-href");
+        console.log("href:", href)
         const csrf_token = Cookies.get('csrftoken');
-        var post_data = $("#appointment-form").serialize();
-    
+        var form_data = new FormData();
+        form_data.append('part', document.getElementById("id_part").value)
+        form_data.append('data', document.getElementById("id_data").value)
+        form_data.append('time', document.getElementById("id_time").value)
+
         $.ajax({
             method: 'POST',
             url: href,
-            data: post_data,
+            data: form_data,
             headers: { 'X-CSRFToken': csrf_token },
             async: false,
+            processData: false,
+            contentType: false,
             success: function (data) {
                 console.log("Success!")
+                console.log($('.page-content'))
                 $('.page-content').html(data);
                 return false;
             },
@@ -147,6 +154,8 @@ $(document).ready(function () {
             }
         })
     });
+
+
     $(document).on("click", ".btn-registar", function () {
         event.preventDefault();
         var href = $(this).attr("data-href");
