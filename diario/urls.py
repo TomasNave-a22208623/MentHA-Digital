@@ -42,7 +42,6 @@ urlpatterns = [
                   path('diario_grupo/<int:idSessaoGrupo>', views.view_diario_grupo, name='diario_grupo'),
                   path('atualizaPresencasDiario/<int:idSessaoGrupo>', views.view_atualiza_presencas_diario,
                        name='atualiza_presencas_diario'),
-
                   path('questionario_satisfacao/<int:idPergunta>/<int:idParte>/<int:sessaoGrupo>',
                        views.view_questionario_satisfacao,
                        name="questionario_satisfacao"),
@@ -72,10 +71,8 @@ urlpatterns = [
                        name='voltar_parte'),
                   path('partilha_parte/<int:sessaoGrupo>/<int:idParteExercico>', views.partilha_parte,
                        name='partilha_parte'),
-                  path(
-                      'guarda_resposta/<int:sessaoGrupo_id>/<int:parteGrupo_id>/<int:utilizador_id>/<int:pergunta_id>/<int:parte_exercicio_id>',
-                      views.guarda_resposta_view,
-                      name="guarda_resposta"),
+                  path('guarda_resposta/<int:sessaoGrupo_id>/<int:parteGrupo_id>/<int:utilizador_id>/<int:pergunta_id>/<int:parte_exercicio_id>',
+                      views.guarda_resposta_view, name="guarda_resposta"),
                   path('avaliacao_participantes/<int:sessaoGrupoid>', views.view_avaliacao_participantes,
                        name="avaliacao_participantes"),
                   #    path('respostas/<int:idSessaoGrupo>/<int:idParticipante>/', views.respostas_view,
@@ -84,13 +81,9 @@ urlpatterns = [
                        name="guarda_avaliacao_participante"),
                   path('guarda_avaliacao_sessao/<int:sessaoGrupo_id>', views.guarda_avaliacao_sessao,
                        name="guarda_avaliacao_participante"),
-                  path('obter_candidatos', views.obter_cadidatos,
-                       name="obter_candidatos"),
-                  path('parte_ativa/<int:sg_id>', views.parte_ativa,
-                       name="parte_ativa"),
-                path('user_dashboard', views.user_dashboard,
-                     name="user_dashboard"),
-                    path('streamss/', views.streams,name="streams")
-                    
+                  path('obter_candidatos', views.obter_cadidatos, name="obter_candidatos"),
+                  path('parte_ativa/<int:sg_id>', views.parte_ativa,name="parte_ativa"),
+                  path('user_dashboard', views.user_dashboard, name="user_dashboard"),
+                  path('streamss/', views.streams,name="streams")
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

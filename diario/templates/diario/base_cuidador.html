@@ -2,155 +2,122 @@
 {% load static %}
 <html lang="pt">
 <head>
-
     <meta charset="UTF-8">
     <title>MentHA Digital</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css%22%3E">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <!--    <meta name="viewport" content="width=device-width, initial-scale=1">-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
-    <script src="https://kit.fontawesome.com/b99e675b6e.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link href="{% static 'diario/style.css'%}?{% now 'U' %}" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+
+    <link rel="stylesheet" href="{% static 'protocolo/assets/fonts/fontawesome-all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'protocolo/assets/fonts/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'protocolo/assets/fonts/fontawesome5-overrides.min.css' %}">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="{% static 'protocolo/assets/fonts/fontawesome-all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'protocolo/assets/fonts/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'protocolo/assets/fonts/fontawesome5-overrides.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+
+    <link href="{% static 'diario/new_layout.css' %}?{% now 'U' %}" rel="stylesheet">
+    <link href="{% static 'diario/hover.css' %}?{% now 'U' %}" rel="stylesheet">
+    <script src="{% static 'diario/js/diario.js' %}?{% now 'U' %}"></script>
+    <script src="{% static 'diario/js/jquery.js' %}?{% now 'U' %}"></script>
+    <script src="{% static 'diario/js/js.cookie.js' %}?{% now 'U' %}"></script>
+
+
     {% block head %} {% endblock %}
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
-        {% block style %} {% endblock %}
-    </style>
-
-    <script type="text/javascript">
-        let url = `ws://${window.location.host}/ws/socket-server/`
-        const chatSocket = new WebSocket(url)
-
-        chatSocket.onmessage = function(e){
-            let data = JSON.parse(e.data)
-            console.log('Data:', data)
-            const value = document.getElementById("sessaoGrupo_id").value;
-            if(data.type === 'chat'){
-                if(value != null){
-                    if (value === data.message){
-                        location.reload()
-            }
-            }
-            }
-        }
-    </script>
 
     <script>
-
-        function myFunction() {
-            // Declare variables
-            var input, filter, table, tr, td, i, txtValue;
-                input = document.getElementById("myInput");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("myTable");
-            tr = table.getElementsByTagName("tr");
-
-            // Loop through all table rows, and hide those who don't match the search query
-            for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[0];
-                if (td) {
-                    txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
-                }
-            }
-        }
-
-        {% block script %} {% endblock %}
-
-
+        {% block script %}
+        {% endblock %}
     </script>
-
 </head>
 
-<body id="layout">
-    <div class="sidebar">
-        <div class="logo-details">
-            <img src="{% static 'diario/img/mentha-logo.png' %}" alt=""
-                 style="width:20%;">
-            <span class="logo_name">MentHA Digital</span>
-        </div>
-        <div id="navegacao">
-        </div>
-            <div class="nav-links max-left" id="my_groups">
+<body class="wrapper h-100 w-100">
+    <div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary gap-4 shadow-lg sidebar h-100">
+        <!-- Botao fechar sidebar -->
+            <button type="button" class="sidebar-toggle-btn shadow-lg">
+                <i id="sidebar-icon" class="fa-solid fa-chevron-right"></i>
+            </button>
+        <div id="sidebar-content" style="display:block;">
+
+            <!-- Logo -->
+            <div id="container-logo" style="display: flex;
+            flex-direction: column;
+            align-content: center;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0 0 15px 0px;">
+                <img src="{% static 'diario/img/mentha-logo.png' %}" alt="logo" class="me-2" width="150px" height="150px">
+                <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto ml-auto link-body-emphasis undecorated nooverflow-nowrap" style="height: 1.5rem;">
+                    <span id="logo" class="fs-5 brand-text" style="display:none;">MENTHA DIGITAL</span>
+                </a>
             </div>
-            <div class="nav-links" id="next_session">
-            </div>
 
-            <div class="search-box">
-
-            </div>
-      <div class="nav-links">
-                <!--<a href="" data-href="" class="active">
-                    <i class="bx bx-home"></i>
-                    <span class="links_name">Voltar ao menu</span>
-                </a>-->
-          <script>
-              function listar_apps() {
-                  fetch("{% url 'mentha:app-list' %}")
-                    .then(response => response.text())
-                    .then(text => {
-                        document.querySelector('#app-list').innerHTML = text;
-                    })
-              }
-          </script>
-
-           <script>
-            document.addEventListener('DOMContentLoaded', () => {
-              const botao_menu = document.querySelector("#listar-apps")
-              botao_menu.addEventListener("click", () => {
-                  fetch("{% url 'mentha:app-list' %}")
-                    .then(response => response.text())
-                    .then(text => {
-                        document.querySelector('#app-list').innerHTML = text;
-                    })
-              })
-            })
-          </script>
-
-
-          <div onclick="listar_apps()">Voltar ao menu</div>
-
-          <div id="listar-apps" >Listar Apps</div>
-
-          <div id="app-list"></div>
-
-
-      </div>
-            <div class="profile-details nav-links">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                        <span class="admin_name">{{ request.user }}</span>
+            <!-- Paginas -->
+            <ul class="nav nav-pills flex-column mb-auto gap-2 nooverflow-nowrap">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'diario:dashboard_Care' %}">
+                        <i class="fa-solid fa-people-group"></i>
+                        <span class="sidebar-text" style="display:none;">Grupos</span>
                     </a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item" href=" {% url 'diario:logout_care_view' %}"><i class='bx bx-log-out'></i><span>Perfil</span></a>
-                        </li>
-                       <!-- <li>
-                            <a class="dropdown-item" href="{% url 'diario:logout_care_view' %}"><span>Sair</span></a>
-                        </li>-->
-                    </ul>
                 </li>
-            </div>
+
+                <li class="nav-item">
+                    <a href="#" class="nav-link active videoconf-button">
+                        <i class="fa-solid fa-video"></i>
+                        <span class="sidebar-text" style="display:none;">Videoconferência</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'diario:nextSession' %}" class="nav-link active jq-btn">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span class="sidebar-text" style="display:none;">Próxima Sessão</span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
 
     </div>
-
-    <div id="content">
+    <div id="content" class="h-100">
+        <div id="videoconf">
+            <div class="cameras">
+                <div class="user-camera">
+                </div>
+                <div class="user-camera">
+                </div>
+                <div class="user-camera">
+                </div>
+                <div class="user-camera">
+                </div>
+                <div class="user-camera">
+                </div>
+                <div class="user-camera">
+                </div>
+                <div class="user-camera">
+                </div>
+                <div class="user-camera">
+                </div>
+                <div class="user-camera">
+                </div>
+            </div>
+        </div>
         {% block main %}
         {% endblock main %}
+        {% block diario %}
+        {% endblock %}
     </div>
-
 </body>
-
 </html>

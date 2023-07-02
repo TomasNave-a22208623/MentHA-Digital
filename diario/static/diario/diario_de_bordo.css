@@ -30,7 +30,6 @@ grid-area: partilhas;
 
 #diario-de-bordo .diario .info {
     grid-area: info;
-    height: 600px;
     background-color: whitesmoke;
     border: 1px solid var(--mentha-blue);
     margin-top: 5px;
