@@ -1,3 +1,8 @@
+:root{
+    --mentha-blue: #4EB4BE;
+    --mentha-blue-dark: #1e7d85;
+}
+
 * {
     padding: 0;
     margin: 0;
@@ -559,6 +564,13 @@ footer img {
   .cronograma .done {
     background: #4EB4BE;
   }
+
+/** APP LIST **********************************************/
+.mb-btn{
+    color: white!important;
+    background-color: var(--mentha-blue)!important;
+    border-color: var(--mentha-blue)!important;
+}
 
 /** @media query **********************************************/
 

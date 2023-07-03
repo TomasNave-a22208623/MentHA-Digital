@@ -337,6 +337,16 @@ body{
 .tabela-sessao th:last-child {
     border-top-right-radius: 15px;
 }
+
+.partilhas-title{
+    color:var(--mentha-blue-dark)!important;
+}
+
+.notas-title{
+    color:var(--mentha-blue-dark)!important;
+}
+
+
 /* BREADCRUMB */
 
 /*** breadcrumb container ***/

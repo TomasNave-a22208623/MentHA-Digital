@@ -1,17 +1,36 @@
-<ul>
+
+
+<div class="app-list" 
+style="
+display: flex;
+justify-content: space-evenly;
+align-items: center;
+align-content: center;
+margin-top:15px;
+gap:15px;
+">
     {% if 'COG' in show %}
         <a href="{% url 'diario:dashboard_Care' %}">
-            <li>MentHA-COG</li>
+            <button class="btn mb-btn">
+                <i class="fa fa-user"></i>
+                MentHA-COG
+            </button> 
         </a>
     {% endif %}
     {% if 'CARE' in show %}
         <a href="{% url 'diario:dashboard_Care' %}">
-            <li>MentHA-CARE</li>
+            <button class="btn mb-btn">
+                <i class="fa fa-user"></i>
+                MentHA-CARE
+            </button> 
         </a>
     {% endif %}
     {% if 'Protocolo' in show %}
         <a href="{% url 'protocolo:dashboard' %}">
-            <li>Protocolo de Avaliação</li>
+            <button class="btn mb-btn">
+                <i class="fa fa-user"></i>
+                MentHA-EVAL
+            </button> 
         </a>
     {% endif %}
-</ul>
+</div>
