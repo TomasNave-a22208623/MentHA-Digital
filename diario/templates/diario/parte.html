@@ -137,90 +137,31 @@
 
     {% endif %}
 {% elif sessaoGrupo.grupo.programa == "COG" %}
-<div class="side-by-side">
-    <div class="esquerda">
-        <h5 class=" m-0 fw-bold">
-        {% if exercicio.numero > 0 %}
-            Exercício {{ exercicio.numero}} - {{exercicio.dominio }}
-        {% else %}
-            {{ exercicio.dominio }}
-        {% endif %}
-        </h5>
-    </div>
-    <div style ="width:25%" class="direita">
-        {% if estado != "ver" %}
-            <h5 class=" m-6 fw-bold">
-                Duração
-                <span class=" m-6 fw-normal text-muted">
-                    {{ dura }} minutos
-                </span>
-            </h5>
-            {% if parteGrupo.duracao_minutos > dura %}
-                <div style ="width:100%; margin-top: 5px;"class="progress">
-                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%; background-color: #dc3545" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
-                        {{ parteGrupo.duracao_minutos }}m
-                    </div>
-                </div>
-            {% else %}
-                <div style ="width:100%; margin-top: 5px;"class="progress">
-                    <div id= "timer" class="progress-bar" role="progressbar" style="width: {{ parteGrupo.duracao_minutos }}%;" aria-valuenow="{{ parteGrupo.duracao_minutos }}" aria-valuemin="0" aria-valuemax="{{dura}}">
-                        {{ parteGrupo.duracao_minutos }}m
-                    </div>
-                </div>
-            {% endif %}
-        {% elif estado == "ver" %}
-            {% if parteGrupo.concluido %}
-            <h5 class=" m-6 fw-bold">
-                Duração
-                <span class=" m-6 fw-normal text-muted">
-                    {{ parteGrupo.duracao_em_horas_minutos }} de {{ dura }} minutos
-                </span>
-            </h5>
-            {% else %}
-            <h5 class=" m-6 fw-bold">
-                Duração
-                <span class=" m-6 fw-normal text-muted">
-                    {{ dura }} minutos
-                </span>
-            </h5>
-            {% endif %}
-        {% endif %}
-    </div>
+<div class="material">
+    <span class="m-0 fw-bold mb-text fs-4">
+        Material
+    </span>
+    {{ exercicio.material | markdownify }}
 </div>
-<div style= "padding-top:15px;" id="accordion">
-    <div class="card">
-      <div class="card-header" id="headingOne">
-        <h5 class="mb-0">
-          <button class="btn btn-link no-decor m-0 fw-bold mb-text fs-5" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-            Material
-          </button>
-        </h5>
-      </div>
 
-      <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-        <div class="card-body">
-          {{ exercicio.material | markdownify }}
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header" id="headingTwo">
-        <h5 class="mb-0">
-          <button class="btn btn-link collapsed no-decor m-0 fw-bold mb-text fs-5" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-            Instrução
-          </button>
-        </h5>
-      </div>
-      <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-        <div class="card-body">
-        {{ exercicio.instrucao | markdownify }}
-        </div>
-      </div>
-    </div>
+<div class="instrucao">
+    <span class="m-0 fw-bold mb-text fs-4">
+        Instrução
+    </span>
+{{ exercicio.instrucao | markdownify }}
 </div>
+
 <div class="partes-exercicio">
     <a href="{% url 'diario:parte_ativa' sessaoGrupo.id %}" target="_blank">
-    <i style="margin-top:15px;margin-right:15px;float:right;text-size:30px"class="fas fa-window-restore"></i>
+    <i style="
+    position: absolute;
+    right: 40px;
+    margin-top: 15px;
+    margin-right: 15px;
+    float: right;
+    font-size: 30px;
+    color: var(--mentha-blue);"
+    class="fas fa-window-restore"></i>
     </a>
     <div id="carousel" class="carousel slide" data-ride="carousel" style="height: 100%;">
         <ol class="carousel-indicators">
@@ -310,7 +251,10 @@
             </div>
         {% endfor %}
         </div>
-        <button class = "btn btn-danger botao-partilha" onclick="ativa_partilha({{sessaoGrupo.id}})">Partilhar</button>
+        <button class = "btn btn-danger botao-partilha" onclick="ativa_partilha({{sessaoGrupo.id}})">
+            <i class="fa-solid fa-share-nodes">&nbsp</i>
+            Partilhar
+        </button>
     </div>
 </div>
 {% endif %}
