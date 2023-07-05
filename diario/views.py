@@ -85,13 +85,41 @@ def nextSession(request):
 
     return render(request, 'diario/nextSession.html', contexto)
 
+def get_grupos(user):
+    dinamizador = DinamizadorConvidado.objects.filter(user=user).first()
+    mentor = Mentor.objects.filter(user=user).first()
+    participante = Participante.objects.filter(user=user).first()
+    sg = None
+    is_participante = False
+    if dinamizador:
+        grupos = dinamizador.grupo.all()
+    if mentor:
+        grupos = mentor.grupo.all()
+    if participante:
+        grupos = participante.grupo.all()
+        sg = SessaoDoGrupo.objects.filter(grupo__in=participante.grupo.all()).exclude(parte_ativa__isnull=True)
+        is_participante = True
+    if user.is_superuser:
+        grupos = Grupo.objects.all()
 
+        return grupos, sg, is_participante
+
+def get_proxima_sessao(grupos):
+    datas = SessaoDoGrupo.objects.exclude(data=None)
+    #Caso um dinamizador/mentor tenha mais do que um grupo
+    datas = datas.filter(estado__in=['PR','EC'], grupo__in=grupos)
+    
+    tem_proxima = False
+    if len(datas) > 0:
+        datas = datas.order_by('data')[0]
+        tem_proxima = True
+    
+    return tem_proxima, datas
+    
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def dashboard(request):
     # doctor = request.user
-    grupos = []
-    sg = None
     formGrupo = GrupoForm(request.POST or None)
     if formGrupo.is_valid():
         formGrupo.save()
@@ -102,31 +130,13 @@ def dashboard(request):
 
     # Delete the objects without a name
     cuidadores_without_name.delete()
-
-    dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
-    mentor = Mentor.objects.filter(user=request.user).first()
-    participante = Participante.objects.filter(user=request.user).first()
     cuidador = Cuidador.objects.filter(user=request.user).first()
-    is_participante = False
-    if dinamizador:
-        grupos = dinamizador.grupo.all()
-    if mentor:
-        grupos = mentor.grupo.all()
-    if participante:
-        grupos = participante.grupo.all()
-        sg = SessaoDoGrupo.objects.filter(grupo__in=participante.grupo.all()).exclude(parte_ativa__isnull=True)
-        is_participante = True
+    
     if cuidador:
         return redirect('diario:user_dashboard')
-    if request.user.is_superuser:
-        grupos = Grupo.objects.all()
-
-    datas = SessaoDoGrupo.objects.exclude(data=None)
-    #Caso um dinamizador/mentor tenha mais do que um grupo da porcaria
-    datas = datas.filter(estado='PR', grupo=grupos[0])
-
-    if bool(datas) == True:
-        datas = datas.filter(estado='PR').order_by('data')[0]
+    
+    grupos, sg, is_participante = get_grupos(request.user)
+    tem_proxima, datas = get_proxima_sessao(grupos)
 
     factory = qrcode.image.svg.SvgImage
     uri = request.build_absolute_uri('zoom')
@@ -137,7 +147,7 @@ def dashboard(request):
     stream_pop = BytesIO()
     img.save(stream)
     img_pop.save(stream_pop)
-
+    print(datas)
     contexto = {
     # 'grupos': Grupo.objects.filter(doctor=doctor),
     # Apagar a linha de baixo ao descomentar a linha de cima
@@ -146,12 +156,13 @@ def dashboard(request):
     'cuidadores': Cuidador.objects.filter(grupo=None),
     'formGrupo': formGrupo,
     'proxima': datas,
-    'ss': bool(datas),
+    'tem_proxima': tem_proxima,
     'svg': stream.getvalue().decode(),
     'svg_pop': stream_pop.getvalue().decode(),
     }
 
     if is_participante and len(sg) > 1:
+        participante = Participante.objects.filter(user=request.user).first()
         sg = sg.get()
         parte = sg.parte_ativa
         contexto['parte'] = parte
@@ -256,6 +267,9 @@ def parte_ativa(request, sg_id):
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def new_group(request):
+    grupos, sg, is_participante = get_grupos(request.user)
+    tem_proxima, datas = get_proxima_sessao(grupos)
+
     formGrupo = GrupoForm(request.POST or None)
     if formGrupo.is_valid():
         formGrupo.save()
@@ -350,6 +364,7 @@ def new_group(request):
 
 
     contexto = {
+        'tem_proxima': tem_proxima,
         'grupos': Grupo.objects.all(),
         'cuidadores': Cuidador.objects.filter(grupo=None),
         'formGrupo': formGrupo,
@@ -459,6 +474,8 @@ def view_group_details(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
+    grupos, sg, is_participante = get_grupos(request.user)
+    tem_proxima, datas = get_proxima_sessao(grupos)
 
     print(request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']))
     contexto = {
@@ -467,6 +484,7 @@ def view_group_details(request, grupo_id):
         'mentores': mentores,
         'dinamizadores': dinamizadores,
         'grupos_permissoes' : request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
+        'tem_proxima': tem_proxima,
     }
     return render(request, "diario/detalhes_grupo.html", contexto)
 
@@ -478,6 +496,8 @@ def group_members(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
+    grupos, sg, is_participante = get_grupos(request.user)
+    tem_proxima, datas = get_proxima_sessao(grupos)
 
     # formDinamizador = DinamizadorForm(request.POST or None)
     # if formDinamizador.is_valid():
@@ -485,7 +505,7 @@ def group_members(request, grupo_id):
     #     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
     contexto = {
-
+        'tem_proxima': tem_proxima,
         'grupo_id': grupo_id,
         'grupo': Grupo.objects.get(id=grupo_id),
         'cuidadores': cuidadores,
@@ -505,6 +525,9 @@ def group_sessions(request, grupo_id):
     # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
 
     sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
+    grupos, sg, is_participante = get_grupos(request.user)
+    tem_proxima, datas = get_proxima_sessao(grupos)
+
 
     sessoes = Sessao.objects.all()
     grupo = Grupo.objects.get(id=grupo_id)
@@ -522,6 +545,7 @@ def group_sessions(request, grupo_id):
     #    sessoes = Grupo.objects.get(id=grupo_id).sessoes.all()
 
     contexto = {
+        'tem_proxima': tem_proxima,
         'sessoes_do_grupo': sessoes_do_grupo,
         'grupo': grupo,
         'proxima_sessao': proxima_sessao,
@@ -937,6 +961,9 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
 
     data = sessao.data
 
+    grupos, sg, is_participante = get_grupos(request.user)
+    tem_proxima, datas = get_proxima_sessao(grupos)
+
     pode_iniciar = False
     if data:
         if data.day == datetime.utcnow().day or sessao.inicio is not None:
@@ -975,6 +1002,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
     contexto = {
         'parte': sessao.sessao.partes,
         'proxima_parte': proxima_parte,
+        'tem_proxima': tem_proxima,
         'sessaoGrupo': sessao,
         'partesGrupo': partes_grupo,
         'participantes': participantes,

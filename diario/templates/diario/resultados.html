@@ -3,19 +3,23 @@
 
 
 {% block main %}
-<body>
-<div class="content-results">
-    {% for escolha in pergunta.escolha_set.all %}
-    <h2>{{escolha}}: {{escolha.votos}}</h2>
-    {% endfor %}
-
-    <div>
-        <img src="data:image/png;base64,{{ grafico }}">
-
-        <a onclick="history.back()">
-            <button class="btn btn-outline-primary" style="margin-bottom: 442px; margin-left: 31px;">Voltar</button>
+<div class="container-fluid">
+    <div class="card-flex" style="padding: 8px">
+        <p class="m-0 fw-bold mb-text fs-4">Resultados do Questionário</p>
+        <a class="no-decor" onclick="history.back()">
+            <button class="btn mb-btn-outline" style="width:150px"><i class="fa-solid fa-angle-left"></i> Voltar</button>
         </a>
     </div>
+    <ul class="list-unstyled">
+        {% for escolha in pergunta.escolha_set.all %}
+            <li>{{escolha}}: {{escolha.votos}}</li>
+        {% endfor %}
+    </ul>
+    <div style="display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;">
+        <img src="data:image/png;base64,{{ grafico }}">
+    </div>
 </div>
-</body>
 {% endblock %}

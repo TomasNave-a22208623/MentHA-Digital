@@ -79,13 +79,15 @@
                         <span class="sidebar-text" style="display:none;">Videoconferência</span>
                     </a>
                 </li>
-
+                
+                {% if tem_proxima %}
                 <li class="nav-item">
                     <a href="{% url 'diario:nextSession' %}" class="nav-link active jq-btn">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                         <span class="sidebar-text" style="display:none;">Próxima Sessão</span>
                     </a>
                 </li>
+                {% endif %}
 
             </ul>
         </div>
