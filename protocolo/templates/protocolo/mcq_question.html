@@ -2,9 +2,9 @@
 <form class="flex-container" id="question-form" action="" method="post">
     <input type="hidden" name="type" value="0">
     {% csrf_token %}
-    <div class="flex-choices flex-item padding-top-25">
+    <div class="flex-choices flex-item padding-top-25" style="width:100%">
         {% for answer in question.possible_answers.all %}
-            <label>
+            <label for="{{answer.id}}">
                 <input class="" id="{{ answer.id }}" name="choice" type="radio" value="{{ answer.id }}"
                         {% if answer.id in existing_answer_id %}
                        checked="checked"
@@ -16,8 +16,8 @@
         {% endfor %}
     </div>
 
-    <div class="flex-textarea flex-item padding-top-25">
-        <label><b>Apontamentos</b></label>
+    <div class="flex-textarea flex-item padding-top-25" style="width:100%">
+        <label for="notes"><b>Apontamentos</b></label>
         <textarea style="white-space: pre-line" class="notes-area form-control" id="notes"
                   name="notes">{{ notes }}</textarea>
     </div>

@@ -580,6 +580,17 @@ body{
     align-items: center;
 }
 
+.flex-buttons{
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.padding-top-25{
+    padding-top: 25px;
+}
+
 #content input[type=text] {
     /* Custom styles for all text input tags */
     width: 100%;

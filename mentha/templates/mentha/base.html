@@ -328,36 +328,6 @@
                 return false;
             }
 
-
-            document.querySelector('#a-videoconferencia').onclick = () => {
-                fetch("{% url 'mentha:videoconferencia' %}")
-                    .then(response => response.text())
-                    .then(text => {
-                        document.querySelector('#content').innerHTML = text;
-                        document.querySelector('html').scrollTop = 0;
-
-                        let a = document.querySelector('#a-videoconferencia');
-                        a.style.color = 'white';
-                        a.style.borderbottom = '1px solid white';
-                        a.style.color = 'white';
-                        a.style.textDecoration = 'none';
-                    })
-                    .then( () => {
-
-                        //  https://forum.shapespark.com/t/room-with-zoom-embeding-a-zoom-meeting-a-short-guide/1214/7
-                        document.querySelector('#zoom-button').onclick = () => {
-                        
-                            fetch("{% url 'mentha:zoom-div' %}")
-                                .then(response => response.text())
-                                .then(text => {
-                                    document.querySelector('#zoom').innerHTML = text;
-                                });
-                            return false;                            
-                        }
-                    });
-                return false;
-            }
-
             
             document.querySelector('#a-equipa').onclick = () => {
                 fetch("{% url 'mentha:equipa' %}")
@@ -477,7 +447,6 @@
                 <a id='a-aplicacoes' href="">Programas</a>
                 <a id='a-parceiros' href="">Parceiros</a>
                 <a id='a-equipa' href="">Equipa</a>
-                <a id='a-videoconferencia' href="">Zoom</a>
                 <a id='a-contacto' href="">Contacto</a>
                 <a id='a-login' href="">Login</a>
                 <a id='a-logout' href="">Logout</a>

@@ -1,5 +1,11 @@
 {% load markdownify %}
 {% load static %}
+<script>
+    $("td").click(function () {
+        $(this).find('input:radio').attr('checked', true);
+     });
+</script>
+
 <div class="container-fluid">
     <div class="" style="padding: 8px">
         <div class="card-body card-flex" style="padding: 8px">
