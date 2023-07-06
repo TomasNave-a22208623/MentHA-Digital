@@ -701,6 +701,13 @@ position: relative;
     background-color: #eeeeee!important;
 }
 
+.form-row{
+    width: 100%!important;
+}
+
+.form-group{
+    width: 100%!important;
+}
 td label {
     width: 100%;
 }

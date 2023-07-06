@@ -447,5 +447,6 @@ def calculate_age(born):
     return today.year - born.year - ((today.month, today.day) < (born.month, born.day)) 
 
 
-
-
+@register.filter(name='has_group') 
+def has_group(user, group_name):
+    return user.groups.filter(name=group_name).exists() 

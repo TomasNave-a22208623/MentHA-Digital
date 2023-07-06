@@ -118,6 +118,26 @@ def registo_view(request):
 
     return render(request, 'protocolo/participantes_registo.html')
 
+def avaliadores_registo_view(request):
+    print("Aval Reg")
+    if request.method == 'POST':
+
+        new_user = User()
+
+        new_user.username = request.POST.get('username')   
+        new_user.password = request.POST.get('password')
+        new_user.email = request.POST.get('email')
+
+        new_user.first_name = request.POST.get('primeiro_nome')
+        new_user.last_name = request.POST.get('ultimo_nome')
+        new_user.save()
+
+        my_group = DjangoGroup.objects.get(name='Avaliador') 
+        my_group.user_set.add(new_user)
+    
+    context = {}
+    return render(request, 'protocolo/avaliadores_registo.html')
+
 @login_required(login_url='login')
 def incrementar(request, part_id, participant_id):
     part = Part.objects.get(pk = part_id)
@@ -1195,13 +1215,25 @@ def protocol_participants_view(request, protocol_id):
     return render(request, 'protocolo/protocol-participants.html', context)
 
 
+def get_nr_participantes(user):
+    return Participante.objects.filter(avaliador=user).count()
+
 @login_required(login_url='login')
 def participants_view(request):
     doctor = request.user
     participants = Participante.objects.filter(avaliador=doctor)
-    resolutions = Resolution.objects.filter(doctor=doctor)
 
-    context = {'participants': participants, 'resolutions': resolutions}
+    avaliadores = DjangoGroup.objects.get(name="Avaliador").user_set.all()
+    print(avaliadores)
+    resolutions = Resolution.objects.filter(doctor=doctor)
+    lista_nr_participantes = []
+    for a in avaliadores:
+        lista_nr_participantes.append(get_nr_participantes(doctor))
+
+    context = {'participants': participants, 
+               'resolutions': resolutions,
+               'avaliadores': avaliadores,
+               'avaliadores_zip': zip(avaliadores,lista_nr_participantes),}
     return render(request, 'protocolo/participants.html', context)
 
 
