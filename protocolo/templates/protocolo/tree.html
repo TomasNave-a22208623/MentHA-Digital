@@ -1,11 +1,10 @@
 {% load tags %}
 
-
 <div class="bcca-breadcrumb">
     <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;">
     </div>
     
-    {% if section is not None and section.name != "None" %}
+    {% if section is not None and section.name != "None" and 'Risk' not in section.name %}
         <div class="bcca-breadcrumb-item fw-normal fs-4">
             <a class="jq-btn" style="display: contents;" role="button"
                data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}">
@@ -14,7 +13,7 @@
         </div>
     {% endif %}
 
-    {% if dimension is not None and dimension.name != "None" %}
+    {% if dimension is not None and dimension.name != "None" and 'Risk' not in dimension.name %}
         <div class="bcca-breadcrumb-item fw-normal fs-4">
             <a class="jq-btn" style="display: contents;" role="button"
                data-href="{% url 'protocolo:sections' protocol.id part.id area.id instrument.id dimension.id patient.id %}">
@@ -23,7 +22,7 @@
         </div>
     {% endif %}
     
-    {% if instrument is not None and instrument.name != "None" %}
+    {% if instrument is not None and instrument.name != "None" and 'Risk' not in instrument.name%}
         <div class="bcca-breadcrumb-item fw-normal fs-4">
             <a class="jq-btn" style="display: contents;" role="button"
                data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id instrument.id patient.id %}">
@@ -32,7 +31,7 @@
         </div>
     {% endif %}
 
-    {% if area is not None and area.name != "None" %}
+    {% if area is not None and area.name != "None" and 'Risk' not in area.name %}
         <div class="bcca-breadcrumb-item fw-normal fs-4">
             <a class="jq-btn" style="display: contents;" role="button"
                     {% if instrument is not None and instrument.name == "None" %}
@@ -48,7 +47,7 @@
         </div>
     {% endif %}
 
-    {% if part is not None %}
+    {% if part is not None and 'Risk' not in part.name %}
 
     <div class="bcca-breadcrumb-item fw-normal fs-4">
         <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' protocol.id part.id patient.id %}">
@@ -60,7 +59,7 @@
 
     {% if protocol is not None %}
     <div class="bcca-breadcrumb-item fs-4">
-        <a href="#" class="jq-btn" data-href="{% url 'protocolo:parts' protocol.id patient.id %}">
+        <a href="#" class="jq-btn" data-href="{% url 'protocolo:dashboard' %}">
             Protocolo
         </a>
     </div>

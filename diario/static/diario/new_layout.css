@@ -573,12 +573,15 @@ body{
 }
 
 .flex-container {
+    width: 100%;
     display: flex;
     flex-wrap: nowrap;
     align-content: center;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 }
+
+#notes{width: 100%;}
 
 .flex-buttons{
     display: flex;
@@ -675,6 +678,32 @@ position: relative;
     align-items: center;
 }
 
+.flex-textarea{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    align-content: center;
+    justify-content: center;
+}
+
+.flex-choices{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    align-content: center;
+    justify-content: center;
+}
+
+.form-input{
+    width: 100%!important;
+    background-color: #eeeeee!important;
+}
+
+td label {
+    width: 100%;
+}
 .margin-l-5{
     margin-left: 5px;
 }

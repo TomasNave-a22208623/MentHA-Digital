@@ -16,6 +16,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.contrib.auth.models import Group as DjangoGroup
 
 # Create your views here.
 
@@ -625,6 +626,9 @@ def create_caregiver(request, grupo_id):
             user.password = formCuidador.cleaned_data['password']
             user.email = formCuidador.cleaned_data['email']
             user.save()
+
+            my_group = DjangoGroup.objects.get(name='Cuidador') 
+            my_group.user_set.add(new_user)
 
             cuidador = Cuidador()
             cuidador.user = user

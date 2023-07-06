@@ -5,13 +5,14 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from .models import Protocol, Part, Area, Instrument, Dimension, Section, Question, Resolution, Answer, PossibleAnswer,Risk
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group as DjangoGroup
 from django.urls import reverse
 from .functions import *
 from .forms import *
 from diario.models import *
 import json
 import os
-
 
 
 # Other Imports
@@ -83,18 +84,25 @@ def popup_view(request):
 def registo_view(request):
     doctor = request.user
 
-    
-    # participants = Participante.objects.filter(avaliador=doctor)
     if request.method == 'POST':
+
+        new_user = User()
+        new_user.username = request.POST.get('username')   
+        new_user.password = request.POST.get('password')
+        new_user.email = request.POST.get('email')
+        new_user.save()
+
+        my_group = DjangoGroup.objects.get(name='Participante') 
+        my_group.user_set.add(new_user)
         
         new_registo= InformacaoSensivel()
         new_registo.nome = request.POST.get('nome')
         new_registo.email =  request.POST.get('email')
         new_registo.telemovel = request.POST.get('telemovel')
         new_registo.save()
-        # new_registo = InformacaoSensivel(nome = request.POST.get('nome'), email = request.POST.get('email'), telemovel = request.POST.get('telemovel'))
 
         referefiacaos = Reference.objects.filter(nome = request.POST.get('referenciacao')).get()
+
         new_participante = Participante()
         new_participante.sexo = request.POST.get('sexo')
         new_participante.info_sensivel = new_registo
@@ -104,22 +112,9 @@ def registo_view(request):
         nascimento_datetime = datetime.strptime(nascimento_str, '%Y-%m-%d')
         new_participante.nascimento = nascimento_datetime
         new_participante.save()
-    # ew_risk.idade = request.POST.get('idade')
-    # form = PatientForm(request.POST or None)
-    # avaliador = request.user
 
-    # if request.method == "POST":
-    #     form = PatientForm(request.POST)
-    #     if form.is_valid():
-    #         obj = form.save(commit=False)
-    #         obj.save()
-    # context ={'form' : form, 'avaliador': avaliador}
 
     context = {}
-
-
-
-
 
     return render(request, 'protocolo/participantes_registo.html')
 
@@ -778,9 +773,12 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             if request.POST.get('sexo') == 'F':
                 risco = risk_json(file_path_women, new_risk.fumador, new_risk.idade, float(new_risk.hemoglobina_gliciada),new_risk.pressao_arterial)
                 new_risk.risco_de_enfarte = risco
+                print("RISCO:", risco)
+
             elif request.POST.get('sexo') == 'M':
                 risco = risk_json(file_path_men, new_risk.fumador, new_risk.idade, float(new_risk.hemoglobina_gliciada),new_risk.pressao_arterial)
                 new_risk.risco_de_enfarte = risco
+                print("RISCO:", risco)
             new_risk.parteDoUtilizador = parteDoUtilizador
             new_risk.concluido = True
             r.part.concluido = True
@@ -1565,14 +1563,10 @@ def patient_overview_view(request, participant_id):
 
 #quero obter o json com as respostas de um paciente de risk
 def risk_json(path,smoking, idade,colesterol,hipertensao):
-
-    print("entrou no risk_json")
     #abrir json risk_men
     data = open_json(path)
-    print("entrou no risk_json2")
     for i in data:
         if(i == smoking):
-            print("entrou no risk_json3")
             for j in data[i]:
                 min=j.split('-')[0]
                 max=j.split('-')[1]
@@ -1580,7 +1574,6 @@ def risk_json(path,smoking, idade,colesterol,hipertensao):
                 max = int(max)
                 idade = int(idade)
                 if(idade in range(min,max+1)):
-                    print("entrou no risk_json4")
                     for k in data[i][j]:
                         min=k.split('-')[0]
                         max=k.split('-')[1]
@@ -1588,21 +1581,13 @@ def risk_json(path,smoking, idade,colesterol,hipertensao):
                         max = int(max)
                         hipertensao = int(hipertensao)
                         if(hipertensao in range(min,max+1)):
-                           print("entrou no risk_json5")
                            for l in data[i][j][k]:
                                min=l.split('-')[0]
                                max=l.split('-')[1]
                                min = float(min)
                                max = float(max)
-                               print("este é o valor max do colestrol" + str(max))
-                               print("este é o valor min do colestrol" + str(min))
-                               print("este é o valor do colestrol")
-                               print(colesterol)
-                               print("este é o valor do colestrol")
                                colesterol = float(colesterol)
                                if(colesterol in float_range(min,max+0.1)):
-                                   print("entrou no risk_json6")
-                                   print(data[i][j][k][l])
                                    return data[i][j][k][l]
 
 def generate_id():
@@ -1624,7 +1609,7 @@ def float_range(start, stop, step=0.1):
     while start < stop:
         yield round(start, 1)
         start += step   
-def gera_relatorio_risk_pdf(parte_risk,patient, username):
+def gera_relatorio_risk_pdf(parte_risk, patient, username):
     
     document = Document()
     #conversao para boleans
