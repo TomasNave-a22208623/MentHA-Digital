@@ -6,6 +6,7 @@ from django.conf import settings
 from .functions import percentage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from diario.models import *
+from django.contrib.auth.models import AbstractUser
 
 from .functions import * 
 
@@ -22,6 +23,8 @@ PA_IMAGES_DIR = "possible_answers_images/"
 # É possivel criar um modelo "Common"
 # Que terá name, description, order e talvez note (apontamento)
 # Uma vez que sao comuns a todas as classes
+
+
 
 class Common(models.Model):
     name = models.CharField(max_length=MEDIUM_LEN)

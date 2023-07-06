@@ -76,15 +76,20 @@ def menu_protocolo_view(request):
 def popup_view(request):
     return render(request, 'protocolo/popupparts.html')
 
-# @login_required(login_url='login')
-# def risco_view(request):
-#     return render(request, 'protocolo/risco.html')
-
 @login_required(login_url='login')
 def registo_view(request):
     doctor = request.user
-
+    
     if request.method == 'POST':
+        try:
+            user = Avaliador.objects.get(user=doctor)
+        except Avaliador.DoesNotExist:
+            try:
+                user = Administrador.objects.get(user=doctor)
+            except Administrador.DoesNotExist:
+                user = None
+        
+        referenciacao = user.reference
 
         new_user = User()
         new_user.username = request.POST.get('username')   
@@ -101,26 +106,24 @@ def registo_view(request):
         new_registo.telemovel = request.POST.get('telemovel')
         new_registo.save()
 
-        referefiacaos = Reference.objects.filter(nome = request.POST.get('referenciacao')).get()
-
         new_participante = Participante()
         new_participante.sexo = request.POST.get('sexo')
         new_participante.info_sensivel = new_registo
-        new_participante.referenciacao = referefiacaos
+        new_participante.referenciacao = referenciacao 
         new_participante.avaliador = doctor
         nascimento_str = request.POST.get('nascimento')
         nascimento_datetime = datetime.strptime(nascimento_str, '%Y-%m-%d')
         new_participante.nascimento = nascimento_datetime
         new_participante.save()
 
-
     context = {}
 
     return render(request, 'protocolo/participantes_registo.html')
 
+@login_required(login_url='login')
 def avaliadores_registo_view(request):
-    print("Aval Reg")
     if request.method == 'POST':
+        admin = Administrador.objects.get(user = request.user)
 
         new_user = User()
 
@@ -131,6 +134,11 @@ def avaliadores_registo_view(request):
         new_user.first_name = request.POST.get('primeiro_nome')
         new_user.last_name = request.POST.get('ultimo_nome')
         new_user.save()
+
+        new_avaliador = Avaliador()
+        new_avaliador.user = new_user 
+        new_avaliador.reference = admin.reference
+        new_avaliador.save()
 
         my_group = DjangoGroup.objects.get(name='Avaliador') 
         my_group.user_set.add(new_user)
@@ -1221,14 +1229,28 @@ def get_nr_participantes(user):
 @login_required(login_url='login')
 def participants_view(request):
     doctor = request.user
-    participants = Participante.objects.filter(avaliador=doctor)
-
-    avaliadores = DjangoGroup.objects.get(name="Avaliador").user_set.all()
-    print(avaliadores)
+    
+    try:
+        user = Avaliador.objects.get(user=doctor)
+        participants = Participante.objects.filter(avaliador=doctor)
+        
+    except Avaliador.DoesNotExist:
+        try:
+            user = Administrador.objects.get(user=doctor)
+            participants = Participante.objects.filter(referenciacao=user.reference)
+            all_avaliadores = DjangoGroup.objects.get(name="Avaliador").user_set.all()
+            avaliadores = []
+            lista_nr_participantes = []
+            for avaliador in all_avaliadores:
+                if Avaliador.objects.filter(user=avaliador, reference= user.reference).exists():
+                    avaliadores.append(avaliador)
+                    lista_nr_participantes.append(get_nr_participantes(doctor))
+        except Administrador.DoesNotExist:
+            user = None
+            
     resolutions = Resolution.objects.filter(doctor=doctor)
-    lista_nr_participantes = []
-    for a in avaliadores:
-        lista_nr_participantes.append(get_nr_participantes(doctor))
+    
+    print(avaliadores)
 
     context = {'participants': participants, 
                'resolutions': resolutions,

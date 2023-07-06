@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from datetime import datetime
 from django import forms
 from django.conf import settings
@@ -15,6 +16,15 @@ class Reference(models.Model):
     def __str__(self):
         return f'{self.nome}'
 
+class Administrador(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, blank=True,
+                            null=True)
+    reference = models.ForeignKey(Reference, on_delete=models.CASCADE, null=True, blank=True)
+
+class Avaliador(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, blank=True,
+                            null=True)
+    reference = models.ForeignKey(Reference, on_delete=models.CASCADE, null=True, blank=True)
 
 class Doenca(models.Model):
     nome = models.CharField(max_length=20, default="")
