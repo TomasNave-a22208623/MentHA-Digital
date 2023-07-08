@@ -148,7 +148,7 @@ def dashboard(request):
     stream_pop = BytesIO()
     img.save(stream)
     img_pop.save(stream_pop)
-    print(datas)
+    # print(datas)
     contexto = {
     # 'grupos': Grupo.objects.filter(doctor=doctor),
     # Apagar a linha de baixo ao descomentar a linha de cima
@@ -478,7 +478,7 @@ def view_group_details(request, grupo_id):
     grupos, sg, is_participante = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
-    print(request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']))
+    # print(request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']))
     contexto = {
         'grupo': Grupo.objects.get(id=grupo_id),
         'cuidadores': cuidadores,
@@ -1108,7 +1108,6 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
                     form_list.append(tuplo)
 
     if request.method == "POST":
-        print(request.POST)
         if request.POST.get('partilha'):
             partilha_text = request.POST.get('partilha')
             id_participante = request.POST.get('participante')
@@ -1208,7 +1207,6 @@ def view_diario_grupo(request, idSessaoGrupo):
     form_partilhas_grupo = PartilhaGrupoForm(request.POST or None)
 
     if request.method == "POST":
-        print(request.POST)
         form = NotaGrupoForm(request.POST or None)
         if request.POST.get('notaGrupo'):
             nota_grupo_text = request.POST.get('notaGrupo')
@@ -1786,7 +1784,6 @@ def view_resultados(request, idPergunta, idParte, sessaoGrupo):
     for pergunta in questionario.perguntas.all():
         opcoes_respostas = [opcao.resposta for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
         opcoes = [opcao for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
-        print(escolhas)
         counter_respostas = {}
         for opcao in opcoes:
             counter_respostas[opcao.id] = 0

@@ -173,13 +173,9 @@ def nova_pagina_risk_report(request):
 
 @login_required(login_url='login')
 def parte_do_utilizador_add_view(request):
-    print('teste1231222')
     if request.method == 'POST':
-        partId = request.POST.get('partId')
-        print(partId)   
+        partId = request.POST.get('partId') 
         part= Part.objects.get(pk=partId)
-        print(part)
-        print('teste12312412312')
         patient =  Participante.objects.get(pk=request.POST.get('patientId'))
         parteDoUtilizador = ParteDoUtilizador(part=part,participante=patient)
         parteDoUtilizador.save()
@@ -801,12 +797,10 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             if request.POST.get('sexo') == 'F':
                 risco = risk_json(file_path_women, new_risk.fumador, new_risk.idade, float(new_risk.hemoglobina_gliciada),new_risk.pressao_arterial)
                 new_risk.risco_de_enfarte = risco
-                print("RISCO:", risco)
 
             elif request.POST.get('sexo') == 'M':
                 risco = risk_json(file_path_men, new_risk.fumador, new_risk.idade, float(new_risk.hemoglobina_gliciada),new_risk.pressao_arterial)
                 new_risk.risco_de_enfarte = risco
-                print("RISCO:", risco)
             new_risk.parteDoUtilizador = parteDoUtilizador
             new_risk.concluido = True
             r.part.concluido = True
@@ -1182,8 +1176,6 @@ def report_view(request, resolution_id):
 @login_required(login_url='login')
 def report_risk(request):
     start = time.time()
-    print(request.POST)
-    print("ele chega AQUI")
     lines = []
 
     risk = Risk.objects.all()
@@ -1198,9 +1190,7 @@ def report_risk(request):
     
     context = {'lines': lines
                }
-    print("ele chega AQUI2")
     parts_risk = render(request, 'protocolo/parts_risk.html', context)
-    print("ele chega AQUI3")
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="Risco.pdf"'
     pdf = pisa.pisaDocument(parts_risk.content, response)
@@ -1250,8 +1240,6 @@ def participants_view(request):
             
     resolutions = Resolution.objects.filter(doctor=doctor)
     
-    print(avaliadores)
-
     context = {'participants': participants, 
                'resolutions': resolutions,
                'avaliadores': avaliadores,
