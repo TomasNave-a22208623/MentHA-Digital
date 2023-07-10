@@ -216,7 +216,7 @@ body{
     width: 40px;
     border-radius: 50%;
     left: 100%;
-    top: 2rem;
+    top: 37px;
     transform: translateX(-50%);
     cursor: pointer;
     display: flex;
@@ -247,7 +247,7 @@ body{
     border-radius: 50%;
 
     left: 100%;
-    top: 2rem;
+    top: 37px;
     transform: translateX(-50%);
     cursor: pointer;
 
