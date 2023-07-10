@@ -1,3 +1,5 @@
+import os
+
 from django import template
 from datetime import datetime
 
@@ -11,3 +13,8 @@ def verifica_se_tem_valores(val, texto):
         return temp
     else:
         return texto
+
+
+@register.filter
+def filename(value):
+    return os.path.basename(value.file.name)

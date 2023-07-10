@@ -274,7 +274,7 @@ def parte_ativa(request, sg_id):
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def new_group(request):
-    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
+    grupos, sg, is_participante = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     formGrupo = GrupoForm(request.POST or None)
@@ -481,7 +481,7 @@ def view_group_details(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
-    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
+    grupos, sg, is_participante = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     # print(request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']))
@@ -503,7 +503,7 @@ def group_members(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
-    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
+    grupos, sg, is_participante = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     # formDinamizador = DinamizadorForm(request.POST or None)
@@ -532,7 +532,7 @@ def group_sessions(request, grupo_id):
     # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
 
     sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
-    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
+    grupos, sg, is_participante = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
 
@@ -599,10 +599,7 @@ def group_notes(request, grupo_id):
 @check_user_able_to_see_page('Todos')
 def caregiver_update(request, cuidador_id, grupo_id):
     cuidador = Cuidador.objects.get(pk=cuidador_id)
-    formCuidador = CuidadorForm(request.POST or None, instance=cuidador, initial={'nome': cuidador.nome,
-                                                                                  'nascimento': cuidador.nascimento,
-                                                                                  'telemovel': cuidador.telemovel,
-                                                                                  'email': cuidador.email})
+    formCuidador = CuidadorForm(request.POST or None, instance=cuidador)
 
     if formCuidador.is_valid():
         formCuidador.save()
@@ -637,7 +634,7 @@ def create_caregiver(request, grupo_id):
             user.save()
 
             my_group = DjangoGroup.objects.get(name='Cuidador') 
-            my_group.user_set.add(user)
+            my_group.user_set.add(new_user)
 
             cuidador = Cuidador()
             cuidador.user = user
@@ -645,7 +642,6 @@ def create_caregiver(request, grupo_id):
             cuidador.nascimento = formCuidador.cleaned_data['nascimento']
             cuidador.nacionalidade = formCuidador.cleaned_data['nacionalidade']
             cuidador.localizacao = formCuidador.cleaned_data['localizacao']
-            cuidador.sexo = formCuidador.cleaned_data['sexo']
             cuidador.referenciacao = Reference.objects.filter(nome=formCuidador.cleaned_data['referenciacao']).first()
             cuidador.info_sensivel = informacao_sensivel
             cuidador.save()
@@ -771,10 +767,7 @@ def assign_caregiver(request, grupo_id, cuidador_id):
 @check_user_able_to_see_page('Todos')
 def dinamizador_update(request, dinamizador_id, grupo_id):
     dinamizador = DinamizadorConvidado.objects.get(pk=dinamizador_id)
-    formDinamizador = DinamizadorForm(request.POST or None, instance=dinamizador, initial={'nome': dinamizador.nome,
-                                                                                           'nascimento': dinamizador.nascimento,
-                                                                                           'telemovel': dinamizador.telemovel,
-                                                                                           'email': dinamizador.email})
+    formDinamizador = DinamizadorForm(request.POST or None, instance=dinamizador)
 
     if formDinamizador.is_valid():
         formDinamizador.save()
@@ -914,7 +907,7 @@ def register_user(request):
 
 
 def logout_care_view(request):
-    return redirect('mentha:index', request)
+    return render(request, 'mentha/base.html')
 
 
 def view_iniciar_sessao(request, sessao_grupo_id):
@@ -978,7 +971,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
 
     data = sessao.data
 
-    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
+    grupos, sg, is_participante = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     pode_iniciar = False

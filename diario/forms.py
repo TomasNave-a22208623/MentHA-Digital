@@ -17,6 +17,8 @@ class PartilhaForm(ModelForm):
         fields = '__all__'
         widgets = {
             'partilha': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma partilha...'}),
+            'ficheiro': forms.FileInput(attrs={'style': 'display:none;'}),
+            'imagem': forms.FileInput(attrs={'style': 'display:none;'}),
         }
 
 

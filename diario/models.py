@@ -759,6 +759,8 @@ class Partilha(models.Model):
     cuidador = models.ForeignKey(Cuidador, on_delete=models.CASCADE, blank=True, null=True)
     partilha = models.TextField()
     data = models.DateTimeField(auto_now_add=True, null=True)
+    imagem = models.FileField(upload_to="images/", null=True, blank=True)
+    ficheiro = models.FileField(upload_to="ficheiros_partilhas/", null=True, blank=True)
 
     def __str__(self):
         return f'{self.partilha}'
