@@ -164,7 +164,7 @@
 
         <hr>
 
-        <h2 class="notas-title"><b>Notas sobre {{ participante.info_sensivel.nome }}</b></h2>
+        <h2 class="notas-title"><b>Notas de {{ participante.info_sensivel.nome }}</b></h2>
 
         <ul class="notas-list">
             {% if notas|length > 0 %}
@@ -205,7 +205,7 @@
             </form>
         </div>
 
-        <h2 class="partilhas-title"><b>Partilhas de {{ participante.info_sensivel.nome }}</b></h2>
+        <h2 class="partilhas-title"><b>Partilhas da Sessão</b></h2>
 
         <div class="partilhas-list">
             <ul>
@@ -252,103 +252,4 @@
             </ul>
         </div>
     </div>
-</div>
-
-<div id="respostas" style="display: none" data-participante="{{ participante.id }}">
-    {% for pergunta,parte,pg,form in form_list %}
-    <div id="flex-container">
-        <div class="row">
-            <div class="w-50" style="padding-top: 10px;
-            padding-left: 25px;">
-                {{ pergunta.nome }}
-            </div>
-            <div class="w-50" style="padding-top: 10px;
-            padding-right: 25px;">
-                {% comment %} {{ form.as_p }} {% endcomment %}
-                {% if pergunta.tipo_resposta == 'UPLOAD_FOTOGRAFIA' %}
-                <form action="preventDefault()" enctype="multipart/form-data">
-                    {% for field in form %}
-                    <div>
-                        {{ field }}
-                        <span data-parteid="{{parte.id}}" data-partegrupoid="{{pg.id}}"
-                              data-perguntaid="{{pergunta.id}}" style="display:none"></span>
-                    </div>
-                    {% endfor %}
-                </form>
-                {% elif pergunta.tipo_resposta == 'ESCOLHA_MULTIPLA' %}
-                {% include 'diario/escolha_multipla.html' %}
-                {% else %}
-                {% for field in form %}
-                <div>
-                    {{ field }}
-                    <span data-parteid="{{parte.id}}" data-partegrupoid="{{pg.id}}" data-perguntaid="{{pergunta.id}}"
-                          style="display:none"></span>
-                </div>
-                {% if pergunta.postexto %}
-                <label>
-                    {{ pergunta.postexto }}
-                </label>
-                {% endif %}
-                {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-
-    </div>
-    {% endfor %}
-    <button style="float:right;margin-top:15px" onclick="submete_diario({{sessaoGrupo.id}}, {{ participante.id }})"
-            class="btn btn-primary">Submeter
-    </button>
-</div>
-
-<div id="informacoes" style="display: none">
-    <table style="width:100%">
-        <tr style="color:white; background-color:#4EB4BE;">
-            <th><div class="titulo">Nome Completo:</div></th>
-            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.info_sensivel.nome}}</div></td>
-        </tr>
-
-        <tr>
-            <th><div class="titulo">Idade:</div></th>
-            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.idade}}</div></td>
-        </tr>
-
-        <tr style="color:white; background-color:#4EB4BE;">
-            <th><div class="titulo">Sexo:</div></th>
-            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.sexo}}</div></td>
-        </tr>
-
-        <tr>
-            <th><div class="titulo">Data de Nascimento:</div></th>
-            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.nascimento}}</div></td>
-        </tr>
-
-        <tr style="color:white; background-color:#4EB4BE;">
-            <th><div class="titulo">Nacionalidade:</div></th>
-            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.nacionalidade}}</div></td>
-        </tr>
-
-        <tr>
-            <th><div class="titulo">Diagnósticos:</div></th>
-            <td style="padding:10px; text-align: left"><div class="detalhe">
-                {{ participante.doencas_string }}
-            </div></td>
-        </tr>
-
-        <tr style="color:white; background-color:#4EB4BE;">
-            <th><div class="titulo">Telemóvel:</div></th>
-            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.info_sensivel.telemovel}}</div></td>
-        </tr>
-
-        <tr>
-            <th><div class="titulo">Email:</div></th>
-            <td style="padding:10px; text-align: left"><div class="detalhe">{{participante.info_sensivel.email}}</div></td>
-        </tr>
-    </table>
-</div>
-
-<div id="presencas" style="display: none">
-
-    <h1>Presencas do grupo {{ grupo_id }}</h1>
-
 </div>

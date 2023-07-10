@@ -139,6 +139,12 @@
                         <i class="fa-solid fa-user-group" style="color:white;"></i> {{sessaoGrupo.grupo}}
                     </a>
                 </div>
+                <div class="bcca-breadcrumb-item fw-normal fs-4">
+                    <a href="{% url 'diario:dashboard_Care' %}">
+                        <i class="fa-solid fa-user-doctor" style="color:white;"></i>
+                            MentHA {{ grupo.programa }}
+                    </a>
+                </div>
               </div>
               <div style="width:250px" class="esquerda">
                 {% if tempo_total_partes_grupo > tempo_total_partes %}
@@ -207,7 +213,7 @@
                                         {% elif sessaoGrupo.grupo.programa == "COG" %}
                                             data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/iniciar/{{ proxima_parte }}">
                                         {% endif %}
-                                Iniciar
+                                <i class="fa-solid fa-play"></i> Iniciar
                                 </button>
                             {% endif %}
                         {% elif  parte_do_grupo.inicio != None and grupos_permissoes.exists %}
@@ -218,7 +224,7 @@
                                         {% elif sessaoGrupo.grupo.programa == "COG" %}
                                             data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/continuar/{{ proxima_parte }}">
                                         {% endif %}
-                                Continuar
+                                <i class="fa-solid fa-angles-right"></i> Continuar
                                 </button>
                             {% endif %}
                         {% elif grupos_permissoes.exists %}
@@ -228,7 +234,7 @@
                                     {% elif sessaoGrupo.grupo.programa == "COG" %}
                                         data-parte="{{ parte_do_grupo.exercicio.id }}/{{ sessaoGrupo.id }}/ver/{{ proxima_parte }}">
                                     {% endif %}
-                            Ver
+                            <i class="fa-solid fa-eye"></i> Ver
                             </button>
                         {% endif %}
                     </td>

@@ -50,6 +50,16 @@ function ativaBotaoGrupo() {
     buttonAnswer.style.display = "none";
 }
 
+function ativaBotaoNotas() {
+    // desativa todos os botões
+    desativaBotoesParticipantesEGrupo();
+    // obtém e ativa o botão do grupo
+    let buttonAtivo = document.getElementById("participante_notas");
+    buttonAtivo.classList.add("selecionado");
+    let buttonPresences = document.querySelector('[data-menu="notas"]');
+    buttonPresences.style.display = "block";
+}
+
 //Fim grupo
 function ativaMenu() {
     // põe botões de menu a branco + esconde respetiva info
@@ -93,6 +103,8 @@ document.addEventListener("DOMContentLoaded", function () {
     menuAtivo = document.querySelector("[data-menu='notas']");
 
     if (participante_logado) {
+        ativaBotaoNotas();
+        descarregaInfoParticipante(participante_logado.dataset.sessaogrupo, participante_logado.dataset.participante);
         document.querySelectorAll(".menu").forEach((botaoParticipante) => {
             botaoParticipante.onclick = () => {
                 descarregaInfoParticipante(participante_logado.dataset.sessaogrupo, participante_logado.dataset.participante);

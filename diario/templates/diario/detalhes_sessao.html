@@ -398,19 +398,19 @@ htmlShow.style.display = "none";
                             <button type="button" class="btn btn-outline-primary iniciar"
                                     data-parte="{{parte_do_grupo.parte.id}}/{{id}}/{{grupo.id}}"
                                     style="width:11ch">
-                                Iniciar
+                                <i class="fa-solid fa-play"></i> Iniciar
                             </button>
                             {% elif parte_do_grupo.parte.id == proxima_parte and parte_do_grupo.inicio != None %}
                             <button type="button" class="btn btn-outline-primary continuar"
                                     data-parte="{{parte_do_grupo.parte.id}}/{{id}}/{{grupo.id}}"
                                     style="width:11ch">
-                                Continuar
+                                <i class="fa-solid fa-angles-right"></i> Continuar
                             </button>
                             {% elif parte_do_grupo.parte.id != proxima_parte %}
                             <button type="button" class="btn btn-outline-secondary ver"
                                     data-parte="{{parte_do_grupo.parte.id}}/{{id}}/{{grupo.id}}"
                                     style="width:11ch">
-                                Ver
+                                <i class="fa-solid fa-eye"></i> Ver
                             </button>
                             {% endif %}
 

@@ -71,7 +71,7 @@ def login_page_view(request):
 
 def logout_page_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse('mentha:home'))
+    return HttpResponseRedirect(reverse('mentha:index'))
 
 def index_page_view(request):
     return render (request, 'mentha/base.html')

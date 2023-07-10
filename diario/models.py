@@ -329,7 +329,6 @@ class Utilizador(models.Model):
     )
 
     sexo = models.CharField(max_length=20, choices=opSexo, default="", blank=False, null=False)
-    idade = models.CharField(max_length=20, default="", blank=True, null=True)
     nascimento = models.DateField(null=True, blank=True)
     data_entrada = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     nacionalidade = models.CharField(max_length=20, default="", blank=True, null=True)
@@ -353,6 +352,12 @@ class Utilizador(models.Model):
     @property
     def imagem(self):
         return self.info_sensivel.imagem
+
+    @property
+    def idade(self):
+        today = datetime.now()
+        # print(today)
+        return today.year - self.nascimento.year - ((today.month, today.day) < (self.nascimento.month, self.nascimento.day))
 
 
 class Cuidador(Utilizador):

@@ -61,7 +61,7 @@ class CuidadorForm(ModelForm):
         model = Cuidador
         widgets = {
             'nascimento': DateInput(
-                format='%d/%m/%Y',
+                format='%Y-%m-%d',
                 attrs={'class': 'form-control', 'type': 'date',
                        'required': 'true'
                        }
@@ -108,7 +108,7 @@ class DinamizadorForm(ModelForm):
         model = DinamizadorConvidado
         widgets = {
             'nascimento': DateInput(
-                format='%d/%m/%Y',
+                format='%Y-%m-%d',
                 attrs={'class': 'form-control', 'type': 'date',
                        'required': 'true'
                        }
