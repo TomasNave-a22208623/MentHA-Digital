@@ -1219,7 +1219,10 @@ def get_nr_participantes(user):
 @login_required(login_url='login')
 def participants_view(request):
     doctor = request.user
-    
+    participants = []
+    avaliadores = []
+    lista_nr_participantes = []
+
     try:
         user = Avaliador.objects.get(user=doctor)
         participants = Participante.objects.filter(avaliador=doctor)
@@ -1229,8 +1232,7 @@ def participants_view(request):
             user = Administrador.objects.get(user=doctor)
             participants = Participante.objects.filter(referenciacao=user.reference)
             all_avaliadores = DjangoGroup.objects.get(name="Avaliador").user_set.all()
-            avaliadores = []
-            lista_nr_participantes = []
+
             for avaliador in all_avaliadores:
                 if Avaliador.objects.filter(user=avaliador, reference= user.reference).exists():
                     avaliadores.append(avaliador)
