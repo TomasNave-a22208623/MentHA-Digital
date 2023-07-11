@@ -3,7 +3,7 @@
 <div class="bcca-breadcrumb">
     <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;">
     </div>
-    
+
     {% if section is not None and section.name != "None" and 'Risk' not in section.name %}
         <div class="bcca-breadcrumb-item fw-normal fs-4">
             <a class="jq-btn" style="display: contents;" role="button"
@@ -21,7 +21,7 @@
             </a>
         </div>
     {% endif %}
-    
+
     {% if instrument is not None and instrument.name != "None" and 'Risk' not in instrument.name%}
         <div class="bcca-breadcrumb-item fw-normal fs-4">
             <a class="jq-btn" style="display: contents;" role="button"
@@ -42,26 +42,41 @@
                         {% endif %}
                     {% endif %}
                data-href="{% url 'protocolo:instruments' protocol.id part.id area.id patient.id %}">
-               Áreas
+               Dimensões
             </a>
         </div>
     {% endif %}
 
-    {% if part is not None and 'Risk' not in part.name %}
-
+    {% if part.part is not None and 'Risk' not in part.part.name %}
     <div class="bcca-breadcrumb-item fw-normal fs-4">
         <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' protocol.id part.id patient.id %}">
-            Partes
+            {{ part.part.name }}
         </a>
     </div>
+    {% endif %}
 
+    {% if 'Risk' in part.part.name %}
+    <div class="bcca-breadcrumb-item fw-normal fs-4">
+        <a href="#" class="jq-btn" data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}">
+            {{ part.part.name }}
+        </a>
+    </div>
     {% endif %}
 
     {% if protocol is not None %}
-    <div class="bcca-breadcrumb-item fs-4">
-        <a href="#" class="jq-btn" data-href="{% url 'protocolo:dashboard' %}">
-            Protocolo
+    <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;"></div>
+        <div class="bcca-breadcrumb-item fw-normal fs-4">
+            <a data-href="{% url 'protocolo:participant' patient.id %}" class="jq-btn">
+                <i class="fa-solid fa-address-card" style="color:white;"></i>
+                {{ patient.nome }}
+            </a>
+        </div>
+    {% endif %}
+
+    <div class="bcca-breadcrumb-item fw-normal fs-4">
+        <a data-href="{% url 'protocolo:participants' %}" class="jq-btn">
+            <i class="fa-solid fa-user-check" style="color:white;"></i>
+            MentHA-EVAL
         </a>
     </div>
-    {% endif %}
 </div>

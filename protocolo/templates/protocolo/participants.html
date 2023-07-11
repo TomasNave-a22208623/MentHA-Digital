@@ -3,6 +3,10 @@
 
 <div class="container-fluid">
     <div style="padding:8px">
+        <div>
+            {% include 'protocolo/tree.html' %}
+        </div>
+
         <div class="card-flex">
             <p class="m-0 fw-bold mb-text fs-4">Participantes</p>
             <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participantes_registo' %}">
