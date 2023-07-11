@@ -162,22 +162,37 @@ $(document).ready(function () {
         const csrf_token = Cookies.get('csrftoken');
         var post_data = $("#patient-form").serialize();
 
-        $.ajax({
-            method: 'POST',
-            url: href,
-            data: post_data,
-            headers: { 'X-CSRFToken': csrf_token },
-            async: false,
-            success: function (data) {
-                console.log("Success!")
-                $('.page-content').html(data);
-                return false;
-            },
-            error: function () {
-                console.log("Error!");
-                alert("Pagina não disponível.");
+
+
+        const f = document.querySelector('#patient-form');
+        var problem = false;
+        Object.values(f).forEach((val) => {
+            if (val.type != 'submit' && val.value == '') {
+                problem = true;                
             }
-        })
+        });
+
+        if (problem) {
+            alert('Deve preencher todos os campos do formulário')
+        } else {
+            $.ajax({
+                method: 'POST',
+                url: href,
+                data: post_data,
+                headers: { 'X-CSRFToken': csrf_token },
+                async: false,
+                success: function (data) {
+                    console.log("Success!")
+                    $('.container-form-registo').html(data);
+                    return false;
+                },
+                error: function () {
+                    console.log("Error!");
+                    alert("Pagina não disponível.");
+                }
+            })
+        }
+
     });
 
     $(document).on("click", ".btn-submit-upl", function () {
