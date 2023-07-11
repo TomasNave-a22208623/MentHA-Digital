@@ -13,17 +13,20 @@
                         <i class="fa-solid fa-list" style="color:white;"></i>  Sessões
                     </a>
                 </div>
+
                 <div class="bcca-breadcrumb-item fw-normal fs-4">
                     <a href="{% url 'diario:grupo_details' grupo.id %}">
                         <i class="fa-solid fa-user-group" style="color:white;"></i>  {{grupo}}
                     </a>
                 </div>
-              </div>
-            <form action="{% url 'diario:grupo_details' grupo.id %}">
-                <button type="submit" class="btn mb-btn-outline" style="width: 150px">
-                     <i class="fa-solid fa-angle-left"></i> Anterior
-                </button>
-            </form>
+
+                <div class="bcca-breadcrumb-item fw-normal fs-4">
+                    <a href="{% url 'diario:dashboard_Care' %}">
+                        <i class="fa-solid fa-user-doctor" style="color:white;"></i>
+                            MentHA {{ grupo.programa }}
+                    </a>
+                </div>
+            </div>
         </div>   
     </div>
     <div class="table-responsive" >
@@ -50,11 +53,11 @@
                 <td style="text-align: center;">
                     {% if sessao_do_grupo.id == proxima_sessao and  sessao_do_grupo.data is not Null and grupos_permissoes.exists %}
                     <form action="{% url 'diario:presencas_sessao' sessao_do_grupo.id %}">
-                        <button class="btn mb-btn btn-sessao ee button w-100">Iniciar</button>
+                        <button class="btn mb-btn btn-sessao ee button w-100"><i class="fa-solid fa-play"></i> Iniciar</button>
                     </form>
                     {% elif sessao_do_grupo.id == sessao_em_curso and grupos_permissoes.exists %}
                     <form action="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">
-                        <button class="btn mb-btn btn-sessao w-100">Continuar</button>
+                        <button class="btn mb-btn btn-sessao w-100"><i class="fa-solid fa-angles-right"></i> Continuar</button>
                     </form>
                     {% elif sessao_do_grupo.id == sessao_em_curso and  not grupos_permissoes %}
                     <form action="{% url 'diario:sessao' sessao_do_grupo.id grupo.id %}">

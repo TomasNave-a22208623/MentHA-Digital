@@ -1,86 +1,90 @@
 {% extends 'diario/base.html' %} {% load static %} {% block main %}
-  <div class="container-fluid">
+<div class="container-fluid">
     <div class="titulo">
-      <div class="card-flex" style="padding: 8px">
-        <div class="bcca-breadcrumb">
-          <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;"></div>
-          <div class="bcca-breadcrumb-item fw-normal fs-4">
-              <a href="{% url 'diario:grupo_details' grupo.id %}">
-                  <i class="fa-solid fa-user-group" style="color:white;"></i>  {{grupo}}
-              </a>
-          </div>
-        </div>
-        <form action="{% url 'diario:dashboard_Care' %}">
-          <button type="submit" class="btn mb-btn-outline" style="width: 150px">
-            <i class="fa-solid fa-angle-left"></i> Anterior
-          </button>
-        </form>
-      </div>
-      
-    </div>
-    <div class="table-responsive">
-      <table class="table">
-        <thead>
-          <tr>
-            <th style="text-align: center">
-              <strong>Diagnóstico</strong>
-            </th>
-            <th style="text-align: center">
-              <strong>Localização</strong>
-            </th>
-            <th style="text-align: center">
-              <strong>Escolaridade</strong>
-            </th>
-            <th style="text-align: center">
-              <strong>Referenciação</strong>
-            </th>
-            <th style="text-align: center">
-              <strong>Nº Membros</strong>
-            </th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="text-align: center">{{ grupo.diagnostico_most_frequent }}</td>
-            <td style="text-align: center">{{ grupo.localizacao_most_frequent }}</td>
-            <td style="text-align: center">{{ grupo.escolaridade_most_frequent }}</td>
-            <td style="text-align: center">
-              {{ grupo.referenciacao_most_frequent }}
-            </td>
-            <td style="text-align: center">
-              <i class="fa-solid fa-users"></i>
-              {{ grupo.nr_membros }}
-            </td>
-            <td style="text-align: center">
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <div class="card-flex" style="padding: 8px">
+            <div class="bcca-breadcrumb">
+                <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;"></div>
+                <div class="bcca-breadcrumb-item fw-normal fs-4">
+                    <a href="{% url 'diario:grupo_details' grupo.id %}">
+                        <i class="fa-solid fa-user-group" style="color:white;"></i> {{grupo}}
+                    </a>
+                </div>
 
-      <div class="card-body" style="margin-top: 15px">
-        <div class="col align-self-center">
-          <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-            <form action="{% url 'diario:group_sessions' grupo.id %}">
-              <button
-                type="submit"
-                class="btn mb-btn"
-                style="width: 200px">
-                <i class="fa-solid fa-list"></i> Sessões
-              </button>
-            </form>
-            <form action="{% url 'diario:group_members' grupo.id %}">
-              <button
-                type="submit"
-                class="btn mb-btn"
-                style="width: 200px">
-                <i class="fa-solid fa-users"></i> Membros
-              </button>
-            </form>
-          </div>
+                <div class="bcca-breadcrumb-item fw-normal fs-4">
+                    <a href="{% url 'diario:dashboard_Care' %}">
+                        <i class="fa-solid fa-user-doctor" style="color:white;"></i>
+                        MentHA {{ grupo.programa }}
+                    </a>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+
+    <br>
+
+    <div class="table-responsive">
+        <table class="table" style="width: fit-content; margin: auto;">
+            <thead>
+            <tr>
+                <th style="text-align: right">
+                    <strong>Diagnóstico:</strong>
+                </th>
+                <td style="text-align: left">{{ grupo.diagnostico_most_frequent }}</td>
+            </tr>
+
+            <tr>
+                <th style="text-align: right">
+                    <strong>Localização:</strong>
+                </th>
+                <td style="text-align: left">{{ grupo.localizacao_most_frequent }}</td>
+            </tr>
+
+            <tr>
+                <th style="text-align: right">
+                    <strong>Escolaridade:</strong>
+                </th>
+                <td style="text-align: left">{{ grupo.escolaridade_most_frequent }}</td>
+            </tr>
+
+            <tr>
+                <th style="text-align: right">
+                    <strong>Referenciação:</strong>
+                </th>
+                <td style="text-align: left">{{ grupo.referenciacao_most_frequent }}</td>
+            </tr>
+
+            <tr>
+                <th style="text-align: right">
+                    <strong>Nº Membros:</strong>
+                </th>
+                <td style="text-align: left"><i class="fa-solid fa-users"></i> {{ grupo.nr_membros }}</td>
+            </tr>
+            </thead>
+        </table>
+
+        <div class="card-body" style="margin-top: 15px">
+            <div class="col align-self-center">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <form action="{% url 'diario:group_sessions' grupo.id %}">
+                        <button
+                                type="submit"
+                                class="btn mb-btn"
+                                style="width: 150px">
+                            <i class="fa-solid fa-list"></i> Sessões
+                        </button>
+                    </form>
+                    <form action="{% url 'diario:group_members' grupo.id %}">
+                        <button
+                                type="submit"
+                                class="btn mb-btn"
+                                style="width: 150px">
+                            <i class="fa-solid fa-users"></i> Membros
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 {% endblock %}

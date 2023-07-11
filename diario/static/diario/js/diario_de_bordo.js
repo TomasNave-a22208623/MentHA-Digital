@@ -29,7 +29,7 @@ function desativaBotoesParticipantesEGrupo(){
 
 function desativaBotoesMenu(){
     // desativa todos os botões de participante e grupo
-    
+
     document.querySelectorAll(".menu").forEach((button) => {
         document.querySelector(`#${button.dataset.menu}`).style.display = "none";
         button.classList.remove("selecionado");
@@ -54,7 +54,7 @@ function ativaBotaoGrupo() {
 function ativaMenu() {
     // põe botões de menu a branco + esconde respetiva info
     desativaBotoesMenu();
-    
+
     menuAtivo.classList.add("selecionado");
 
     document.querySelector(`#${menuAtivo.dataset.menu}`).style.display = "block";
@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".grupo button").forEach((botaoGrupo) => {
             ativaBotaoGrupo(botaoGrupo.dataset.idgrupo);
             descarregaInfoGrupo(botaoGrupo.dataset.idgrupo);
-            
+
             botaoGrupo.onclick = () => {
                 ativaBotaoGrupo(botaoGrupo.dataset.idgrupo);
                 descarregaInfoGrupo(botaoGrupo.dataset.idgrupo);
@@ -413,7 +413,7 @@ function submete_diario(sg_id, participante_id) {
 //       fetch('/diario/guarda_avaliacao_participante/' + sg_id, {
 //         method: "POST",
 //         body: formData,
-//       });    
+//       });
 //     }
 // }
 

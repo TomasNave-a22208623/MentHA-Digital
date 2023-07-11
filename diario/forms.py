@@ -17,6 +17,8 @@ class PartilhaForm(ModelForm):
         fields = '__all__'
         widgets = {
             'partilha': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma partilha...'}),
+            'ficheiro': forms.FileInput(attrs={'style': 'display:none;'}),
+            'imagem': forms.FileInput(attrs={'style': 'display:none;'}),
         }
 
 
@@ -61,7 +63,7 @@ class CuidadorForm(ModelForm):
         model = Cuidador
         widgets = {
             'nascimento': DateInput(
-                format='%d/%m/%Y',
+                format='%Y-%m-%d',
                 attrs={'class': 'form-control', 'type': 'date',
                        'required': 'true'
                        }
@@ -108,7 +110,7 @@ class DinamizadorForm(ModelForm):
         model = DinamizadorConvidado
         widgets = {
             'nascimento': DateInput(
-                format='%d/%m/%Y',
+                format='%Y-%m-%d',
                 attrs={'class': 'form-control', 'type': 'date',
                        'required': 'true'
                        }

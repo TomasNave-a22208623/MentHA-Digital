@@ -88,8 +88,11 @@ def get_grupos(user):
     dinamizador = DinamizadorConvidado.objects.filter(user=user).first()
     mentor = Mentor.objects.filter(user=user).first()
     participante = Participante.objects.filter(user=user).first()
+    cuidador = Cuidador.objects.filter(user=user).first()
     sg = None
     is_participante = False
+    is_cuidador = False
+
     if dinamizador:
         grupos = dinamizador.grupo.all()
     if mentor:
@@ -98,10 +101,14 @@ def get_grupos(user):
         grupos = participante.grupo.all()
         sg = SessaoDoGrupo.objects.filter(grupo__in=participante.grupo.all()).exclude(parte_ativa__isnull=True)
         is_participante = True
+    if cuidador:
+        grupos = cuidador.grupo.all()
+        sg = SessaoDoGrupo.objects.filter(grupo__in=cuidador.grupo.all()).exclude(parte_ativa__isnull=True)
+        is_cuidador = True
     if user.is_superuser:
         grupos = Grupo.objects.all()
 
-        return grupos, sg, is_participante
+    return grupos, sg, is_participante, is_cuidador
 
 def get_proxima_sessao(grupos):
     datas = SessaoDoGrupo.objects.exclude(data=None)
@@ -134,7 +141,7 @@ def dashboard(request):
     if cuidador:
         return redirect('diario:user_dashboard')
     
-    grupos, sg, is_participante = get_grupos(request.user)
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     factory = qrcode.image.svg.SvgImage
@@ -147,6 +154,7 @@ def dashboard(request):
     img.save(stream)
     img_pop.save(stream_pop)
     # print(datas)
+
     contexto = {
     # 'grupos': Grupo.objects.filter(doctor=doctor),
     # Apagar a linha de baixo ao descomentar a linha de cima
@@ -266,7 +274,7 @@ def parte_ativa(request, sg_id):
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def new_group(request):
-    grupos, sg, is_participante = get_grupos(request.user)
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     formGrupo = GrupoForm(request.POST or None)
@@ -473,7 +481,7 @@ def view_group_details(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
-    grupos, sg, is_participante = get_grupos(request.user)
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     # print(request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']))
@@ -495,7 +503,7 @@ def group_members(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
-    grupos, sg, is_participante = get_grupos(request.user)
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     # formDinamizador = DinamizadorForm(request.POST or None)
@@ -523,8 +531,8 @@ def group_members(request, grupo_id):
 def group_sessions(request, grupo_id):
     # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
 
-    sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id).order_by('sessao__numeroSessao')
-    grupos, sg, is_participante = get_grupos(request.user)
+    sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
 
@@ -963,7 +971,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
 
     data = sessao.data
 
-    grupos, sg, is_participante = get_grupos(request.user)
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     pode_iniciar = False
@@ -2126,24 +2134,24 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     grupo = sessaoDoGrupo.grupo
     partes = ParteGrupo.objects.filter(sessaoGrupo=sessaoDoGrupo)
 
-    # Cabeçalho
+    # CabeÃ§alho
     paragraph = document.add_paragraph(f'Projeto MentHA')
 
-    # para pôr em itálico (chato... talvez exista algo melhor)
+    # para pÃ´r em itÃ¡lico (chato... talvez exista algo melhor)
     for run in paragraph.runs:
         run.font.italic = True
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-    paragraph = document.add_heading(f'Relatório da {sessaoDoGrupo.sessao.nome}', 0)
+    paragraph = document.add_heading(f'RelatÃ³rio da {sessaoDoGrupo.sessao.nome}', 0)
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-    # Relatório
-    paragraph = document.add_paragraph("O presente relatório tem como objetivo fornecer os dados detalhados acerca do Diário de Bordo da "
+    # RelatÃ³rio
+    paragraph = document.add_paragraph("O presente relatÃ³rio tem como objetivo fornecer os dados detalhados acerca do DiÃ¡rio de Bordo da "
                                        +f"{sessaoDoGrupo.__str__()}" +
                                        " realizada no dia "+ f"{sessaoDoGrupo.data.day}" + "." +
                                        f"{sessaoDoGrupo.data.month}" + "." +
-                                       f"{sessaoDoGrupo.data.year}" + " com a participação de várias pessoas. "
-                                       "Durante a sessão abordou-se o seguinte tema: " + f"{sessaoDoGrupo.sessao.nome}")
+                                       f"{sessaoDoGrupo.data.year}" + " com a participaÃ§Ã£o de vÃ¡rias pessoas. "
+                                       "Durante a sessÃ£o abordou-se o seguinte tema: " + f"{sessaoDoGrupo.sessao.nome}")
 
     if partes.exists():
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
@@ -2156,12 +2164,12 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
             paragraph = document.add_paragraph(
                 "Fase " + dict(parte_grupo.parte.FASE)[parte_grupo.parte.fase] + " - " + parte_grupo.parte.objetivo)
             paragraph = document.add_paragraph(
-                "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.parte.duracao) + " min")
+                "DuraÃ§Ã£o: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.parte.duracao) + " min")
         if grupo.programa == "COG":
             paragraph = document.add_paragraph(
-                "Exercício" + str(parte_grupo.exercicio))
+                "ExercÃ­cio" + str(parte_grupo.exercicio))
             paragraph = document.add_paragraph(
-                "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.exercicio.duracao) + " min")
+                "DuraÃ§Ã£o: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.exercicio.duracao) + " min")
 
     if partilhas.exists():
         paragraph = document.add_heading(
@@ -2170,16 +2178,16 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
 
     for partilha in partilhas:
         if partilha.participante:
-            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o participante " +
+            paragraph = document.add_paragraph("Ã€s " + partilha.hora_str() + " o participante " +
                                                partilha.participante.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
         elif partilha.cuidador:
-            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o cuidador " +
+            paragraph = document.add_paragraph("Ã€s " + partilha.hora_str() + " o cuidador " +
                                                partilha.cuidador.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
         elif partilha.partilha_dinamizador:
-            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o dinamizador " +
+            paragraph = document.add_paragraph("Ã€s " + partilha.hora_str() + " o dinamizador " +
                                                partilha.partilha_dinamizador.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
         elif partilha.partilha_mentor:
-            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o mentor " +
+            paragraph = document.add_paragraph("Ã€s " + partilha.hora_str() + " o mentor " +
                                                partilha.partilha_mentor.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
 
     if notas_grupo.exists():
@@ -2189,10 +2197,10 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
 
     for nota_grupo in notas_grupo:
         if nota_grupo.anotador_mentor:
-            paragraph = document.add_paragraph("Às " + nota_grupo.hora_str() + " o mentor " +
+            paragraph = document.add_paragraph("Ã€s " + nota_grupo.hora_str() + " o mentor " +
                                                nota_grupo.anotador_mentor.nome + " fez a seguinte nota sobre o grupo: \n" + nota_grupo.notaGrupo + ".")
         if nota_grupo.anotador_dinamizador:
-            paragraph = document.add_paragraph("Às " + nota_grupo.hora_str() + " o dinamizador " +
+            paragraph = document.add_paragraph("Ã€s " + nota_grupo.hora_str() + " o dinamizador " +
                                                nota_grupo.anotador_dinamizador.nome + " fez a seguinte nota sobre o grupo: \n" + nota_grupo.notaGrupo + ".")
 
     if notas.exists() and grupo.programa == "CARE":
@@ -2209,10 +2217,10 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
 
     for nota in notas:
         if nota.anotador_dinamizador:
-            paragraph = document.add_paragraph("Às " + nota.hora_str() + " o dinamizador fez a seguinte nota acerca do cuidador "
+            paragraph = document.add_paragraph("Ã€s " + nota.hora_str() + " o dinamizador fez a seguinte nota acerca do cuidador "
                                                + nota.cuidador.nome + ": \n" + nota.nota + ".")
         if nota.anotador_mentor:
-            paragraph = document.add_paragraph("Às " + nota.hora_str() + " o mentor fez a seguinte nota acerca do participante "
+            paragraph = document.add_paragraph("Ã€s " + nota.hora_str() + " o mentor fez a seguinte nota acerca do participante "
                                                + nota.cuidador.nome + ": \n" + nota.nota + ".")
 
     # Assinatura
@@ -2230,29 +2238,13 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
 
-    # Convert the Word document to PDF
-
-    pdf_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.pdf')
-
-    pythoncom.CoInitialize()
-
-    word_app = win32.gencache.EnsureDispatch('Word.Application')
-    doc = word_app.Documents.Open(docx_path)
-    doc.SaveAs(pdf_path, FileFormat=17)
-    doc.Close()
-    word_app.Quit()
-
     # Create a Django File object from the PDF file
-    with open(pdf_path, 'rb') as f:
-        pdf_data = io.BytesIO(f.read())
+    with open(docx_path, 'rb') as f:
+        docx_data = io.BytesIO(f.read())
 
     # Assign the PDF file to the file field of sessaoDoGrupo
-    sessaoDoGrupo.diario_bordo.save(f'{nome_ficheiro}.pdf', pdf_data)
+    sessaoDoGrupo.relatorio.save(f'{nome_ficheiro}.pdf', docx_data)
     sessaoDoGrupo.save()
-
-    # Delete the temporary files
-    os.remove(docx_path)
-    os.remove(pdf_path)
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Cuidador')

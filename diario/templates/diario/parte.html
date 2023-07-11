@@ -51,6 +51,12 @@
                     <i class="fa-solid fa-user-group" style="color:white;"></i> {{sessaoGrupo.grupo}}
                 </a>
             </div>
+            <div class="bcca-breadcrumb-item fw-normal fs-4">
+                <a href="{% url 'diario:dashboard_Care' %}">
+                    <i class="fa-solid fa-user-doctor" style="color:white;"></i>
+                    MentHA {{ sessaoGrupo.grupo.programa }}
+                </a>
+            </div>
           </div>
 
           <div style="width:250px" class="esquerda">
