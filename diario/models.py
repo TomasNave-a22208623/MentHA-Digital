@@ -639,6 +639,7 @@ class Parte(models.Model):
     sessao = models.ForeignKey(Sessao, blank=True, related_name='partes', on_delete=models.CASCADE, null=True,
                                default=None)
     questionarios = models.ManyToManyField(Questionario, blank=True)
+    ordem = models.IntegerField(default=0)
 
     # para apagar mas rever como fazer ao certo
     # tempo = models.IntegerField(null=True, blank=True, default=0)

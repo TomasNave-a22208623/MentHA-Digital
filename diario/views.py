@@ -967,7 +967,7 @@ def view_iniciar_sessao(request, sessao_grupo_id):
 def view_sessao(request, sessao_grupo_id, grupo_id):
     apresentacao = ""
     grupo = Grupo.objects.get(id=grupo_id)
-    sessao = SessaoDoGrupo.objects.get(id=sessao_grupo_id, grupo=grupo).order_by('sessao__numeroSessao')
+    sessao = SessaoDoGrupo.objects.get(id=sessao_grupo_id, grupo=grupo)
 
     data = sessao.data
 
@@ -1010,7 +1010,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
             tempo_total_partes_grupo += int(parte_grupo.duracao_minutos)
 
     contexto = {
-        'parte': sessao.sessao.partes.order_by('numeroParte'),
+        'parte': sessao.sessao.partes.all(),
         'proxima_parte': proxima_parte,
         'tem_proxima': tem_proxima,
         'sessaoGrupo': sessao,
