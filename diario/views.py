@@ -112,6 +112,9 @@ def get_grupos(user):
     return grupos, sg, is_participante, is_cuidador
 
 def get_proxima_sessao(grupos):
+    if grupos is None:
+        return False, None
+    
     datas = SessaoDoGrupo.objects.exclude(data=None)
     #Caso um dinamizador/mentor tenha mais do que um grupo
     datas = datas.filter(estado__in=['PR','EC'], grupo__in=grupos)
