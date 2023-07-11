@@ -50,13 +50,12 @@ header {
     overflow:hidden;
 }
 
-
 /* #content > div {
     height: calc(100vh - 4em - 7em);
 } */
 
 header img {
-    height: 5em;
+    height: 4em;
     text-align: center;
 }
 
@@ -228,7 +227,7 @@ input { font-size: 2em; color:black;}
 
 li {
     line-height: 1.5;
-    margin: 0.7em 0 0.7em 2em;
+    margin: 0.7em 0 0.7em 1em;
 }
 
 footer {
