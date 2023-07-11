@@ -1,4 +1,4 @@
-
+from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect
 from django.forms import ModelForm, TextInput, Textarea
 from .models import *
@@ -1117,7 +1117,10 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         if request.POST.get('partilha'):
             partilha_text = request.POST.get('partilha')
             id_participante = request.POST.get('participante')
-            partilha = Partilha(cuidador=Cuidador.objects.get(pk=id_participante), partilha=partilha_text, sessao_grupo=sessao_grupo)
+            ficheiro = request.FILES.get('ficheiro')
+            imagem = request.FILES.get('imagem')
+            partilha = Partilha(cuidador=Cuidador.objects.get(pk=id_participante), partilha=partilha_text,
+                                sessao_grupo=sessao_grupo, ficheiro=ficheiro, imagem=imagem)
             partilha.save()
 
         elif request.POST.get('cuidador'):
@@ -1226,7 +1229,9 @@ def view_diario_grupo(request, idSessaoGrupo):
         form1 = PartilhaGrupoForm(request.POST or None)
         if request.POST.get('descricao'):
             partilha_text = request.POST.get('descricao')
-            partilha = Partilha(partilha=partilha_text, sessao_grupo=sessao_grupo)
+            ficheiro = request.FILES.get('ficheiro')
+            imagem = request.FILES.get('imagem')
+            partilha = Partilha(partilha=partilha_text, sessao_grupo=sessao_grupo, ficheiro=ficheiro, imagem=imagem)
             if DinamizadorConvidado.objects.filter(user=request.user).first():
                 partilha.partilha_dinamizador = DinamizadorConvidado.objects.get(user=request.user)
             if Mentor.objects.filter(user=request.user).first():
@@ -2117,12 +2122,10 @@ def gera_relatorio_questinarios(sessaoDoGrupo, request):
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
 
-    # Create a Django File object from the PDF file
     with open(docx_path, 'rb') as f:
         docx_data = io.BytesIO(f.read())
 
-    # Assign the PDF file to the file field of sessaoDoGrupo
-    sessaoDoGrupo.relatorio.save(f'{nome_ficheiro}.pdf', docx_data)
+    sessaoDoGrupo.relatorio.save(f'{nome_ficheiro}.docx', docx_data)
     sessaoDoGrupo.save()
 
 
@@ -2134,24 +2137,24 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     grupo = sessaoDoGrupo.grupo
     partes = ParteGrupo.objects.filter(sessaoGrupo=sessaoDoGrupo)
 
-    # CabeÃ§alho
+    # Cabeçalho
     paragraph = document.add_paragraph(f'Projeto MentHA')
 
-    # para pÃ´r em itÃ¡lico (chato... talvez exista algo melhor)
+    # para pôr em itálico (chato... talvez exista algo melhor)
     for run in paragraph.runs:
         run.font.italic = True
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-    paragraph = document.add_heading(f'RelatÃ³rio da {sessaoDoGrupo.sessao.nome}', 0)
+    paragraph = document.add_heading(f'Relatório da {sessaoDoGrupo.sessao.nome}', 0)
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-    # RelatÃ³rio
-    paragraph = document.add_paragraph("O presente relatÃ³rio tem como objetivo fornecer os dados detalhados acerca do DiÃ¡rio de Bordo da "
+    # Relatório
+    paragraph = document.add_paragraph("O presente relatório tem como objetivo fornecer os dados detalhados acerca do Diário de Bordo da "
                                        +f"{sessaoDoGrupo.__str__()}" +
                                        " realizada no dia "+ f"{sessaoDoGrupo.data.day}" + "." +
                                        f"{sessaoDoGrupo.data.month}" + "." +
-                                       f"{sessaoDoGrupo.data.year}" + " com a participaÃ§Ã£o de vÃ¡rias pessoas. "
-                                       "Durante a sessÃ£o abordou-se o seguinte tema: " + f"{sessaoDoGrupo.sessao.nome}")
+                                       f"{sessaoDoGrupo.data.year}" + " com a participação de várias pessoas. "
+                                       "Durante a sessão abordou-se o seguinte tema: " + f"{sessaoDoGrupo.sessao.nome}")
 
     if partes.exists():
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
@@ -2164,12 +2167,12 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
             paragraph = document.add_paragraph(
                 "Fase " + dict(parte_grupo.parte.FASE)[parte_grupo.parte.fase] + " - " + parte_grupo.parte.objetivo)
             paragraph = document.add_paragraph(
-                "DuraÃ§Ã£o: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.parte.duracao) + " min")
+                "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.parte.duracao) + " min")
         if grupo.programa == "COG":
             paragraph = document.add_paragraph(
-                "ExercÃ­cio" + str(parte_grupo.exercicio))
+                "Exercício" + str(parte_grupo.exercicio))
             paragraph = document.add_paragraph(
-                "DuraÃ§Ã£o: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.exercicio.duracao) + " min")
+                "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.exercicio.duracao) + " min")
 
     if partilhas.exists():
         paragraph = document.add_heading(
@@ -2178,16 +2181,16 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
 
     for partilha in partilhas:
         if partilha.participante:
-            paragraph = document.add_paragraph("Ã€s " + partilha.hora_str() + " o participante " +
+            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o participante " +
                                                partilha.participante.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
         elif partilha.cuidador:
-            paragraph = document.add_paragraph("Ã€s " + partilha.hora_str() + " o cuidador " +
+            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o cuidador " +
                                                partilha.cuidador.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
         elif partilha.partilha_dinamizador:
-            paragraph = document.add_paragraph("Ã€s " + partilha.hora_str() + " o dinamizador " +
+            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o dinamizador " +
                                                partilha.partilha_dinamizador.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
         elif partilha.partilha_mentor:
-            paragraph = document.add_paragraph("Ã€s " + partilha.hora_str() + " o mentor " +
+            paragraph = document.add_paragraph("Às " + partilha.hora_str() + " o mentor " +
                                                partilha.partilha_mentor.nome + " fez a seguinte partilha: \n" + partilha.partilha + ".")
 
     if notas_grupo.exists():
@@ -2197,10 +2200,10 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
 
     for nota_grupo in notas_grupo:
         if nota_grupo.anotador_mentor:
-            paragraph = document.add_paragraph("Ã€s " + nota_grupo.hora_str() + " o mentor " +
+            paragraph = document.add_paragraph("Às " + nota_grupo.hora_str() + " o mentor " +
                                                nota_grupo.anotador_mentor.nome + " fez a seguinte nota sobre o grupo: \n" + nota_grupo.notaGrupo + ".")
         if nota_grupo.anotador_dinamizador:
-            paragraph = document.add_paragraph("Ã€s " + nota_grupo.hora_str() + " o dinamizador " +
+            paragraph = document.add_paragraph("Às " + nota_grupo.hora_str() + " o dinamizador " +
                                                nota_grupo.anotador_dinamizador.nome + " fez a seguinte nota sobre o grupo: \n" + nota_grupo.notaGrupo + ".")
 
     if notas.exists() and grupo.programa == "CARE":
@@ -2217,10 +2220,10 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
 
     for nota in notas:
         if nota.anotador_dinamizador:
-            paragraph = document.add_paragraph("Ã€s " + nota.hora_str() + " o dinamizador fez a seguinte nota acerca do cuidador "
+            paragraph = document.add_paragraph("Às " + nota.hora_str() + " o dinamizador fez a seguinte nota acerca do cuidador "
                                                + nota.cuidador.nome + ": \n" + nota.nota + ".")
         if nota.anotador_mentor:
-            paragraph = document.add_paragraph("Ã€s " + nota.hora_str() + " o mentor fez a seguinte nota acerca do participante "
+            paragraph = document.add_paragraph("Às " + nota.hora_str() + " o mentor fez a seguinte nota acerca do participante "
                                                + nota.cuidador.nome + ": \n" + nota.nota + ".")
 
     # Assinatura
@@ -2238,12 +2241,10 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
 
-    # Create a Django File object from the PDF file
     with open(docx_path, 'rb') as f:
         docx_data = io.BytesIO(f.read())
 
-    # Assign the PDF file to the file field of sessaoDoGrupo
-    sessaoDoGrupo.relatorio.save(f'{nome_ficheiro}.pdf', docx_data)
+    sessaoDoGrupo.relatorio.save(f'{nome_ficheiro}.docx', docx_data)
     sessaoDoGrupo.save()
 
 @login_required(login_url='diario:login')

@@ -2117,9 +2117,7 @@ def gera_relatorio_risk_pdf(parte_risk, patient, username):
     # Create a Django File object from the Word document
     with open(docx_path, 'rb') as f:
         docx_data = io.BytesIO(f.read())
-        
-    
-    
+
     parte_risk.relatorio_word.save(f'{nome_ficheiro}.docx', docx_data)
     parte_risk.save()
 
