@@ -523,12 +523,12 @@ def group_members(request, grupo_id):
 def group_sessions(request, grupo_id):
     # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
 
-    sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
+    sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id).order_by('sessao__numeroSessao')
     grupos, sg, is_participante = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
 
-    sessoes = Sessao.objects.all()
+    sessoes = Sessao.objects.all().order_by('numeroSessao')
     grupo = Grupo.objects.get(id=grupo_id)
     sessao_em_curso = None
     proxima_sessao = None
@@ -556,7 +556,7 @@ def group_sessions(request, grupo_id):
 
 def group_sessions_cog(request, grupo_id):
     # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
-    sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
+    sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id).order_by('sessao__numeroSessao')
     grupo = Grupo.objects.get(id=grupo_id)
 
     for sessao in sessoes_do_grupo:
@@ -959,7 +959,7 @@ def view_iniciar_sessao(request, sessao_grupo_id):
 def view_sessao(request, sessao_grupo_id, grupo_id):
     apresentacao = ""
     grupo = Grupo.objects.get(id=grupo_id)
-    sessao = SessaoDoGrupo.objects.get(id=sessao_grupo_id, grupo=grupo)
+    sessao = SessaoDoGrupo.objects.get(id=sessao_grupo_id, grupo=grupo).order_by('sessao__numeroSessao')
 
     data = sessao.data
 
@@ -1002,7 +1002,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
             tempo_total_partes_grupo += int(parte_grupo.duracao_minutos)
 
     contexto = {
-        'parte': sessao.sessao.partes,
+        'parte': sessao.sessao.partes.order_by('numeroParte'),
         'proxima_parte': proxima_parte,
         'tem_proxima': tem_proxima,
         'sessaoGrupo': sessao,
