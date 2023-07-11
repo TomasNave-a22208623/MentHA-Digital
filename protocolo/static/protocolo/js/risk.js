@@ -1,19 +1,56 @@
 $(document).on("click", ".btn-submit-risk", async () => {
-   
+    //event.preventDefault();
     var idsSelecionados;
     var csrf_token = Cookies.get('csrftoken');
-    var href = document.getElementsByClassName('btn-submit-risk')[0].getAttribute('data-href'); //var href = document.getElementsByClassName('btn-submit-risk')[0].getAttribute('data-href');
+    var href = document.getElementById("risk-submit").getAttribute('data-href'); //var href = document.getElementsByClassName('btn-submit-risk')[0].getAttribute('data-href');
+    temErros = false;
     data = new FormData();
-    data.append('idade', document.getElementById('idade').value);
+
+    if ((document.getElementById('idade').value < 55) || (document.getElementById('idade').value > 89)) {
+        temErros = true;
+    } else {
+        data.append('idade', document.getElementById('idade').value);
+    }
+
     data.append('sexo', document.getElementById('sexo').value);
     data.append('altura', document.getElementById('altura').value);
     data.append('peso', document.getElementById('peso').value);
     data.append('fumador', document.getElementById('fumador').value);
-    data.append('pressao_arterial', document.getElementById('pressao_arterial').value);
-    data.append('colestrol_total', document.getElementById('colestrol_total').value);
-    data.append('colestrol_hdl', document.getElementById('colestrol_hdl').value);
-    data.append('colestrol_nao_hdl', document.getElementById('colestrol_nao_hdl').value);
-    data.append('hemoglobina_gliciada', document.getElementById('hemoglobina_gliciada').value);
+
+    if ((document.getElementById('pressao_arterial').value < 100) || (document.getElementById('pressao_arterial').value > 179)) {
+        temErros = true;
+    } else {
+        data.append('pressao_arterial', document.getElementById('pressao_arterial').value);
+    }
+
+    if ((document.getElementById('colestrol_total').value < 160) || (document.getElementById('colestrol_total').value > 240)) {
+        temErros = true;
+    } else {
+        data.append('colestrol_total', document.getElementById('colestrol_total').value);
+    }
+
+    if ((document.getElementById('colestrol_hdl').value < 80) || (document.getElementById('colestrol_hdl').value > 160)) {
+        temErros = true;
+    } else {
+        data.append('colestrol_hdl', document.getElementById('colestrol_hdl').value);
+    }
+
+    if ((document.getElementById('colestrol_nao_hdl').value < 80) || (document.getElementById('colestrol_nao_hdl').value > 160)) {
+        temErros = true;
+    } else {
+        data.append('colestrol_nao_hdl', document.getElementById('colestrol_nao_hdl').value);
+    }
+
+    hemoglobina_gliciada = document.getElementById('hemoglobina_gliciada').value;
+    hemoglobina_gliciada = parseFloat(hemoglobina_gliciada);
+
+    if ((hemoglobina_gliciada < 3.0) || (hemoglobina_gliciada > 6.9)) {
+        temErros = true;
+        alert("O valor da hemoglobina glicida deve estar entre 3.0 e 6.9");
+    } else {
+        data.append('hemoglobina_gliciada', document.getElementById('hemoglobina_gliciada').value);
+    }
+
     data.append('diabetes', document.getElementById('diabetes').value);
     data.append('anos_diabetes', document.getElementById('anos_diabetes').value);
     data.append('enfarte', document.getElementById('enfarte').value);
@@ -22,24 +59,29 @@ $(document).on("click", ".btn-submit-risk", async () => {
     data.append('doenca_rins', document.getElementById('doenca_rins').value);
     data.append('hipercolestrol', document.getElementById('hipercolestrol').value);
     data.append('comentario', document.getElementById('comentario').value);
-    console.log(document.getElementById('comentario').value);
-    console.log(document.getElementById('diabetes').value);
-    console.log(href);
     // try {
-        const response = await fetch(href, {
-            method: "POST",
-            body: data,
-            headers: { 'X-CSRFToken': csrf_token },
-            processData: false,  // tell jQuery not to process the data
-            contentType: false   // tell jQuery not to set contentType
-            
-
-        }).then(response => response.text())
-            .then(html => {
-                // console.log(html);
-                document.getElementsByClassName('page-content').innerHTML = html;
-                document.getElementById('btn-report-word').style.display = "block";
-            }) 
+    if (!temErros) {
+        event.preventDefault();
+        $.ajax({
+            method: 'POST',
+            url: href,
+            data: data,
+            mimeType: "multipart/form-data",
+            headers: {'X-CSRFToken': csrf_token},
+            contentType: false,
+            processData: false,
+            async: false,
+            success: function (data) {
+                console.log("Success!")
+                $('.container-fluid').html(data);
+                return false;
+            },
+            error: function () {
+                console.log("Error!");
+                alert("Pagina não disponível.");
+            }
+        })
+    }
     // } catch (error) {
     //     console.error("Error:", error);
     // }$('.page-content').html(data);
@@ -110,18 +152,3 @@ $(document).on("click", ".btn-submit-risk", async () => {
 //         }
 //     })
 // });
-$(document).ready( () => {
-    $('#loading-image').hide();
-
-    $('.btn-submit-risk').click( () => {
-        $('.btn-submit-risk').hide();
-        $('.jq-btn').hide();
-        $('#loading-image').show();
-
-        setTimeout( () => {
-            $('#loading-image').hide();
-            $('.btn-submit-risk').show();
-            $('.jq-btn').show();
-        }, 5000);
-    });
-});

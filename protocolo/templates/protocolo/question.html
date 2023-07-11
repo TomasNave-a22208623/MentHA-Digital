@@ -12,13 +12,11 @@
 
             {% include 'protocolo/tree.html' %}
 
-            {% if concluido_risk is False %}
-                <a class="btn jq-btn btn-primary mb-btn btn-sm d-none d-sm-inline-block report-button"
-                    role="button"
-                    href="#"
-                    data-href="{% url 'protocolo:report' resolution %}"
+            {% if existing_risk.concluido == True %}
+                <a download class="btn jq-btn mb-btn-outline btn-sm d-none d-sm-inline-block report-button"
+                    role="button" href="{{ existing_risk.relatorio_word.url }}"
                     style="display: flex!important;height: 40px;width: 150px;align-items: center;justify-content: space-around;">
-                    <i class="fas fa-download fa-sm text-white-50"></i>&nbsp;Gerar Relatório
+                    <i class="fas fa-download"></i>&nbsp;Gerar Relatório
                 </a>
             {% endif %}
         </div>

@@ -7,26 +7,42 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
       })
+
+
+function validateForm() {
+  // Retrieve all form input elements
+  var inputs = document.getElementsByTagName('input');
+
+  // Iterate through each input element and check if it is empty
+  for (var i = 0; i < inputs.length; i++) {
+    if (inputs[i].value === '') {
+      alert('Please fill in all fields.');
+      return false; // Prevent form submission
+    }
+  }
+
+  // If all fields are filled, allow form submission
+  return true;
+}
 </script>
 {% comment %} <script src="{% static 'protocolo/js/jquery.js' %}"></script> {% endcomment %}
 {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script> {% endcomment %}
 
-{% endblock %}     
+{% endblock %}
 <div class="container-form">
-    <form action="" method="post" id="risk_form" style="width:100%">
+    <form method="post" id="risk_form" style="width:100%" onsubmit="return validateForm()">
         {% csrf_token %}
         <table style="width:100%;border-spacing: 15px;
         border-collapse: separate;">
             <tr>
                 <td>
-                    <label for="idade">
-                        <b>Idade</b> 
+                    <label for="idade"><b>Idade</b>
                         <button type="button" class="" data-toggle="tooltip" data-placement="top" title="Insira valores entre 55 e 89">
                             <i style="padding-left:5px;color: var(--bs-warning);font-size: 20px;" class="fas fa-info-circle"></i>
                         </button>
                     </label>
                     <div class="input-class">
-                        <input class="form-input" type="number" step="1" min="55" max="89" id="idade" name="idade" value="{{existing_risk.idade}}" required>
+                        <input style="color:black;" class="form-input" type="number" step="1" min="55" max="89" id="idade" name="idade" value="{{existing_risk.idade}}" required>
                     </div>
                 </td>
                 <td>
@@ -49,13 +65,13 @@
                 <td>
                     <label for="altura"><b>Altura</b></label>
                     <div class="input-class">
-                        <input class="form-input" type="text" id="altura" name="altura" value="{{existing_risk.altura}}" required>
+                        <input style="color:black;" class="form-input" type="text" id="altura" name="altura" value="{{existing_risk.altura}}" required>
                     </div>
                 </td>
                 <td>
                     <label for="peso"><b>Peso</b></label>
                     <div class="input-class">
-                        <input class="form-input" type="text" id="peso" name="peso" value="{{existing_risk.peso}}" required>
+                        <input style="color:black;" class="form-input" type="text" id="peso" name="peso" value="{{existing_risk.peso}}" required>
                     </div>
                 </td>
             </tr>
@@ -108,8 +124,8 @@
                     <td>
                         <label for="anos_diabetes"><b>Se tem diabetes, há quantos anos?</b>
                             <div class="input-class">
-                                <input class="form-input" type="text" id="anos_diabetes" name="anos_diabetes" value="{{existing_risk.anos_diabetes}}" required >
-                            </div>   
+                                <input style="color:black;" class="form-input" type="text" id="anos_diabetes" name="anos_diabetes" value="{{existing_risk.anos_diabetes}}" required >
+                            </div>
                         </label>
                     </td>
                 </tr>
@@ -121,7 +137,7 @@
                             <button type="button" class="" data-toggle="tooltip" data-placement="top" title="Insira valores entre 100 e 179">
                                 <i style="padding-left:5px;color: var(--bs-warning);font-size: 20px;" class="fas fa-info-circle"></i>
                             </button>
-                                <input class="form-input" type="number" step="1" min="85" max="120"  id="pressao_arterial" name="pressao_arterial" value="{{existing_risk.pressao_arterial}}" required >
+                                <input style="color:black;" class="form-input" type="number" step="1" min="100" max="179"  id="pressao_arterial" name="pressao_arterial" value="{{existing_risk.pressao_arterial}}" required >
                             </div>
                         </label>
                     </td>
@@ -129,7 +145,7 @@
                         <label for="colestrol_total">
                             <b>Colesterol Total (mmol/L)</b>
                             <div class="input-class">
-                                <input class="form-input" type="number" step="1" min="160" max="240"  id="colestrol_total" name="colestrol_total" value="{{existing_risk.colestrol_total}}" required>
+                                <input style="color:black;" class="form-input" type="number" step="1" min="160" max="240"  id="colestrol_total" name="colestrol_total" value="{{existing_risk.colestrol_total}}" required>
                             </div>
                         </label>
                     </td>
@@ -139,7 +155,7 @@
                         <label for="colestrol_hdl">
                             <b>Colestrol HDL (mmol/L)</b>
                             <div class="input-class">
-                                <input class="form-input" type="number" step="1" min="80" max="160"  id="colestrol_hdl" name="colestrol_hdl" value="{{existing_risk.colestrol_hdl}}" required >
+                                <input style="color:black;" class="form-input" type="number" step="1" min="80" max="160"  id="colestrol_hdl" name="colestrol_hdl" value="{{existing_risk.colestrol_hdl}}" required >
                             </div>
                         </label>
                     </td>
@@ -147,7 +163,7 @@
                         <label for="colestrol_nao_hdl">
                             <b>Colestrol não HDL (mmol/L)</b>
                             <div class="input-class">
-                                <input class="form-input" type="text" id="colestrol_nao_hdl" name="colestrol_nao_hdl" value="{{existing_risk.colestrol_nao_hdl}}" required >
+                                <input style="color:black;" class="form-input" type="number" step="1" min="80" max="160" id="colestrol_nao_hdl" name="colestrol_nao_hdl" value="{{existing_risk.colestrol_nao_hdl}}" required >
                             </div>
                         </label>
                     </td>
@@ -160,7 +176,7 @@
                                 <i style="padding-left:5px;color: var(--bs-warning);font-size: 20px;" class="fas fa-info-circle"></i>
                             </button>
                             <div class="input-class">
-                                <input class="form-input" type="number" step="0.01" min="3.0" max="6.9"  id="hemoglobina_gliciada" name="hemoglobina_gliciada" value="{{existing_risk.hemoglobina_gliciada}}" required >
+                                <input style="color:black;" class="form-input" type="text"  id="hemoglobina_gliciada" name="hemoglobina_gliciada" value="{{existing_risk.hemoglobina_gliciada}}" required >
                             </div>
                         </label>
                     </td>
@@ -260,28 +276,30 @@
                     </td>
                 </tr>
         </table>
-        
+
         <div class="flex-textarea flex-item padding-top-25" style="width:100%">
             <label for="comentario"><b>Comentários</b></label>
-            <textarea style="width:100%;" class="textarea" type="text" id="comentario" name="comentario" placeholder="Escreva o seu comentário" rows ="5" cols="100">{{existing_risk.comentario}} </textarea>
+            <textarea style="width:100%; color:black;" class="textarea" type="text" id="comentario" name="comentario" placeholder="Escreva o seu comentário" rows ="5" cols="100">{{existing_risk.comentario}} </textarea>
         </div>
 
-        {% if existing_risk %}
-        <h2>Risco: {{existing_risk.risco_de_enfarte}}%</h2>
-        {% endif %}
+        <div class="container" style="margin-top: 25px; width:100%;">
+            <div class="text-center">
+                <div class="card-body">
+                    {% if existing_risk %}
+                        <h1 class="m-0 fw-bold mb-text fs-4">Risco de AVC: {{existing_risk.risco_de_enfarte}}%</h1>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-buttons padding-top-25">
+            <button class="btn jq-btn btn-primary flex-left mb-btn" data-href="{% url 'protocolo:participant' patient.id %}" type="button">
+                <i class="fa fa-chevron-left"></i>&nbsp; Anterior
+            </button>
+            <button class="btn btn-submit-risk btn-primary mb-btn flex-right" type="submit" id="risk-submit"
+                data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}">
+                <i class="fa fa-check"></i>&nbsp; Submeter
+            </button>
+        </div>
     </form>
-
-    <div class="flex-buttons padding-top-25">
-        <button class="btn jq-btn btn-primary flex-left mb-btn" data-href="{% url 'protocolo:participant' patient.id %}" type="button">
-            <i class="fa fa-chevron-left"></i>&nbsp; Anterior
-        </button>
-        <button class="btn btn-submit-risk btn-primary mb-btn flex-right" 
-        data-href="{% url 'protocolo:question' protocol.id part.id area.id instrument.id dimension.id section.id patient.id %}"
-        style="" type="submit">
-            <i class="fa fa-check"></i>&nbsp; Submeter
-        </button>
-    </div>
-
-    <img id="loading-image" src="{% static 'protocolo/gif/Reload-1s-200px.gif' %}" alt="Carregando..." />
-
-
+</div>

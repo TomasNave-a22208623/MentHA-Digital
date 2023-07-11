@@ -767,19 +767,16 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             cwd2 = os.path.join(cwd, 'protocolo', 'static', 'protocolo', 'data_risk')
             file_path_men = os.path.join(cwd2, 'risk_men.json')
             file_path_women = os.path.join(cwd2, 'risk_women.json')
-            new_risk= Risk()
+            new_risk = Risk()
             new_risk.idade = request.POST.get('idade')
             new_risk.sexo = request.POST.get('sexo')
             new_risk.peso = request.POST.get('peso')
             new_risk.peso = new_risk.peso.replace(',', '.')
             new_risk.altura = request.POST.get('altura')
             new_risk.pressao_arterial = request.POST.get('pressao_arterial')
-            new_risk.colestrol_total = request.POST.get('colestrol_total') 
-            new_risk.colestrol_total = new_risk.colestrol_total.replace(',', '.')
+            new_risk.colestrol_total = request.POST.get('colestrol_total')
             new_risk.colestrol_hdl = request.POST.get('colestrol_hdl')
-            new_risk.colestrol_hdl = new_risk.colestrol_hdl.replace(',', '.')
             new_risk.colestrol_nao_hdl = request.POST.get('colestrol_nao_hdl')
-            new_risk.colestrol_nao_hdl = new_risk.colestrol_nao_hdl.replace(',', '.')
             new_risk.fumador = request.POST.get('fumador')
             new_risk.diabetes = request.POST.get('diabetes')
             new_risk.hemoglobina_gliciada = request.POST.get('hemoglobina_gliciada')
@@ -795,11 +792,11 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             new_risk.hipercolestrol = request.POST.get('hipercolestrol')
             new_risk.comentario = request.POST.get('comentario')
             if request.POST.get('sexo') == 'F':
-                risco = risk_json(file_path_women, new_risk.fumador, new_risk.idade, float(new_risk.hemoglobina_gliciada),new_risk.pressao_arterial)
+                risco = risk_json(file_path_women, new_risk.fumador, new_risk.idade, float(new_risk.hemoglobina_gliciada), new_risk.pressao_arterial)
                 new_risk.risco_de_enfarte = risco
 
             elif request.POST.get('sexo') == 'M':
-                risco = risk_json(file_path_men, new_risk.fumador, new_risk.idade, float(new_risk.hemoglobina_gliciada),new_risk.pressao_arterial)
+                risco = risk_json(file_path_men, new_risk.fumador, new_risk.idade, float(new_risk.hemoglobina_gliciada), new_risk.pressao_arterial)
                 new_risk.risco_de_enfarte = risco
             new_risk.parteDoUtilizador = parteDoUtilizador
             new_risk.concluido = True
@@ -826,11 +823,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 existing_risk.altura = request.POST.get('altura')
                 existing_risk.pressao_arterial = request.POST.get('pressao_arterial')
                 existing_risk.colestrol_total = request.POST.get('colestrol_total')
-                existing_risk.colestrol_total = existing_risk.colestrol_total.replace(',','.')
                 existing_risk.colestrol_hdl = request.POST.get('colestrol_hdl')
-                existing_risk.colestrol_hdl = existing_risk.colestrol_hdl.replace(',','.')
-                existing_risk.colestrol_nao_hdl = request.POST.get('colestrol_nao_hdl') 
-                existing_risk.colestrol_nao_hdl = existing_risk.colestrol_nao_hdl.replace(',','.')
+                existing_risk.colestrol_nao_hdl = request.POST.get('colestrol_nao_hdl')
                 existing_risk.fumador = request.POST.get('fumador')
                 existing_risk.diabetes = request.POST.get('diabetes')
                 existing_risk.hemoglobina_gliciada = request.POST.get('hemoglobina_gliciada')
