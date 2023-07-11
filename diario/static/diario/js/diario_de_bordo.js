@@ -29,7 +29,7 @@ function desativaBotoesParticipantesEGrupo(){
 
 function desativaBotoesMenu(){
     // desativa todos os botões de participante e grupo
-    
+
     document.querySelectorAll(".menu").forEach((button) => {
         document.querySelector(`#${button.dataset.menu}`).style.display = "none";
         button.classList.remove("selecionado");
@@ -50,21 +50,11 @@ function ativaBotaoGrupo() {
     buttonAnswer.style.display = "none";
 }
 
-function ativaBotaoNotas() {
-    // desativa todos os botões
-    desativaBotoesParticipantesEGrupo();
-    // obtém e ativa o botão do grupo
-    let buttonAtivo = document.getElementById("participante_notas");
-    buttonAtivo.classList.add("selecionado");
-    let buttonPresences = document.querySelector('[data-menu="notas"]');
-    buttonPresences.style.display = "block";
-}
-
 //Fim grupo
 function ativaMenu() {
     // põe botões de menu a branco + esconde respetiva info
     desativaBotoesMenu();
-    
+
     menuAtivo.classList.add("selecionado");
 
     document.querySelector(`#${menuAtivo.dataset.menu}`).style.display = "block";
@@ -103,8 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
     menuAtivo = document.querySelector("[data-menu='notas']");
 
     if (participante_logado) {
-        ativaBotaoNotas();
-        descarregaInfoParticipante(participante_logado.dataset.sessaogrupo, participante_logado.dataset.participante);
         document.querySelectorAll(".menu").forEach((botaoParticipante) => {
             botaoParticipante.onclick = () => {
                 descarregaInfoParticipante(participante_logado.dataset.sessaogrupo, participante_logado.dataset.participante);
@@ -128,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".grupo button").forEach((botaoGrupo) => {
             ativaBotaoGrupo(botaoGrupo.dataset.idgrupo);
             descarregaInfoGrupo(botaoGrupo.dataset.idgrupo);
-            
+
             botaoGrupo.onclick = () => {
                 ativaBotaoGrupo(botaoGrupo.dataset.idgrupo);
                 descarregaInfoGrupo(botaoGrupo.dataset.idgrupo);
@@ -425,7 +413,7 @@ function submete_diario(sg_id, participante_id) {
 //       fetch('/diario/guarda_avaliacao_participante/' + sg_id, {
 //         method: "POST",
 //         body: formData,
-//       });    
+//       });
 //     }
 // }
 

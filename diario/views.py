@@ -274,7 +274,7 @@ def parte_ativa(request, sg_id):
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def new_group(request):
-    grupos, sg, is_participante = get_grupos(request.user)
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     formGrupo = GrupoForm(request.POST or None)
@@ -481,7 +481,7 @@ def view_group_details(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
-    grupos, sg, is_participante = get_grupos(request.user)
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     # print(request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']))
@@ -503,7 +503,7 @@ def group_members(request, grupo_id):
     mentores = Mentor.objects.filter(grupo=grupo_id)
     dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
 
-    grupos, sg, is_participante = get_grupos(request.user)
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     # formDinamizador = DinamizadorForm(request.POST or None)
@@ -532,7 +532,7 @@ def group_sessions(request, grupo_id):
     # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
 
     sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
-    grupos, sg, is_participante = get_grupos(request.user)
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
 
@@ -971,7 +971,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
 
     data = sessao.data
 
-    grupos, sg, is_participante = get_grupos(request.user)
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
     pode_iniciar = False
