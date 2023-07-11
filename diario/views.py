@@ -2246,7 +2246,7 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     with open(docx_path, 'rb') as f:
         docx_data = io.BytesIO(f.read())
 
-    sessaoDoGrupo.relatorio.save(f'{nome_ficheiro}.docx', docx_data)
+    sessaoDoGrupo.diario_bordo.save(f'{nome_ficheiro}.docx', docx_data)
     sessaoDoGrupo.save()
 
 @login_required(login_url='diario:login')
