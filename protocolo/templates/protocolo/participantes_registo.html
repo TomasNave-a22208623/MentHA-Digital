@@ -2,7 +2,26 @@
 {% block head %}
 <script src="{% static 'protocolo/js/registo.js' %}?{% now 'U' %}"></script>
 <link href="{% static 'protocolo/stylingForm.css' %}" rel="stylesheet">
-{% endblock %}    
+{% endblock %}
+
+<div class="bcca-breadcrumb" style="padding:38px;">
+    <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;"></div>
+
+    <div class="bcca-breadcrumb-item fw-normal fs-4">
+        <a data-href="{% url 'protocolo:participantes_registo' %}" class="jq-btn">
+            <i class="fa fa fa-user-plus" style="color:white;"></i>
+            Registo de um Participante
+        </a>
+    </div>
+
+    <div class="bcca-breadcrumb-item fw-normal fs-4">
+        <a data-href="{% url 'protocolo:participants' %}" class="jq-btn">
+            <i class="fa-solid fa-user-check" style="color:white;"></i>
+            MentHA-EVAL
+        </a>
+    </div>
+</div>
+
 <div class="container-form-registo">
     <form id="patient-form" action="" method="POST">
         {% csrf_token %}
@@ -89,8 +108,8 @@
         <button class="btn mb-btn btn-registar flex-left" type="submit" data-href="{% url 'protocolo:participants' %}" style="width:150px;"> 
             <i class="fa fa fa-user-plus"></i>&nbsp Registar
         </button>
-        <button class="btn jq-btn mb-btn-outline flex-left" data-href="{% url 'protocolo:participants' %}"> 
-            <i class="fa fa fa-chevron-left"></i> Anterior
+        <button class="btn jq-btn mb-btn-outline flex-left" data-href="{% url 'protocolo:participants' %}">
+            <i class="fa fa-times"></i> Cancelar
         </button> 
         </div>                                                 
     </form>

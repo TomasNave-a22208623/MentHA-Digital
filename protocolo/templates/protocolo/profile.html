@@ -4,7 +4,14 @@
 {% endblock %}
 {% load tags %}
 
-
+<style>
+  .circle-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+</style>
     
 <div class="container-fluid">
     <div style="padding:8px">
@@ -33,15 +40,15 @@
                             <td rowspan="4" class="align-content-center align-middle" style="width: 15%">
                                 <!-- Imagem -->
                                 {% if patient.imagem %}
-                                    <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
-                                        src="{{ patient.imagem.url }}" width="200px"
-                                        height="200px"
-                                        style="margin-left: auto;margin-right: auto;display: block;">
+                                    <div class="circle-image">
+                                        <img src="{{ patient.imagem.url }}"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
                                 {% else %}
-                                    <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
-                                        src="{% static 'protocolo/img/placeholder-avatar.png' %}" width="200px"
-                                        height="200px"
-                                        style="margin-left: auto;margin-right: auto;display: block;">
+                                    <div class="circle-image">
+                                        <img src="{% static 'protocolo/img/placeholder-avatar.png' %}"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
                                 {% endif %}
                             </td>
                             <td class="text-start" style="text-align:center; width: 25%">
@@ -171,7 +178,7 @@
                                 <tr>
                                     {% for part,answered,percentage in partesdoutilizador %}
                                     <!-- Part -->
-                                    <td style="margin-top:0px; padding-bottom:0px;">
+                                    <td style="vertical-align:middle;">
                                         <a href="#" class="jq-btn"
                                             {% if part.part.name != "MentHA-Risk" %}
                                                 data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"
@@ -186,39 +193,41 @@
                                     
 
                                     <!-- Date -->
-                                    <td style="margin-top:10px; padding-bottom:0px; text-align:center;">
-                                        <p style="margin-top: 10px;">
+                                    <td style="vertical-align:middle; text-align:center;">
+                                        <p>
                                             {{part.data.day}}/{{part.data.month}}/{{part.data.year}}
                                         </p>
                                     </td>
 
                                     <!-- Hour -->
-                                    <td style="margin-top:10px; padding-bottom:0px; text-align:center;">
-                                        <p style="margin-top: 10px;">
+                                    <td style="vertical-align:middle; text-align:center;">
+                                        <p>
                                             {{part.time}}
                                         </p>
                                     </td>
 
                                     <!-- Progress Bar -->
                                     {% if part.part.name != "MentHA-Risk" %}
-                                        <td style="padding-bottom:0px;">
-                                            <div class="progress" style="margin-top:10px;background:white;">
+                                        <td style="vertical-align:middle;">
+                                            <div class="progress" style="background:white;">
                                                 <div class="progress-bar" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percentage }}%;">
                                                     {{ percentage }}%
                                                 </div>
                                             </div>
                                         </td>
                                     {% else %}
-                                            <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                            <td style="vertical-align:middle; text-align:center;">
                                                 {% if percentage == 100 %}
                                                     <i class="fa fa-check" style="color: rgba(0,128,0,0.5)"></i>
+                                                {% else %}
+                                                    <i class="fa-solid fa-minus gray" aria-hidden="true"></i>
                                                 {% endif %}
                                             </td>
                                     {% endif %}
                                     
                                     <!-- Report Button -->
                                     {% if part.part.name != "MentHA-Risk" %}
-                                    <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                    <td style="vertical-align:middle; text-align:center;">
                                         <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"  style="text-align: center;">
                                             <button class="w-10 h-10 mb-btn rounded-circle flex m-auto justify-content-center align-items-center align-self-center" type="button" >
                                                 <i class="fa fa-file-text-o" style="border-left-width: 0px;font-size: 15px;text-align: center;color:white;"></i>
@@ -227,7 +236,7 @@
                                     </td>
                                     {% else %}
                                     {% comment %} <a href="{{ part.resolution.relatorio.url }}"> {% endcomment %}
-                                    <td style="margin-top:0px; padding-bottom:0px; text-align:center;">
+                                    <td style="vertical-align:middle; text-align:center;">
                                         <a 
                                         {% if part.risk.relatorio_word.url|length > 0 %}
                                         href="{{ part.risk.relatorio_word.url }}" 

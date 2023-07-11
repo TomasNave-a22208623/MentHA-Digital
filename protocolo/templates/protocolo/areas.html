@@ -2,12 +2,12 @@
      <div style="padding:8px;">
         <div class="card-body card-flex" style="padding: 8px">
             {% include 'protocolo/tree.html' %}
-            <a class="btn jq-btn btn-primary mb-btn btn-sm d-none d-sm-inline-block report-button"
+            <a class="btn jq-btn mb-btn-outline btn-sm d-none d-sm-inline-block report-button"
                 role="button"
                 href="#"
                 data-href="{% url 'protocolo:report' resolution %}"
                 style="display: flex!important;height: 40px;width: 150px;align-items: center;justify-content: space-around;">
-                <i class="fas fa-download fa-sm text-white-50"></i>&nbsp;Gerar Relatório
+                <i class="fas fa-download"></i>&nbsp;Gerar Relatório
             </a>
         </div>
 
@@ -17,8 +17,8 @@
                 <table class="table my-0 table-hover-light" id="dataTable">
                     <thead>
                     <tr>
-                        <th style="text-align: left;width: 44%">Áreas</th>
-                        <th style="text-align: left;width:33%">Progresso</th>
+                        <th class="m-0 fw-bold mb-text fs-4" style="text-align: left;width: 44%">Áreas</th>
+                        <th class="m-0 fw-bold mb-text fs-4" style="text-align: left;width:33%">Progresso</th>
                     
                     </tr>
                     </thead>
@@ -69,14 +69,6 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
-            <div class="flex-buttons">
-                <button id="previous" class="btn jq-btn btn-primary mb-btn flex-left"
-                        data-href="{% url 'protocolo:participant' patient.id %}"
-                        type="button"
-                        style="width:100%">
-                    <i class="fa fa-chevron-left"></i>&nbsp; Anterior
-                </button>
             </div>
         </div>
     </div> 

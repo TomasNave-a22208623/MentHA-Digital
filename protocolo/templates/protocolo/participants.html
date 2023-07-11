@@ -1,6 +1,15 @@
 {% load static %}
 {% load tags %}
 
+<style>
+  .circle-image {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+</style>
+
 <div class="container-fluid">
     <div style="padding:8px">
         <div>
@@ -9,11 +18,6 @@
 
         <div class="card-flex">
             <p class="m-0 fw-bold mb-text fs-4">Participantes</p>
-            <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participantes_registo' %}">
-                <button id="btn-popup" class="btn mb-btn-outline" style="width:150px"> 
-                        <i class="fa fa-user-plus"></i>&nbsp Registar
-                </button>  
-            </a>
         </div>
         {% if participants|length > 0 %}
         <div class="table-responsive">
@@ -29,18 +33,18 @@
                 </thead>
                 <tbody>
                     {% for p in participants %}
-                        <tr>
+                        <tr style="vertical-align:middle;">
                             <td style="text-align: center">
                                 {% if p.imagem %}
-                                <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
-                                    src="{{ p.imagem.url }}" width="45px"
-                                    height="45px"
-                                    style="margin-left: auto;margin-right: auto;display: block;">
+                                <div class="circle-image">
+                                    <img src="{{ p.imagem.url }}"
+                                        style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
                                 {% else %}
-                                    <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
-                                    src="{% static 'protocolo/img/placeholder-avatar.png' %}" width="45px"
-                                    height="45px"
-                                    style="margin-left: auto;margin-right: auto;display: block;">
+                                <div class="circle-image">
+                                    <img src="{% static 'protocolo/img/placeholder-avatar.png' %}"
+                                        style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
                                 {% endif %}
                             </td>
                             <td style="text-align: center;">
@@ -60,19 +64,21 @@
                 <!-- Bold footer line -->
                 
             </table>
+            <div class="class-flex" style="text-align:end;">
+                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participantes_registo' %}">
+                    <button id="btn-popup" class="btn mb-btn-outline" style="width:150px">
+                        <i class="fa fa-user-plus"></i>&nbsp Registar
+                    </button>
+                </a>
+            </div>
         </div>
         {% else %}
             Não tem Participantes associados.
         {% endif %}
         
         {% if request.user|has_group:"Administrador" %}
-            <div class="card-flex padding-top-25">
+            <div class="card-flex" style="padding-top:100px;">
                 <p class="m-0 fw-bold mb-text fs-4">Avaliadores</p>
-                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:avaliadores_registo' %}">
-                    <button id="btn-popup" class="btn mb-btn-outline" style="width:150px"> 
-                            <i class="fa fa-user-plus"></i>&nbsp Registar
-                    </button>  
-                </a>
             </div>
             {% if avaliadores|length > 0 %}
             <div class="table-responsive">
@@ -88,18 +94,18 @@
                     </thead>
                     <tbody>
                         {% for a, nr in avaliadores_zip %}
-                            <tr>
+                            <tr style="vertical-align:middle;">
                                 <td style="text-align: center">
                                     {% if a.imagem %}
-                                    <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
-                                        src="{{ p.imagem.url }}" width="45px"
-                                        height="45px"
-                                        style="margin-left: auto;margin-right: auto;display: block;">
+                                    <div class="circle-image">
+                                        <img src="{{ p.imagem.url }}"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
                                     {% else %}
-                                        <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
-                                        src="{% static 'protocolo/img/placeholder-avatar.png' %}" width="45px"
-                                        height="45px"
-                                        style="margin-left: auto;margin-right: auto;display: block;">
+                                    <div class="circle-image">
+                                        <img src="{% static 'protocolo/img/placeholder-avatar.png' %}"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
                                     {% endif %}
                                 </td>
                                 <td style="text-align: center;">
@@ -115,6 +121,13 @@
                     <!-- Bold footer line -->
                     
                 </table>
+                <div class="class-flex" style="text-align:end;">
+                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:avaliadores_registo' %}">
+                    <button id="btn-popup" class="btn mb-btn-outline" style="width:150px">
+                        <i class="fa fa-user-plus"></i>&nbsp Registar
+                    </button>
+                </a>
+            </div>
             </div>
             {% else %}
             Sem Avaliadores registados.
