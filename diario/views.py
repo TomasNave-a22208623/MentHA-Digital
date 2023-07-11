@@ -92,6 +92,7 @@ def get_grupos(user):
     sg = None
     is_participante = False
     is_cuidador = False
+    grupos = None
 
     if dinamizador:
         grupos = dinamizador.grupo.all()
