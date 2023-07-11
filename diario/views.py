@@ -534,7 +534,7 @@ def group_sessions(request, grupo_id):
     sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id).order_by('sessao__numeroSessao')
     grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
-    
+
     grupo = Grupo.objects.get(id=grupo_id)
     sessao_em_curso = None
     proxima_sessao = None
@@ -1012,7 +1012,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
         'proxima_parte': proxima_parte,
         'tem_proxima': tem_proxima,
         'sessaoGrupo': sessao,
-        'partesGrupo': partes_grupo,
+        'partesGrupo': partes_grupo.order_by('parte__ordem'),
         'participantes': participantes,
         'grupo': Grupo.objects.get(id=sessao.grupo.id),
         'pode_iniciar': pode_iniciar,
