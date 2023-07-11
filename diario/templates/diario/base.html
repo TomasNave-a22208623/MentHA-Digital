@@ -46,7 +46,7 @@
 <body class="wrapper h-100 w-100">
     <div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary gap-4 shadow-lg sidebar h-100">
         <!-- Botao fechar sidebar -->
-            <button type="button" class="sidebar-toggle-btn shadow-lg">
+            <button type="button" class="sidebar-toggle-btn shadow-lg" style="border: 2px solid var(--mentha-blue) !important;">
                 <i id="sidebar-icon" class="fa-solid fa-chevron-right"></i>
             </button>
         <div id="sidebar-content" style="display:block;">
@@ -105,21 +105,21 @@
                 <li class="nav-item ">
                     <a class="nav-link active jq-btn" href="{% url 'protocolo:dashboard' %}" data-href="#">
                         <i class="fa-solid fa-user-check"></i>
-                        <span class="sidebar-text" style="display:none;">Eval</span>
+                        <span class="sidebar-text" style="display:none;">MentHA-Eval</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link active jq-btn" href="{% url 'diario:dashboard_Care' %}" data-href="#">
                         <i class="fa-solid fa-user-doctor"></i>
-                        <span class="sidebar-text" style="display:none;">Care</span>
+                        <span class="sidebar-text" style="display:none;">MentHA-Care</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a href="#" class="nav-link active jq-btn" href="{% url 'diario:dashboard_Care' %}" data-href="#">
                         <img src="{% static 'diario/img/cog.svg' %}" style="width:35px;display:inline-block"></i>
-                        <span class="sidebar-text" style="display:none;">Cog</span>
+                        <span class="sidebar-text" style="display:none;">MentHA-Cog</span>
                     </a>
                 </li>
 
