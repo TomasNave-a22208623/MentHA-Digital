@@ -531,12 +531,10 @@ def group_members(request, grupo_id):
 def group_sessions(request, grupo_id):
     # agora podemos usar sessao__programa="CARE" ou ="COG" para diferenciar entre os dois programas
 
-    sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id)
+    sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo_id).order_by('sessao__numeroSessao')
     grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
-
-
-    sessoes = Sessao.objects.all().order_by('numeroSessao')
+    
     grupo = Grupo.objects.get(id=grupo_id)
     sessao_em_curso = None
     proxima_sessao = None
