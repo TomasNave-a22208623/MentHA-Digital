@@ -69,6 +69,13 @@
             
             <!-- Paginas -->
             <ul class="nav nav-pills flex-column mb-auto gap-2 nooverflow-nowrap">
+                <li class="nav-item ">
+                    <a class="nav-link active jq-btn" href="{% url 'mentha:index' %}" data-href="#">
+                        <i class="fa-solid fa-house"></i>
+                        <span class="sidebar-text" style="display:none;">Home</span>
+                    </a>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link active" href="{% url 'protocolo:dashboard' %}">
                         <i class="fa-solid fa-people-group"></i>
@@ -100,6 +107,13 @@
                     <a href="#" class="nav-link active jq-btn" href="{% url 'diario:dashboard_Care' %}" data-href="#">
                         <img src="{% static 'diario/img/cog.svg' %}" style="width:35px;display:inline-block"></i>
                         <span class="sidebar-text" style="display:none;">Cog</span>
+                    </a>
+                </li>
+
+                <li class="nav-item ">
+                    <a class="nav-link active jq-btn" href="{% url 'mentha:logout' %}" data-href="#">
+                        <i class="fa-solid fa-power-off"></i>
+                        <span class="sidebar-text" style="display:none;">Terminar Sessão</span>
                     </a>
                 </li>
             </ul>

@@ -926,6 +926,8 @@ class PartilhaGrupo(models.Model):
     descricao = models.TextField()
     data = models.DateTimeField(auto_now_add=True, null=True)
     sessao_grupo = models.ForeignKey(SessaoDoGrupo, on_delete=models.CASCADE, null=True, default=None)
+    imagem = models.FileField(upload_to="images/", null=True, blank=True)
+    ficheiro = models.FileField(upload_to="ficheiros_partilhas/", null=True, blank=True)
 
     def __str__(self):
         return f'{self.descricao}'

@@ -227,7 +227,9 @@ class PartilhaGrupoForm(ModelForm):
         model = PartilhaGrupo
         fields = '__all__'
         widgets = {
-            'partilhaGrupo': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma partilha sobre o grupo...'}),
+            'descricao': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma partilha sobre o grupo...'}),
+            'ficheiro': forms.FileInput(attrs={'style': 'display:none;'}),
+            'imagem': forms.FileInput(attrs={'style': 'display:none;'}),
         }
 
 

@@ -170,33 +170,7 @@
             }
 
 
-            document.querySelector('.a-aplicacoes').onclick = () => {
-                fetch("{% url 'mentha:aplicacoes' %}")
-                    .then(response => response.text())
-                    .then(text => {
-                        document.querySelector('#content').innerHTML = text;
-                        document.querySelector('html').scrollTop = 0;
-
-                    })
-                    .then(() => {
-                        document.querySelector('#div-mentha-cog').onclick = () => {
-                            fetchPrograma("{% url 'mentha:mentha-cog' %}");
-                        }
-
-                        document.querySelector('#div-mentha-care').onclick = () => {
-                            fetchPrograma("{% url 'mentha:mentha-care' %}");
-                        }
-
-                        document.querySelector('#div-protocolo-mentha').onclick = () => {
-                            fetchPrograma("{% url 'mentha:protocolo-mentha' %}");
-                        }
-
-                    });
-                return false;
-            }
-
-
-            document.querySelector('#a-login, #l-login').onclick = () => {
+            document.querySelector('#a-login').onclick = () => {
                 fetch("{% url 'mentha:login' %}")
                     .then(response => response.text())
                     .then(text => {
@@ -260,7 +234,7 @@
                 fetch("{% url 'mentha:logout' %}")
                     .then(response => response.text())
                     .then(text => {
-                        document.querySelector('#content').innerHTML = text;
+                        // document.querySelector('#content').innerHTML = text;
                         document.querySelector('html').scrollTop = 0;
 
                         // document.querySelector('#a-videoconferencia').style.display = 'none'
@@ -277,6 +251,38 @@
             }          
 
             
+
+            document.querySelector('.a-aplicacoes').onclick = () => {
+
+                fetch("{% url 'mentha:aplicacoes' %}")
+                    .then(response => response.text())
+                    .then(text => {
+                        document.querySelector('#content').innerHTML = text;
+                        document.querySelector('html').scrollTop = 0;
+
+                    })
+                    .then(() => {
+
+                        document.querySelector('#l-login').onclick = () => {
+                            document.querySelector('#a-login').click();
+                        }
+
+                        document.querySelector('#div-mentha-cog').onclick = () => {
+                            fetchPrograma("{% url 'mentha:mentha-cog' %}");
+                        }
+
+                        document.querySelector('#div-mentha-care').onclick = () => {
+                            fetchPrograma("{% url 'mentha:mentha-care' %}");
+                        }
+
+                        document.querySelector('#div-protocolo-mentha').onclick = () => {
+                            fetchPrograma("{% url 'mentha:protocolo-mentha' %}");
+                        }
+
+                    });
+                return false;
+            }
+
 
             document.querySelector('#a-contacto').onclick = () => {
                 fetch("{% url 'mentha:contacto' %}")
@@ -486,34 +492,34 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="margin-left:auto">
                     
                     <li class="nav-item">
-                        <a aria-current="page" id='a-home' href="">Home</a>
+                        <a aria-current="page" id='a-home' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Home</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Projeto
                         </a>
                         <ul class="dropdown-menu">
-                        <li style="margin:0 !important;"><a class="dropdown-item" id='a-projeto' href="">Apresentação</a></li>
+                        <li style="margin:0 !important;"><a class="dropdown-item" id='a-projeto' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Apresentação</a></li>
                         <!-- <li><a class="dropdown-item a-aplicacoes" href="">Programas</a></li> -->
                         <!-- <li style="margin:0 !important;"><hr class="dropdown-divider"></li> -->
-                        <li style="margin:0 !important;"><a class="dropdown-item" id='a-parceiros' href="">Parceiros</a></li>
-                        <li style="margin:0 !important;"><a class="dropdown-item" id='a-equipa' href="">Equipa</a></li>
+                        <li style="margin:0 !important;"><a class="dropdown-item" id='a-parceiros' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Parceiros</a></li>
+                        <li style="margin:0 !important;"><a class="dropdown-item" id='a-equipa' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Equipa</a></li>
                         </ul>
                     </li>
                     <li>
-                        <a class="a-aplicacoes" href="">Programas</a>
+                        <a class="a-aplicacoes" href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Programas</a>
                     </li>
                     <li>
-                        <a id='a-noticias' href="">Noticias</a>
+                        <a id='a-noticias' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Noticias</a>
                     </li>
                     <li class="nav-item">
-                        <a id='a-contacto' href="">Contactos</a>
+                        <a id='a-contacto' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Contactos</a>
                     </li>
                     <li class="nav-item">
-                        <a id='a-login' href="">Login</a>
+                        <a id='a-login' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a id='a-logout' href="">Logout</a>
+                        <a id='a-logout' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Logout</a>
                     </li>
                     </ul>
                     
