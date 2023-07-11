@@ -3,6 +3,7 @@ $(document).ready(function () {
 
     section = "participants"
     history.pushState({ section: section }, "", ``);
+    history.pushState({ section: section }, "", ``);
 
     window.onpopstate = function (event) {
         showSection(event.state.section);
@@ -14,6 +15,21 @@ $(document).ready(function () {
             url: section,
             success: function (data) {
                 $('.page-content').html(data);
+
+                if(document.querySelector('#id_time') ) {
+
+                    var today = new Date();
+                    var currentTime = today.getHours() + ":" + today.getMinutes();
+                    var year = today.getFullYear();
+                    var month = (today.getMonth() + 1).toString().padStart(2, '0');
+                    var day = today.getDate().toString().padStart(2, '0');
+                    var currentDate = year + "-" + month + "-" + day;
+    
+                    document.querySelector('#id_time').value = currentTime;
+                    document.querySelector('#id_data').value = currentDate;    
+                
+                } 
+
                 if (seconds > 0 || ticking) {
                     seconds = 0;
                     ticking = false;

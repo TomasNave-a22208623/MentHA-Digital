@@ -669,6 +669,12 @@ ol.carousel-indicators li{
 position: relative;
 }
 
+.form-control {
+    padding: 0.375rem 0.75rem !important;
+    text-align: center;
+    border: 1px solid #4EB4BE;
+}
+
 .flex-container{
     display: flex;
     flex-direction: column;
