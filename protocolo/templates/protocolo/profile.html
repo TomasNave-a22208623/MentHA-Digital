@@ -16,16 +16,16 @@
 <div class="container-fluid">
     <div style="padding:8px">
         <div class="bcca-breadcrumb">
-            <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;"></div>
-                <div class="bcca-breadcrumb-item fw-normal fs-4">
+            <div class="bcca-breadcrumb-item fw-normal fs-5" style="display:none;"></div>
+                <div class="bcca-breadcrumb-item fw-normal fs-5">
                     <a data-href="{% url 'protocolo:participant' patient.id %}" class="jq-btn">
                         <i class="fa-solid fa-address-card" style="color:white;"></i>
                         {{ patient.nome }}
                     </a>
                 </div>
 
-            <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;"></div>
-                <div class="bcca-breadcrumb-item fw-normal fs-4">
+            <div class="bcca-breadcrumb-item fw-normal fs-5" style="display:none;"></div>
+                <div class="bcca-breadcrumb-item fw-normal fs-5">
                     <a data-href="{% url 'protocolo:participants' %}" class="jq-btn">
                         <i class="fa-solid fa-user-check" style="color:white;"></i>
                         MentHA-EVAL
@@ -226,29 +226,34 @@
                                     {% endif %}
                                     
                                     <!-- Report Button -->
-                                    {% if part.part.name != "MentHA-Risk" %}
-                                    <td style="vertical-align:middle; text-align:center;">
-                                        <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"  style="text-align: center;">
-                                            <button class="w-10 h-10 mb-btn rounded-circle flex m-auto justify-content-center align-items-center align-self-center" type="button" >
-                                                <i class="fa fa-file-text-o" style="border-left-width: 0px;font-size: 15px;text-align: center;color:white;"></i>
-                                            </button>
-                                        </a>
-                                    </td>
-                                    {% else %}
-                                    {% comment %} <a href="{{ part.resolution.relatorio.url }}"> {% endcomment %}
-                                    <td style="vertical-align:middle; text-align:center;">
-                                        <a 
-                                        {% if part.risk.relatorio_word.url|length > 0 %}
-                                        href="{{ part.risk.relatorio_word.url }}" 
+                                    {% if percentage != 0%}
+                                        {% if part.part.name != "MentHA-Risk" %}
+                                            <td style="vertical-align:middle; text-align:center;">
+                                                <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"  style="text-align: center;">
+                                                    <button class="w-10 h-10 mb-btn rounded-circle flex m-auto justify-content-center align-items-center align-self-center" type="button" >
+                                                        <i class="fa fa-file-text-o" style="border-left-width: 0px;font-size: 15px;text-align: center;color:white;"></i>
+                                                    </button>
+                                                </a>
+                                            </td>
                                         {% else %}
-                                        href="#" 
+                                            {% comment %} <a href="{{ part.resolution.relatorio.url }}"> {% endcomment %}
+                                            <td style="vertical-align:middle; text-align:center;">
+                                                <a
+                                                    {% if part.risk.relatorio_word.url|length > 0 %}
+                                                        href="{{ part.risk.relatorio_word.url }}"
+                                                    {% else %}
+                                                        href="#"
+                                                    {% endif %} >
+                                                    <button class="w-10 h-10 mb-btn rounded-circle flex m-auto justify-content-center align-items-center align-self-center" type="button" >
+                                                        <i class="fa fa-file-text-o" style="border-left-width: 0px;font-size: 15px;text-align: center;color:white;"></i>
+                                                    </button>
+                                                </a>
+                                            </td>
                                         {% endif %}
-                                        >
-                                            <button class="w-10 h-10 mb-btn rounded-circle flex m-auto justify-content-center align-items-center align-self-center" type="button" >
-                                                <i class="fa fa-file-text-o" style="border-left-width: 0px;font-size: 15px;text-align: center;color:white;"></i>
-                                            </button>
-                                        </a>
-                                    </td>
+                                    {% else %}
+                                        <td style="vertical-align:middle; text-align:center;">
+                                            <i class="fa-solid fa-minus gray" aria-hidden="true"></i>
+                                        </td>
                                     {% endif %}
                                 </tr>
                                 {% endfor %}

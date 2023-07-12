@@ -12,22 +12,21 @@
         </div>
 
         <div class="">
-            <div class="table-responsive table mt-2" id="dataTable" role="grid"
-                    aria-describedby="dataTable_info">
+            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
                 <table class="table my-0 table-hover-light" id="dataTable">
                     <thead>
                     <tr>
-                        <th class="m-0 fw-bold mb-text fs-4" style="text-align: left;width: 44%">Áreas</th>
-                        <th class="m-0 fw-bold mb-text fs-4" style="text-align: left;width:33%">Progresso</th>
+                        <th class="m-0 fw-bold mb-text fs-4" style="text-align: left;">Áreas</th>
+                        <th class="m-0 fw-bold mb-text fs-4" style="text-align: left; padding-left: 20px">Progresso</th>
                     
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
+                    <tr style="vertical-align: middle;">
                         <!-- Iteration -->
                         {% for area,answered,percentage in areas %}
                             <!-- Name -->
-                            <td style="margin-top: 0px;padding-bottom: 0px;">
+                            <td style="padding: 20px 0; vertical-align: middle;">
                                 <a href="#" class="jq-btn no-decor"
                                         {% if area.name == 'Consciência, Humor e Comportamento' %}
                                     data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id area.instrument.id patient.id %}"
@@ -49,18 +48,18 @@
                                             {% url 'protocolo:instruments' protocol.id part.id area.id patient.id %}">
                                         {% endif %}
 
-                                <button class="btn btn-outline-secondary" style="margin-bottom: 5px;width: 50%;text-align: left;">
+                                <button class="btn mb-btn" style="width: 50%;text-align: left;">
                                     {{ area.order }}. {{ area.name }}
                                 </button>
                                 </a>
                             </td>
 
                             <!-- Progress Bar -->
-                            <td style="padding-bottom: 0px;">
-                                <div class="progress" style="text-align: center;margin-top: 10px;">
-                                    <div class="progress-bar" aria-valuenow="{{ percentage }}"
-                                            aria-valuemin="0"
-                                            aria-valuemax="100" style="width: {{ percentage }}%;">
+                            <td style="vertical-align: middle; padding: 20px 0 20px 20px;">
+                                <div class="progress" style="text-align: center; height: 39px; background-color: white; border: 1px solid lightslategrey;">
+                                    <div class="progress-bar" aria-valuenow="{{ percentage }}" aria-valuemin="0"
+                                            aria-valuemax="100" style="width: {{ percentage }}%; background-color: lightslategrey;
+                                            font-size: 16px; color: white;">
                                         {{ percentage }}%
                                     </div>
                                 </div>

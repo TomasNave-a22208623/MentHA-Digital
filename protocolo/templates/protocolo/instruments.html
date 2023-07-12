@@ -4,12 +4,12 @@
     <div class="" style="padding:8px;">
         <div class="card-body card-flex" style="padding: 8px">
             {% include 'protocolo/tree.html' %}
-            <a class="btn jq-btn btn-primary mb-btn btn-sm d-none d-sm-inline-block report-button"
+            <a class="btn jq-btn mb-btn-outline btn-sm d-none d-sm-inline-block report-button"
                 role="button"
                 href="#"
                 data-href="{% url 'protocolo:report' resolution %}"
                 style="display: flex!important;height: 40px;width: 150px;align-items: center;justify-content: space-around;">
-                <i class="fas fa-download fa-sm text-white-50"></i>&nbsp;Gerar Relatório
+                <i class="fas fa-download"></i>&nbsp;Gerar Relatório
             </a>
         </div>
         <div class="">'
@@ -30,10 +30,10 @@
                         {% for instrument,answered,percentage,quotation in instruments %}
 
                             <!-- Name -->
-                            <td style="margin-top: 0px;padding-bottom: 0px;">
+                            <td style="vertical-align: middle;">
                                 <a href="#" class="jq-btn no-decor"
                                     data-href="{% url 'protocolo:dimensions' protocol_id part_id area_id instrument.id patient_id %}">
-                                    <button class="btn btn-outline-secondary" style="margin-bottom: 5px;width: 50%;text-align: left;">
+                                    <button class="btn mb-btn" style="margin-bottom: 5px;width: 50%;text-align: left;">
                                         {{ instrument.name }}
                                     </button>
                                     <a href="{% static 'protocolo/files/MentHA_Manual_Avaliacao_Final.pdf' %}#page={{ instrument.get_pdf_page }}"
@@ -44,17 +44,17 @@
                                 </a>
                             </td>
                             <!-- Quotation -->
-                            <td>
-
+                            <td style="vertical-align: middle;">
                                 <span class="tree-quotation">({% minimum quotation instrument.maximum_quotation %}/{{ instrument.maximum_quotation }})</span>
                             </td>
 
                             <!-- Progress Bar -->
-                            <td style="padding-bottom: 0px;">
-                                <div class="progress" style="text-align: right;margin-top: 10px;">
+                            <td style="vertical-align: middle;">
+                                <div class="progress" style="text-align: right; height: 39px; background-color: white; border: 1px solid lightslategrey;">
                                     <div class="progress-bar" aria-valuenow="{{ percentage }}"
                                             aria-valuemin="0"
-                                            aria-valuemax="100" style="width: {{ percentage }}%;">
+                                            aria-valuemax="100" style="width: {{ percentage }}%; background-color: lightslategrey;
+                                            font-size: 16px; color: white;">
                                         {{ percentage }}%
                                     </div>
                                 </div>
@@ -63,15 +63,6 @@
                         {% endfor %}
                     </tbody>  
                 </table>
-            </div>
-            <!-- Buttons -->
-            <div class="flex-buttons">
-                <button id="previous" class="btn jq-btn btn-primary mb-btn flex-left"
-                        data-href="{% url 'protocolo:areas' protocol_id part_id patient_id %}"
-                        type="button"
-                        style="width:100%">
-                    <i class="fa fa-chevron-left"></i>&nbsp; Anterior
-                </button>
             </div>
         </div>
     </div>
