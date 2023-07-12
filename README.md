@@ -53,8 +53,8 @@ passos:
 4. fazer source/env/bin/activate
     * makemigrations
     * migrate
-    * sudo systemctl restart gunicorn
-5. login a psql com admin da máquina (leda)
+5. sudo systemctl restart gunicorn
+6. login a psql com admin da máquina (leda)
 
 #### psql 
 
