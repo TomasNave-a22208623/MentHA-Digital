@@ -4,19 +4,22 @@
         <span class="badge bg-{% if dict_.total <= 7 %}success{% elif dict_.total <= 14 %}warning{% else %}danger{% endif %}">
         Grau de Dependência {{ dict_.evaluation }}
         </span>
-        <ul class="list-group list-unstyled fw-normal">
-            <li class="">
-                Ativ. Corporais: <span class="fw-bold">{{dict_.atividades_corporais}}</span>
-            </li>
-            <li class="">
-                Ativ. Motoras: <span class="fw-bold">{{dict_.atividades_motoras}}</span>
-            </li>
-            <li class="">
-                Ativ. Sensoriais: <span class="fw-bold">{{dict_.atividades_sensoriais}}</span>
-            </li>
-            <li class="">
-                Ativ. Mentais: <span class="fw-bold">{{dict_.atividades_mentais}}</span>
-            </li>
-        </ul>
+
+        
+        <table class="list-group list-unstyled fw-normal">
+            <tr class="">
+                <td>Ativ. Corporais: </td><td><span class="fw-bold">{{dict_.atividades_corporais}}/{{dict_._max_ati_corp}}</span></td>
+            </tr>
+            <tr class="">
+                <td>Ativ. Motoras: </td><td><span class="fw-bold">{{dict_.atividades_motoras}}/{{dict_.max_ati_moto}}</span></td>
+            </tr>
+            <tr class="">
+                <td>Ativ. Sensoriais:</td> <td><span class="fw-bold">{{dict_.atividades_sensoriais}}/{{dict_.max_ati_sens}}</span></td>
+            </tr>
+            <tr class="">
+                <td>Ativ. Mentais:</td><td> <span class="fw-bold">{{dict_.atividades_mentais}}/{{dict_.max_ati_ment}}</span></td>
+            </tr>
+        </table>
+
     </span>
 </div>

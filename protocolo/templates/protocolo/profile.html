@@ -5,22 +5,29 @@
 {% load tags %}
 
 <style>
-  .circle-image {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    overflow: hidden;
-  }
+    .circle-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+    @media (max-width:1300px) {
+        .bcca-breadcrumb-item span {
+            display:none;
+        }
+    }
 </style>
-    
+
+
 <div class="container-fluid">
     <div style="padding:8px">
         <div class="bcca-breadcrumb">
             <div class="bcca-breadcrumb-item fw-normal fs-5" style="display:none;"></div>
                 <div class="bcca-breadcrumb-item fw-normal fs-5">
-                    <a data-href="{% url 'protocolo:participant' patient.id %}" class="jq-btn">
+                    <a href="#" data-href="{% url 'protocolo:participant' patient.id %}">
                         <i class="fa-solid fa-address-card" style="color:white;"></i>
-                        {{ patient.nome }}
+                        <span>{{ patient.nome }}</span>
                     </a>
                 </div>
 
@@ -28,7 +35,7 @@
                 <div class="bcca-breadcrumb-item fw-normal fs-5">
                     <a data-href="{% url 'protocolo:participants' %}" class="jq-btn">
                         <i class="fa-solid fa-user-check" style="color:white;"></i>
-                        MentHA-EVAL
+                        <span>MentHA-EVAL</span>
                     </a>
                 </div>
         </div>
@@ -37,7 +44,7 @@
                 <table class="table">
                     <tbody>
                         <tr>
-                            <td rowspan="4" class="align-content-center align-middle" style="width: 15%">
+                            <td rowspan="4" class="align-content-center align-middle" style="width: 0%">
                                 <!-- Imagem -->
                                 {% if patient.imagem %}
                                     <div class="circle-image">
@@ -50,7 +57,13 @@
                                             style="width: 100%; height: 100%; object-fit: cover;">
                                     </div>
                                 {% endif %}
+
+                                <div style="padding-top:10px; text-align:center">
+                                    <button data-href="{% url 'protocolo:participante_update' patient.id %}" class="btn jq-btn btn-outline-warning"><i class="fa fa-user-pen"></i> Alterar </button>
+                                </div>
+                        
                             </td>
+
                             <td class="text-start" style="text-align:center; width: 25%">
                                 <!-- Nome -->
                                 <label class="form-label">Nome</label>
@@ -58,6 +71,7 @@
                                     {{ patient.nome }}
                                 </p>
                             </td>
+
                             <td class="text-start" style="text-align:center; width: 25%">
                                 <!-- Telemovel -->
                                 <label class="form-label">Telemóvel</label>
@@ -65,14 +79,26 @@
                                     {{ patient.telemovel }}
                                 </p>
                             </td>
-                            <td class="text-start" style="text-align:center; width: 25%">
-                                <!-- Referenciacao -->
-                                <label class="form-label">Referenciação</label>
-                                <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                    {{ patient.referenciacao }}
-                                </p>
-                            </td>
+
+                            {% if patient.referenciacao == None %}
+                                <td class="text-start" style="text-align:center; width: 25%">
+                                    <!-- Referenciacao -->
+                                    <label class="form-label">Referenciação</label>
+                                    <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                        Sem Informação
+                                    </p>
+                                </td>
+                            {% else %}
+                                <td class="text-start" style="text-align:center; width: 25%">
+                                    <!-- Referenciacao -->
+                                    <label class="form-label">Referenciação</label>
+                                    <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                        {{ patient.referenciacao }}
+                                    </p>
+                                </td>
+                            {% endif %}
                         </tr>
+
                         <tr>
                             <td>
                                 <!-- Data de Nascimento -->
@@ -81,6 +107,7 @@
                                     {{ patient.nascimento }} ({{ age }} anos)
                                 </p>
                             </td>
+
                             <td>
                                 <!-- E-mail -->
                                 <label class="form-label">E-mail</label>
@@ -88,11 +115,12 @@
                                     {{ patient.email }}
                                 </p>
                             </td>
+
                             <td>
                                 <!-- Grupo COG -->
                                 <label class="form-label">Grupo COG</label>
                                 <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold;">
-                                    {% if not patient.grupo %}
+                                    {% if not patient.grupo.all %}
                                         Não tem grupo COG
                                     {% else %}
                                         {% for grupo in patient.grupo.all %}
@@ -102,6 +130,7 @@
                                 </p>
                             </td>
                         </tr>
+
                         <tr>
                             <td>
                                 <!-- Sexo -->
@@ -110,12 +139,18 @@
                                     {{ patient.sexo }}
                                 </p>
                             </td>
-                            <td></td>
+
+                            <td>
+                                <!-- Escolaridade -->
+                                <label class="form-label" style="margin: 0px;">Escolaridade</label>
+                                <b>{{ patient.escolaridade }}</b>
+                            </td>
+
                             <td>
                                 <!-- Cuidadores -->
                                 <label class="form-label">Cuidador(es)</label>
                                 <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                    {% if not patient.cuidadores %}
+                                    {% if not patient.cuidadores.all %}
                                         Não tem cuidador
                                     {% else %}
                                         {% for cuidador in patient.cuidadores.all %}
@@ -126,29 +161,67 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>
-                                <!-- Nacionalidade -->
-                                <label class="form-label">Nacionalidade</label>
-                                <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                    {{ patient.nacionalidade }}
-                                </p>
-                            </td>
-                            <td></td>
-                            <td>
-                                <!-- Grupo CARE dos cuidadores-->
-                                <label class="form-label">Grupo CARE do(s) cuidador(es)</label>
-                                <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
-                                    {% for cuidador in patient.cuidadores.all %}
-                                        {% if not cuidador.grupo %}
-                                            Não tem grupo CARE
-                                        {% else %}
-                                            {% for grupo in cuidador.grupo.all %}
-                                                {{ grupo.nome }}
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                </p>
-                            </td>
+                            {% if patient.nacionalidade == None or patient.nacionalidade == "" %}
+                                <td>
+                                    <!-- Nacionalidade -->
+                                    <label class="form-label">Nacionalidade</label>
+                                    <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                        Sem Informação
+                                    </p>
+                                </td>
+                            {% else %}
+                                <td>
+                                    <!-- Nacionalidade -->
+                                    <label class="form-label">Nacionalidade</label>
+                                    <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                        {{ patient.nacionalidade }}
+                                    </p>
+                                </td>
+                            {% endif %}
+
+                            {% if patient.localizacao == None or patient.localizacao == "" %}
+                                <td>
+                                    <!-- Localizacao -->
+                                    <label class="form-label">Localização</label>
+                                    <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                        Sem Informação
+                                    </p>
+                                </td>
+                            {% else %}
+                                <td>
+                                    <!-- Localizacao -->
+                                    <label class="form-label">Localização</label>
+                                    <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                        {{ patient.localizacao }}
+                                    </p>
+                                </td>
+                            {% endif %}
+
+                            {% if not patient.cuidadores.all %}
+                                <td>
+                                    <!-- Grupo CARE dos cuidadores-->
+                                    <label class="form-label">Grupo CARE do(s) cuidador(es)</label>
+                                    <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                        Sem Informação
+                                    </p>
+                                </td>
+                            {% else %}
+                                <td>
+                                    <!-- Grupo CARE dos cuidadores-->
+                                    <label class="form-label">Grupo CARE do(s) cuidador(es)</label>
+                                    <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                        {% for cuidador in patient.cuidadores.all %}
+                                            {% if not cuidador.grupo %}
+                                                Não tem grupo CARE
+                                            {% else %}
+                                                {% for grupo in cuidador.grupo.all %}
+                                                    {{ grupo.nome }}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                </td>
+                            {% endif %}
                         </tr>
                         <tr></tr>
                     </tbody>
@@ -172,21 +245,27 @@
                                     <th style="text-align:center; width:15%">Hora</th>
                                     <th style="text-align:center; width:20%">Progresso</th>
                                     <th style="text-align:center; width:15%">Gerar Relatório</th>
+                                    <th style="text-align:center; width:15%">Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    {% for part,answered,percentage in partesdoutilizador %}
+                                <tr style="vertical-align:middle;">
+                                    {% for part, answered, percentage, report_id in partesdoutilizador %}
                                     <!-- Part -->
                                     <td style="vertical-align:middle;">
                                         <a href="#" class="jq-btn"
                                             {% if part.part.name != "MentHA-Risk" %}
-                                                data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"
+                                                {% if part.part.name == 'Questionário Sociodemográfico' %}
+                                                    data-href="{% url 'protocolo:question' 1 part.id area_soc.id pergunta_soc.section.dimension.instrument.id pergunta_soc.section.dimension.id pergunta_soc.section.id  patient.id %}"
+                                                {% else %}
+                                                    data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"
+                                                {% endif %}
                                             {% else %}
                                                 data-href="{% url 'protocolo:question' 1 part.id risk_area.id pergunta_risk.section.dimension.instrument.id pergunta_risk.section.dimension.id pergunta_risk.section.id  patient.id %}"
                                             {% endif %}>
-                                            <button class="btn mb-btn btn-group" style="width:90%;justify-content: center;" type="button">
-                                                {{ part.part.name }}
+
+                                            <button class="btn mb-btn" style="width:90%;justify-content: center; flex-start; text-align: left;" type="button">
+                                                <i class="fa-solid fa-eye" style="padding:10px; "></i> {{ part.part.name }}
                                             </button>
                                         </a>
                                     </td>
@@ -208,10 +287,30 @@
 
                                     <!-- Progress Bar -->
                                     {% if part.part.name != "MentHA-Risk" %}
-                                        <td style="vertical-align:middle;">
-                                            <div class="progress" style="background:white;">
-                                                <div class="progress-bar" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percentage }}%;">
-                                                    {{ percentage }}%
+                                        <td style="vertical-align: middle">
+                                            <div style="display: flex; flex-direction: column; align-items: center">
+                                                {% if percentage >= 0 and percentage <= 25 %}
+                                                    <div style="width: 80%; text-align: end; font-weight:bold; color: red;">
+                                                        {{ percentage }}%
+                                                    </div>
+                                                {% elif percentage > 25 and percentage < 50 %}
+                                                    <div style="width: 80%; text-align: end; font-weight:bold; color: coral;">
+                                                        {{ percentage }}%
+                                                    </div>
+                                                {% elif percentage >= 50 and percentage < 75 %}
+                                                    <div style="width: 80%; text-align: end; font-weight:bold; color: #DBA800;">
+                                                        {{ percentage }}%
+                                                    </div>
+                                                {% elif percentage >= 75 %}
+                                                    <div style="width: 80%; text-align: end; font-weight:bold; color: mediumseagreen;">
+                                                        {{ percentage }}%
+                                                    </div>
+                                                {% endif %}
+
+                                                <div class="progress" style="display: flex; height: 10px; width: 80%;background-color: white; border: 1px solid lightslategrey">
+                                                    <div class="progress-bar" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100"
+                                                         style="width: {{ percentage }}%; background-color: lightslategrey; font-size: 14px; color: white; height: 100%">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
@@ -226,10 +325,10 @@
                                     {% endif %}
                                     
                                     <!-- Report Button -->
-                                    {% if percentage != 0%}
+                                    {% if percentage != 0 %}
                                         {% if part.part.name != "MentHA-Risk" %}
                                             <td style="vertical-align:middle; text-align:center;">
-                                                <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' 1 part.id patient.id %}"  style="text-align: center;">
+                                                <a href="#" class="jq-btn" data-href="{% url 'protocolo:report' report_id %}"  style="text-align: center;">
                                                     <button class="w-10 h-10 mb-btn rounded-circle flex m-auto justify-content-center align-items-center align-self-center" type="button" >
                                                         <i class="fa fa-file-text-o" style="border-left-width: 0px;font-size: 15px;text-align: center;color:white;"></i>
                                                     </button>
@@ -255,20 +354,85 @@
                                             <i class="fa-solid fa-minus gray" aria-hidden="true"></i>
                                         </td>
                                     {% endif %}
+                                    <!-- delete button -->  
+                                    <td style="vertical-align:middle; text-align:center;">
+                                        <button class="w-10 h-10 mb-btn rounded-circle flex m-auto justify-content-center align-items-center align-self-center" 
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal{{forloop.counter}}" type="button" >
+                                            <i class="fa fa-trash-o" style="border-left-width: 0px;font-size: 15px;text-align: center;color:white;"></i>
+                                        </button>
+                                        <!-- Modal --> 
+                                        
+                                        <div class="modal fade" id="deleteModal{{forloop.counter}}"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLongTitle">Apagar Teste</h5>
+                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Tem mesmo a certeza que quer apagar este teste?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn mb-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                                                    <a href="#" class="jq-btn" data-href="{% url 'protocolo:delete_button' part.id patient.id %}"  style="text-align: center;">
+                                                        <button type="button" class="btn btn-primary" style="background-color:red;" data-bs-dismiss="modal">Apagar</button>
+                                                    </a>
+                                                </div>
+                                                </div>
+                                            </div>
+                                        </div>  
+                                    </td> 
                                 </tr>
+                                
                                 {% endfor %}
+                                
                                 <form id="appointment-form" action="" method="POST" style="display:flex; align-items:flex-end; gap:10px">
                                     {% csrf_token %}
                                         <tr>
-                                        {% for field in form %}
-                                            <td>{{field}}</td>
-                                        {% endfor %}
+                                            <!-- CUIDADOR -->
+						                    <!-- Os IDS das partes podem ser diferentes localmente e no servidor -->
+                                            <!-- Os IDS em baixo estao feitos para funcionar no servidor :) -->
+                                            <td>
+                                            {% if user_risk %}
+                                                <select name="part" class="form-control" required="" id="id_part">
+                                                    <option value="" selected="">---------</option>
+                                                    <optgroup label="Início">
+                                                    <option value="14">Questionario Sociodemográfico (Participante)</option>
+                                                    <optgroup label="MentHA Risk">
+                                                    <option value="9">Rastreio de AVC</option>
+                                                </select>
+                                            {% else %}
+                                                <select name="part" class="form-control" required="" id="id_part">
+                                                    <option value="" selected="">---------</option>
+                                                    <optgroup label="Início">
+                                                    <option value="14">Questionario Sociodemográfico (Participante)</option>
+                                                    <optgroup label="MentHA Risk">
+                                                    <option value="9">Rastreio de AVC</option>
+                                                    <optgroup label="MentHA COG">
+                                                    <option value="1">Rastreio</option>
+                                                    <option value="2">0 meses</option>
+                                                    <option value="3">2 meses</option>
+                                                    <option value="4">4 meses</option>
+                                                    <option value="5">6 meses</option>
+                                                    <option value="6">Teste Livre</option>
+                                                </select>
+                                            {% endif %}
+                                            </td>
+                                            <td>
+                                                <input type="date" name="data" class="form-control" required="" id="id_data">
+                                            </td>
+                                            <td>
+                                                <input type="time" name="time" class="form-control" required="" id="id_time">
+                                            </td>
                                     </form>
                                         <td>
                                             <button id="btn-popup" class="btn btn-primary btn-appointment mb-btn flex-left" type="submit" data-href="{% url 'protocolo:participant' patient.id %}" style="width:100%;"> 
                                                 <i class="fa fa-calendar-plus-o"></i>&nbsp Agendar
                                             </button>
                                         </td>
+                                        <td></td>
                                         <td></td>
                                     </tr>
                             </tbody>

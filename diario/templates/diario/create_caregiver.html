@@ -1,69 +1,121 @@
-{% extends 'diario/base.html' %}
 {% load static %}
-{% block main %}
-    <div id="wrapper">
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-                <div class="d-sm-flex justify-content-between align-items-center mb-4">
-                </div>
-                <div class="container-fluid">
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="container text-start">
-                        <div class="row">
-                            <div class="col align-self-center">
-                                <div style="display: flex;flex-direction: row;justify-content: space-between">
-                                    <div class="card-body" style="padding: 8px">
-                                        <p class="m-0 fw-bold" style="margin: 5px; font-size: 26px; color: #4EB4BE">
-                                            Registar Cuidador</p>
-                                    </div>
-                                    <div>
-                                        <form action="{% url 'diario:group_members' grupo_id %}">
-                                            <button type="submit" class="btn mb-btn-outline" style="width: 150px">
-                                                <i class="fa-solid fa-angle-left"></i> Anterior
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="container text-start">
-                        <div class="row">
-                            <div class="col align-self-center">
-                                <div class="card shadow">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <form action="" class="row g-3" method="post" enctype="multipart/form-data">
-                                                {% csrf_token %}
-                                                {% for field in formCuidador %}
-                                                    <div class="fieldWrapper" style="flex-direction: row">
-                                                        {{ field.errors }}
-                                                        <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
-                                                        {{ field }}
-                                                    </div>
-                                                {% endfor %}
-                                                <div style="display: flex; flex-direction: row; justify-content: space-between">
-                                                    <div class="col-md-6">
-                                                        <button type="submit" class="btn mb-btn-outline"
-                                                                style="width: 150px">
-                                                            <i class="fa fa-floppy-disk"></i> Guardar
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+{% block head %}
+<script src="{% static 'protocolo/js/registo.js' %}?{% now 'U' %}"></script>
+<link href="{% static 'protocolo/stylingForm.css' %}" rel="stylesheet">
 {% endblock %}
+
+<div class="bcca-breadcrumb" style="padding:38px;">
+    <div class="bcca-breadcrumb-item fw-normal fs-5" style="display:none;"></div>
+
+    <div class="bcca-breadcrumb-item fw-normal fs-5">
+        <a data-href="{% url 'diario:create_caregiver' %}" class="jq-btn">
+            <i class="fa fa fa-user-plus" style="color:white;"></i>
+            Registo de um Cuidador
+        </a>
+    </div>
+
+    <div class="bcca-breadcrumb-item fw-normal fs-5">
+        <a data-href="{% url 'protocolo:participants' %}" class="jq-btn">
+            <i class="fa-solid fa-user-check" style="color:white;"></i>
+            MentHA-EVAL
+        </a>
+    </div>
+</div>
+
+<div class="container-form-registo">
+     <form action="return false;" id="patient-form" class="row g-3" method="POST">
+        {% csrf_token %}
+         <table style="border-spacing: 15px;
+        border-collapse: separate;">
+            <tr>
+                <td>
+                    <label for="username" class="label"><b>Username</b></label>
+                        <div class="input-class">
+                                <input class="form-input-registo" type="text" id="username" name="username" required>
+                        </div>
+                </td>
+                <td>
+                    <div class="input-class">
+                        <input type="hidden" name="password" value="@MentHA@23" id="id_password">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                        <label for="nome" class="label"><b>Nome</b></label>
+                        <div class="input-class">
+                                <input class="form-input-registo" type="text" id="nome" name="nome" required>
+                        </div>
+                </td>
+                <td>
+                    <label for="sexo" class="label"><b>Indique o seu sexo</b></label>
+                    <div class="select-containers">
+                        <select class="select" id="sexo" name="sexo">
+                            <option value="Masculino">Masculino</option>
+                            <option value="Feminino">Feminino</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                </td>
+
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <label for="email" class="label"><b>Indique o seu email</b></label>
+                    <div class="input-class">
+                        <input class="form-input-registo" type="email" id="email" name="email">
+                    </div>
+
+                </td>
+                <td>
+                    <label for="telemovel" class="label"><b>Indique o seu telemovel</b></label>
+                    <div class="input-class">
+                        <input class="form-input-registo" type="text" id="telemovel" name="telemovel">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="nascimento" class="label"><b>Indique a sua data de Nascimento</b></label>
+                    <div class="input-class">
+                        <input class="form-input-registo" type="date" id="nascimento" name="nascimento" required>
+                    </div>
+                </td>
+                {% comment %} <td>
+                    <label for="referenciacao" class="label"><b>Qual é a referenciacao</b></label>
+                    <div class="select-containers">
+                        <select class="select" id="referenciacao" name="referenciacao">
+                            <option value="ADEB"> ADEB</option>
+                            <option value="Cruz Vermelha"> Cruz Vermelha</option>
+                            <option value="Elo Social"> Elo Social </option>
+                            <option value="Familiarmente"> Familiarmente </option>
+                            <option value="GIRA"> GIRA </option>
+                            <option value="ASMAL"> ASMAL </option>
+                        </select>
+                    </div>
+                </td> {% endcomment %}
+            </tr>
+        </table>
+
+        {% if formCuidador.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field_errors in formCuidador.errors %}
+                        {% for error in field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div style="padding-right: 15px;display: flex;padding-left: 15px;flex-direction: row-reverse;justify-content: space-between;">
+        <button class="btn mb-btn btn-registar flex-left" type="submit" data-href="{% url 'diario:create_caregiver' %}" style="width:150px;">
+            <i class="fa fa fa-user-plus"></i>&nbsp Registar
+        </button>
+        <button class="btn jq-btn mb-btn-outline flex-left" data-href="{% url 'protocolo:participants' %}">
+            <i class="fa fa-times"></i> Cancelar
+        </button>
+        </div>
+    </form>
+</div>

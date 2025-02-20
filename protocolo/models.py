@@ -35,6 +35,7 @@ class Common(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['id', 'order']
 
 
 class Protocol(Common):
@@ -43,13 +44,34 @@ class Protocol(Common):
         return f"{self.name}"
 
 class Risk(models.Model):
+
     SEXO = (
         ('M', 'Masculino'),
         ('F','Feminino'),
     )
+    PRE_DIABETICO = (
+        ('Sim', 'Sim'),
+        ('Não', 'Não',),
+    )
+    DOENCA_COGNITIVA = (
+        ('Sim','Sim'),
+        ('Não','Não'),
+    )
+    PERGUNTA_CARDIOVASCULAR = (
+        ('Baixo','Baixo'),
+        ('Moderado','Moderado'),
+        ('Alto','Alto'),
+        ('Elevado','Elevado'),
+        ('Não se sabe','Não se sabe'),
+
+    )
+
     FUMADOR = (
         ('smoking','smoking'),
         ('nonSmoking','nonSmoking'),
+        ('exSmoker','exSmoker'),
+        ('naoSeSabe','naoSeSabe'),
+
     )
     DIABETES = (
         ('S','Sim'),
@@ -92,15 +114,22 @@ class Risk(models.Model):
     idade = models.PositiveIntegerField(default=0)
     sexo = models.CharField(max_length=10,choices=SEXO)
     peso = models.FloatField(default=0)
-    altura = models.CharField(max_length=10,blank=True)
+    altura = models.IntegerField(default=0,blank=True)
     imc = models.IntegerField(default=0)
     pressao_arterial = models.IntegerField(default=0)
     colestrol_total = models.IntegerField(default=0)
     colestrol_hdl = models.IntegerField(default=0)
     colestrol_nao_hdl = models.IntegerField(default=0)
     hemoglobina_gliciada = models.FloatField(default=0)
-    fumador = models.CharField(max_length=10,choices=FUMADOR,null=True)
-    diabetes = models.BooleanField(default=False)
+    eag_hba1 = models.FloatField(default=0) #default 68.0
+    ifcc_hba1 = models.FloatField(default=0) #default 20.0
+    ngsp_hba1 = models.FloatField(default=0) #default 4
+    horas_jejum = models.IntegerField(default=0,blank=True)
+    doenca_cognitiva = models.BooleanField(default=False)
+    pre_diabetico = models.BooleanField(default=False)
+    pergunta_cardiovascular = models.CharField(max_length=100,choices=PERGUNTA_CARDIOVASCULAR, default='Não se sabe')
+    fumador = models.CharField(max_length=100,choices=FUMADOR,null=True)
+    diabetes = models.BooleanField(default=True)
     anos_diabetes = models.IntegerField(default=0,blank=True)
     avc = models.BooleanField(default=False)
     enfarte = models.BooleanField(default=False)
@@ -108,66 +137,42 @@ class Risk(models.Model):
     doenca_pernas = models.BooleanField(default=False)
     hipercolestrol = models.BooleanField(default=False)
     data_atual = models.DateField(default=timezone.now)
-    comentario2 = models.CharField(max_length=200,blank=True)
-    comentario = models.CharField(max_length=200,blank=True)
-    risco_de_enfarte = models.IntegerField(default=0,null=True) #propriedade
+    comentario2 = models.CharField(max_length=200, blank=True)
+    comentario = models.CharField(max_length=200, blank=True)
+    recomendacoes = models.TextField(max_length=200,blank=True)  
+    tg = models.IntegerField(default=0)
+    ldl = models.IntegerField(default=0)
+    cholhdl = models.FloatField(default=0)
+    batimentos = models.IntegerField(default=0)
+    pressao_arterial_diastolica = models.IntegerField(default=0)
+    risco_de_enfarte = models.IntegerField(default=0, null=True)  # propriedade
+    pat_id = models.CharField(max_length=100, blank=True, default=0)
+    pat_id_v2 = models.CharField(max_length=100, blank=True, default=0)
+    # parâmetros novos
+   
+
     parteDoUtilizador = models.OneToOneField('ParteDoUtilizador',on_delete=models.CASCADE,null=True,blank=True,default=None,related_name='risk')
+    
     relatorio = models.FileField(upload_to='relatorio_risk/', null=True, blank=True)
     relatorio_word = models.FileField(upload_to='relatorio_risk_word/', null=True, blank=True)
+    
     concluido = models.BooleanField(default=False)
     
-
-    # @property
-    # def risco_de_enfarte(self):
-
-    #     print("entrou no risk_json")
-    #     #abrir json risk_men
-    #     data = open_json(path)
-    #     print("entrou no risk_json2")
-    #     for i in data:
-    #         if(i == smoking):
-    #             print("entrou no risk_json3")
-    #             for j in data[i]:
-    #                 min=j.split('-')[0]
-    #                 max=j.split('-')[1]
-    #                 min = int(min)
-    #                 max = int(max)
-    #                 idade = int(idade)
-    #                 if(idade in range(min,max+1)):
-    #                     print("entrou no risk_json4")
-    #                     for k in data[i][j]:
-    #                         min=k.split('-')[0]
-    #                         max=k.split('-')[1]
-    #                         min = int(min)
-    #                         max = int(max)
-    #                         hipertensao = int(hipertensao)
-    #                         if(hipertensao in range(min,max+1)):
-    #                         print("entrou no risk_json5")
-    #                         for l in data[i][j][k]:
-    #                             min=l.split('-')[0]
-    #                             max=l.split('-')[1]
-    #                             min = float(min)
-    #                             max = float(max)
-    #                             colesterol = float(colesterol)
-    #                             if(colesterol in float_range(min,max+1)):
-    #                                 print("entrou no risk_json6")
-    #                                 print(colesterol)
-    #                                 print(data[i][j][k][l])
-    #                                 return data[i][j][k][l]
-
-
 
     class Meta:
         db_table = 'protocolo_risk'
     
     
-    
 class Part(Common):
     protocol = models.ForeignKey('Protocol', on_delete=models.CASCADE)
     part_number = models.IntegerField(default=0)
+    caderno_estimulos = models.FileField(upload_to='caderno_estimulos/', null=True, blank=True, default=None)
 
     def __str__(self):
-        return f"{self.name}"
+        part_str = self.name
+        if self.description:
+            part_str += f" ({self.description})"
+        return part_str
 
     @property
     def area(self):
@@ -224,10 +229,11 @@ class Area(Common):
 class ParteDoUtilizador(models.Model):
     
     part = models.ForeignKey('Part', on_delete = models.CASCADE, related_name='parteDoUtilizador')  #parte do protocolo que o utilizador fez
-    participante = models.ForeignKey(Participante, on_delete=models.CASCADE, related_name='parteDoUtilizador') #participante que fez a parte
+    participante = models.ForeignKey(Participante, default=None, on_delete=models.CASCADE, related_name='parteDoUtilizador', null = True, blank = True) #participante que fez a parte
+    cuidador = models.ForeignKey(Cuidador, default=None, on_delete=models.CASCADE, related_name='parteDoUtilizador', null = True, blank = True) #participante que fez a parte
     data = models.DateField() #data da marcacao
     time = models.TimeField() #hora da marcacao
-    relatorio = models.FileField(upload_to='relatorio/', null=True, blank=True)
+    # relatorio = models.FileField(upload_to='relatorio/', null=True, blank=True)
     concluido = models.BooleanField(default=False)
     
     @property
@@ -235,7 +241,10 @@ class ParteDoUtilizador(models.Model):
         return self.part.order
 
     def __str__(self) -> str:
-        return f'{self.part.name} {self.participante}'
+        if {self.participante} == None:
+            return f'{self.part.name} {self.cuidador}'
+        else:
+            return f'{self.part.name} {self.participante}'
 
 class Instrument(Common):
     area = models.ManyToManyField('Area',
@@ -340,8 +349,8 @@ class Dimension(Common):
         return max_q
 
 
-def __str__(self):
-    return f"{self.instrument.name} >> {self.name}"
+    def __str__(self):
+        return f"{self.instrument.name} >> {self.name}"
 
 
 class Section(Common):
@@ -360,16 +369,17 @@ class Section(Common):
         return max_q
 
     def __str__(self):
-        return f"{self.dimension.instrument.name} >> {self.dimension.name} >> {self.name}"
+        return f"{self.id} {self.dimension.instrument.name} >> {self.dimension.name} >> {self.name}"
 
 
 class Question(Common):
     # 1 = Multiple Choice, 2 = Escrita aberta ou submissão, 3 = Tabela de escolhas multiplas (p. ex. Psicossintomatologia BSI)
     # 4 = Checkboxes, 5 = Multiplas text areas com cronómetro, 6 = Nomeação de Imagens, 7= Memoria (Reconhecimento),
-    # 8 = GDS Questionário, 9 GDS atribuir estadio, 10 = Trail Maker Test, 11 = Sociodemografico 12 = Menth_Risk
+    # 8 = GDS Questionário, 9 GDS atribuir estadio, 10 = Trail Maker Test, 11 = Sociodemografico, 12 = Menth_Risk
+    # 13 = Sociodemografico Cuidador
     question_type = models.PositiveIntegerField(default=1,
                                                 blank=False,
-                                                validators=[MinValueValidator(1), MaxValueValidator(12)])
+                                                validators=[MinValueValidator(1), MaxValueValidator(13)])
     instruction = models.TextField(max_length=LONG_LEN,
                                    blank=True)
     helping_images = models.ManyToManyField('QuestionImage',
@@ -385,6 +395,8 @@ class Question(Common):
     quotation_max = models.IntegerField(default=10)
     quotation_min = models.IntegerField(default=0)
     pdf_page = models.IntegerField(default=0)
+
+    
 
     @property
     def possible_answer_name_list(self):
@@ -404,7 +416,7 @@ class Question(Common):
         self.section.dimension.instrument.name
 
     def __str__(self):
-        return f"{self.name}"
+        return f"({self.id}) {self.order}. {self.name}"
 
 
 class QuestionImage(models.Model):
@@ -432,6 +444,8 @@ class PossibleAnswer(Common):
 class Resolution(models.Model):
     patient = models.ForeignKey(Participante,
                                 on_delete=models.CASCADE, default=None, blank=True, null=True)
+    cuidador = models.ForeignKey(Cuidador,
+                                on_delete=models.CASCADE, default=None, blank=True, null=True)
     part = models.ForeignKey('ParteDoUtilizador', on_delete=models.CASCADE,null=True, blank=True, related_name='resolution')
     date = models.DateTimeField(default=timezone.now)
     doctor = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -439,9 +453,25 @@ class Resolution(models.Model):
     statistics = models.JSONField(blank=True, default=dict)
 
     def __str__(self):
-        return f"{self.id}. {self.patient.nome} -  " \
+        return f"{self.id}. {self.pessoa.nome} -  " \
                f"({self.date.day}/{self.date.month}/{self.date.year}, {self.date.hour}:{self.date.minute})"
-
+    
+    @property
+    def pessoa(self):
+        if self.patient:
+            return self.patient
+        elif self.cuidador:
+            return self.cuidador
+        
+    @property
+    def sexo(self):
+        if self.patient:
+            return self.patient.sexo
+        elif self.cuidador:
+            return self.cuidador.sexo
+        
+        return None
+    
     def initialize_statistics(self):
         self.statistics['total_answered'] = 0
         self.statistics['total_percentage'] = 0
@@ -472,16 +502,9 @@ class Resolution(models.Model):
                         self.statistics[area.id][instrument.id][dimension.id][section.id]['answered'] = 0
                         self.statistics[area.id][instrument.id][dimension.id][section.id]['percentage'] = 0
                         self.statistics[area.id][instrument.id][dimension.id][section.id]['quotation'] = 0
-                        #questions = Question.objects.filter(section=section)
-                        # for question in questions:
-                        #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id] = {}
-                        #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['name'] = question.name
-                        #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['answered'] = 0
-                        #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['percentage'] = 0
-                        #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['quotation'] = 0
+                        
         self.save()
         Report.objects.create(resolution=self)
-        # json.dumps(self.statistics)
 
     def increment_statistics(self, part_id: int, area_id: int, instrument_id: int, dimension_id: int, section_id: int):
         part = ParteDoUtilizador.objects.get(pk=part_id).part
@@ -681,6 +704,8 @@ class Report(models.Model):
 
 
     resolution = models.ForeignKey('Resolution', on_delete=models.CASCADE, related_name='report')
+    word = models.FileField(upload_to='relatorio_eval_word/', null=True, blank=True)
+    json = models.JSONField(blank=True, default=dict)
 
     #ABVD
     abvd_evaluation = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True, choices=ABVD_CHOICES)
@@ -732,11 +757,11 @@ class Report(models.Model):
     #AREAS COMPLEMENTAS
     ac_memoria_visual_imediata_quotation = models.IntegerField(default=0, blank=True, null=True)
     ac_memoria_diferida_quotation = models.IntegerField(default=0, blank=True, null=True)
-    ac_tmt_a_quotation = models.IntegerField(default=0, blank=True, null=True)
-    ac_tmt_b_quotation = models.IntegerField(default=0, blank=True, null=True)
-    ac_gnosias_quotation = models.IntegerField(default=0, blank=True, null=True)
-    ac_proverbios_quotation = models.IntegerField(default=0, blank=True, null=True)
-    ac_token_test_quotation = models.IntegerField(default=0, blank=True, null=True)
+    ac_atencao_mantida_quotation = models.IntegerField(default=0, blank=True, null=True)
+    ac_atencao_dividida_quotation = models.IntegerField(default=0, blank=True, null=True)
+    ac_orientacao_esq_dir_quotation = models.IntegerField(default=0, blank=True, null=True)
+    ac_abstracao_verbal_quotation = models.IntegerField(default=0, blank=True, null=True)
+    ac_compreensao_instrucoes_quotation = models.IntegerField(default=0, blank=True, null=True)
 
     #PANAS
     panas_interessado = models.TextField(max_length=MEDIUM_LEN, default='', blank=True, null=True,)
@@ -852,7 +877,7 @@ class Report(models.Model):
         for a in answers:
             if a.instrument == 'BSI':
                 if a.question.order in [2, 7, 23, 29, 30, 33, 37]:
-                    somatizacao += somatizacao + a.multiple_choice_answer.quotation
+                    somatizacao += a.multiple_choice_answer.quotation
                 elif a.question.order in [5, 15, 26, 27, 32, 36]:
                     obs_comp += a.multiple_choice_answer.quotation
                 elif a.question.order in [20, 21, 22, 42]:
@@ -893,27 +918,48 @@ class Report(models.Model):
     def calculate_acer(self, answers):
         r = Resolution.objects.get(pk=self.resolution.id)
         s = r.statistics
-        a = Area.objects.filter(name='Cognição', part= self.resolution.part.part).get()
-        for a in answers:
-            if s.get(f'{a.id}') is not None:
-                self.acer_atencao_orientacao_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{9}').get('quotation')
-                self.acer_memoria_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{10}').get('quotation')
-                self.acer_fluencia_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{11}').get('quotation')
-                self.acer_linguagem_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{12}').get('quotation') 
-                self.acer_visuo_espacial_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{13}').get('quotation')
+        a = Area.objects.filter(name='Cognição', part= self.resolution.part.part)
+        
+        if len(a) == 0:
+            return 
+        else:
+            a = a.get()
+
+        for ans in answers:
+            if s.get(f'{a.id}') is not None and s.get(f'{a.id}').get(f'{ans.instrument_obj.id}') is not None:
+                if s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'9') is not None:
+                    self.acer_atencao_orientacao_quotation = s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'9').get('quotation')
+                if s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'10') is not None:
+                    self.acer_memoria_quotation = s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'10').get('quotation')
+                if s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'11') is not None:
+                    self.acer_fluencia_quotation = s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'11').get('quotation')
+                if s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'12') is not None:
+                    self.acer_linguagem_quotation = s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'12').get('quotation') 
+                if s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'14') is not None:
+                    self.acer_visuo_espacial_quotation = s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'14').get('quotation')
         self.save()
         return
-
+    
     def calculate_mmse(self, answers):
         r = Resolution.objects.get(pk=self.resolution.id)
         s = r.statistics
-        a = Area.objects.filter(name='Cognição', part= self.resolution.part.part).get()
-        for a in answers:
-            if s.get(f'{a.id}') is not None:
-                self.mmse_atencao_orientacao_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{17}').get('quotation')
-                self.mmse_memoria_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{18}').get('quotation')
-                self.mmse_lingua_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{19}').get('quotation')
-                self.mmse_visuo_espacial_quotation = s.get(f'{a.id}').get(f'{a.instrument_obj.id}').get(f'{20}').get('quotation')
+        a = Area.objects.filter(name='Cognição', part= self.resolution.part.part)
+        
+        if len(a) == 0:
+            return 
+        else:
+            a = a.get()
+
+        for ans in answers:
+            if s.get(f'{a.id}') is not None and s.get(f'{a.id}').get(f'{ans.instrument_obj.id}') is not None:
+                if s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'17') is not None:
+                    self.mmse_atencao_orientacao_quotation = s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'17').get('quotation')
+                if s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'18') is not None:
+                    self.mmse_memoria_quotation = s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'18').get('quotation')
+                if s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'19') is not None:
+                    self.mmse_lingua_quotation = s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'19').get('quotation')
+                if s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'20') is not None:
+                    self.mmse_visuo_espacial_quotation = s.get(f'{a.id}').get(f'{ans.instrument_obj.id}').get(f'20').get('quotation')
         self.save()
 
         q = self.mmse_atencao_orientacao_quotation + \
@@ -982,23 +1028,37 @@ class Report(models.Model):
         self.save()
         return
 
+    def calculate_ac(self, answers):
+        s = self.resolution.statistics
+        area = Area.objects.filter(name='Cognição', part= self.resolution.part.part)
+        
+        if len(area) == 0:
+            return 
+        else:
+            area = area.get()
+
+        if s.get(f'{area.id}').get(f'{6}') is None:
+            return
+        
+        self.ac_memoria_visual_imediata_quotation = s.get(f'{area.id}').get(f'{6}').get('21').get('quotation')
+        self.ac_memoria_diferida_quotation =  s.get(f'{area.id}').get(f'{6}').get('22').get('quotation')
+        self.ac_atencao_mantida = s.get(f'{area.id}').get(f'{6}').get('23').get('quotation')
+        self.ac_atencao_dividida = s.get(f'{area.id}').get(f'{6}').get('24').get('quotation')
+        self.ac_orientacao_esq_dir =  s.get(f'{area.id}').get(f'{6}').get('25').get('quotation')
+        self.ac_abstracao_verbal = s.get(f'{area.id}').get(f'{6}').get('26').get('quotation')
+        self.ac_compreensao_instrucoes = s.get(f'{area.id}').get(f'{6}').get('27').get('quotation')
+        return
+
     def refresh_report(self, answers):
         answers = Answer.objects.filter(resolution=self.resolution)
         self.calculate_abvd(answers)
-        print(self.resolution.patient.sexo)
-        self.calculate_aivd(answers, self.resolution.patient.sexo)
+        self.calculate_aivd(answers, self.resolution.sexo)
         self.calculate_hads(answers)
         self.calculate_bsi(answers)
         self.calculate_acer(answers)
         self.calculate_mmse(answers)
         self.calculate_panas(answers)
         self.calculate_gds(answers)
+        self.calculate_ac(answers)
         self.save()
         return
-
-#class agendamentos(model.Model):
-#    dia = models.ForeignKey('Dia',on_delete=moodels.CASCADE)
-#    hora = models.ForeignKey('Hora',on_delete=models.CASCADE)
-
-#    def __str__(self):
-#        return f"{self.choice.name}"    

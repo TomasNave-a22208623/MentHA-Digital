@@ -49,15 +49,15 @@
 
 </script>
 
+
 {% load markdownify %}
 <a href="{% url 'diario:sessao' id grupo %}">
-
     <button class="btn btn-outline-danger" style="margin-left:400px">Voltar a Sessão</button>
 </a>
 <p>
     <b>
         PARTE DETALHES
-        Sessão {{ sessaoGrupo.sessao.numeroSessao}} > Fase
+        Sessão {{ sessaoGrupo.sessao.numeroSessao }} > Fase
         {% if parte.fase == 'I' %}
         Inicial
         {% endif %}
@@ -71,74 +71,73 @@
 
     ({{ parte.duracao }} min estatico)
 </p>
+
 <h5 class="text-primary m-0 fw-bold">Objetivo</h5>
 <p>{{ parte.objetivo }}</p>
 
 <h5 class="text-primary m-0 fw-bold">Sumário</h5>
-{{ parte.descrição | markdownify }}
+{{ parte.descrição|markdownify }}
 
 {% if parte.materiais|length > 0 %}
-
-<h5 class="text-primary m-0 fw-bold">Materiais</h5>
-{{ parte.materiais | markdownify }}
-
+    <h5 class="text-primary m-0 fw-bold">Materiais</h5>
+    <div style="list-style: disc; margin-left: 10px;">
+        {{ parte.materiais|markdownify }}
+    </div>
 {% endif %}
 
 
 {% if parte.apresentacao|length > 0 %}
+    <h5 class="text-primary m-0 fw-bold">Apresentação</h5>
 
-<h5 class="text-primary m-0 fw-bold">Apresentação</h5>
-
-<ul>
-    <li>
-        <a href="{{ parte.apresentacao.url }}">
-            <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px">
-                <i class="fa fa-person-chalkboard icon'bg"></i> Apresentação
-            </button>
-        </a>
-    </li>
-</ul>
+    <ul>
+        <li>
+            <a href="{{ parte.apresentacao.url }}">
+                <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px">
+                    <i class="fa fa-person-chalkboard icon'bg"></i> Apresentação
+                </button>
+            </a>
+        </li>
+    </ul>
 {% endif %}
 
 {% if parte.atividades.all|length > 0 %}
-<h5 class="text-primary m-0 fw-bold">Atividades</h5>
-{% for atividade in parte.atividades.all %}
-<b>
-    Atividade {{ atividade.numero }} - {{ atividade.nome }}
-</b>
+    <h5 class="text-primary m-0 fw-bold">Atividades</h5>
+    {% for atividade in parte.atividades.all %}
+        <b>
+            Atividade {{ atividade.numero }} - {{ atividade.nome }}
+        </b>
 
 
-{{ atividade.descricao | markdownify }}
+        {{ atividade.descricao | markdownify }}
 
-{% endfor %}
-{% endif %}
-{% if parte.questionarios.all|length > 0 and numero_sessao != 13 %}
-<h5 class="text-primary m-0 fw-bold">Questionario</h5>
-
-<ul>
-    {% for questionario in parte.questionarios.all %}
-    <li>
-        <a href="{% url 'diario:view_abrirQuestionario' questionario.id parte.id sessaoGrupo.id  %}">
-            <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{questionario.id}}">
-                Questionário {{ questionario.nome }}
-            </button>
-        </a>
-    </li>
     {% endfor %}
-</ul>
-{% elif parte.questionarios.all|length > 0 and numero_sessao == 13 %}
-<h5 class="text-primary m-0 fw-bold">Questionario</h5>
-
-<ul>
-    <li>
-        <a href="{% url 'diario:view_abrirQuestionario' q.id parte.id sessaoGrupo.id  %}">
-            <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{questionario.id}}">
-                Questionário de Satisfação e Avaliação da Experiencia para com o MentHA-CARE
-            </button>
-        </a>
-    </li>
-</ul>
 {% endif %}
 
-<br>
+{% if parte.questionarios.all|length > 0 and numero_sessao != 13 %}
+    <h5 class="text-primary m-0 fw-bold">Questionario</h5>
 
+    <ul>
+        {% for questionario in parte.questionarios.all %}
+            <li>
+                <a href="{% url 'diario:view_abrirQuestionario' questionario.id parte.id sessaoGrupo.id  %}">
+                    <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{questionario.id}}">
+                        Questionário {{ questionario.nome }}
+                    </button>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+{% elif parte.questionarios.all|length > 0 and numero_sessao == 13 %}
+    <h5 class="text-primary m-0 fw-bold">Questionario</h5>
+
+    <ul>
+        <li>
+            <a href="{% url 'diario:view_abrirQuestionario' q.id parte.id sessaoGrupo.id  %}">
+                <button type="button" class="btn btn-outline-primary btn-sm" style="margin:5px" data-parte="{{questionario.id}}">
+                    Questionário de Satisfação e Avaliação da Experiencia para com o MentHA-CARE
+                </button>
+            </a>
+        </li>
+    </ul>
+{% endif %}

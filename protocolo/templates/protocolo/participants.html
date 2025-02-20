@@ -15,88 +15,51 @@
         <div>
             {% include 'protocolo/tree.html' %}
         </div>
+        <input style="margin:auto; width: fit-content!important; overflow-x: clip;;min-width:32rem; 
+        justify-content: center; display: flex; margin-bottom: 1rem;"
+        type="text" id="searchInput" placeholder="Procure pelo nome do participante..." onkeyup="filterParticipants()">
 
-        <div class="card-flex">
-            <p class="m-0 fw-bold mb-text fs-4">Participantes</p>
-        </div>
+
         {% if participants|length > 0 %}
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th style="text-align:center; width:15%"></th>
-                        <th style="text-align:center; width:20%">Nome</th>
-                        <th style="text-align:center; width:15%">Idade</th>
-                        <th style="text-align:center; width:15%">Referenciação</th>
-                        <th style="text-align:center; width:15%">Próximo Agendamento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in participants %}
-                        <tr style="vertical-align:middle;">
-                            <td style="text-align: center">
-                                {% if p.imagem %}
-                                <div class="circle-image">
-                                    <img src="{{ p.imagem.url }}"
-                                        style="width: 100%; height: 100%; object-fit: cover;">
-                                </div>
-                                {% else %}
-                                <div class="circle-image">
-                                    <img src="{% static 'protocolo/img/placeholder-avatar.png' %}"
-                                        style="width: 100%; height: 100%; object-fit: cover;">
-                                </div>
-                                {% endif %}
-                            </td>
-                            <td style="text-align: center;">
-                                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participant' p.id %}">
-                                    <button class="btn mb-btn btn-group " type="button" style="width:90%;justify-content: center;">
-                                        <b>{{ p.nome }}</b>
-                                    </button> 
-                                </a>
-                            </td>
-                            <td style="text-align: center;">{% calculate_age p.nascimento %}</td>
-                            <td style="text-align: center;">{{ p.referenciacao }}</td>
-                            <td style="text-align: center;">{{ p.proximoAgendamento }}</td>
-                        </tr>
-                    {% endfor %}
-                    <tr></tr>
-                </tbody>
-                <!-- Bold footer line -->
-                
-            </table>
-            <div class="class-flex" style="text-align:end;">
-                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participantes_registo' %}">
-                    <button id="btn-popup" class="btn mb-btn-outline" style="width:150px">
-                        <i class="fa fa-user-plus"></i>&nbsp Registar
-                    </button>
-                </a>
-            </div>
-        </div>
-        {% else %}
-            Não tem Participantes associados.
-        {% endif %}
-        
-        {% if request.user|has_group:"Administrador" %}
-            <div class="card-flex" style="padding-top:100px;">
-                <p class="m-0 fw-bold mb-text fs-4">Avaliadores</p>
-            </div>
-            {% if avaliadores|length > 0 %}
-            <div class="table-responsive">
+            <div class="table-responsive" style="margin:auto; width: fit-content!important; overflow-x: clip;;min-width:32rem;">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th style="text-align:center; width:15%"></th>
-                            <th style="text-align:center; width:20%">Nome</th>
-                            <th style="text-align:center; width:15%">E-mail</th>
-                            <th style="text-align:center; width:15%">Nrº Participantes</th>
-                            <th style="text-align:center; width:15%"></th>
+                            <td colspan="2">
+                                <div class="card-flex">
+                                    <p class="m-0 fw-bold mb-text fs-4" style="width: 21.355ch;">Participantes</p>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="class-flex" style="text-align:center;">
+                                    <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participantes_registo' %}">
+                                        <button id="btn-popup" class="btn mb-btn-outline" style="width:150px">
+                                            <i class="fa fa-user-plus"></i>&nbsp Registar
+                                        </button>
+                                    </a>
+                                    <a href="https://youtu.be/kdsiPTCYAt4"> <!-- Link do video tutorial -->
+                                        <button id="btn-popupvideo" class="btn mb-btn-outline" style="width:150px;">
+                                            <i class="fa fa-video"></i> Tutorial
+                                          </button>
+                                    </a>
+                                    
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th style="text-align:center; width:0%"></th>
+                            <th style="text-align:start;">Nome</th>
+                            <th style="text-align:center;">Próximo Agendamento</th>
                         </tr>
                     </thead>
+
                     <tbody>
-                        {% for a, nr in avaliadores_zip %}
+                        {% for p in participants %}
                             <tr style="vertical-align:middle;">
                                 <td style="text-align: center">
-                                    {% if a.imagem %}
+                                    {% if p.imagem %}
                                     <div class="circle-image">
                                         <img src="{{ p.imagem.url }}"
                                             style="width: 100%; height: 100%; object-fit: cover;">
@@ -108,30 +71,154 @@
                                     </div>
                                     {% endif %}
                                 </td>
-                                <td style="text-align: center;">
-                                    <b>{{ a.first_name }} {{ a.last_name }}</b>
+                                <td style="text-align: start;">
+                                    <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participant' p.id %}">
+                                        <button class="btn mb-btn" type="button" style="width: 100%; text-align: start; max-width: 100%;">
+                                            <i class="fa-solid fa-person-walking-arrow-right" style="color:white;"></i>
+                                            <b>{{ p.nome }}</b>
+                                        </button>
+                                    </a>
                                 </td>
-                                <td style="text-align: center;">{{ a.email }}</td>
-                                <td style="text-align: center;">{{nr}}</td>
-                                <td style="text-align: center;"></td>
+                                <td style="text-align: center;">{{ p.proximoAgendamento }}</td>
                             </tr>
                         {% endfor %}
                         <tr></tr>
                     </tbody>
                     <!-- Bold footer line -->
-                    
                 </table>
-                <div class="class-flex" style="text-align:end;">
-                <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:avaliadores_registo' %}">
-                    <button id="btn-popup" class="btn mb-btn-outline" style="width:150px">
-                        <i class="fa fa-user-plus"></i>&nbsp Registar
-                    </button>
-                </a>
             </div>
+        {% else %}
+             <div class="table-responsive" style="margin:auto; width: fit-content!important; overflow-x: clip;;min-width:32rem;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <td colspan="2">
+                                <div class="card-flex">
+                                    <p class="m-0 fw-bold mb-text fs-4" style="width: 21.355ch;">Participantes</p>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="class-flex" style="text-align:center;">
+                                    <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participantes_registo' %}">
+                                        <button id="btn-popup" class="btn mb-btn-outline" style="width:150px">
+                                            <i class="fa fa-user-plus"></i>&nbsp Registar
+                                        </button>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </thead>
+                </table>
+                Não tem participantes associados
             </div>
-            {% else %}
-            Sem Avaliadores registados.
-            {% endif %}
+        {% endif %}
+
+        {% if cuidadores|length > 0 %}
+            <div class="table-responsive" style="margin:auto; width: fit-content!important; overflow-x: clip;;min-width:32rem;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <td colspan="2">
+                                <div class="card-flex">
+                                    <p class="m-0 fw-bold mb-text fs-4" style="width: 21.355ch;">Cuidadores</p>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="class-flex" style="text-align:center;">
+                                    <a href="#" class="jq-btn no-decor" data-href="{% url 'diario:create_caregiver' %}">
+                                        <button id="btn-popup" class="btn mb-btn-outline" style="width:150px">
+                                            <i class="fa fa-user-plus"></i>&nbsp Registar
+                                        </button>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th style="text-align:center; width:0%"></th>
+                            <th style="text-align:start;">Nome</th>
+                            <th style="text-align:center;">Próximo Agendamento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in cuidadores %}
+                            <tr style="vertical-align:middle;">
+                                <td style="text-align: center">
+                                    {% if c.imagem %}
+                                    <div class="circle-image">
+                                        <img src="{{ c.imagem.url }}"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                    {% else %}
+                                    <div class="circle-image">
+                                        <img src="{% static 'protocolo/img/placeholder-avatar.png' %}"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: start;">
+                                    <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:profile_cuidador' c.id %}">
+                                        <button class="btn mb-btn" type="button" style="width: 100%; text-align: start; max-width: 100%;">
+                                            <i class="fa-solid fa-person-walking-arrow-right" style="color:white;"></i>
+                                            <b>{{ c.nome }}</b>
+                                        </button>
+                                    </a>
+                                </td>
+                                <td style="text-align: center;">{{ c.proximoAgendamento }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr></tr>
+                    </tbody>
+                    <!-- Bold footer line -->
+                </table>
+            </div>
+        {% else %}
+            <div class="table-responsive" style="margin:auto; width: fit-content!important; overflow-x: clip;;min-width:32rem;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <td colspan="2">
+                                <div class="card-flex">
+                                    <p class="m-0 fw-bold mb-text fs-4" style="width: 21.355ch;">Cuidadores</p>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="class-flex" style="text-align:center;">
+                                    <a href="#" class="jq-btn no-decor" data-href="{% url 'diario:create_caregiver' %}">
+                                        <button id="btn-popup" class="btn mb-btn-outline" style="width:150px">
+                                            <i class="fa fa-user-plus"></i>&nbsp Registar
+                                        </button>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </thead>
+                </table>
+                Não tem cuidadores associados
+            </div>
         {% endif %}
     </div>
 </div>
+<script>
+    function filterParticipants() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementsByClassName("table")[0];
+        tr = table.getElementsByTagName("tr");
+        for (i = 1; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>

@@ -7,6 +7,7 @@
         border-radius: 50%;
         overflow: hidden;
     }
+
     .atividades {
         position: absolute;
         left: 100px;
@@ -228,8 +229,10 @@
                     {% if partilhas|length > 0 %}
                         {% for partilha in partilhas %}
                             {% if partilha.cuidador.id == participante_id %}
-                                <li>
-                                    <div class="partilha-content">{{ partilha }}</div>
+                                <li class="{% if not partilha.aprovada %} por-aprovar {% endif %}">
+                                    <div class="partilha-content">
+                                        {{ partilha }}
+                                    </div>
                                     {% if partilha.ficheiro|length > 0 %}
                                         <a href="{{ partilha.ficheiro.url }}" download>
                                             <div class="w-10 h-10 mb-bg rounded-circle flex m-auto justify-content-center align-items-center align-self-center">
@@ -242,10 +245,12 @@
                                         <img src="{{ partilha.imagem.url }}" width="15%"
                                              style="margin-right: 10px; border-radius: 5px">
                                     {% endif %}
-                                    <span class="partilha-date">{{ partilha.data_str }}</span>
+                                    <span class="partilha-date">
+                                        {{ partilha.data_str }}
+                                    </span>
                                 </li>
                             {% elif partilha.participante.id == participante_id %}
-                                <li>
+                                <li class="{% if not partilha.aprovada %} por-aprovar {% endif %}">
                                     <div class="partilha-content">{{ partilha }}</div>
                                     {% if partilha.ficheiro|length > 0 %}
                                         <a href="{{ partilha.ficheiro.url }}" download>
@@ -271,8 +276,10 @@
                 {% else %}
                     {% if partilhas|length > 0 %}
                         {% for partilha in partilhas %}
-                            <li>
-                                <div class="partilha-content">{{ partilha }}</div>
+                            <li class="{% if not partilha.aprovada %} por-aprovar {% endif %}">
+                                <div class="partilha-content">
+                                    {{ partilha }}
+                                </div>
                                 {% if partilha.ficheiro|length > 0 %}
                                     <a href="{{ partilha.ficheiro.url }}" download>
                                         <div class="w-10 h-10 mb-bg rounded-circle flex m-auto justify-content-center align-items-center align-self-center">
@@ -287,15 +294,16 @@
                                          style="margin-right: 10px; border-radius: 5px">
                                 {% endif %}
                                 <span class="partilha-date">{{ partilha.data_str }}</span>
-                                {% if partilha.partilha_dinamizador %}
-                                    <span class="partilha-author">{{ partilha.partilha_dinamizador.nome }}</span>
-                                {% elif partilha.partilha_mentor %}
-                                    <span class="partilha-author">{{ partilha.partilha_mentor.nome }}</span>
-                                {% elif partilha.cuidador %}
+                                {% if partilha.cuidador %}
                                     <span class="partilha-author">{{ partilha.cuidador.nome }}</span>
                                 {% elif partilha.participante %}
                                     <span class="partilha-author">{{ partilha.participante.nome }}</span>
+                                {% elif partilha.partilha_dinamizador %}
+                                    <span class="partilha-author">{{ partilha.partilha_dinamizador.nome }}</span>
+                                {% elif partilha.partilha_mentor %}
+                                    <span class="partilha-author">{{ partilha.partilha_mentor.nome }}</span>
                                 {% endif %}
+                                
                             </li>
                         {% endfor %}
                     {% else %}
@@ -312,12 +320,11 @@
         <div id="flex-container">
             <div class="row">
                 <div class="w-50" style="padding-top: 10px;
-            padding-left: 25px;">
+                    padding-left: 25px;">
                     {{ pergunta.nome }}
                 </div>
                 <div class="w-50" style="padding-top: 10px;
-            padding-right: 25px;">
-                    {% comment %} {{ form.as_p }} {% endcomment %}
+                    padding-right: 25px;">
                     {% if pergunta.tipo_resposta == 'UPLOAD_FOTOGRAFIA' %}
                         <form action="preventDefault()" enctype="multipart/form-data">
                             {% for field in form %}
@@ -433,15 +440,17 @@
     </table>
 
     <div style="background-color: #4eb4be; border-radius: 0; padding: 15px 0 15px 0; display: flex; justify-content: center;">
-    {% if participante.info_sensivel.imagem %}
-        <div class="circle-image">
-            <img src="{{ participante.info_sensivel.imagem.url }}" style="width: 100%; height: 100%; object-fit: cover;">
-        </div>
-    {% else %}
-        <div class="circle-image">
-            <img src="{% static 'protocolo/img/placeholder-avatar.png' %}" style="width: 100%; height: 100%; object-fit: cover;">
-        </div>
-    {% endif %}
+        {% if participante.info_sensivel.imagem %}
+            <div class="circle-image">
+                <img src="{{ participante.info_sensivel.imagem.url }}"
+                     style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+        {% else %}
+            <div class="circle-image">
+                <img src="{% static 'protocolo/img/placeholder-avatar.png' %}"
+                     style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+        {% endif %}
     </div>
 </div>
 

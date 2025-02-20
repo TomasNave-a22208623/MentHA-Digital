@@ -3,17 +3,16 @@
     <div class="titulo">
         <div class="card-flex" style="padding: 8px">
             <div class="bcca-breadcrumb">
-                <div class="bcca-breadcrumb-item fw-normal fs-4" style="display:none;"></div>
-                <div class="bcca-breadcrumb-item fw-normal fs-4">
-                    <a href="{% url 'diario:grupo_details' grupo.id %}">
-                        <i class="fa-solid fa-user-group" style="color:white;"></i> {{grupo}}
-                    </a>
+                <div class="bcca-breadcrumb-item fw-normal fs-5" style="display:none;"></div>
+                <div class="bcca-breadcrumb-item fw-normal fs-5">
+                    <i class="fa-solid fa-user-group" style="color:white;"></i>
+                    <span>{{ grupo }}</span>
                 </div>
 
-                <div class="bcca-breadcrumb-item fw-normal fs-4">
-                    <a href="{% url 'diario:dashboard_Care' %}">
+                <div class="bcca-breadcrumb-item fw-normal fs-5">
+                    <a href="{% url 'diario:dashboard_Care' %}?flag={{ grupo.programa|lower }}">
                         <i class="fa-solid fa-user-doctor" style="color:white;"></i>
-                        MentHA {{ grupo.programa }}
+                        <span>MentHA {{ grupo.programa }}</span>
                     </a>
                 </div>
             </div>
@@ -29,7 +28,7 @@
                 <th style="text-align: right">
                     <strong>Diagnóstico:</strong>
                 </th>
-                <td style="text-align: left">{{ grupo.diagnostico_most_frequent }}</td>
+                <td style="text-align: left">{{ grupo.diagnostico }}</td>
             </tr>
 
             <tr>
@@ -63,8 +62,8 @@
         </table>
 
         <div class="card-body" style="margin-top: 15px">
-            <div class="col align-self-center">
-                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+            <div>
+                <div style="display:flex; justify-content:center; flex-direction:row; gap:10px;">
                     <form action="{% url 'diario:group_sessions' grupo.id %}">
                         <button
                                 type="submit"

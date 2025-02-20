@@ -33,27 +33,27 @@
                                         <td style="margin-top: 0px;padding-bottom: 0px;">
                                             <a href="#" class="jq-btn no-decor" {% if
                                                 area.name=='Consciência, Humor e Comportamento' %}
-                                                data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id area.instrument.id patient.id %}">
+                                                data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id area.instrument.id patient.id %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}">
                                                 {% elif area.name == 'Cooperação dada na entrevista' %}
                                                 data-href="
                                                 {% url 'protocolo:question' protocol.id part.id area.id
                                                 area.instrument.id coop.section.dimension.id coop.section.id patient.id
-                                                %}
+                                                %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}
                                                 ">
                                                 {% elif area.name == 'Relação com o Avaliador' %}
                                                 data-href="
                                                 {% url 'protocolo:question' protocol.id part.id area.id
-                                                area.instrument.id rel.section.dimension.id rel.section.id patient.id %}
+                                                area.instrument.id rel.section.dimension.id rel.section.id patient.id %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}
                                                 ">
                                                 {% elif area.name == 'Questionário Sociodemográfico' %}
                                                 data-href="
                                                 {% url 'protocolo:question' protocol.id part.id area.id
-                                                area.instrument.id qs.section.dimension.id qs.section.id patient.id %}
+                                                area.instrument.id qs.section.dimension.id qs.section.id patient.id %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}
                                                 ">
                                                 {% else %}
                                                 data-href="
                                                 {% url 'protocolo:instruments' protocol.id part.id area.id patient.id
-                                                %}">
+                                                %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}">
                                                 {% endif %}
 
                                                 <p style="margin-top: 10px;">
@@ -98,7 +98,7 @@
                         </div>
                         <div class="flex-buttons">
                             <button id="previous" class="btn jq-btn btn-primary flex-left mb-btn"
-                                data-href="{% url 'protocolo:parts' protocol.id patient.id %}" type="button">
+                                data-href="{% url 'protocolo:parts' protocol.id patient.id %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}" type="button">
                                 <i class="fa fa-chevron-left"></i>&nbsp; Anterior
                             </button>
                         </div>

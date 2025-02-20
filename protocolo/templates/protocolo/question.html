@@ -1,14 +1,36 @@
 {% load markdownify %}
 {% load static %}
 <script>
-    $("td").click(function () {
-        $(this).find('input:radio').attr('checked', true);
-     });
+    function changeRowBackgroundColor(checkbox) {
+        // Get the parent row of the clicked radio button
+        const row = checkbox.closest('tr');
+
+        // Get all the rows in the table
+        const allRows = document.querySelectorAll('#mcq-table tr');
+
+        // Change the background color of the row containing the clicked radio button
+        if (checkbox.checked) {
+          row.style.backgroundColor = 'lightslategray'; // Change this to the desired color
+          row.style.color = 'white';
+        }
+    }
+
+    $("#mcq-table td").click(function () {
+      // Find the radio button inside the clicked td
+      const radio = $(this).find('input:radio');
+
+      // Check the radio button
+      radio.prop('checked', true);
+
+      // Get the parent tr element and change its background color
+      $(this).closest('tr').css('background-color', 'lightslategray'); // Change this to the desired color
+      $(this).closest('tr').css('color', 'white'); // Change this to the desired color
+    });
 </script>
 
 <div class="container-fluid">
     <div class="" style="padding: 8px">
-        <div class="card-body card-flex" style="padding: 8px">
+        <div class="card-body card-flex">
 
             {% include 'protocolo/tree.html' %}
 
@@ -21,16 +43,26 @@
             {% endif %}
         </div>
         <div class="">
-            <h1 class="m-0 fw-bold mb-text fs-4" style="padding-bottom:15px;">{{ question.name }}</h1>
+            <h1 class="m-0 fw-bold mb-text fs-4" style="padding-bottom:15px; padding-top:20px">
+                {% if question.name == "Nervosismo ou tensão interior" %}
+                    BSI - Brief Symptom Inventory
+                {% elif question.name == "Quantos familiares vê ou fala pelo menos uma vez por mês?" %}
+                    Escala de Rede de Apoio Social de Lubben – LSNS-6
+                {% else %}
+                    {{ question.name }}
+                {% endif %}
+            </h1>
+
             {% if question.description %}
                 <h8>{{ question.description | linebreaks }}</h8>
             {% endif %}
+
             {% if question.instruction %}
                 <div class="instruction mb-3"
                         style="border-radius: 10px;background-color: rgba(190,190,190,0.16); padding: 5px 10px 1px 10px;display: flex;flex-direction: row;justify-content: space-between;">
                     <div class="lef"><b>Instrução:</b> {{ question.instruction | markdownify }}</div>
                     <div class="right">
-                        <a href="{% static 'protocolo/files/MentHA_Manual_Avaliacao_Final.pdf' %}#page={{ question.pdf_page }}"
+                        <a href="{% static 'protocolo/files/MentHA_Manual_Avaliacao_Final.pdf' %}#page={{ question.pdf_page }}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}"
                             target="_blank">
                             <i style="padding:5px;color: var(--bs-warning);font-size: 35px;"
                                 class="fas fa-info-circle"></i>
@@ -38,6 +70,7 @@
                     </div>
                 </div>
             {% endif %}
+
             {% if question.helping_images.all %}
                 <br>
                 <h8><b>Imagens de Suporte:</b></h8>
@@ -74,6 +107,8 @@
                 {% include 'protocolo/sociodemographic.html' %}
             {% elif question.question_type == 12 %}
                 {% include 'protocolo/parts_risk.html' %}
+            {% elif question.question_type == 13 %}
+                {% include 'protocolo/sociodemographic_carer.html' %}
             {% endif %}
 
         </div>

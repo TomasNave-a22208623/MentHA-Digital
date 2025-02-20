@@ -1,15 +1,57 @@
 {% load tags %}
 {% load markdownify %}
 <div class="container-fluid">
+    <div class="bcca-breadcrumb" style="padding-top: 8px; padding-left: 8px;">
+        <div class="bcca-breadcrumb-item fw-normal fs-5" style="display:none;"></div>
+        {% if report is not None %}
+            <div class="bcca-breadcrumb-item fw-normal fs-5">
+                <i class="fa fa-file-lines" style="color:white;"></i>
+                <span>Relatório</span>
+            </div>
+        {% endif %}
+
+        <div class="bcca-breadcrumb-item fw-normal fs-5">
+            <a href="#" class="jq-btn" data-href="{% url 'protocolo:areas' 1 resolution.part.id resolution.patient.id %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}">
+                <i class="fa-solid fa-clipboard-list" style="color:white;"></i>
+                <span>{{ resolution.part.part.name }}</span>
+            </a>
+        </div>
+
+        <div class="bcca-breadcrumb-item fw-normal fs-5">
+            <a data-href="{% url 'protocolo:participant' resolution.pessoa.id %}" class="jq-btn">
+                <i class="fa-solid fa-address-card" style="color:white;"></i>
+                <span hidden>{{ resolution.pessoa.nome }}</span>
+            </a>
+        </div>
+
+        <div class="bcca-breadcrumb-item fw-normal fs-5">
+            <a data-href="{% url 'protocolo:participants' %}" class="jq-btn">
+                <i class="fa-solid fa-user-check" style="color:white;"></i>
+                <span hidden>MentHA-EVAL</span>
+            </a>
+        </div>
+    </div>
+    
     <div style="padding:8px;">
         <div class="card-flex">
-            <p class="m-0 fw-bold mb-text fs-4">Relatório do {{ resolution.part.part }} de {{ resolution.patient }} ({{ resolution.date }})</p>
-            <a href="#" class="jq-btn no-decor" data-href="{% url 'protocolo:participantes_registo' %}">
+            <p class="m-0 fw-bold mb-text fs-4">Relatório do {{ resolution.part.part }} de {{ resolution.pessoa.nome }} ({{ resolution.date }})</p>
+            <a 
+            data-href="{% url 'protocolo:report2' resolution.id %}"  
+            class="jq-btn no-decor">
                 <button class="btn btn-primary mb-btn" type="button" data-bs-toggle="modal"
                 data-bs-target="#modalReport">
-                    <i class="fa fa-print"></i> Gerar Word
+                    <i class="fa fa-print"></i> Guardar Word
                 </button> 
             </a>
+            {% if reporte.word %}
+            <a href="{{ reporte.word.url }}"
+            class="jq-btn no-decor">
+                <button class="btn btn-primary mb-btn" type="button" data-bs-toggle="modal"
+                data-bs-target="#modalReport">
+                    <i class="fa fa-print"></i> Visualizar Word
+                </button> 
+            </a>
+            {% endif %}
         </div>
         <div class="">
             <div class="table-responsive">
@@ -29,12 +71,7 @@
                                 {% if instrumento != 'nr_instrumentos' %}
                                     <tr>
                                     {% if forloop.counter == 2 %}
-                                        {% if not dict_.respondido %}
-                                            <td rowspan='{{ dict.nr_instrumentos}}'>{{ area }}</td> 
-                                        {% else %}
-                                            <td rowspan='{% multiply dict.nr_instrumentos 2%}'>{{ area }}</td> 
-                                        {% endif %}
-
+                                        <td rowspan='{{ dict.nr_instrumentos}}'>{{ area }}</td> 
                                     {% endif %}
                             
                                     {% if not dict_.respondido %}

@@ -3,8 +3,9 @@ import plotly.graph_objects as go
 import plotly
 import pandas as pd
 from datetime import date
-
-
+import plotly.io as pio
+import io
+import time
 
 def calculate_age(born):
     today = date.today()
@@ -13,10 +14,11 @@ def calculate_age(born):
 def percentage(total: int, partial: int):
     '''
     Gets percentage from a total and partial number
-    Does (partial/total)*100
+    If the percentage is greater than 100%, it returns 100
     '''
 
-    return int((partial / total) * 100)
+    result = (partial / total) * 100
+    return int(min(result, 100))
 
 
 def create_percentage_list(obj_list, nr_answered):
@@ -163,8 +165,10 @@ def neoffi20_conscienciosidade(answers):
     return q
 
 def make_graph(names, quotations, min, max):
+    start_time = time.time()
+    
     tick = 0
-    if max < 10:
+    if max < 10:    
         tick = 1
     else:
         tick = 5
@@ -173,6 +177,7 @@ def make_graph(names, quotations, min, max):
         theta=names,
         fill='toself'
     ))
+
     fig.update_traces(fill='toself')
     fig.update_layout(
         paper_bgcolor='rgba(0,0,0,0)',
@@ -195,7 +200,15 @@ def make_graph(names, quotations, min, max):
     )
     fig.update_xaxes(fixedrange=True)
     fig.update_yaxes(automargin=True, fixedrange=True)
-    return plotly.offline.plot(fig, auto_open=False, output_type="div")
+    svg = plotly.offline.plot(fig, auto_open=False, output_type="div")
+    buffer = io.BytesIO()
+    fig.write_image(buffer, format='png', scale=1)
+    buffer.seek(0)
+
+    end_time = time.time()
+    print(f"Took {end_time - start_time} to generate Graph")
+
+    return svg, buffer
 
 def calculate_timer_quotation(question, i):
     if not "Animais" in question.name:

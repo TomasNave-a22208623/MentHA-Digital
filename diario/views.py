@@ -1,11 +1,16 @@
+from gettext import translation
+from random import random
+
 from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect
 from django.forms import ModelForm, TextInput, Textarea
+from pyparsing import Group
 from .models import *
-from django.http import HttpResponse, HttpResponseRedirect
+from protocolo.models import *
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .forms import *
-from datetime import datetime
+from datetime import datetime, time
 
 from .functions import *
 from .decorators import *
@@ -41,8 +46,12 @@ from docx import Document
 from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import os
+from agora_token_builder import RtcTokenBuilder
+import secrets
+import string
 import tempfile
 from django.core.files import File
+
 
 matplotlib.use('Agg')
 
@@ -50,8 +59,44 @@ matplotlib.use('Agg')
 # Para permitir acesso a views por grupo
 # @user_passes_test(lambda u: u.groups.filter(name='YourGroupName').exists())
 
+def generate_random_password(length):
+    characters = string.ascii_letters + string.digits + string.punctuation
+
+    password = ''.join(secrets.choice(characters) for _ in range(length))
+
+    return password
+
+
+def generate_strong_password(length):
+    while True:
+        password = generate_random_password(length)
+        if (any(c.islower() for c in password)
+                and any(c.isupper() for c in password)
+                and any(c.isdigit() for c in password)
+                and any(c in string.punctuation for c in password)):
+            break
+
+    return password
+
+
+def getToken(request):
+    appId = "YOUR APP ID"
+    appCertificate = "YOUR APP CERTIFICATE"
+    channelName = request.GET.get('channel')
+    uid = random.randint(1, 230)
+    expirationTimeInSeconds = 3600
+    currentTimeStamp = int(time.time())
+    privilegeExpiredTs = currentTimeStamp + expirationTimeInSeconds
+    role = 1
+
+    token = RtcTokenBuilder.buildTokenWithUid(appId, appCertificate, channelName, uid, role, privilegeExpiredTs)
+
+    return JsonResponse({'token': token, 'uid': uid}, safe=False)
+
+
 def streams(request):
-    return render(request,'diario/streams.html')
+    return render(request, 'diario/streams.html')
+
 
 @register.filter
 def get_item(dictionary, key):
@@ -84,11 +129,14 @@ def nextSession(request):
 
     return render(request, 'diario/nextSession.html', contexto)
 
+
 def get_grupos(user):
     dinamizador = DinamizadorConvidado.objects.filter(user=user).first()
     mentor = Mentor.objects.filter(user=user).first()
     participante = Participante.objects.filter(user=user).first()
     cuidador = Cuidador.objects.filter(user=user).first()
+    administrador = Administrador.objects.filter(user=user).first()
+
     sg = None
     is_participante = False
     is_cuidador = False
@@ -96,44 +144,57 @@ def get_grupos(user):
 
     if dinamizador:
         grupos = dinamizador.grupo.all()
+
     if mentor:
         grupos = mentor.grupo.all()
+
     if participante:
         grupos = participante.grupo.all()
         sg = SessaoDoGrupo.objects.filter(grupo__in=participante.grupo.all()).exclude(parte_ativa__isnull=True)
         is_participante = True
+
     if cuidador:
         grupos = cuidador.grupo.all()
         sg = SessaoDoGrupo.objects.filter(grupo__in=cuidador.grupo.all()).exclude(parte_ativa__isnull=True)
         is_cuidador = True
+
+    if administrador:
+        grupos = Grupo.objects.filter(referenciacao=administrador.reference)
+
     if user.is_superuser:
         grupos = Grupo.objects.all()
 
     return grupos, sg, is_participante, is_cuidador
 
+
 def get_proxima_sessao(grupos):
     if grupos is None:
         return False, None
-    
+
     datas = SessaoDoGrupo.objects.exclude(data=None)
-    #Caso um dinamizador/mentor tenha mais do que um grupo
-    datas = datas.filter(estado__in=['PR','EC'], grupo__in=grupos)
-    
+    # Caso um dinamizador/mentor tenha mais do que um grupo
+    datas = datas.filter(estado__in=['PR', 'EC'], grupo__in=grupos)
+
     tem_proxima = False
     if len(datas) > 0:
         datas = datas.order_by('data')[0]
         tem_proxima = True
-    
+
     return tem_proxima, datas
-    
+
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def dashboard(request):
+    flag = request.GET.get('flag')
     # doctor = request.user
     formGrupo = GrupoForm(request.POST or None)
     if formGrupo.is_valid():
         formGrupo.save()
         return redirect('diario:new_group')
+
+    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
+    tem_proxima, datas = get_proxima_sessao(grupos)
 
     # Retrieve all objects without a name
     cuidadores_without_name = Cuidador.objects.filter(info_sensivel__nome__isnull=True)
@@ -141,12 +202,54 @@ def dashboard(request):
     # Delete the objects without a name
     cuidadores_without_name.delete()
     cuidador = Cuidador.objects.filter(user=request.user).first()
-    
-    if cuidador:
+
+    if cuidador and flag == 'care':
         return redirect('diario:user_dashboard')
-    
-    grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
-    tem_proxima, datas = get_proxima_sessao(grupos)
+
+    participante = Participante.objects.filter(user=request.user).first()
+
+    if participante and sg.filter(parte_ativa__isnull=False):
+        # contexto = {}
+        # participante = Participante.objects.filter(user=request.user).first()
+        # sg = sg.get()
+        # parte = sg.parte_ativa
+        # contexto['parte'] = parte
+        # contexto['parte_atual'] = sg.parte_atual
+        # contexto['sg'] = sg
+
+        # form_list = []
+        # lista_ids_escolhas_multiplas = []
+        # for pergunta in parte.perguntas.all():
+        #     initial_data = {}
+        #     r = Resposta.objects.filter(
+        #         participante__id=participante.id,
+        #         sessao_grupo__id=sg.id,
+        #         pergunta=pergunta,
+        #         parte_exercicio=parte,
+        #     )
+
+        #     if len(r) > 0:
+        #         r = r.get()
+        #         initial_data = {
+        #             'resposta_escrita': r.resposta_escrita,
+        #             'certo': r.certo,
+        #         }
+        #         if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+        #             lista_ids_escolhas_multiplas.append(r.resposta_escolha.id)
+
+        #     if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
+        #         form = RespostaForm_RespostaEscrita(None, initial=initial_data)
+        #     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
+        #         form = RespostaForm_RespostaSubmetida(None)
+        #     if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
+        #         form = None
+
+        #     tuplo = (pergunta, parte, form)
+        #     form_list.append(tuplo)
+        #     contexto['form_list'] = form_list
+        #     contexto['lista_ids_escolhas_multiplas'] = lista_ids_escolhas_multiplas
+        # return render(request, 'diario/parte_ativa.html', contexto)
+        return redirect('diario:parte_ativa', sg_id=sg.get().id)
 
     factory = qrcode.image.svg.SvgImage
     uri = request.build_absolute_uri('zoom')
@@ -159,58 +262,64 @@ def dashboard(request):
     img_pop.save(stream_pop)
     # print(datas)
 
+    sessoes_do_grupo = None
+    sessoesRealizadas = 0
+
+    if grupos is None:
+        return render(request, 'mentha/base.html')
+
+    if flag == 'care':
+        grupos = grupos.filter(programa="CARE")
+        for grupo in grupos:
+            sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo.id).order_by('sessao__numeroSessao')
+
+        programa = 'care'
+    elif flag == 'cog':
+        programa = 'cog'
+        grupos = grupos.filter(programa="COG")
+        for grupo in grupos:
+            sessoes_do_grupo = SessaoDoGrupo.objects.filter(grupo=grupo.id).order_by('sessao__numeroSessao')
+    else:
+        return render(request, 'mentha/base.html')
+
+    dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
+    mentor = Mentor.objects.filter(user=request.user).first()
+    administrador = Administrador.objects.filter(user=request.user).first()
+    referenciacao = None
+
+    if dinamizador:
+        referenciacao = dinamizador.reference
+
+    if mentor:
+        referenciacao = mentor.reference
+
+    if administrador:
+        referenciacao = administrador.reference
+
     contexto = {
-    # 'grupos': Grupo.objects.filter(doctor=doctor),
-    # Apagar a linha de baixo ao descomentar a linha de cima
-    # next(obj for obj in DinamizadorConvidado.objects.all() if obj.user.username == request.user.username).grupo.all()
-    'grupos': grupos,
-    'cuidadores': Cuidador.objects.filter(grupo=None),
-    'formGrupo': formGrupo,
-    'proxima': datas,
-    'tem_proxima': tem_proxima,
-    'svg': stream.getvalue().decode(),
-    'svg_pop': stream_pop.getvalue().decode(),
+        # 'grupos': Grupo.objects.filter(doctor=doctor),
+        # Apagar a linha de baixo ao descomentar a linha de cima
+        # next(obj for obj in DinamizadorConvidado.objects.all() if obj.user.username == request.user.username).grupo.all()
+        'programa': programa,
+        'grupos': grupos,
+        'sesssoes_do_grupo': sessoes_do_grupo,
+        'cuidadores': Cuidador.objects.filter(grupo=None, referenciacao=referenciacao),
+        'participantes': Participante.objects.filter(grupo=None, referenciacao=referenciacao),
+        'formGrupo': formGrupo,
+        'flag': flag,
+        'proxima': datas,
+        'tem_proxima': tem_proxima,
+        'svg': stream.getvalue().decode(),
+        'svg_pop': stream_pop.getvalue().decode(),
+        'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
+        'grupos_permissoes_care': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Cuidador']),
+        'grupos_permissoes_cog': request.user.groups.filter(name__in=['Administrador', 'Mentor', 'Participante']),
+        'grupos_permissoes_eval': request.user.groups.filter(name__in=['Administrador', 'Avaliador', 'Avaliador-Risk']),
+        'grupos_permissoes_autoridade': request.user.groups.filter(
+            name__in=['Administrador', 'Avaliador', 'Avaliador-Risk', 'Dinamizador', 'Mentor']),
+        'sessoesRealizadas': sessoesRealizadas,
     }
 
-    if is_participante and len(sg) > 1:
-        participante = Participante.objects.filter(user=request.user).first()
-        sg = sg.get()
-        parte = sg.parte_ativa
-        contexto['parte'] = parte
-        contexto['sg'] = sg
-
-        form_list = []
-        lista_ids_escolhas_multiplas = []
-        for pergunta in parte.perguntas.all():
-            initial_data = {}
-            r = Resposta.objects.filter(
-                participante__id=participante.id,
-                sessao_grupo__id=sg.id,
-                pergunta=pergunta,
-                parte_exercicio=parte,
-            )
-
-            if len(r) > 0:
-                r = r.get()
-                initial_data = {
-                    'resposta_escrita': r.resposta_escrita,
-                    'certo': r.certo,
-                }
-                if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
-                    lista_ids_escolhas_multiplas.append(r.resposta_escolha.id)
-
-            if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
-                form = RespostaForm_RespostaEscrita(None, initial=initial_data)
-            elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
-                form = RespostaForm_RespostaSubmetida(None)
-            if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
-                form = None
-
-            tuplo = (pergunta, parte, form)
-            form_list.append(tuplo)
-            contexto['form_list'] = form_list
-            contexto['lista_ids_escolhas_multiplas'] = lista_ids_escolhas_multiplas
-        return render(request, 'diario/parte_ativa.html', contexto)
     return render(request, 'diario/dashboard.html', contexto)
 
 
@@ -224,9 +333,13 @@ def dashboard(request):
 @check_user_able_to_see_page('Todos')
 def parte_ativa(request, sg_id):
     sg = SessaoDoGrupo.objects.get(id=sg_id)
+    participante = Participante.objects.filter(user=request.user).first()
     contexto = {}
+    contexto['participante'] = participante
     contexto['parte'] = sg.parte_ativa
     contexto['sg'] = sg
+    contexto['sessaoGrupo'] = sg
+    contexto['parteGrupo'] = sg.parte_atual
 
     respostas_existentes = {}
     lista_ids_escolhas_multiplas = []
@@ -239,9 +352,9 @@ def parte_ativa(request, sg_id):
 
     parte = Parte_Exercicio.objects.get(id=parte_ativa.id)
 
-    form_list = []  
+    form_list = []
     initial_data = {}
-    
+
     if parte.perguntas.all():
         for pergunta in parte.perguntas.all():
             r = Resposta.objects.filter(
@@ -280,11 +393,30 @@ def parte_ativa(request, sg_id):
 def new_group(request):
     grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
+    flag = None
+    referenciacao = None
+
+    dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
+    mentor = Mentor.objects.filter(user=request.user).first()
+    administrador = Administrador.objects.filter(user=request.user).first()
+
+    if dinamizador:
+        referenciacao = dinamizador.reference
+
+    if mentor:
+        referenciacao = mentor.reference
+
+    if administrador:
+        referenciacao = administrador.reference
 
     formGrupo = GrupoForm(request.POST or None)
     if formGrupo.is_valid():
         formGrupo.save()
-        return HttpResponseRedirect(reverse('diario:dashboard_Care'))
+        if formGrupo.programa == "COG":
+            flag = "cog"
+        elif formGrupo.programa == "CARE":
+            flag = "care"
+        return HttpResponseRedirect(reverse('diario:dashboard_Care', flag))
 
     # Obter campos para filtar por (CARE)
     cuidadores = Cuidador.objects.all()
@@ -293,7 +425,6 @@ def new_group(request):
     conjunto_doencas = set()
     for cuidador in cuidadores:
         conjunto_doencas.update(cuidador.doencas_object)
-
 
     lista_pesquisa_cuidadores = {
         'Diagnósticos': conjunto_doencas,
@@ -317,8 +448,7 @@ def new_group(request):
     lista_pesquisa_participantes = {
         # 'Diagnósticos': list(dict.fromkeys({diagnostico for diagnostico in participante.diagnosticos.all() for participante in participantes})),
         'Diagnósticos': conjunto_doencas,
-        'Localizações': list(dict.fromkeys(
-            {participante.localizacao for participante in participantes if len(participante.localizacao) > 1})),
+        'Localizações': list(dict.fromkeys({participante.localizacao for participante in participantes if participante.localizacao and len(participante.localizacao) > 1})),
         'Escolaridades': list(dict.fromkeys({participante.escolaridade for participante in participantes})),
         'Referenciações': list(dict.fromkeys({participante.referenciacao for participante in participantes})),
         'GDS': list(dict.fromkeys({participante.nivel_gds for participante in participantes})),
@@ -327,7 +457,6 @@ def new_group(request):
     selecoes = {}
 
     if request.POST:
-        #print(request.POST)
         if len(request.POST.get('nome')) > 0:
             g = Grupo(
                 nome=request.POST.get('nome'),
@@ -343,15 +472,13 @@ def new_group(request):
                 for id in request.POST.get('participantes').split(','):
                     p = Participante.objects.get(id=id)
                     g.participantes.add(p)
-
-            if g.referenciacao_most_frequent is not None:
-                g.referenciacao = Reference.objects.get(nome=g.referenciacao_most_frequent)
-            if g.diagnostico_most_frequent is not None:
-                g.diagnostico = Doenca.objects.get(nome=g.diagnostico_most_frequent)
-            g.localizacao= g.localizacao_most_frequent
-            g.escolaridade= g.escolaridade_most_frequent
             g.save()
 
+            g.referenciacao = referenciacao
+
+            g.localizacao = g.localizacao_most_frequent
+            g.escolaridade = g.escolaridade_most_frequent
+            g.save()
 
             # Criar as partes e sessoes para este grupo
             for sessao in Sessao.objects.filter(programa=g.programa).all():
@@ -371,19 +498,31 @@ def new_group(request):
                             exercicio=exercicio
                         )
                         parte_grupo.save()
+        
+        if dinamizador:
+            dinamizador.grupo.add(g)
+            dinamizador.save()
 
+        if mentor:
+            mentor.grupo.add(g)
+            mentor.save()
+        
+        return redirect('diario:dashboard_Care')
 
 
     contexto = {
         'tem_proxima': tem_proxima,
         'grupos': Grupo.objects.all(),
+        'referenciacao': referenciacao,
         'cuidadores': Cuidador.objects.filter(grupo=None),
         'formGrupo': formGrupo,
         'lista_pesquisa_cuidadores': lista_pesquisa_cuidadores,
         'lista_pesquisa_participantes': lista_pesquisa_participantes,
         'filtrados_care': filtrados_care,
         'filtrados_cog': filtrados_cog,
-        'selecoes': selecoes
+        'selecoes': selecoes,
+        'grupos_permissoes_care': request.user.groups.filter(name__in=['Administrador', 'Mentor']),
+        'grupos_permissoes_cog': request.user.groups.filter(name__in=['Administrador', 'Dinamizador']),
     }
     return render(request, 'diario/new_group_remake.html', contexto)
 
@@ -393,7 +532,7 @@ def new_group(request):
 def obter_cadidatos(request):
     participantes = None
     if request.method == 'POST':
-        #print(request.POST)
+        # print(request.POST)
         match (request.POST.get('programa')):
             case 'CARE':
                 # participantes = Cuidador.objects.filter(grupo=None)
@@ -401,7 +540,8 @@ def obter_cadidatos(request):
                 if len(request.POST.get('localizacao')) > 0:
                     participantes = participantes.filter(localizacao=request.POST.get('localizacao'))
                 if len(request.POST.get('diagnostico')) > 0:
-                    participantes = participantes.filter(participantes__diagnosticos__in=request.POST.get('diagnostico'))
+                    participantes = participantes.filter(
+                        participantes__diagnosticos__in=request.POST.get('diagnostico'))
                 if len(request.POST.get('escolaridade')) > 0:
                     participantes = participantes.filter(escolaridade=request.POST.get('escolaridade'))
                 if len(request.POST.get('referenciacao')) > 0:
@@ -432,8 +572,9 @@ def obter_cadidatos(request):
 
 
 @login_required(login_url='diario:login')
-@check_user_able_to_see_page('Todos')
 def guarda_grupo(request):
+    flag = None
+    dinamizador_mentor = None
     if request.method == 'POST':
         nome = request.POST['nome']
 
@@ -450,6 +591,16 @@ def guarda_grupo(request):
             novo_grupo.programa = request.POST['programa']
 
         novo_grupo.save()
+
+        if novo_grupo.programa == "COG":
+            flag = "cog"
+    
+        elif novo_grupo.programa == "CARE":
+            flag = "care"
+            
+        
+        dinamizador_mentor.grupo.add(novo_grupo)
+        dinamizador_mentor.save()
 
         # Cria todos os objetos sessaoGrupo e parteGrupo (que registam detalhes das sessoes e partes do grupo)
         for sessao in Sessao.objects.filter(programa=novo_grupo.programa).all():
@@ -475,7 +626,7 @@ def guarda_grupo(request):
             c = Cuidador.objects.get(id=int(cuidador_id))
             novo_grupo.cuidadores.add(c)
 
-    return redirect('diario:dashboard_Care')
+    return redirect('diario:dashboard_Care', flag)
 
 
 @login_required(login_url='diario:login')
@@ -494,37 +645,65 @@ def view_group_details(request, grupo_id):
         'cuidadores': cuidadores,
         'mentores': mentores,
         'dinamizadores': dinamizadores,
-        'grupos_permissoes' : request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
+        'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
         'tem_proxima': tem_proxima,
     }
     return render(request, "diario/detalhes_grupo.html", contexto)
 
 
+def get_resolution_cuidador_percentage(cuidador, name):
+    r = Resolution.objects.filter(cuidador=cuidador, 
+    part__part__name = name,
+    part__part__description='Avaliação Cuidador').last()
+    percentage = 0
+    if r is not None:
+        percentage = r.statistics['total_percentage']
+    
+    return percentage
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def group_members(request, grupo_id):
-    cuidadores = Cuidador.objects.filter(grupo=grupo_id)
-    mentores = Mentor.objects.filter(grupo=grupo_id)
-    dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
+    lista_0m = []
+    lista_2m = []
+    lista_6m = []
+    if Grupo.objects.filter(id=grupo_id).first().programa == "CARE":
+        cuidadores = Cuidador.objects.filter(grupo=grupo_id)
+        dinamizadores = DinamizadorConvidado.objects.filter(grupo=grupo_id)
+        dinamizadores_sem_grupo = DinamizadorConvidado.objects.filter(grupo__isnull=True)
+        cuidadores_sem_grupo = Cuidador.objects.filter(grupo__isnull=True)
+        cuida_parti = "Cuidador"
+        dina_mento = "Dinamizador"
+        
+        for cuidador in cuidadores:
+            lista_0m.append(get_resolution_cuidador_percentage(cuidador, 'O meses'))
+            lista_2m.append(get_resolution_cuidador_percentage(cuidador, '2 meses'))
+            lista_6m.append(get_resolution_cuidador_percentage(cuidador, '6 meses'))
+            
+
+    if Grupo.objects.filter(id=grupo_id).first().programa == "COG":
+        cuidadores = Participante.objects.filter(grupo=grupo_id)
+        dinamizadores = Mentor.objects.filter(grupo=grupo_id)
+        dinamizadores_sem_grupo = Mentor.objects.filter(grupo__isnull=True)
+        cuidadores_sem_grupo = Participante.objects.filter(grupo__isnull=True)
+        cuida_parti = "Participante"
+        dina_mento = "Mentor"
+
 
     grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
     tem_proxima, datas = get_proxima_sessao(grupos)
 
-    # formDinamizador = DinamizadorForm(request.POST or None)
-    # if formDinamizador.is_valid():
-    #     formDinamizador.save()
-    #     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
     contexto = {
         'tem_proxima': tem_proxima,
         'grupo_id': grupo_id,
         'grupo': Grupo.objects.get(id=grupo_id),
-        'cuidadores': cuidadores,
-        'mentores': mentores,
+        'cuidadores': zip(cuidadores, lista_0m, lista_2m, lista_6m),
         'dinamizadores': dinamizadores,
-        # 'formDinamizador': formDinamizador,
-        'dinami': DinamizadorConvidado.objects.filter(grupo=None),
-        'caregiver': Cuidador.objects.filter(grupo=None),
+        'cuida_parti': cuida_parti,
+        'dina_mento': dina_mento,
+        'dinamizadores_sem_grupo': dinamizadores_sem_grupo,
+        'cuidadores_sem_grupo': cuidadores_sem_grupo,
         'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
     return render(request, "diario/group_members.html", contexto)
@@ -542,6 +721,7 @@ def group_sessions(request, grupo_id):
     grupo = Grupo.objects.get(id=grupo_id)
     sessao_em_curso = None
     proxima_sessao = None
+    materiais = ""
 
     for sessao in sessoes_do_grupo:
         if sessao.estado == 'EC':
@@ -550,7 +730,6 @@ def group_sessions(request, grupo_id):
         if sessao.estado == 'PR':
             proxima_sessao = sessao.id
             break
-
     #    sessoes = Grupo.objects.get(id=grupo_id).sessoes.all()
 
     contexto = {
@@ -560,6 +739,7 @@ def group_sessions(request, grupo_id):
         'proxima_sessao': proxima_sessao,
         'sessao_em_curso': sessao_em_curso,
         'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
+        'materiais': materiais,
     }
     return render(request, "diario/group_sessions.html", contexto)
 
@@ -602,14 +782,46 @@ def group_notes(request, grupo_id):
 def caregiver_update(request, cuidador_id, grupo_id):
     cuidador = Cuidador.objects.get(pk=cuidador_id)
     formCuidador = CuidadorForm(request.POST or None, instance=cuidador)
+    print(request.POST)
+    if request.method == 'POST':
+        print("Valido")
+        if User.objects.filter(username=request.POST.get('username')).exists():
+            if request.POST.get('username') != cuidador.user.username:
+                # Handle the case where the username already exists
+                # For example, you could display an error message or redirect back to the form.
+                # You can customize this part based on your requirements.
+                error_message = "Username já existe. Por favor escolha outro de username!"
+                contexto = {
+                    'formCuidador': formCuidador,
+                    'grupo_id': grupo_id,
+                    'error_message': error_message,
+                }
+                return render(request, "diario/caregiver_update.html", contexto)
 
-    if formCuidador.is_valid():
-        formCuidador.save()
+        user = cuidador.user
+        user.username = request.POST.get('username')
+        user.password = generate_strong_password(10)
+        user.save()
+
+        info_sensivel = cuidador.info_sensivel
+        info_sensivel.nome = request.POST.get('nome')
+        info_sensivel.email = request.POST.get('email')
+        info_sensivel.telemovel = request.POST.get('telemovel')
+        info_sensivel.save()
+
+        cuidador.escolaridade = request.POST.get('escolaridade')
+        cuidador.nascimento = request.POST.get('nascimento')
+        cuidador.nacionalidade = request.POST.get('nacionalidade')
+        cuidador.localizacao = request.POST.get('localizacao')
+        cuidador.nascimento = request.POST.get('nascimento')
+        cuidador.referenciacao = Reference.objects.filter(nome=request.POST.get('referenciacao')).first()
+        cuidador.save()
         return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
     contexto = {
         'grupo_id': grupo_id,
         'formCuidador': formCuidador,
+        'cuidador': cuidador,
     }
 
     return render(request, "diario/caregiver_update.html", contexto)
@@ -617,50 +829,301 @@ def caregiver_update(request, cuidador_id, grupo_id):
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
-def create_caregiver(request, grupo_id):
-    grupo = Grupo.objects.get(id=grupo_id)
+def participante_update(request, participante_id, grupo_id):
+    participante = Participante.objects.get(pk=participante_id)
+    formParticipante = ParticipanteForm(request.POST or None, instance=participante)
+    if formParticipante.is_valid():
+        if User.objects.filter(username=formParticipante.cleaned_data['username']).exists():
+            if formParticipante.cleaned_data['username'] != participante.user.username:
+                # Handle the case where the username already exists
+                # For example, you could display an error message or redirect back to the form.
+                # You can customize this part based on your requirements.
+                error_message = "Username já existe. Por favor escolha outro nome para username!"
+                contexto = {
+                    'formParticipante': formParticipante,
+                    'grupo_id': grupo_id,
+                    'error_message': error_message,
+                }
+                return render(request, "diario/participante_update.html", contexto)
 
+        user = participante.user
+        user.username = formParticipante.cleaned_data['username']
+        user.password = generate_strong_password(10)
+        user.save()
+        # deveria de funcionar corretamente mas nao percebo porque nao funciona
+        info_sensivel = participante.info_sensivel
+        info_sensivel.nome = formParticipante.cleaned_data['nome']
+        info_sensivel.save()
+
+        info_sensivel.email = formParticipante.cleaned_data['email']
+        info_sensivel.save()
+
+        info_sensivel.telemovel = formParticipante.cleaned_data['telemovel']
+        info_sensivel.save()
+
+        participante.escolaridade = formParticipante.cleaned_data['escolaridade']
+        participante.sexo = formParticipante.cleaned_data['sexo']
+        participante.residencia = formParticipante.cleaned_data['residencia']
+        participante.nascimento = formParticipante.cleaned_data['nascimento']
+        participante.nacionalidade = formParticipante.cleaned_data['nacionalidade']
+        participante.localizacao = formParticipante.cleaned_data['localizacao']
+        participante.referenciacao = Reference.objects.filter(
+            nome=formParticipante.cleaned_data['referenciacao']).first()
+        diagnosticos_selected = formParticipante.cleaned_data['diagnosticos']
+        # Clear the existing related objects and set the selected ones
+        participante.diagnosticos.clear()
+        participante.diagnosticos.set(diagnosticos_selected)
+
+        participante.save()
+        return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
+
+    contexto = {
+        'grupo_id': grupo_id,
+        'formParticipante': formParticipante,
+        'participante': participante,
+    }
+
+    return render(request, "diario/participante_update.html", contexto)
+
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def create_caregiver(request):
     if request.method == 'POST':
         formCuidador = CuidadorForm(request.POST, request.FILES)
-        if formCuidador.is_valid():
-            informacao_sensivel = InformacaoSensivel()
-            informacao_sensivel.nome = formCuidador.cleaned_data['nome']
-            informacao_sensivel.email = formCuidador.cleaned_data['email']
-            informacao_sensivel.telemovel = formCuidador.cleaned_data['telemovel']
-            informacao_sensivel.save()
+        print(request.POST)
+        # formCuidador.password = formCuidador['username'].value().replace(" ", "") + "MentHA@23"
+        # print(formCuidador.fields)
+        informacao_sensivel = InformacaoSensivel()
+        informacao_sensivel.nome = request.POST.get('nome')
+        informacao_sensivel.email = request.POST.get('email')
+        informacao_sensivel.telemovel = request.POST.get('telemovel')
+        informacao_sensivel.save()
 
-            user = User()
-            user.username = formCuidador.cleaned_data['username']
-            user.password = formCuidador.cleaned_data['password']
-            user.email = formCuidador.cleaned_data['email']
-            user.save()
+        username_ja_existe = len(User.objects.filter(username=request.POST.get('username'))) > 0
+        if username_ja_existe:
+            # Handle the case where the username already exists
+            # For example, you could display an error message or redirect back to the form.
+            # You can customize this part based on your requirements.
+            error_message = "Username já existe. Por favor escolha outro de username!"
+            contexto = {
+                'formCuidador': formCuidador,
+                'error_message': error_message,
+            }
+            return render(request, "diario/create_caregiver.html", contexto)
 
-            my_group = DjangoGroup.objects.get(name='Cuidador') 
-            my_group.user_set.add(new_user)
+        user = User()
+        user.username = request.POST.get('username')
+        user.password = generate_strong_password(10)
+        user.email = request.POST.get('email')
+        if len(request.POST.get('nome').split(" ")) >= 2:
+            user.first_name = request.POST.get('nome').split(" ")[0]
+            user.last_name = request.POST.get('nome').split(" ")[1]
+        else:
+            user.first_name = request.POST.get('nome')
+        user.save()
 
-            cuidador = Cuidador()
-            cuidador.user = user
-            cuidador.escolaridade = formCuidador.cleaned_data['escolaridade']
-            cuidador.nascimento = formCuidador.cleaned_data['nascimento']
-            cuidador.nacionalidade = formCuidador.cleaned_data['nacionalidade']
-            cuidador.localizacao = formCuidador.cleaned_data['localizacao']
-            cuidador.referenciacao = Reference.objects.filter(nome=formCuidador.cleaned_data['referenciacao']).first()
-            cuidador.info_sensivel = informacao_sensivel
-            cuidador.save()
+        my_group = DjangoGroup.objects.get(name='Cuidador')
+        my_group.user_set.add(user)
 
-            cuidador.grupo.add(grupo)
-            cuidador.save()
-
-        return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
+        cuidador = Cuidador()
+        cuidador.user = user
+        cuidador.nascimento = request.POST.get('nascimento')
+        cuidador.sexo = request.POST.get('sexo')
+        cuidador.info_sensivel = informacao_sensivel
+        cuidador.avaliador = request.user
+        cuidador.save()
+        
+        return HttpResponseRedirect(reverse('protocolo:participants',))
     else:
         formCuidador = CuidadorForm()
 
     contexto = {
         'formCuidador': formCuidador,
-        'grupo_id': grupo_id,
     }
 
     return render(request, "diario/create_caregiver.html", contexto)
+
+
+
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def create_participante(request, grupo_id):
+    ## OS PARTICIPANTES SAO CRIADOS NO PROTOCOLO
+    ## POR ISSO ESTA FUNCAO NAO E USADA
+    ## registo_view no protocolo/views.py
+    grupo = Grupo.objects.get(id=grupo_id)
+   
+    if request.method == 'POST':
+        formParticipante = ParticipanteForm(request.POST, request.FILES)
+        # formCuidador.password = formCuidador['username'].value().replace(" ", "") + "MentHA@23"
+        # print(formCuidador.fields)
+ 
+        informacao_sensivel = InformacaoSensivel()
+        informacao_sensivel.nome = request.POST.get('nome')
+        informacao_sensivel.email = request.POST.get('email')
+        informacao_sensivel.telemovel = request.POST.get('telemovel')
+        informacao_sensivel.save()
+
+        if User.objects.filter(username=request.POST.get('username')).exists():
+            # Handle the case where the username already exists
+            # For example, you could display an error message or redirect back to the form.
+            # You can customize this part based on your requirements.
+            error_message = "Username já existe. Por favor escolha outro de username!"
+            contexto = {
+                'formParticipante': formParticipante,
+                'grupo_id': grupo_id,
+                'error_message': error_message,
+            }
+            return render(request, "diario/create_participante.html", contexto)
+
+        user = User()
+        user.username = request.POST.get('username')
+        user.password = generate_strong_password(10)
+        user.email = request.POST.get('email')
+        if len(request.POST.get('nome').split(" ")) >= 2:
+            user.first_name = request.POST.get('nome').split(" ")[0]
+            user.last_name = request.POST.get('nome').split(" ")[1]
+        else:
+            user.first_name = request.POST.get('nome')
+        user.save()
+
+        my_group = DjangoGroup.objects.get(name='Participante')
+        my_group.user_set.add(user)
+
+        participante = Participante()
+        participante.user = user
+        # participante.escolaridade = request.POST.get('escolaridade')
+        # participante.residencia = request.POST.get('residencia')
+        # participante.nascimento = request.POST.get('nascimento')
+        # participante.nacionalidade = request.POST.get('nacionalidade')
+        # participante.localizacao = request.POST.get('localizacao')
+        participante.referenciacao = Reference.objects.filter(
+            nome=request.POST.get('referenciacao')).first()
+        diagnosticos_selected = request.POST.get('diagnosticos')
+        participante.info_sensivel = informacao_sensivel
+        participante.save()
+
+        participante.diagnosticos.set(diagnosticos_selected)
+        participante.grupo.add(grupo)
+        participante.save()
+
+        return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
+    else:
+        formParticipante = ParticipanteForm()
+
+    contexto = {
+        'formParticipante': formParticipante,
+        'grupo_id': grupo_id,
+    }
+
+    return render(request, "diario/create_participante.html", contexto)
+
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def create_colaborador(request):
+    if request.method == 'POST':
+        formColaborador = ColaboradorForm(request.POST, request.FILES)
+        if formColaborador.is_valid():
+            if User.objects.filter(username=formColaborador.cleaned_data['username']).exists():
+                # Handle the case where the username already exists
+                # For example, you could display an error message or redirect back to the form.
+                # You can customize this part based on your requirements.
+                error_message = "Username já existe. Por favor escolha outro de username!"
+                contexto = {
+                    'formColaborador': formColaborador,
+                    'error_message': error_message,
+                }
+                return render(request, "diario/new_colaborador.html", contexto)
+        admin = Administrador.objects.get(user=request.user)
+
+        new_user = User()
+
+        new_user.username = formColaborador.cleaned_data.get('username')
+        new_user.password = generate_strong_password(10)
+        new_user.email = formColaborador.cleaned_data.get('email')
+
+        new_user.first_name = formColaborador.cleaned_data.get('nome')
+        new_user.save()
+
+        Colaborador.objects.create(user = new_user, reference =admin.reference)
+
+
+        checked_values = request.POST.getlist('tipo_colaborador')
+        for value in checked_values:
+            if value == 'dinamizador':
+                new_dinamizador = DinamizadorConvidado()
+                new_dinamizador.user = new_user
+                new_dinamizador.reference = admin.reference
+                new_dinamizador.sexo = formColaborador.cleaned_data.get('sexo')
+                new_dinamizador.nascimento = formColaborador.cleaned_data.get('nascimento')
+                new_dinamizador.save()
+
+                info_sensivel = InformacaoSensivel()
+                info_sensivel.nome = formColaborador.cleaned_data.get('nome')
+                info_sensivel.email = formColaborador.cleaned_data.get('email')
+                info_sensivel.telemovel = formColaborador.cleaned_data.get('telemovel')
+                info_sensivel.save()
+
+                new_dinamizador.info_sensivel = info_sensivel
+
+                my_group = DjangoGroup.objects.get(name='Dinamizador')
+                my_group.user_set.add(new_user)
+
+                new_dinamizador.save()
+
+            elif value == 'mentor':
+                new_mentor = Mentor()
+                new_mentor.user = new_user
+                new_mentor.reference = admin.reference
+                new_mentor.sexo = formColaborador.cleaned_data.get('sexo')
+                new_mentor.nascimento = formColaborador.cleaned_data.get('nascimento')
+                new_mentor.save()
+
+                info_sensivel = InformacaoSensivel()
+                info_sensivel.nome = formColaborador.cleaned_data.get('nome')
+                info_sensivel.email = formColaborador.cleaned_data.get('email')
+                info_sensivel.telemovel = formColaborador.cleaned_data.get('telemovel')
+                info_sensivel.save()
+
+                new_mentor.info_sensivel = info_sensivel
+
+                my_group = DjangoGroup.objects.get(name='Mentor')
+                my_group.user_set.add(new_user)
+
+                new_mentor.save()
+            elif value == 'avaliador':
+                new_avaliador = Avaliador()
+                new_avaliador.user = new_user
+                new_avaliador.reference = admin.reference
+                new_avaliador.sexo = formColaborador.cleaned_data.get('sexo')
+                new_avaliador.nascimento = formColaborador.cleaned_data.get('nascimento')
+                new_avaliador.save()
+
+                info_sensivel = InformacaoSensivel()
+                info_sensivel.nome = formColaborador.cleaned_data.get('nome')
+                info_sensivel.email = formColaborador.cleaned_data.get('email')
+                info_sensivel.telemovel = formColaborador.cleaned_data.get('telemovel')
+                info_sensivel.save()
+
+                new_avaliador.info_sensivel = info_sensivel
+
+                my_group = DjangoGroup.objects.get(name='Avaliador')
+                my_group.user_set.add(new_user)
+
+                new_avaliador.save()
+
+        return HttpResponseRedirect(reverse('diario:colaboradores'))
+    else:
+        formColaborador = ColaboradorForm()
+    contexto = {
+        'formColaborador': formColaborador,
+    }
+
+    return render(request, "diario/new_colaborador.html", contexto)
+
 
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
@@ -676,11 +1139,26 @@ def create_dinamizador(request, grupo_id):
             informacao_sensivel.telemovel = formDinamizador.cleaned_data['telemovel']
             informacao_sensivel.save()
 
+            if User.objects.filter(username=formDinamizador.cleaned_data['username']).exists():
+                # Handle the case where the username already exists
+                # For example, you could display an error message or redirect back to the form.
+                # You can customize this part based on your requirements.
+                error_message = "Username já existe. Por favor escolha outro de username!"
+                contexto = {
+                    'formDinamizador': formDinamizador,
+                    'grupo_id': grupo_id,
+                    'error_message': error_message,
+                }
+                return render(request, "diario/new_dinamizador.html", contexto)
+
             user = User()
             user.username = formDinamizador.cleaned_data['username']
-            user.password = formDinamizador.cleaned_data['password']
+            user.password = generate_strong_password(10)
             user.email = formDinamizador.cleaned_data['email']
             user.save()
+
+            my_group = DjangoGroup.objects.get(name='Dinamizador')
+            my_group.user_set.add(user)
 
             dinamizador = DinamizadorConvidado()
             dinamizador.user = user
@@ -704,6 +1182,66 @@ def create_dinamizador(request, grupo_id):
 
     return render(request, "diario/new_dinamizador.html", contexto)
 
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def create_mentor(request, grupo_id):
+    grupo = Grupo.objects.get(id=grupo_id)
+
+    if request.method == 'POST':
+        formMentor = MentorForm(request.POST, request.FILES)
+        print(formMentor.errors)
+        if formMentor.is_valid():
+            print("valido")
+            informacao_sensivel = InformacaoSensivel()
+            informacao_sensivel.nome = formMentor.cleaned_data['nome']
+            informacao_sensivel.email = formMentor.cleaned_data['email']
+            informacao_sensivel.telemovel = formMentor.cleaned_data['telemovel']
+            informacao_sensivel.save()
+
+            if User.objects.filter(username=formMentor.cleaned_data['username']).exists():
+                # Handle the case where the username already exists
+                # For example, you could display an error message or redirect back to the form.
+                # You can customize this part based on your requirements.
+                error_message = "Username já existe. Por favor escolha outro de username!"
+                contexto = {
+                    'formMentor': formMentor,
+                    'grupo_id': grupo_id,
+                    'error_message': error_message,
+                }
+                return render(request, "diario/create_mentor.html", contexto)
+
+            user = User()
+            user.username = formMentor.cleaned_data['username']
+            user.password = generate_strong_password(10)
+            user.email = formMentor.cleaned_data['email']
+            user.save()
+
+            my_group = DjangoGroup.objects.get(name='Mentor')
+            my_group.user_set.add(user)
+
+            mentor = Mentor()
+            mentor.user = user
+            mentor.nacionalidade = formMentor.cleaned_data['nacionalidade']
+            mentor.localizacao = formMentor.cleaned_data['localizacao']
+            mentor.nascimento = formMentor.cleaned_data['nascimento']
+            mentor.info_sensivel = informacao_sensivel
+            mentor.save()
+
+            mentor.grupo.add(grupo)
+            mentor.save()
+
+        return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
+    else:
+        formMentor = DinamizadorForm()
+    contexto = {
+        'formMentor': formMentor,
+        'grupo_id': grupo_id,
+    }
+
+    return render(request, "diario/create_mentor.html", contexto)
+
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def profile_care_view(request, cuidador_id, grupo_id):
@@ -713,11 +1251,25 @@ def profile_care_view(request, cuidador_id, grupo_id):
         formDocument.save()
         return HttpResponseRedirect(reverse('diario:p_view', args=(cuidador_id, grupo_id,)))
 
+    membro = None
+    documents = None
+    nota = None
+
+    if Cuidador.objects.filter(pk=cuidador_id).exists():
+        membro = Cuidador.objects.get(pk=cuidador_id)
+        documents = Documents.objects.filter(cuidador=cuidador_id)
+        nota = Nota.objects.filter(cuidador=cuidador_id)
+
+    if Participante.objects.filter(pk=cuidador_id).exists():
+        membro = Participante.objects.get(pk=cuidador_id)
+        documents = None
+        nota = None
+
     contexto = {
-        'cuidador': Cuidador.objects.get(pk=cuidador_id),
-        'documents': Documents.objects.filter(cuidador=cuidador_id),
+        'cuidador': membro,
+        'documents': documents,
         'grupo': Grupo.objects.get(id=grupo_id),
-        'notas': Nota.objects.filter(cuidador=cuidador_id),
+        'notas': nota,
         'formDocument': formDocument,
         'cuidador_id': cuidador_id,
         'grupo_id': grupo_id
@@ -752,6 +1304,16 @@ def assign_dinamizador(request, grupo_id, dinamizador_id):
     grupo = Grupo.objects.get(id=grupo_id)
     grupo.dinamizadores.add(dinamizador)
 
+    return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))\
+
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def assign_mentor(request, grupo_id, mentor_id):
+    mentor = Mentor.objects.get(id=mentor_id)
+    grupo = Grupo.objects.get(id=grupo_id)
+    grupo.mentores.add(mentor)
+
     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
 
@@ -762,7 +1324,223 @@ def assign_caregiver(request, grupo_id, cuidador_id):
     grupo = Grupo.objects.get(id=grupo_id)
     grupo.cuidadores.add(cuidador)
 
+    return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))\
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def assign_participante(request, grupo_id, participante_id):
+    participante = Participante.objects.get(id=participante_id)
+    grupo = Grupo.objects.get(id=grupo_id)
+    grupo.participantes.add(participante)
+
     return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
+
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+
+
+def colaborador_update(request, colaborador_id):
+    admin = Administrador.objects.get(user=request.user)
+    colaborador = User.objects.get(pk=colaborador_id)
+    if DinamizadorConvidado.objects.filter(user=colaborador).exists():
+        formColaborador = ColaboradorForm(request.POST or None,
+                                          instance=DinamizadorConvidado.objects.filter(user=colaborador).first())
+    elif Mentor.objects.filter(user=colaborador).exists():
+        formColaborador = ColaboradorForm(request.POST or None,
+                                          instance=Mentor.objects.filter(user=colaborador).first())
+    elif Avaliador.objects.filter(user=colaborador).exists():
+        formColaborador = ColaboradorForm(request.POST or None,
+                                          instance=Avaliador.objects.filter(user=colaborador).first())
+    else:
+        formColaborador = ColaboradorForm(request.POST or None,
+                                          instance=colaborador)
+
+    if formColaborador.is_valid():
+        if User.objects.filter(username=formColaborador.cleaned_data['username']).exists():
+            if formColaborador.cleaned_data['username'] != colaborador.username:
+                # Handle the case where the username already exists
+                # For example, you could display an error message or redirect back to the form.
+                # You can customize this part based on your requirements.
+                error_message = "Username já existe. Por favor escolha outro de username!"
+                contexto = {
+                    'formColaborador': formColaborador,
+                    'colaborador': colaborador,
+                    'dinamizador': DinamizadorConvidado.objects.filter(user=colaborador).first(),
+                    'mentor': Mentor.objects.filter(user=colaborador).first(),
+                    'avaliador': Avaliador.objects.filter(user=colaborador).first(),
+                    'error_message': error_message,
+                }
+                return render(request, "diario/colaborador_update.html", contexto)
+        user = colaborador
+        user.username = formColaborador.cleaned_data['username']
+        user.password = generate_strong_password(10)
+        user.email = formColaborador.cleaned_data['email']
+        if formColaborador.cleaned_data['nome'].__contains__(" "):
+            user.first_name = formColaborador.cleaned_data['nome'].split(" ")[0]
+            user.last_name = formColaborador.cleaned_data['nome'].split(" ")[1]
+        else:
+            user.first_name = formColaborador.cleaned_data['nome']
+            user.last_name = ""
+        user.save()
+
+        checked_values = request.POST.getlist('tipo_colaborador')
+        for value in checked_values:
+            if value == 'dinamizador':
+                if DinamizadorConvidado.objects.filter(user=colaborador).exists():
+                    dinamizador = DinamizadorConvidado.objects.filter(user=colaborador).first()
+                    dinamizador.user = user
+                    dinamizador.reference = admin.reference
+                    dinamizador.nascimento = formColaborador.cleaned_data.get('nascimento')
+                    dinamizador.save()
+
+                    if InformacaoSensivel.objects.filter(nome=formColaborador.cleaned_data.get('nome')).first():
+                        info_sensivel = InformacaoSensivel.objects.filter(
+                            nome=formColaborador.cleaned_data.get('nome')).first()
+                    else:
+                        info_sensivel = InformacaoSensivel()
+
+                    info_sensivel.nome = formColaborador.cleaned_data.get('nome')
+                    info_sensivel.email = formColaborador.cleaned_data.get('email')
+                    info_sensivel.telemovel = formColaborador.cleaned_data.get('telemovel')
+                    info_sensivel.save()
+
+                    my_group = DjangoGroup.objects.get(name='Dinamizador')
+                    my_group.user_set.add(user)
+
+                    dinamizador.save()
+                else:
+                    new_dinamizador = DinamizadorConvidado()
+                    new_dinamizador.user = user
+                    new_dinamizador.reference = admin.reference
+                    new_dinamizador.nascimento = formColaborador.cleaned_data.get('nascimento')
+                    new_dinamizador.save()
+
+                    if InformacaoSensivel.objects.filter(nome=formColaborador.cleaned_data.get('nome')).first():
+                        info_sensivel = InformacaoSensivel.objects.filter(
+                            nome=formColaborador.cleaned_data.get('nome')).first()
+                    else:
+                        info_sensivel = InformacaoSensivel()
+
+                    info_sensivel.nome = formColaborador.cleaned_data.get('nome')
+                    info_sensivel.email = formColaborador.cleaned_data.get('email')
+                    info_sensivel.telemovel = formColaborador.cleaned_data.get('telemovel')
+                    info_sensivel.save()
+
+                    new_dinamizador.info_sensivel = info_sensivel
+
+                    my_group = DjangoGroup.objects.get(name='Dinamizador')
+                    my_group.user_set.add(user)
+
+                    new_dinamizador.save()
+            elif value == 'mentor':
+                if Mentor.objects.filter(user=colaborador).exists():
+                    mentor = Mentor.objects.filter(user=colaborador).first()
+                    mentor.user = user
+                    mentor.reference = admin.reference
+                    mentor.nascimento = formColaborador.cleaned_data.get('nascimento')
+                    mentor.save()
+
+                    if InformacaoSensivel.objects.filter(nome=formColaborador.cleaned_data.get('nome')).first():
+                        info_sensivel = InformacaoSensivel.objects.filter(
+                            nome=formColaborador.cleaned_data.get('nome')).first()
+                    else:
+                        info_sensivel = InformacaoSensivel()
+
+                    info_sensivel.nome = formColaborador.cleaned_data.get('nome')
+                    info_sensivel.email = formColaborador.cleaned_data.get('email')
+                    info_sensivel.telemovel = formColaborador.cleaned_data.get('telemovel')
+                    info_sensivel.save()
+
+                    my_group = DjangoGroup.objects.get(name='Mentor')
+                    my_group.user_set.add(user)
+
+                    mentor.save()
+                else:
+                    new_mentor = Mentor()
+                    new_mentor.user = user
+                    new_mentor.reference = admin.reference
+                    new_mentor.nascimento = formColaborador.cleaned_data.get('nascimento')
+                    new_mentor.save()
+
+                    if InformacaoSensivel.objects.filter(nome=formColaborador.cleaned_data.get('nome')).first():
+                        info_sensivel = InformacaoSensivel.objects.filter(
+                            nome=formColaborador.cleaned_data.get('nome')).first()
+                    else:
+                        info_sensivel = InformacaoSensivel()
+                    info_sensivel.nome = formColaborador.cleaned_data.get('nome')
+                    info_sensivel.email = formColaborador.cleaned_data.get('email')
+                    info_sensivel.telemovel = formColaborador.cleaned_data.get('telemovel')
+                    info_sensivel.save()
+
+                    new_mentor.info_sensivel = info_sensivel
+
+                    my_group = DjangoGroup.objects.get(name='Mentor')
+                    my_group.user_set.add(user)
+
+                    new_mentor.save()
+            elif value == 'avaliador':
+                if Avaliador.objects.filter(user=colaborador).exists():
+                    avaliador = Avaliador.objects.filter(user=colaborador).first()
+                    avaliador.user = user
+                    avaliador.reference = admin.reference
+                    avaliador.save()
+
+                    if InformacaoSensivel.objects.filter(nome=formColaborador.cleaned_data.get('nome')).first():
+                        info_sensivel = InformacaoSensivel.objects.filter(
+                            nome=formColaborador.cleaned_data.get('nome')).first()
+                    else:
+                        info_sensivel = InformacaoSensivel()
+
+                    info_sensivel.nome = formColaborador.cleaned_data.get('nome')
+                    info_sensivel.email = formColaborador.cleaned_data.get('email')
+                    info_sensivel.telemovel = formColaborador.cleaned_data.get('telemovel')
+                    info_sensivel.save()
+
+                    my_group = DjangoGroup.objects.get(name='Avaliador')
+                    my_group.user_set.add(user)
+                else:
+                    new_avaliador = Avaliador()
+                    new_avaliador.user = user
+                    new_avaliador.reference = admin.reference
+                    new_avaliador.save()
+
+                    if InformacaoSensivel.objects.filter(nome=formColaborador.cleaned_data.get('nome')).first():
+                        info_sensivel = InformacaoSensivel.objects.filter(
+                            nome=formColaborador.cleaned_data.get('nome')).first()
+                    else:
+                        info_sensivel = InformacaoSensivel()
+                    info_sensivel.nome = formColaborador.cleaned_data.get('nome')
+                    info_sensivel.email = formColaborador.cleaned_data.get('email')
+                    info_sensivel.telemovel = formColaborador.cleaned_data.get('telemovel')
+                    info_sensivel.save()
+
+                    new_avaliador.info_sensivel = info_sensivel
+
+                    my_group = DjangoGroup.objects.get(name='Avaliador')
+                    my_group.user_set.add(user)
+
+        if 'dinamizador' not in checked_values and DinamizadorConvidado.objects.filter(user=colaborador).exists():
+            dinamizador = DinamizadorConvidado.objects.filter(user=colaborador).first()
+            dinamizador.delete()
+        if 'mentor' not in checked_values and Mentor.objects.filter(user=colaborador).exists():
+            mentor = Mentor.objects.filter(user=colaborador).first()
+            mentor.delete()
+        if 'avaliador' not in checked_values and Avaliador.objects.filter(user=colaborador).exists():
+            avaliador = Avaliador.objects.filter(user=colaborador).first()
+            avaliador.delete()
+
+        return HttpResponseRedirect(reverse('diario:colaboradores'))
+
+    contexto = {
+        'formColaborador': formColaborador,
+        'colaborador': colaborador,
+        'dinamizador': DinamizadorConvidado.objects.filter(user=colaborador).first(),
+        'avaliador': Avaliador.objects.filter(user=colaborador).first(),
+        'mentor': Mentor.objects.filter(user=colaborador).first(),
+    }
+
+    return render(request, "diario/colaborador_update.html", contexto)
 
 
 @login_required(login_url='diario:login')
@@ -772,16 +1550,91 @@ def dinamizador_update(request, dinamizador_id, grupo_id):
     formDinamizador = DinamizadorForm(request.POST or None, instance=dinamizador)
 
     if formDinamizador.is_valid():
-        formDinamizador.save()
+        if User.objects.filter(username=formDinamizador.cleaned_data['username']).exists():
+            if formDinamizador.cleaned_data['username'] != dinamizador.user.username:
+                # Handle the case where the username already exists
+                # For example, you could display an error message or redirect back to the form.
+                # You can customize this part based on your requirements.
+                error_message = "Username já existe. Por favor escolha outro de username!"
+                contexto = {
+                    'formDinamizador': formDinamizador,
+                    'grupo_id': grupo_id,
+                    'error_message': error_message,
+                }
+                return render(request, "diario/dinamizador_update.html", contexto)
+        user = dinamizador.user
+        user.username = formDinamizador.cleaned_data['username']
+        user.password = generate_strong_password(10)
+        user.save()
+
+        info_sensivel = dinamizador.info_sensivel
+        info_sensivel.nome = formDinamizador.cleaned_data['nome']
+        info_sensivel.email = formDinamizador.cleaned_data['email']
+        info_sensivel.telemovel = formDinamizador.cleaned_data['telemovel']
+        info_sensivel.save()
+
+        dinamizador.nascimento = formDinamizador.cleaned_data['nascimento']
+        dinamizador.nacionalidade = formDinamizador.cleaned_data['nacionalidade']
+        dinamizador.localizacao = formDinamizador.cleaned_data['localizacao']
+        dinamizador.nascimento = formDinamizador.cleaned_data['nascimento']
+        dinamizador.funcao = formDinamizador.cleaned_data['funcao']
+        dinamizador.save()
+
         return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
 
     contexto = {
         'grupo_id': grupo_id,
         'formDinamizador': formDinamizador,
-
+        'dinamizador': dinamizador,
     }
 
-    return render(request, "diario/dina_update.html", contexto)
+    return render(request, "diario/dinamizador_update.html", contexto)
+
+
+@login_required(login_url='diario:login')
+@check_user_able_to_see_page('Todos')
+def mentor_update(request, mentor_id, grupo_id):
+    mentor = Mentor.objects.get(pk=mentor_id)
+    formMentor = MentorForm(request.POST or None, instance=mentor)
+
+    if formMentor.is_valid():
+        if User.objects.filter(username=formMentor.cleaned_data['username']).exists():
+            if formMentor.cleaned_data['username'] != mentor.user.username:
+                # Handle the case where the username already exists
+                # For example, you could display an error message or redirect back to the form.
+                # You can customize this part based on your requirements.
+                error_message = "Username já existe. Por favor escolha outro de username!"
+                contexto = {
+                    'formMentor': formMentor,
+                    'grupo_id': grupo_id,
+                    'error_message': error_message,
+                }
+                return render(request, "diario/mentor_update.html", contexto)
+        user = mentor.user
+        user.username = formMentor.cleaned_data['username']
+        user.password = generate_strong_password(10)
+        user.save()
+
+        info_sensivel = mentor.info_sensivel
+        info_sensivel.nome = formMentor.cleaned_data['nome']
+        info_sensivel.email = formMentor.cleaned_data['email']
+        info_sensivel.telemovel = formMentor.cleaned_data['telemovel']
+        info_sensivel.save()
+
+        mentor.nascimento = formMentor.cleaned_data['nascimento']
+        mentor.nacionalidade = formMentor.cleaned_data['nacionalidade']
+        mentor.localizacao = formMentor.cleaned_data['localizacao']
+        mentor.nascimento = formMentor.cleaned_data['nascimento']
+        mentor.save()
+        return HttpResponseRedirect(reverse('diario:group_members', args=(grupo_id,)))
+
+    contexto = {
+        'grupo_id': grupo_id,
+        'formMentor': formMentor,
+        'mentor': mentor,
+    }
+
+    return render(request, "diario/mentor_update.html", contexto)
 
 
 @login_required(login_url='diario:login')
@@ -970,6 +1823,11 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
     apresentacao = ""
     grupo = Grupo.objects.get(id=grupo_id)
     sessao = SessaoDoGrupo.objects.get(id=sessao_grupo_id, grupo=grupo)
+    partes_grupo = {}
+    if grupo.programa == "CARE":
+        partes_grupo = ParteGrupo.objects.filter(sessaoGrupo=sessao_grupo_id).order_by('parte__ordem')
+    if grupo.programa == "COG":
+        partes_grupo = ParteGrupo.objects.filter(sessaoGrupo=sessao_grupo_id).order_by('exercicio__numero')
 
     data = sessao.data
 
@@ -981,7 +1839,6 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
         if data.day == datetime.utcnow().day or sessao.inicio is not None:
             pode_iniciar = True
 
-    partes_grupo = ParteGrupo.objects.filter(sessaoGrupo=sessao_grupo_id)
     for parte in partes_grupo:
         if parte.concluido == False:
             if grupo.programa == "CARE":
@@ -991,7 +1848,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
             break
     else:
         proxima_parte = 0
-    
+
     tempo_total_partes = 0
     tempo_total_partes_grupo = 0
 
@@ -1016,11 +1873,11 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
         'proxima_parte': proxima_parte,
         'tem_proxima': tem_proxima,
         'sessaoGrupo': sessao,
-        'partesGrupo': partes_grupo.order_by('parte__ordem'),
+        'partesGrupo': partes_grupo,
         'participantes': participantes,
         'grupo': Grupo.objects.get(id=sessao.grupo.id),
         'pode_iniciar': pode_iniciar,
-        'apresentacao' : apresentacao,
+        'apresentacao': apresentacao,
         'tempo_total_partes': tempo_total_partes,
         'cuidador': Cuidador.objects.filter(user=request.user).first(),
         'participante': Participante.objects.filter(user=request.user).first(),
@@ -1035,7 +1892,7 @@ def view_sessao(request, sessao_grupo_id, grupo_id):
 @check_user_able_to_see_page('Todos')
 def view_detalhes_sessao(request, id_sessao_grupo):
     sessao = SessaoDoGrupo.objects.get(sessao=id, grupo=id_sessao_grupo)
-    partes_grupo = ParteGrupo.objects.filter(sessaoGrupo=sessao)
+    partes_grupo = ParteGrupo.objects.filter(sessaoGrupo=sessao).order_by('parte__ordem')
 
     contexto = {
         'id': id,
@@ -1078,8 +1935,11 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
     if programa == "CARE":
         participante = Cuidador.objects.get(pk=idParticipante)
         notas = Nota.objects.filter(cuidador=participante, sessao_grupo=sessao_grupo).order_by('-data')
+        partilhas = Partilha.objects.filter(sessao_grupo=sessao_grupo, cuidador=participante).order_by(
+            '-data')
     elif programa == "COG":
         participante = Participante.objects.get(pk=idParticipante)
+        partilhas = Partilha.objects.filter(sessao_grupo=sessao_grupo, participante=participante).order_by('-data')
         notas = Nota.objects.filter(participante=participante, sessao_grupo=sessao_grupo).order_by('-data')
         # respostas = Resposta.objects.filter(participante=participante, sessao_grupo=sessao_grupo)
         exercicios = sessao_grupo.sessao.exercicios.all()
@@ -1137,7 +1997,8 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         elif request.POST.get('participante'):
             participante_id = request.POST.get('participante')
             nota_text = request.POST.get('nota')
-            nota = Nota(participante=Participante.objects.get(pk=participante_id), nota=nota_text, sessao_grupo=sessao_grupo)
+            nota = Nota(participante=Participante.objects.get(pk=participante_id), nota=nota_text,
+                        sessao_grupo=sessao_grupo)
             if Mentor.objects.filter(user=request.user).first():
                 nota.anotador_mentor = Mentor.objects.get(user=request.user)
             nota.sessao_grupo = sessao_grupo
@@ -1147,8 +2008,8 @@ def view_diario_participante(request, idSessaoGrupo, idParticipante):
         'participante_id': idParticipante,
         'participante': participante,
         'notas': notas,
-        'partilhas': Partilha.objects.filter(sessao_grupo=sessao_grupo).order_by('-data'),
-        'informacoes': Informacoes.objects.filter(participante=idParticipante).order_by('-data'),
+        'partilhas': partilhas,
+        #'informacoes': Informacoes.objects.filter(participante=idParticipante).order_by('-data'),
         'respostas': 'aaa',
         'notaForm': NotaForm(),
         'partilhaForm': PartilhaForm(),
@@ -1176,10 +2037,10 @@ def view_atualiza_presencas_diario(request, idSessaoGrupo):
         presenca = None
         if sessao_grupo.grupo.programa == "CARE":
             presenca = Presenca.objects.get(cuidador=Cuidador.objects.get(id=participante_id),
-                                               sessaoDoGrupo=sessao_grupo)
+                                            sessaoDoGrupo=sessao_grupo)
         elif sessao_grupo.grupo.programa == "COG":
             presenca = Presenca.objects.get(participante=Participante.objects.get(id=participante_id),
-                                               sessaoDoGrupo=sessao_grupo)
+                                            sessaoDoGrupo=sessao_grupo)
         if tipo_presenca in ["naoVeio", "n"]:
             presenca.set_faltou()
         elif tipo_presenca in ["online", "o"]:
@@ -1192,7 +2053,6 @@ def view_atualiza_presencas_diario(request, idSessaoGrupo):
         'grupo_id': idGrupo,
         'notasGrupo': NotaGrupo.objects.filter(grupo=idGrupo),
         'partilhas': PartilhaGrupo.objects.filter(grupo=idGrupo),
-        'informacoes': Informacoes.objects.all(),
         'respostas': Resposta.objects.all(),
         'notaGrupoForm': NotaGrupoForm(),
         'partilhaGrupoForm': PartilhaGrupoForm()
@@ -1215,7 +2075,7 @@ def view_diario_grupo(request, idSessaoGrupo):
 
     form_list = []
     form_nota_grupo = NotaGrupoForm(request.POST or None)
-    form_partilhas_grupo = PartilhaGrupoForm(request.POST or None)
+    #form_partilhas_grupo = PartilhaGrupoForm(request.POST or None)
 
     if request.method == "POST":
         form = NotaGrupoForm(request.POST or None)
@@ -1228,7 +2088,7 @@ def view_diario_grupo(request, idSessaoGrupo):
                 nota_grupo.anotador_mentor = Mentor.objects.get(user=request.user)
             nota_grupo.grupo = sessao_grupo.grupo
             nota_grupo.save()
-        form1 = PartilhaGrupoForm(request.POST or None)
+        #form1 = PartilhaGrupoForm(request.POST or None)
         if request.POST.get('descricao'):
             partilha_text = request.POST.get('descricao')
             ficheiro = request.FILES.get('ficheiro')
@@ -1269,10 +2129,10 @@ def view_diario_grupo(request, idSessaoGrupo):
         'sessaoGrupo': sessao_grupo,
         'notasGrupo': NotaGrupo.objects.filter(grupo=idGrupo, sessao_grupo=sessao_grupo),
         'partilhas': Partilha.objects.filter(sessao_grupo=sessao_grupo).order_by('-data'),
-        'informacoes': Informacoes.objects.all(),
+        #'informacoes': Informacoes.objects.all(),
         # 'respostas': Respostas.objects.all(),
         'notaGrupoForm': NotaGrupoForm(),
-        'partilhaGrupoForm': PartilhaGrupoForm(),
+        #'partilhaGrupoForm': PartilhaGrupoForm(),
         'online_list': online_list,
         'presencial_list': presencial_list,
         'faltou_list': faltou_list,
@@ -1307,8 +2167,6 @@ def view_parteDetalhes(request, parte_do_grupo_id, sessaoGrupo_id, idGrupo):
         exercicio = Exercicio.objects.get(id=parte_do_grupo_id)
         parte_group = ParteGrupo.objects.get(exercicio=exercicio, sessaoGrupo=sg)
 
-
-
     q = parte.questionarios.all()
     if len(q) > 0:
         q = parte.questionarios.all()[0]
@@ -1337,12 +2195,15 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
     if len(participante) > 0:
         participante = participante.get()
     programa = sg.grupo.programa
-    
+
+    diagnostico = str(sg.grupo.diagnostico)
+
     contexto = {
         'proxima_parte': proxima_parte,
         'estado': estado,
         'sessaoGrupo': sg,
         'participante': participante,
+        'diagnostico': diagnostico,
         'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
 
@@ -1393,12 +2254,11 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
                         if pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
                             lista_ids_escolhas_multiplas.append(r.resposta_escolha.id)
 
+                    form = None
                     if pergunta.tipo_resposta == "RESPOSTA_ESCRITA":
                         form = RespostaForm_RespostaEscrita(None, initial=initial_data)
                     elif pergunta.tipo_resposta == "UPLOAD_FOTOGRAFIA":
                         form = RespostaForm_RespostaSubmetida(None)
-                    elif pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
-                        form = None
 
                     tuplo = (pergunta, parte.ordem, form)
                     form_list.append(tuplo)
@@ -1409,11 +2269,11 @@ def view_parte(request, parte_do_grupo_id, sessaoGrupo_id, estado, proxima_parte
     contexto['respostas_existentes'] = respostas_existentes
     contexto['parteGrupo'] = parte_group
     contexto['duracao_segundos'] = parte_group.duracao_minutos * 60
-    
+
     if estado != "ver" and estado != "continuar":
         parte_group.inicio = datetime.utcnow()
         parte_group.save()
-    
+
     return render(request, "diario/parte.html", contexto)
 
 
@@ -1460,6 +2320,8 @@ def view_questionario(request, idPergunta, idParte, sessaoGrupo):
 
     numero_sessao = sg.sessao.numeroSessao
     pg = ParteGrupo.objects.filter(sessaoGrupo=sg, parte=parte).get()
+    # if pg.concluido:
+    #     return redirect('diario:dashboard_Care')
     lista_opcoes = [x.resposta for x in questionario.perguntas.all()[0].opcoes.all()]
 
     if request.method == 'POST':
@@ -1486,11 +2348,12 @@ def view_questionario(request, idPergunta, idParte, sessaoGrupo):
         'sessaoGrupo': sessaoGrupo,
         'questionario': questionario,
         'parte': parte,
-        'escolhas': Escolha.objects.all(),
+        'escolhas': Escolha.objects.filter(utilizador=request.user),
         'lista_opcoes': lista_opcoes,
         'parteGrupo': pg.id,
         'numero_sessao': numero_sessao,
         'sg_anterior': sg_anterior,
+        'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
     return render(request, "diario/questionario.html", contexto)
 
@@ -1772,9 +2635,10 @@ def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
     uri = request.build_absolute_uri('view_questionario')
     uri = uri.replace('abrirQ', 'q')
     uri = uri.replace('view_questionario', f'{sessaoGrupo}')
-    img = qrcode.make(uri, image_factory=factory, box_size=20)
     stream = BytesIO()
+    img = qrcode.make( uri, image_factory=factory)
     img.save(stream)
+    svg =  stream.getvalue().decode('utf-8')
     parte = Parte.objects.get(id=idParte)
     questionario = parte.questionarios.all().filter(id=idPergunta)
 
@@ -1782,8 +2646,9 @@ def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
         'sessaoGrupo': sessaoGrupo,
         'parte': Parte.objects.filter(id=idParte),
         'atividades': parte.atividades.all(),
-        'svg': stream.getvalue().decode(),
+        'svg': svg,
         'questionario': questionario,
+        'grupos_permissoes': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Mentor']),
     }
     return render(request, "diario/abrirQuestionario.html", contexto)
 
@@ -1792,27 +2657,25 @@ def view_abrirQuestionario(request, idPergunta, idParte, sessaoGrupo):
 @check_user_able_to_see_page('Todos')
 def view_resultados(request, idPergunta, idParte, sessaoGrupo):
     questionario = Questionario.objects.get(id=idPergunta)
-    escolhas = []
+    counter_respostas = {}
 
     for pergunta in questionario.perguntas.all():
-        opcoes_respostas = [opcao.resposta for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
-        opcoes = [opcao for opcao in Pergunta.objects.get(id=pergunta.id).opcoes.all()]
-        counter_respostas = {}
+        opcoes_respostas = [opcao.resposta for opcao in pergunta.opcoes.all()]
+        opcoes = [opcao for opcao in pergunta.opcoes.all()]
         for opcao in opcoes:
-            counter_respostas[opcao.id] = 0
-        for i, escolha in enumerate(Pergunta.objects.get(id=pergunta.id).escolhas.all()):
-            counter_respostas[escolha.opcao.id] += 1
+            if counter_respostas.get(opcao.id) is None:
+                counter_respostas[opcao.id] = 0
+        for i, escolha in enumerate(pergunta.escolhas.all()):
+            counter_respostas[escolha.opcao.id] = 1 + counter_respostas[escolha.opcao.id]
 
-
-
+    print(counter_respostas)
 
     plt.bar(opcoes_respostas, list(counter_respostas.values()))
-    plt.ylabel("respostas")
+    plt.ylabel("Respostas")
     plt.autoscale()
     max_ = max(list(counter_respostas.values()))
     steps = list(range(max_ + 1))
     plt.yticks(steps)
-
 
     fig = plt.gcf()
     plt.close()
@@ -1876,20 +2739,38 @@ def voltar_parte(request, idParte, sessao_grupo_id, estado):
 def finalizar_sessao(request, idGrupo, sessao_grupo_id):
     sessao_group = SessaoDoGrupo.objects.get(id=sessao_grupo_id)
     parte_group_final = sessao_group.parteGrupos.all().last()
-    for parte in sessao_group.parteGrupos.all():
-        parte.fim = datetime.utcnow()
-        parte.concluido = True
-        parte.save()
+    if sessao_group.grupo.programa == "CARE":
+        for parte in sessao_group.parteGrupos.all():
+            if not parte.concluido:
+                parte.fim = datetime.utcnow()
+                parte.concluido = True
+                parte.save()
 
-    gera_relatorio_questinarios(sessao_group, request)
-    gera_relatorio_diario_bordo(sessao_group, request)
+        gera_relatorio_questinarios(sessao_group, request)
+        gera_relatorio_diario_bordo(sessao_group, request)
 
-    if request.method == 'POST':
-        sessao_group.estado = 'R'
-        sessao_group.fim = datetime.utcnow()
-        sessao_group.concluido = True
-        sessao_group.parte_ativa = None
-        sessao_group.save()
+        if request.method == 'POST':
+            sessao_group.estado = 'R'
+            sessao_group.fim = datetime.utcnow()
+            sessao_group.concluido = True
+            sessao_group.parte_ativa = None
+            sessao_group.save()
+
+    if sessao_group.grupo.programa == "COG":
+        for parte in sessao_group.parteGrupos.all():
+            if not parte.concluido:
+                parte.fim = datetime.utcnow()
+                parte.concluido = True
+                parte.save()
+
+        gera_relatorio_diario_bordo(sessao_group, request)
+
+        if request.method == 'POST':
+            sessao_group.estado = 'R'
+            sessao_group.fim = datetime.utcnow()
+            sessao_group.concluido = True
+            sessao_group.parte_ativa = None
+            sessao_group.save()
 
     return HttpResponseRedirect(reverse('diario:group_sessions', args=[idGrupo]))
 
@@ -1926,8 +2807,10 @@ def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, 
     # print(resposta_existente)
     r = None
     if len(resposta_existente) > 0:
-        r = resposta_existente[0]
+        r = resposta_existente.first()
     else:
+        if Participante.objects.filter(id=utilizador_id) is None:
+            return HttpResponse("Fail, sem Participante")
         r = Resposta(
             participante=Participante.objects.get(id=utilizador_id),
             pergunta=pergunta,
@@ -1943,12 +2826,9 @@ def guarda_resposta_view(request, sessaoGrupo_id, parteGrupo_id, utilizador_id, 
     elif pergunta.tipo_resposta == "ESCOLHA_MULTIPLA":
         r.resposta_escolha = Opcao.objects.get(id=request.POST.get('choice'))
 
-    if (request.POST.get('certo') == 'true'):
-        r.certo = True
-
-    # print(r)
+    r.certo = request.POST.get('certo') == 'true'
     r.save()
-    # print(request.FILES)
+
     return HttpResponse("OK")
 
 
@@ -1999,6 +2879,8 @@ def gera_relatorio_questinarios(sessaoDoGrupo, request):
     perguntas = []
     document = Document()
     counter = 0
+    grupo = sessaoDoGrupo.grupo
+    partes = ParteGrupo.objects.filter(sessaoGrupo=sessaoDoGrupo)
 
     # Cabeçalho
     paragraph = document.add_paragraph(f'Projeto MentHA')
@@ -2013,12 +2895,38 @@ def gera_relatorio_questinarios(sessaoDoGrupo, request):
 
     # Relatório
     paragraph = document.add_paragraph("O presente relatório tem como objetivo fornecer os resultados detalhados da "
-                                       +f"{sessaoDoGrupo.__str__()}" +
-                                       " realizada no dia "+ f"{sessaoDoGrupo.data.day}" + "." +
+                                       + f"{sessaoDoGrupo.__str__()}" +
+                                       " realizada no dia " + f"{sessaoDoGrupo.data.day}" + "." +
                                        f"{sessaoDoGrupo.data.month}" + "." +
                                        f"{sessaoDoGrupo.data.year}" + " com a participação de várias pessoas. "
-                                       "Durante a sessão abordou-se o seguinte tema: " + f"{sessaoDoGrupo.sessao.nome}")
+                                                                      "Durante a sessão abordou-se o seguinte tema: " + f"{sessaoDoGrupo.sessao.nome}")
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+
+    if partes.exists():
+        if grupo.programa == "CARE":
+            paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+            paragraph = document.add_heading(
+                f'Partes realizadas na {sessaoDoGrupo.__str__()}:', 2)
+            paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        elif grupo.programa == "COG":
+            paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+            paragraph = document.add_heading(
+                f'Atividades realizadas na {sessaoDoGrupo.__str__()}:', 2)
+            paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    for parte_grupo in partes:
+        if grupo.programa == "CARE":
+            paragraph = document.add_paragraph(
+                "Fase " + dict(parte_grupo.parte.FASE)[parte_grupo.parte.fase] + " - " + parte_grupo.parte.objetivo)
+            paragraph = document.add_paragraph(
+                "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.parte.duracao) + " min")
+        if grupo.programa == "COG":
+            paragraph = document.add_paragraph(
+                "Exercício " + str(parte_grupo.exercicio))
+            paragraph = document.add_paragraph(
+                "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(
+                    parte_grupo.exercicio.duracao) + " min")
+
     paragraph = document.add_heading(
         f'Presenças na {sessaoDoGrupo.__str__()}:', 2)
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
@@ -2056,9 +2964,10 @@ def gera_relatorio_questinarios(sessaoDoGrupo, request):
 
     plt.clf()
 
-    document.add_paragraph("Nesta sessão estiveram presentes em modo online um total de " + str(counter_precensas['Online'])
-                           + " participantes e em modo presencial " + str(counter_precensas['Presencial'])
-                           + " participantes.")
+    document.add_paragraph(
+        "Nesta sessão estiveram presentes em modo online um total de " + str(counter_precensas['Online'])
+        + " participantes e em modo presencial " + str(counter_precensas['Presencial'])
+        + " participantes.")
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
     if counter_precensas['Faltou'] > 1:
         document.add_paragraph("Infelizmente, um total de " + str(counter_precensas['Faltou'])
@@ -2100,7 +3009,7 @@ def gera_relatorio_questinarios(sessaoDoGrupo, request):
 
         # Add the image to the document
         paragraph = document.add_paragraph("O seguinte gráfico mostra os resultados obtidos da seguinte pergunta: \n"
-                                           + pergunta.texto)
+                                           + "\"" + pergunta.texto + "\"")
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
         document.add_picture(buf, width=Inches(4))
         last_paragraph = document.paragraphs[-1]
@@ -2119,7 +3028,7 @@ def gera_relatorio_questinarios(sessaoDoGrupo, request):
     paragraph = document.add_paragraph(f'{request.user.username}')
 
     # Save the Word document
-    nome_ficheiro = 'relatorio'+ sessaoDoGrupo.__str__()
+    nome_ficheiro = 'relatorio' + sessaoDoGrupo.__str__()
     nome_ficheiro = nome_ficheiro.replace(" ", "")
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
@@ -2130,10 +3039,12 @@ def gera_relatorio_questinarios(sessaoDoGrupo, request):
     sessaoDoGrupo.relatorio.save(f'{nome_ficheiro}.docx', docx_data)
     sessaoDoGrupo.save()
 
+    os.remove(docx_path)
+
 
 def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     document = Document()
-    partilhas = Partilha.objects.all().filter(sessao_grupo=sessaoDoGrupo).order_by('-data')
+    partilhas = Partilha.objects.all().filter(sessao_grupo=sessaoDoGrupo, aprovada=True).order_by('-data')
     notas = Nota.objects.all().filter(sessao_grupo=sessaoDoGrupo)
     notas_grupo = NotaGrupo.objects.all().filter(sessao_grupo=sessaoDoGrupo)
     grupo = sessaoDoGrupo.grupo
@@ -2151,30 +3062,13 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
     # Relatório
-    paragraph = document.add_paragraph("O presente relatório tem como objetivo fornecer os dados detalhados acerca do Diário de Bordo da "
-                                       +f"{sessaoDoGrupo.__str__()}" +
-                                       " realizada no dia "+ f"{sessaoDoGrupo.data.day}" + "." +
-                                       f"{sessaoDoGrupo.data.month}" + "." +
-                                       f"{sessaoDoGrupo.data.year}" + " com a participação de várias pessoas. "
+    paragraph = document.add_paragraph(
+        "O presente relatório tem como objetivo fornecer os dados detalhados acerca do Diário de Bordo da "
+        + f"{sessaoDoGrupo.__str__()}" +
+        " realizada no dia " + f"{sessaoDoGrupo.data.day}" + "." +
+        f"{sessaoDoGrupo.data.month}" + "." +
+        f"{sessaoDoGrupo.data.year}" + " com a participação de várias pessoas. "
                                        "Durante a sessão abordou-se o seguinte tema: " + f"{sessaoDoGrupo.sessao.nome}")
-
-    if partes.exists():
-        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-        paragraph = document.add_heading(
-            f'Partes realizadas na {sessaoDoGrupo.__str__()}:', 2)
-        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-
-    for parte_grupo in partes:
-        if grupo.programa == "CARE":
-            paragraph = document.add_paragraph(
-                "Fase " + dict(parte_grupo.parte.FASE)[parte_grupo.parte.fase] + " - " + parte_grupo.parte.objetivo)
-            paragraph = document.add_paragraph(
-                "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.parte.duracao) + " min")
-        if grupo.programa == "COG":
-            paragraph = document.add_paragraph(
-                "Exercício" + str(parte_grupo.exercicio))
-            paragraph = document.add_paragraph(
-                "Duração: " + parte_grupo.duracao_em_horas_minutos + " - " + str(parte_grupo.exercicio.duracao) + " min")
 
     if partilhas.exists():
         paragraph = document.add_heading(
@@ -2212,21 +3106,24 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
         paragraph = document.add_heading(
             f'Notas realizadas acerca dos cuidadores', 2)
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-        paragraph = document.add_paragraph("Dinamizador " + notas.first().anotador_dinamizador.nome + ":")
+        if notas.first().anotador_dinamizador:
+            paragraph = document.add_paragraph("Dinamizador " + notas.first().anotador_dinamizador.nome + ":")
     elif notas.exists() and grupo.programa == "COG":
         paragraph = document.add_heading(
             f'Notas realizadas acerca dos participantes', 2)
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-        paragraph = document.add_paragraph("Mentor " + notas.first().anotador_dinamizador.nome + ":")
-
+        if notas.first().anotador_dinamizador:
+            paragraph = document.add_paragraph("Mentor " + notas.first().anotador_dinamizador.nome + ":")
 
     for nota in notas:
         if nota.anotador_dinamizador:
-            paragraph = document.add_paragraph("Às " + nota.hora_str() + " o dinamizador fez a seguinte nota acerca do cuidador "
-                                               + nota.cuidador.nome + ": \n" + nota.nota + ".")
+            paragraph = document.add_paragraph(
+                "Às " + nota.hora_str() + " o dinamizador fez a seguinte nota acerca do cuidador "
+                + nota.cuidador.nome + ": \n" + nota.nota + ".")
         if nota.anotador_mentor:
-            paragraph = document.add_paragraph("Às " + nota.hora_str() + " o mentor fez a seguinte nota acerca do participante "
-                                               + nota.cuidador.nome + ": \n" + nota.nota + ".")
+            paragraph = document.add_paragraph(
+                "Às " + nota.hora_str() + " o mentor fez a seguinte nota acerca do participante "
+                + nota.cuidador.nome + ": \n" + nota.nota + ".")
 
     # Assinatura
     if DinamizadorConvidado.objects.filter(user=request.user):
@@ -2236,9 +3133,8 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
         paragraph = document.add_paragraph('O mentor,')
         paragraph = document.add_paragraph(f'{request.user.username}')
 
-
     # Save the Word document
-    nome_ficheiro = 'diarioBordo'+ sessaoDoGrupo.__str__()
+    nome_ficheiro = 'diarioBordo' + sessaoDoGrupo.__str__()
     nome_ficheiro = nome_ficheiro.replace(" ", "")
     docx_path = os.path.join(os.getcwd(), f'{nome_ficheiro}.docx')
     document.save(docx_path)
@@ -2249,31 +3145,83 @@ def gera_relatorio_diario_bordo(sessaoDoGrupo, request):
     sessaoDoGrupo.diario_bordo.save(f'{nome_ficheiro}.docx', docx_data)
     sessaoDoGrupo.save()
 
+    os.remove(docx_path)
+
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Cuidador')
 def user_dashboard(request):
-
     cuidador = Cuidador.objects.filter(user=request.user).first()
-
     grupos = cuidador.grupo.all()
     sessao_grupo = SessaoDoGrupo.objects.filter(grupo=grupos.first(), estado='EC').first()
 
-    factory = qrcode.image.svg.SvgImage
-    uri = request.build_absolute_uri('zoom')
-    uri = uri.replace('abrirZ', 'z')
-    img = qrcode.make(uri, image_factory=factory, box_size=5)
-    img_pop = qrcode.make(uri, image_factory=factory, box_size=45)
-    stream = BytesIO()
-    stream_pop = BytesIO()
-    img.save(stream)
-    img_pop.save(stream_pop)
+    if sessao_grupo:
+        parte_ativa = sessao_grupo.parteGrupos.filter(concluido=False, inicio__isnull=False, fim__isnull=True).first()
+        print('Parte Ativa: ', parte_ativa)
+        print(parte_ativa.parte.questionarios.all())
+        if len(parte_ativa.parte.questionarios.all()) > 0:
+            idParte = parte_ativa.parte.id
+            idPergunta = parte_ativa.parte.questionarios.all().first().id
+            redirect_url = reverse('diario:view_abrirQuestionario', args=[idPergunta, idParte, sessao_grupo.id])
+            return redirect(redirect_url)
+
+    # factory = qrcode.image.svg.SvgImage
+    # uri = request.build_absolute_uri('zoom')
+    # uri = uri.replace('abrirZ', 'z')
+    # img = qrcode.make(uri, image_factory=factory, box_size=5)
+    # img_pop = qrcode.make(uri, image_factory=factory, box_size=45)
+    
+    # stream = BytesIO()
+    # stream_pop = BytesIO()
+    # img.save(stream)
+    # img_pop.save(stream_pop)
 
     context = {
         'grupos': grupos,
         'proxima': sessao_grupo,
         'ss': bool(sessao_grupo),
-        'svg': stream.getvalue().decode(),
-        'svg_pop': stream_pop.getvalue().decode(),
+        # 'svg': stream.getvalue().decode(),
+        # 'svg_pop': stream_pop.getvalue().decode(),
+        'grupos_permissoes_care': request.user.groups.filter(name__in=['Administrador', 'Dinamizador', 'Cuidador']),
+        'grupos_permissoes_cog': request.user.groups.filter(name__in=['Administrador', 'Mentor', 'Participante']),
+        'grupos_permissoes_eval': request.user.groups.filter(name__in=['Administrador', 'Avaliador']),
     }
 
     return render(request, "diario/user_dashboard.html", context)
+
+
+def complete_partilha(request, partilha_id):
+    partilha = Partilha.objects.get(id=partilha_id)
+    if DinamizadorConvidado.objects.filter(user=request.user):
+        partilha.partilha_dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
+    elif Mentor.objects.filter(user=request.user):
+        partilha.partilha_mentor = Mentor.objects.filter(user=request.user).first()
+    partilha.aprovada = True
+    partilha.save()
+    return JsonResponse({'message': 'Partilha completed successfully.'})
+
+
+def remove_partilha(request, partilha_id):
+    partilha = Partilha.objects.get(id=partilha_id)
+    partilha.delete()
+    return JsonResponse({'message': 'Partilha removed successfully.'})
+
+
+def colaboradores(request):
+    reference = Administrador.objects.get(user=request.user).reference
+    dinamizadores = DinamizadorConvidado.objects.filter(reference=reference)
+    mentores = Mentor.objects.filter(reference=reference)
+    avaliadores = Avaliador.objects.filter(reference=reference)
+    colaboradores = set()
+    for colaborador in dinamizadores:
+        colaboradores.add(colaborador.user)
+    for colaborador in mentores:
+        colaboradores.add(colaborador.user)
+    for colaborador in avaliadores:
+        colaboradores.add(colaborador.user)
+
+    context = {
+        'colaboradores': colaboradores,
+    }
+
+    return render(request, "diario/colaboradores.html", context)

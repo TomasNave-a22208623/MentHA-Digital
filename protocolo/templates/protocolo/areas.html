@@ -1,6 +1,6 @@
 <div class="container-fluid">
      <div style="padding:8px;">
-        <div class="card-body card-flex" style="padding: 8px">
+        <div class="card-body card-flex">
             {% include 'protocolo/tree.html' %}
             <a class="btn jq-btn mb-btn-outline btn-sm d-none d-sm-inline-block report-button"
                 role="button"
@@ -16,8 +16,20 @@
                 <table class="table my-0 table-hover-light" id="dataTable">
                     <thead>
                     <tr>
-                        <th class="m-0 fw-bold mb-text fs-4" style="text-align: left;">Áreas</th>
-                        <th class="m-0 fw-bold mb-text fs-4" style="text-align: left; padding-left: 20px">Progresso</th>
+                        <th class="m-0 fw-bold mb-text fs-4" style="text-align: left;">
+                            Áreas 
+                            {% if caderno_estimulos %}
+                                <button class="btn mb-btn-outline" style="margin-left: 15px;}">
+                                    <a href="{{ caderno_estimulos.url  }}" target="_blank" class="jq-btn">
+                                        <i class="fa-solid fa-book"></i>
+                                        <span>Caderno de Estímulos</span>
+                                    </a>
+                                </button>
+                            {% endif %}
+                        </th>
+                        <th class="m-0 fw-bold mb-text fs-4" style="text-align: left;">
+                            Progresso
+                        </th>
                     
                     </tr>
                     </thead>
@@ -29,23 +41,20 @@
                             <td style="padding: 20px 0; vertical-align: middle;">
                                 <a href="#" class="jq-btn no-decor"
                                         {% if area.name == 'Consciência, Humor e Comportamento' %}
-                                    data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id area.instrument.id patient.id %}"
+                                    data-href="{% url 'protocolo:dimensions' protocol.id part.id area.id area.instrument.id patient.id %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}"
                                             >
                                         {% elif area.name == 'Cooperação dada na entrevista' %}
                                             data-href="
-                                            {% url 'protocolo:question' protocol.id part.id area.id area.instrument.id coop.section.dimension.id coop.section.id  patient.id %}
-                                            ">
+                                            {% url 'protocolo:question' protocol.id part.id area.id area.instrument.id coop.section.dimension.id coop.section.id  patient.id %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}">
                                         {% elif area.name == 'Relação com o Avaliador' %}
                                             data-href="
-                                            {% url 'protocolo:question' protocol.id part.id area.id area.instrument.id rel.section.dimension.id rel.section.id  patient.id %}
-                                            ">
+                                            {% url 'protocolo:question' protocol.id part.id area.id area.instrument.id rel.section.dimension.id rel.section.id  patient.id %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}">
                                         {% elif area.name == 'Questionário Sociodemográfico' %}
                                             data-href="
-                                            {% url 'protocolo:question' protocol.id part.id area.id area.instrument.id qs.section.dimension.id qs.section.id  patient.id %}
-                                            ">
+                                            {% url 'protocolo:question' protocol.id part.id area.id area.instrument.id qs.section.dimension.id qs.section.id  patient.id %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}">
                                         {% else %}
                                             data-href="
-                                            {% url 'protocolo:instruments' protocol.id part.id area.id patient.id %}">
+                                            {% url 'protocolo:instruments' protocol.id part.id area.id patient.id %}{% if is_cuidador == 'is_cuidador' %}/is_cuidador{% endif %}">
                                         {% endif %}
 
                                 <button class="btn mb-btn" style="width: 50%;text-align: left;">
@@ -55,20 +64,47 @@
                             </td>
 
                             <!-- Progress Bar -->
-                            <td style="vertical-align: middle; padding: 20px 0 20px 20px;">
-                                <div class="progress" style="text-align: center; height: 39px; background-color: white; border: 1px solid lightslategrey;">
-                                    <div class="progress-bar" aria-valuenow="{{ percentage }}" aria-valuemin="0"
-                                            aria-valuemax="100" style="width: {{ percentage }}%; background-color: lightslategrey;
-                                            font-size: 16px; color: white;">
-                                        {{ percentage }}%
+                                <td style="vertical-align: middle">
+                                    <div style="display: flex; flex-direction: column; align-items: start">
+                                        {% if percentage >= 0 and percentage <= 25 %}
+                                            <div style="width: 80%; text-align: end; font-weight:bold; color: red;">
+                                                {{ percentage }}%
+                                            </div>
+                                        {% elif percentage > 25 and percentage < 50 %}
+                                            <div style="width: 80%; text-align: end; font-weight:bold; color: coral;">
+                                                {{ percentage }}%
+                                            </div>
+                                        {% elif percentage >= 50 and percentage < 75 %}
+                                            <div style="width: 80%; text-align: end; font-weight:bold; color: #DBA800;">
+                                                {{ percentage }}%
+                                            </div>
+                                        {% elif percentage >= 75 %}
+                                            <div style="width: 80%; text-align: end; font-weight:bold; color: mediumseagreen;">
+                                                {{ percentage }}%
+                                            </div>
+                                        {% endif %}
+
+                                        <div class="progress" style="display: flex; height: 10px; width: 80%;background-color: white; border: 1px solid lightslategrey">
+                                            <div class="progress-bar" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100"
+                                                 style="width: {{ percentage }}%; background-color: lightslategrey; font-size: 14px; color: white; height: 100%">
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+            <button class="btn jq-btn mb-btn-outline">
+                <a data-href="{% url 'protocolo:participant' patient.id %}" class="jq-btn">
+                    <i class="fa-solid fa-angle-left"></i>
+                    <span>Anterior</span>
+                </a>
+            </button>
         </div>
     </div> 
 </div>

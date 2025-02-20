@@ -18,6 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet"
         href="https://fonts.sandbox.google.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- bootstrap -->
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
@@ -231,7 +232,7 @@
 
 
             document.querySelector('#a-logout').onclick = () => {
-                fetch("{% url 'mentha:logout' %}")
+                fetch()
                     .then(response => response.text())
                     .then(text => {
                         // document.querySelector('#content').innerHTML = text;
@@ -248,9 +249,7 @@
 
                     });
                 return false;
-            }          
-
-            
+            }
 
             document.querySelector('.a-aplicacoes').onclick = () => {
 
@@ -461,7 +460,7 @@
 
 </head>
 
-<body>
+<body style="overflow-x: hidden">
 
     <video autoplay muted loop id="myVideo" style="transform: rotateY(180deg);">
         <source
@@ -490,10 +489,15 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent" style="margin-right:30px;">
                     <ul class="navbar-nav mb-2 mb-lg-0" style="margin-left:auto">
-                    
+ 
+                    <li>
+                        <a id='a-noticias' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Noticias</a>
+                    </li>
+                                            
                     <li class="nav-item">
                         <a aria-current="page" id='a-home' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Home</a>
                     </li>
+
                     <li class="nav-item dropdown">
                         <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Projeto
@@ -509,9 +513,7 @@
                     <li>
                         <a class="a-aplicacoes" href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Programas</a>
                     </li>
-                    <li>
-                        <a id='a-noticias' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Noticias</a>
-                    </li>
+
                     <li class="nav-item">
                         <a id='a-contacto' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Contactos</a>
                     </li>
@@ -539,7 +541,6 @@
                 
             </nav>
         </header>
-
         <article id="content">
 
             {% include 'mentha/index.html' %}
@@ -556,6 +557,9 @@
                 <a href="http://copelabs.ulusofona.pt/index.php/about/siti-in-a-nutshell" target="_blank">
                     <img src="{% static 'mentha/parceiros_sm/copelabs.jpg' %}" alt="">
                 </a>
+                <a href="https://cisis.ulusofona.pt/" target="_blank">
+                    <img src="{% static 'mentha/parceiros_sm/cisis.jpeg' %}" alt="">
+                </a>
 
             </div>
             <div class="dgs">
@@ -566,7 +570,6 @@
             </div>
             <div class="parceirosfooter">
                 <span>Parceiros:</span>
-
                 <img src="{% static 'mentha/parceiros_sm/adebe.png' %}" alt="">
 
                 <img src="{% static 'mentha/parceiros_sm/asmal_footer.png' %}" alt="">
@@ -578,6 +581,10 @@
                 <img src="{% static 'mentha/parceiros_sm/familiarmente.jpg' %}" alt="">
 
                 <img src="{% static 'mentha/parceiros_sm/gira.png' %}" alt="">
+
+                <img src="{% static 'mentha/parceiros_sm/crinabel.png' %}" alt="">
+
+                <img src="{% static 'mentha/parceiros_sm/apdp.png' %}" alt="">
             </div>
         </footer>
     </main>

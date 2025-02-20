@@ -2,6 +2,7 @@ from django.forms import ModelForm, TextInput, Textarea, Select, NumberInput, Em
     FileInput, SelectMultiple
 from .models import *
 
+
 class NotaForm(ModelForm):
     class Meta:
         model = Nota
@@ -20,6 +21,17 @@ class PartilhaForm(ModelForm):
             'ficheiro': forms.FileInput(attrs={'style': 'display:none;'}),
             'imagem': forms.FileInput(attrs={'style': 'display:none;'}),
         }
+
+# class PartilhaGrupoForm(ModelForm):
+#     class Meta:
+#         model = PartilhaGrupo
+#         fields = '__all__'
+#         widgets = {
+#             'descricao': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma partilha sobre o grupo...'}),
+#             'ficheiro': forms.FileInput(attrs={'style': 'display:none;'}),
+#             'imagem': forms.FileInput(attrs={'style': 'display:none;'}),
+#         }
+
 
 
 class InfoSensivelForm(ModelForm):
@@ -49,15 +61,11 @@ class CuidadorForm(ModelForm):
     )
 
     username = forms.CharField(max_length=100, required=True)
-    password = forms.CharField(max_length=100, required=True, widget=forms.PasswordInput())
+    password = forms.CharField(max_length=100, widget=forms.PasswordInput())
     nome = forms.CharField(max_length=100, required=True)
     sexo = forms.ChoiceField(choices=Utilizador.opSexo)
-    nacionalidade = forms.CharField(max_length=20, required=True)
-    escolaridade = forms.ChoiceField(choices=opEscolaridade)
-    referenciacao = forms.ModelChoiceField(queryset=Reference.objects.all(), required=True)
-    localizacao = forms.CharField(max_length=20, required=True)
-    email = forms.EmailField(max_length=100, required=True)
-    telemovel = forms.CharField(max_length=20, required=True)
+    email = forms.EmailField(max_length=100)
+    telemovel = forms.CharField(max_length=20)
 
     class Meta:
         model = Cuidador
@@ -69,8 +77,84 @@ class CuidadorForm(ModelForm):
                        }
             ),
         }
-        fields = ['username', 'password', 'nome', 'nascimento', 'sexo', 'email', 'nacionalidade', 'localizacao',
-                  'escolaridade', 'referenciacao', 'telemovel']
+        fields = ['username', 'nome', 'nascimento', 'sexo', 'email', 'telemovel']
+
+
+class ParticipanteForm(ModelForm):
+    opEscolaridade = (
+        ("Analfabeto(a)", "Analfabeto(a)"),
+        ("1-4", "1-4"),
+        ("5-10", "5-10"),
+        ("11+", "11+")
+    )
+    opResidencia = (
+        ("Urbana", "Urbana"),
+        ("Rural", "Rural"),
+    )
+    opSituacaoLaboral = (
+        ("Empregado(a)", "Empregado(a)"),
+        ("Desempregado(a)", "Desempregado(a)"),
+        ("Reformado(a)", "Reformado(a)"),
+        ("Doméstica", "Doméstica"),
+        ("Estudante", "Estudante"),
+    )
+    opSituacaoEconomica = (
+        ("Muito satisfatória", "Muito satisfatória"),
+        ("Satisfatória", "Satisfatória"),
+        ("Pouco satisfatória", "Pouco satisfatória"),
+        ("Nada satisfatória", "Nada satisfatória"),
+    )
+    opEstadoCivil = (
+        ("Solteiro(a)", "Solteiro(a)"),
+        ("Casado(a) ou a viver como tal", "Casado(a) ou a viver como tal"),
+        ("Viúvo(a)", "Viúvo(a)"),
+        ("Divorciado(a) ou separado(a)", "Divorciado(a) ou separado(a)"),
+    )
+    opAgregadoFamiliar = (
+        ("Vive sozinho(a)", "Vive sozinho(a)"),
+        ("Vive com o cônjuge", "Vive com o cônjuge"),
+        ("Vive com os filhos", "Vive com os filhos"),
+        ("Vive com terceiros", "Vive com terceiros"),
+        ("Vive com o cônjuge e terceiros", "Vive com o cônjuge e terceiros"),
+        ("Vive com os pais", "Vive com os pais"),
+    )
+    opEstadoSaude = (
+        ("Muito mau", "Muito mau"),
+        ("Mau", "Mau"),
+        ("Nem mau nem bom", "Nem mau nem bom"),
+        ("Bom", "Bom"),
+        ("Muito bom", "Muito bom"),
+    )
+
+    username = forms.CharField(max_length=100, required=True)
+    password = forms.CharField(max_length=100, widget=forms.PasswordInput())
+    nome = forms.CharField(max_length=100, required=True)
+    sexo = forms.ChoiceField(choices=Utilizador.opSexo)
+    nacionalidade = forms.CharField(max_length=20, required=True)
+    escolaridade = forms.ChoiceField(choices=opEscolaridade)
+    residencia = forms.ChoiceField(choices=opResidencia)
+    diagnosticos = forms.ModelMultipleChoiceField(
+        queryset=Doenca.objects.all(),
+        required=True,
+        widget=forms.CheckboxSelectMultiple  # Use CheckboxSelectMultiple widget to allow multiple choices
+    )
+    referenciacao = forms.ModelChoiceField(queryset=Reference.objects.all(), required=True)
+    localizacao = forms.CharField(max_length=20, required=True)
+    email = forms.EmailField(max_length=100)
+    telemovel = forms.CharField(max_length=20)
+
+    class Meta:
+        model = Participante
+        widgets = {
+            'nascimento': DateInput(
+                format='%Y-%m-%d',
+                attrs={'class': 'form-control', 'type': 'date',
+                       'required': 'true'
+                       }
+            ),
+        }
+        fields = ['username', 'nome', 'nascimento', 'sexo', 'email', 'nacionalidade', 'localizacao',
+                  'escolaridade', 'referenciacao', 'residencia', 'diagnosticos', 'telemovel']
 
 
 """class CuidadorUpdateForm(ModelForm):
@@ -95,16 +179,37 @@ class CuidadorForm(ModelForm):
 
 
 # NOME, TELEMOVEL E EMAIL AGORA ESTÁ EM INFO_SENSIVEL POR ISSO O FORM NAO FUNCIONA
+class ColaboradorForm(ModelForm):
+    username = forms.CharField(max_length=100, required=True)
+    password = forms.CharField(max_length=100, required=True, widget=forms.PasswordInput())
+    nome = forms.CharField(max_length=100, required=True)
+    sexo = forms.ChoiceField(choices=Utilizador.opSexo)
+    email = forms.EmailField(max_length=100)
+    telemovel = forms.CharField(max_length=20)
+
+    class Meta:
+        model = DinamizadorConvidado
+        widgets = {
+            'nascimento': DateInput(
+                format='%Y-%m-%d',
+                attrs={'class': 'form-control', 'type': 'date',
+                       'required': 'true'
+                       }
+            ),
+        }
+        fields = ['username', 'password', 'nome', 'sexo', 'nascimento', 'email', 'telemovel']
+
+
 class DinamizadorForm(ModelForm):
     username = forms.CharField(max_length=100, required=True)
     password = forms.CharField(max_length=100, required=True, widget=forms.PasswordInput())
     nome = forms.CharField(max_length=100, required=True)
     sexo = forms.ChoiceField(choices=Utilizador.opSexo)
     nacionalidade = forms.CharField(max_length=20, required=True)
-    funcao = forms.CharField(max_length=100, required=True)
-    email = forms.EmailField(max_length=100, required=True)
+    funcao = forms.CharField(max_length=100)
+    email = forms.EmailField(max_length=100)
     localizacao = forms.CharField(max_length=20, required=True)
-    telemovel = forms.CharField(max_length=20, required=True)
+    telemovel = forms.CharField(max_length=20)
 
     class Meta:
         model = DinamizadorConvidado
@@ -119,53 +224,29 @@ class DinamizadorForm(ModelForm):
         fields = ['username', 'password', 'nome', 'sexo', 'nascimento', 'nacionalidade',
                   'localizacao', 'email', 'funcao', 'telemovel']
 
-class AvaliacaoParticipanteForm(ModelForm):
-    class Meta:
-        CHOICES = (
-            (1, 1),
-            (2, 2),
-            (3, 3),
-            (4, 4),
-            (5, 5),
-        )
-        model = AvaliacaoParticipante
-        fields = {'interesse', 'comunicacao', 'iniciativa', 'satisfacao', 'humor', 'eficacia_relacional'}
-        widgets = {
-            'interesse': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
-            'comunicacao': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
-            'iniciativa': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
-            'satisfacao': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
-            'humor': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
-            'eficacia_relacional': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
-        }
 
+class MentorForm(ModelForm):
+    username = forms.CharField(max_length=100, required=True)
+    password = forms.CharField(max_length=100, required=True, widget=forms.PasswordInput())
+    nome = forms.CharField(max_length=100, required=True)
+    sexo = forms.ChoiceField(choices=Utilizador.opSexo)
+    nacionalidade = forms.CharField(max_length=20, required=True)
+    email = forms.EmailField(max_length=100)
+    localizacao = forms.CharField(max_length=20, required=True)
+    telemovel = forms.CharField(max_length=20)
 
-class AvaliacaoSessaoForm(ModelForm):
     class Meta:
-        CHOICES = (
-            (1, 1),
-            (2, 2),
-            (3, 3),
-            (4, 4),
-            (5, 5),
-        )
-        CHOICES2 = (
-            ("SIM", "Sim"),
-            ("NAO", "Não"),
-        )
-        model = AvaliacaoSessao
-        fields = {'planificacao_conteudos', 'adq_conteudos', 'adq_materiais', 'adq_tempo', 'grau_dominio',
-                  'necessidade_treino', 'apreciacao_global', 'tipo_treino_competencias'}
+        model = Mentor
         widgets = {
-            'planificacao_conteudos': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
-            'adq_conteudos': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
-            'adq_materiais': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
-            'adq_tempo': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
-            'grau_dominio': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
-            'necessidade_treino': forms.Select(choices=CHOICES2, attrs={'class': 'avaliacao_sessao'}),
-            'apreciacao_global': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
-            'tipo_treino_competencias': forms.Textarea(attrs={'rows': 1, 'cols': 29, 'class': 'avaliacao_sessao'})
+            'nascimento': DateInput(
+                format='%Y-%m-%d',
+                attrs={'class': 'form-control', 'type': 'date',
+                       'required': 'true'
+                       }
+            ),
         }
+        fields = ['username', 'password', 'nome', 'sexo', 'nascimento', 'nacionalidade',
+                  'localizacao', 'email', 'telemovel']
 
 
 class Documents_Form(ModelForm):
@@ -213,25 +294,6 @@ class PresencaForm(ModelForm):
         }
 
 
-class InformacoesForm(ModelForm):
-    class Meta:
-        model = Informacoes
-        fields = '__all__'
-        widgets = {
-            'Informacoes': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma informacao...'}),
-        }
-
-
-class PartilhaGrupoForm(ModelForm):
-    class Meta:
-        model = PartilhaGrupo
-        fields = '__all__'
-        widgets = {
-            'descricao': Textarea(attrs={'rows': 3, 'placeholder': 'Escreva uma partilha sobre o grupo...'}),
-            'ficheiro': forms.FileInput(attrs={'style': 'display:none;'}),
-            'imagem': forms.FileInput(attrs={'style': 'display:none;'}),
-        }
-
 
 class NotaGrupoForm(ModelForm):
     class Meta:
@@ -255,7 +317,6 @@ class SessaoDataForm(ModelForm):
                        }
             ),
         }
-
 
 class RespostaForm_RespostaEscrita(ModelForm):
     class Meta:
@@ -334,3 +395,53 @@ class RespostaForm_RespostaSubmetida_Dinamizador(ModelForm):
             #     'class': 'form-control',
             #     }),
         }
+
+
+class AvaliacaoParticipanteForm(ModelForm):
+    class Meta:
+        CHOICES = (
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (4, 4),
+            (5, 5),
+        )
+        model = AvaliacaoParticipante
+        fields = {'interesse', 'comunicacao', 'iniciativa', 'satisfacao', 'humor', 'eficacia_relacional'}
+        widgets = {
+            'interesse': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
+            'comunicacao': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
+            'iniciativa': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
+            'satisfacao': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
+            'humor': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
+            'eficacia_relacional': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_participante'}),
+        }
+
+
+class AvaliacaoSessaoForm(ModelForm):
+    class Meta:
+        CHOICES = (
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (4, 4),
+            (5, 5),
+        )
+        CHOICES2 = (
+            ("SIM", "Sim"),
+            ("NAO", "Não"),
+        )
+        model = AvaliacaoSessao
+        fields = {'planificacao_conteudos', 'adq_conteudos', 'adq_materiais', 'adq_tempo', 'grau_dominio',
+                  'necessidade_treino', 'apreciacao_global', 'tipo_treino_competencias'}
+        widgets = {
+            'planificacao_conteudos': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
+            'adq_conteudos': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
+            'adq_materiais': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
+            'adq_tempo': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
+            'grau_dominio': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
+            'necessidade_treino': forms.Select(choices=CHOICES2, attrs={'class': 'avaliacao_sessao'}),
+            'apreciacao_global': forms.Select(choices=CHOICES, attrs={'class': 'avaliacao_sessao'}),
+            'tipo_treino_competencias': forms.Textarea(attrs={'rows': 1, 'cols': 29, 'class': 'avaliacao_sessao'})
+        }
+

@@ -94,11 +94,14 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'mentha',
+        'USER': 'leda',
+        'PASSWORD': 'AiraeZeech6Bis',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -149,6 +152,7 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = 'static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -187,3 +191,12 @@ MARKDOWNIFY = {
 }
 
 ASGI_APPLICATION = "config.asgi.application"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True # Your email address
+EMAIL_HOST_USER = 'info.methadigital@gmail.com'
+EMAIL_HOST_PASSWORD = 'ndxwpwdjpxggvjta'  # usar uma google app password
+USE_L10N = False
+DECIMAL_SEPARATOR = '.'

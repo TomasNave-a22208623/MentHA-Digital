@@ -17,18 +17,18 @@
                 <table class="table">
                     <tbody>
                         <tr>
-                            <td rowspan="4" class="align-content-center align-middle" style="width: 15%">
+                            <td rowspan="4" class="align-content-center align-middle" style="width: 0%">
                                 <!-- Imagem -->
                                 {% if cuidador.imagem %}
-                                    <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
-                                        src="{{ cuidador.imagem.url }}" width="200px"
-                                        height="200px"
-                                        style="margin-left: auto;margin-right: auto;display: block;">
+                                    <div class="circle-image">
+                                        <img src="{{ cuidador.imagem.url }}"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
                                 {% else %}
-                                    <img class="rounded-circle img-fluid d-xl-flex justify-content-center align-items-center align-content-center align-self-center justify-content-xl-center align-items-xl-center"
-                                        src="{% static 'protocolo/img/placeholder-avatar.png' %}" width="200px"
-                                        height="200px"
-                                        style="margin-left: auto;margin-right: auto;display: block;">
+                                    <div class="circle-image">
+                                        <img src="{% static 'protocolo/img/placeholder-avatar.png' %}"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
                                 {% endif %}
                             </td>
                             <td class="text-start" style="text-align:center; width: 25%">
@@ -90,7 +90,13 @@
                                     {{ cuidador.sexo }}
                                 </p>
                             </td>
-                            <td></td>
+
+                            <td>
+                                <!-- Escolaridade -->
+                                <label class="form-label" style="margin: 0px;">Escolaridade</label>
+                                <b>{{ cuidador.escolaridade }}</b>
+                            </td>
+
                             <td>
                                 <!-- Cuidadores -->
                                 <label class="form-label">Paciente(es)</label>
@@ -113,7 +119,15 @@
                                     {{ cuidador.nacionalidade }}
                                 </p>
                             </td>
-                            <td></td>
+
+                            <td>
+                                <!-- Localizacao -->
+                                <label class="form-label">Localização</label>
+                                <p style="color: var(--bs-gray-dark);padding-top: 0px;margin-top: -10px;font-weight: bold">
+                                    {{ cuidador.localizacao }}
+                                </p>
+                            </td>
+
                             <td>
                                 <!-- Grupo COG dos pacientes-->
                                 <label class="form-label">Grupo COG do(s) paciente(es)</label>

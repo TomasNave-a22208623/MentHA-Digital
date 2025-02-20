@@ -70,9 +70,15 @@
                         </button>
                     </a>
 
-                    <button class="btn mb-btn" style="" type="submit">
-                        <i class="fa fa-check"></i>&nbsp; Submeter
-                    </button>
+                    {% if grupos_permissoes.exists %}
+                        <button hidden class="btn mb-btn" style="" type="submit">
+                            <i class="fa fa-check"></i>&nbsp; Submeter
+                        </button>
+                    {% else %}
+                        <button class="btn mb-btn" style="" type="submit">
+                            <i class="fa fa-check"></i>&nbsp; Submeter
+                        </button>
+                    {% endif %}
                 </div>
             </div>
             </form>

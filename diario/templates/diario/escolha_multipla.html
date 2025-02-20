@@ -1,8 +1,8 @@
 {% load markdownify %}
     {% csrf_token %}
-    <div class="flex-container flex-item padding-top-25" style="flex-direction: row;">
+    <div class="flex-container flex-item padding-top-25" style="flex-direction: row;flex-wrap:wrap;">
             {% for opcao in pergunta.opcoes.all %}
-                <div class="card" style="width: 10rem;">
+                <div class="card" style="max-width:6rem;height:13rem;">
                 <img  src="{{ opcao.imagem.imagem.url }}" class="card-img-top imagem-escolha-multipla" alt="{{ opcao.imagem.nome }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ opcao.resposta}}</h5>
