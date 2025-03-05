@@ -15,6 +15,7 @@ from .forms import *
 from diario.models import *
 import json
 import os
+import csv
 
 
 # Other Imports
@@ -4089,3 +4090,225 @@ def profile_cuidador_view(request, cuidador_id):
                'pergunta_soc': pergunta_soc,
                }
     return render(request, 'protocolo/profile_cuidador.html', context)
+
+
+
+#-------------------------------------------------------------------------------------------------------------------#
+#           
+#                 ======================( View export_risk_to_csv )======================
+#
+#    Ultima Alteração: 2025-02-06
+#
+#    Descrição:
+#        Essa função é usada para gerar um csv e exporta-lo. Este csv contem por linha:
+#        - participante
+#        - e os dados relativos ao questionário Risk mais recente feito pelo participante.
+#    
+#        O csv é gerado com o nome "relatorio_risk.csv" e é baixado automaticamente.
+#       
+#    Módulo: `Protocolo MentHA (MentHA EVAL)`
+#    Relacionado com: `templates/......`
+#     
+#    Observações:
+#        - Sempre que forem feitas alterações aos tipos de campos , 
+#        mudanças de campos obrigatorios, restrições dos campos do questionário Risk , 
+#        consequentemente também na Classe Risk, tem de ser alteradas as verificações nesta função, 
+#        se não os dados exportados para o csv vão estar incoerentes e errados para futuras possiveis analises
+#           
+#--------------------------------------------------------------------------------------------------------------------
+
+@login_required(login_url='login')
+def export_risk_to_csv(request):
+    response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
+    response['Content-Disposition'] = 'attachment; filename="relatorio_risk.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        'Participante','Data Questionario' , 'Hora Questionario' , 'Sexo', 'Idade', 'Peso', 'Altura', 'IMC', 'Pressão Arterial', 
+        'Colesterol Total', 'Colesterol HDL', 'Colesterol Não HDL', 'Hemoglobina Gliciada', 
+        'EAG HBA1', 'IFCC HBA1', 'NGSP HBA1', 'Horas Jejum', 'Doença Cognitiva', 'Pré-Diabetico', 
+        'Pergunta Cardiovascular', 'Fumador', 'Diabetes', 'Anos de Diabetes', 'AVC', 'Enfarte', 
+        'Doença nos Rins', 'Doença nas Pernas', 'Hipercolesterol','TG', 'LDL', 'CHOL-HDL', 'Batimentos', 'Pressão Arterial Diastólica', 
+        'Risco de Enfarte', 'Pat ID', 'Pat ID V2'
+    ])    #retiramos campos comentarios e recomendacoes pois para a analise de dados nao sao necessarios
+
+
+    for participante in Participante.objects.all():
+        partes = ParteDoUtilizador.objects.filter(participante=participante, part__name='MentHA-Risk').order_by('-data', '-time').first()
+        if partes:
+            try:
+                risk = partes.risk
+
+                if risk.altura != 0:
+                    altura = risk.altura 
+                else :
+                    altura = 'null'
+
+                if risk.horas_jejum!= 0:
+                    horas_jejum = risk.horas_jejum
+                else :
+                    horas_jejum = 'null'
+
+                if risk.pressao_arterial_diastolica != 0:
+                    pressao_arterial_diastolica = risk.pressao_arterial_diastolica
+                else:
+                    pressao_arterial_diastolica = 'null'
+            
+                if risk.pressao_arterial != 0:
+                    pressao_arterial = risk.pressao_arterial
+                else:
+                    pressao_arterial ='null'
+
+                if risk.colestrol_total != 0:
+                    colestrol_total = risk.colestrol_total
+                else:
+                    colestrol_total= 'null'
+            
+                if risk.tg != 0:
+                    tg = risk.tg
+                else:
+                    tg = 'null'
+
+                if risk.ldl != 0:
+                    ldl = risk.ldl
+                else:
+                    ldl = 'null'
+
+                if risk.cholhdl != 0:
+                    cholhdl = risk.cholhdl
+                else:
+                    cholhdl = 'null'
+
+                if risk.ifcc_hba1 != 0:
+                    ifcc_hba1 = risk.ifcc_hba1
+                else:
+                    ifcc_hba1 = 'null'
+                
+                if risk.ngsp_hba1 != 0:
+                    ngsp_hba1 = risk.ngsp_hba1
+                else:
+                    ngsp_hba1 ='null'  
+
+                if risk.eag_hba1 != 0:
+                    eag_hba1 = risk.eag_hba1
+                else:
+                    eag_hba1 = 'null'
+
+                if risk.batimentos != 0:
+                    batimentos = risk.batimentos
+                else:
+                    batimentos = 'null'
+                
+                if risk.colestrol_hdl != 0:
+                    colestrol_hdl = risk.colestrol_hdl
+                else:
+                    colestrol_hdl = 'null'
+                
+                if risk.colestrol_nao_hdl != 1:
+                    colestrol_nao_hdl = risk.colestrol_nao_hdl
+                else:
+                    colestrol_nao_hdl = 'null'
+                                
+                if risk.anos_diabetes != 0:
+                    anos_diabetes = risk.anos_diabetes
+                else:
+                    anos_diabetes = 'null'
+
+                if risk.pat_id != 'PID00000':
+                    pat_id = risk.pat_id
+                else:
+                    pat_id = 'null'
+                
+                if risk.pat_id_v2 != 'PID00000':
+                    pat_id_v2 = risk.pat_id_v2
+                else:
+                    pat_id_v2 = 'null'
+
+            
+                writer.writerow([participante.nome, 
+                             partes.data,
+                             partes.time,
+                             risk.sexo,
+                             risk.idade,
+                             risk.peso,
+                             altura,
+                             risk.imc,
+                             pressao_arterial,
+                             colestrol_total,
+                             colestrol_hdl,
+                             colestrol_nao_hdl,
+                             risk.hemoglobina_gliciada,
+                             eag_hba1,
+                             ifcc_hba1,
+                             ngsp_hba1,
+                             horas_jejum,
+                             risk.doenca_cognitiva,
+                             risk.pre_diabetico,
+                             risk.pergunta_cardiovascular,
+                             risk.fumador,
+                             risk.diabetes,
+                             anos_diabetes,
+                             risk.avc,
+                             risk.enfarte,
+                             risk.doenca_rins,
+                             risk.doenca_pernas,
+                             risk.hipercolestrol,
+                             tg,
+                             ldl,
+                             cholhdl,
+                             batimentos,
+                             pressao_arterial_diastolica,
+                             risk.risco_de_enfarte,
+                             pat_id,
+                             pat_id_v2])
+
+
+            except ParteDoUtilizador.risk.RelatedObjectDoesNotExist:
+                # Caso não exista relação entre um risk e o utilizador, preenche com valores padrão
+                writer.writerow([participante.nome] + ['risk nao associado'] * 39)  
+                continue  # Pula para o próximo participante
+
+
+        else:
+            # Caso não tenha avaliação 'Risk', preenche com valores padrão
+            writer.writerow([participante.nome,
+                            'null',  # Data Questionario
+                            'null',  # Hora Questionario
+                            'null',  # Sexo
+                            'null',  # Idade
+                            'null',  # Peso
+                            'null',  # Altura
+                            'null',  # IMC
+                            'null',  # Pressão Arterial
+                            'null',  # Colesterol Total
+                            'null',  # Colesterol HDL
+                            'null',  # Colesterol Não HDL
+                            'null',  # Hemoglobina Gliciada
+                            'null',  # EAG HBA1
+                            'null',  # IFCC HBA1
+                            'null',  # NGSP HBA1
+                            'null',  # Horas Jejum
+                            'null',  # Doença Cognitiva
+                            'null',  # Pré-Diabetico
+                            'null',  # Pergunta Cardiovascular
+                            'null',  # Fumador
+                            'null',  # Diabetes
+                            'null',  # Anos de Diabetes
+                            'null',  # AVC
+                            'null',  # Enfarte
+                            'null',  # Doença nos Rins
+                            'null',  # Doença nas Pernas
+                            'null',  # Hipercolesterol
+                            'null',  # Comentários
+                            'null',  # Comentários 2
+                            'null',  # Recomendações
+                            'null',  # TG
+                            'null',  # LDL
+                            'null',  # CHOL-HDL
+                            'null'  # Batimentos
+                            'null',  # Pressão Arterial Diastólica
+                            'null',  # Risco de Enfarte
+                            'null',  # Pat ID
+                            'null'])  # Pat ID V2
+
+    return response
