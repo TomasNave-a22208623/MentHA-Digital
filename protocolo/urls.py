@@ -69,4 +69,5 @@ urlpatterns = [
                     name="gds-overview"),
                 path('colaboradores', views.colaboradores_view, name="colaboradores"),
                 path('profile_cuidador/<int:cuidador_id>/', views.profile_cuidador_view, name="profile_cuidador"),
+                path('exportar_risk/', views.export_risk_to_csv, name='export_risk_to_csv'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
