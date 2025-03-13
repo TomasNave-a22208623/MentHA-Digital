@@ -388,6 +388,36 @@ def parte_ativa(request, sg_id):
     return render(request, 'diario/parte_ativa.html', contexto)
 
 
+
+
+#-------------------------------------------------------------------------------------------------------------------#
+#           
+#                 ======================( View new_group )======================
+#
+#    Última Alteração: 2025-03-13
+#
+#    Descrição:
+#        Essa função é usada para criar um novo grupo, associando cuidadores ou participantes, dependendo do programa
+#        selecionado (CARE ou COG). Permite que dinamizadores, mentores ou administradores criem o grupo e associem
+#        membros a ele, além de criar sessões e partes do grupo.
+#
+#        O grupo é salvo com informações como referenciação, localização e escolaridade mais frequente, e as sessões
+#        correspondentes são criadas automaticamente.
+#       
+#    Módulo: `Protocolo MentHA (MentHA COG e MentHA CARE)`
+#    Relacionado com: `templates/diario/new_group_remake.html`
+#
+#    Observações:
+#        - Sempre que forem feitas alterações nos modelos de `Cuidador`, `Participante`, `Grupo` ou `Sessão`,
+#          esta função deve ser atualizada para garantir que a lógica de associação de membros e criação de sessões
+#          funcione corretamente.
+#        - A lógica de filtragem para participantes e cuidadores depende de campos como `doenças`, `localização`,
+#          `escolaridade` e `referenciação`. Qualquer alteração nesses campos pode afetar os filtros.
+#        - O formulário `GrupoForm` deve ser compatível com os campos necessários para criar o grupo.
+#
+#--------------------------------------------------------------------------------------------------------------------
+
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def new_group(request):
@@ -455,8 +485,10 @@ def new_group(request):
     }
 
     selecoes = {}
-
+    #-----------------------------------------------------Verifica se o formulario foi preenchido-------------------------------------------------
     if request.POST:
+        #-----------------------------------Verificações de campos obrigatorios-----------------------------------
+        #[Se verificar cria o grupo e sessões]
         if len(request.POST.get('nome')) > 0:
             g = Grupo(
                 nome=request.POST.get('nome'),
@@ -507,9 +539,10 @@ def new_group(request):
             mentor.grupo.add(g)
             mentor.save()
         
-        return redirect('diario:dashboard_Care')
+        return redirect('diario:dashboard_Care') # O utilizador submete o formulário (POST), mas o form não é válido 
 
-
+    #-----------------------------------------------------Utilizador abre a Página de Formulario--------------------------------------------------
+    #Envia Campos necessarios para o formulario de criação de grupo
     contexto = {
         'tem_proxima': tem_proxima,
         'grupos': Grupo.objects.all(),
