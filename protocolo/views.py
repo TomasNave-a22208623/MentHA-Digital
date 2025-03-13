@@ -4124,7 +4124,7 @@ def export_risk_to_csv(request):
 
     writer = csv.writer(response)
     writer.writerow([
-        'Participante','Data Questionario' , 'Hora Questionario' , 'Sexo', 'Idade', 'Peso', 'Altura', 'IMC', 'Pressão Arterial', 
+        'Instituição','Participante','Data Questionario' , 'Hora Questionario' , 'Sexo', 'Idade', 'Peso', 'Altura', 'IMC', 'Pressão Arterial', 
         'Colesterol Total', 'Colesterol HDL', 'Colesterol Não HDL', 'Hemoglobina Gliciada', 
         'EAG HBA1', 'IFCC HBA1', 'NGSP HBA1', 'Horas Jejum', 'Doença Cognitiva', 'Pré-Diabetico', 
         'Pergunta Cardiovascular', 'Fumador', 'Diabetes', 'Anos de Diabetes', 'AVC', 'Enfarte', 
@@ -4134,7 +4134,9 @@ def export_risk_to_csv(request):
 
 
     for participante in Participante.objects.all():
+        instituicao = participante.referenciacao if participante.referenciacao else 'Instituicao nao Associada'  # Caso não tenha instituição
         partes = ParteDoUtilizador.objects.filter(participante=participante, part__name='MentHA-Risk').order_by('-data', '-time').first()
+        
         if partes:
             try:
                 risk = partes.risk
@@ -4225,7 +4227,9 @@ def export_risk_to_csv(request):
                     pat_id_v2 = 'null'
 
             
-                writer.writerow([participante.nome, 
+                writer.writerow([ 
+                             participante.nome,
+                             instituicao,
                              partes.data,
                              partes.time,
                              risk.sexo,
@@ -4265,7 +4269,7 @@ def export_risk_to_csv(request):
 
             except ParteDoUtilizador.risk.RelatedObjectDoesNotExist:
                 # Caso não exista relação entre um risk e o utilizador, preenche com valores padrão
-                writer.writerow([participante.nome] + ['risk nao associado'] * 39)  
+                writer.writerow([participante.nome, instituicao] + ['risk nao associado'] * 39)  
                 continue  # Pula para o próximo participante
 
 
