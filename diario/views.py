@@ -439,8 +439,9 @@ def new_group(request):
     if administrador:
         referenciacao = administrador.reference
 
+    # Cria uma instância do formulário GrupoForm. Caso não haja dados POST, o formulário será vazio.
     formGrupo = GrupoForm(request.POST or None)
-    if formGrupo.is_valid():
+    if formGrupo.is_valid(): # Verifica se foi preenchido corretamente.
         formGrupo.save()
         if formGrupo.programa == "COG":
             flag = "cog"
@@ -541,8 +542,8 @@ def new_group(request):
         
         return redirect('diario:dashboard_Care') # O utilizador submete o formulário (POST), mas o form não é válido 
 
-    #-----------------------------------------------------Utilizador abre a Página de Formulario--------------------------------------------------
-    #Envia Campos necessarios para o formulario de criação de grupo
+    
+    # Dados necessarios para mostrar no template + form
     contexto = {
         'tem_proxima': tem_proxima,
         'grupos': Grupo.objects.all(),
