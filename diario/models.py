@@ -237,11 +237,8 @@ class Grupo(models.Model):
     def calcular_gds_medio(self):
         if self.programa == 'COG':
             gds_values = [p.nivel_gds for p in self.participantes.all() if p.nivel_gds is not None]
-        elif self.programa == 'CARE':
-            gds_values = [c.nivel_gds for c in self.cuidadores.all() if c.nivel_gds is not None]
-
-        if gds_values:
-            return sum(gds_values) / len(gds_values)
+            if gds_values:
+                return sum(gds_values) / len(gds_values)       
         return 0
 
 
