@@ -433,6 +433,11 @@ position: relative;
     max-width: 120ch;
 }
 
+.container-fluid-c{
+    max-width: 120ch;
+}
+
+
 .sidebar .nav-links a {
     height: 100%;
     width: 100%;

@@ -262,19 +262,22 @@ class Documents_Form(ModelForm):
 
 
 class GrupoForm(ModelForm):
+    nome = forms.CharField(max_length=50, required=True)
+    localizacao = forms.CharField(max_length=20, required=False)
+    escolaridade = forms.ChoiceField(choices=Grupo.opEscolaridade, required=False)
+    referenciacao = forms.ModelChoiceField(queryset=Reference.objects.all(), required=False)
+    programa = forms.ChoiceField(choices=Grupo.opPrograma, required=False)
+
     class Meta:
         model = Grupo
-        fields = '__all__'
+        fields = ['nome', 'localizacao', 'escolaridade', 'referenciacao', 'programa']
         widgets = {
             'nome': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva o nome do Grupo ...'}),
-            'diagnostico': TextInput(
-                attrs={'class': 'form-control', 'placeholder': 'Escreva o diagnostico do Grupo ...'}),
             'localizacao': TextInput(attrs={'class': 'form-control', 'placeholder': 'Escreva a Localização ...'}),
             'escolaridade': Select(attrs={'class': 'form-control'}),
             'referenciacao': Select(attrs={'class': 'form-control'}),
             'programa': Select(attrs={'class': 'form-control'}),
         }
-
 
 class RespostasForm(ModelForm):
     class Meta:
