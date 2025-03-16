@@ -425,31 +425,21 @@ def new_group(request):
     tem_proxima, datas = get_proxima_sessao(grupos)
     flag = None
     referenciacao = None
+    formGrupo = GrupoForm(request.POST or None)
 
+    # Obter dados do utilizador
     dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
     mentor = Mentor.objects.filter(user=request.user).first()
     administrador = Administrador.objects.filter(user=request.user).first()
 
     if dinamizador:
         referenciacao = dinamizador.reference
-
-    if mentor:
+    elif mentor:
         referenciacao = mentor.reference
-
-    if administrador:
+    elif administrador:
         referenciacao = administrador.reference
 
-    # Cria uma instância do formulário GrupoForm. Caso não haja dados POST, o formulário será vazio.
-    formGrupo = GrupoForm(request.POST or None)
-    if formGrupo.is_valid(): # Verifica se foi preenchido corretamente.
-        formGrupo.save()
-        if formGrupo.programa == "COG":
-            flag = "cog"
-        elif formGrupo.programa == "CARE":
-            flag = "care"
-        return HttpResponseRedirect(reverse('diario:dashboard_Care', flag))
-
-    # Obter campos para filtar por (CARE)
+    # Obter campos para filtrar por (CARE)
     cuidadores = Cuidador.objects.all()
     filtrados_care = cuidadores.filter(grupo=None)
 
@@ -472,12 +462,7 @@ def new_group(request):
     for participante in participantes:
         conjunto_doencas.update(participante.diagnosticos.all())
 
-    # conjunto_referencias = set()
-    # for participante in participantes:
-    #     conjunto_referencias.update(set(cuidador.obter_reference))
-
     lista_pesquisa_participantes = {
-        # 'Diagnósticos': list(dict.fromkeys({diagnostico for diagnostico in participante.diagnosticos.all() for participante in participantes})),
         'Diagnósticos': conjunto_doencas,
         'Localizações': list(dict.fromkeys({participante.localizacao for participante in participantes if participante.localizacao and len(participante.localizacao) > 1})),
         'Escolaridades': list(dict.fromkeys({participante.escolaridade for participante in participantes})),
@@ -485,65 +470,72 @@ def new_group(request):
         'GDS': list(dict.fromkeys({participante.nivel_gds for participante in participantes})),
     }
 
-    selecoes = {}
-    #-----------------------------------------------------Verifica se o formulario foi preenchido-------------------------------------------------
-    if request.POST:
-        #-----------------------------------Verificações de campos obrigatorios-----------------------------------
-        #[Se verificar cria o grupo e sessões]
-        if len(request.POST.get('nome')) > 0:
-            g = Grupo(
-                nome=request.POST.get('nome'),
-                programa=request.POST.get('programa'),
-            )
-            g.save()
-            if request.POST.get('programa') == 'CARE':
-                for id in request.POST.get('participantes').split(','):
+    formGrupo = GrupoForm(request.POST or None)
+
+    if formGrupo.is_valid():
+        print("Formulário válido")
+        # Salve o formulário sem persistir os campos ManyToMany
+        g = formGrupo.save(commit=False)
+    
+        # Defina o campo 'referenciacao'
+        g.referenciacao = referenciacao
+        
+        # Salve o objeto no banco de dados
+        g.save()
+        
+        # Agora busque novamente o objeto do banco de dados (usando o ID)
+        g = Grupo.objects.get(id=g.id)
+        
+        # Atribua os campos ManyToMany (localizacao, escolaridade, etc.)
+        g.localizacao = g.localizacao_most_frequent
+        g.escolaridade = g.escolaridade_most_frequent
+        
+        # Atualize outros campos conforme necessário
+        g.nivelGDS = g.calcular_gds_medio
+        
+        # Salve novamente após atualizar os campos ManyToMany
+        g.save()
+
+        # Assign participants or caregivers to the group
+        participantes_ids = request.POST.get('participantes', '').split(',')
+        if g.programa == 'CARE':
+            for id in participantes_ids:
+                if id:
                     c = Cuidador.objects.get(id=id)
                     g.cuidadores.add(c)
-
-            elif request.POST.get('programa') == 'COG':
-                for id in request.POST.get('participantes').split(','):
+        elif g.programa == 'COG':
+            for id in participantes_ids:
+                if id:
                     p = Participante.objects.get(id=id)
                     g.participantes.add(p)
             g.save()
 
-            g.referenciacao = referenciacao
-
-            g.localizacao = g.localizacao_most_frequent
-            g.escolaridade = g.escolaridade_most_frequent
-            g.save()
-
-            # Criar as partes e sessoes para este grupo
-            for sessao in Sessao.objects.filter(programa=g.programa).all():
-                sessao_grupo = SessaoDoGrupo(grupo=g, sessao=sessao)
-                sessao_grupo.save()
-                if g.programa == 'CARE':
-                    for parte in sessao.partes.all():
-                        parte_grupo = ParteGrupo.objects.create(
-                            sessaoGrupo=sessao_grupo,
-                            parte=parte
-                        )
-                        parte_grupo.save()
-                elif g.programa == 'COG':
-                    for exercicio in sessao.exercicios.all():
-                        parte_grupo = ParteGrupo.objects.create(
-                            sessaoGrupo=sessao_grupo,
-                            exercicio=exercicio
-                        )
-                        parte_grupo.save()
-        
+        # Assign the group to the current user if they are a dinamizador or mentor
         if dinamizador:
             dinamizador.grupo.add(g)
             dinamizador.save()
-
         if mentor:
             mentor.grupo.add(g)
             mentor.save()
-        
-        return redirect('diario:dashboard_Care') # O utilizador submete o formulário (POST), mas o form não é válido 
 
+        # Create sessions and parts for the group
+        for sessao in Sessao.objects.filter(programa=g.programa):
+            sessao_grupo = SessaoDoGrupo(grupo=g, sessao=sessao)
+            sessao_grupo.save()
+            if g.programa == 'CARE':
+                for parte in sessao.partes.all():
+                    ParteGrupo.objects.create(sessaoGrupo=sessao_grupo, parte=parte)
+            elif g.programa == 'COG':
+                for exercicio in sessao.exercicios.all():
+                    ParteGrupo.objects.create(sessaoGrupo=sessao_grupo, exercicio=exercicio)
+
+        if g.programa == "COG":
+            flag = "cog"
+        elif g.programa == "CARE":
+            flag = "care"
+            
+        return HttpResponseRedirect(reverse('diario:dashboard_Care', args=[flag]))
     
-    # Dados necessarios para mostrar no template + form
     contexto = {
         'tem_proxima': tem_proxima,
         'grupos': Grupo.objects.all(),
@@ -554,10 +546,10 @@ def new_group(request):
         'lista_pesquisa_participantes': lista_pesquisa_participantes,
         'filtrados_care': filtrados_care,
         'filtrados_cog': filtrados_cog,
-        'selecoes': selecoes,
         'grupos_permissoes_care': request.user.groups.filter(name__in=['Administrador', 'Mentor']),
         'grupos_permissoes_cog': request.user.groups.filter(name__in=['Administrador', 'Dinamizador']),
     }
+
     return render(request, 'diario/new_group_remake.html', contexto)
 
 

@@ -10,7 +10,7 @@
 
 
     <div id="wrapper" style="padding-top:15px;width:100%">
-        <div class="container-fluid card" style="width:75%">
+        <div id="escolhas" class="container-fluid card" style="width:75%">
             <div class="card-body" style="padding: 8px">
                 <p class="m-0 fw-bold"
                    style="margin: 5px; font-size: 26px; color:#4EB4BE">Criar Novo Grupo
@@ -19,11 +19,11 @@
                 <div class="flex-container" style="flex-direction: row; justify-content: space-between;">
                     <div style="width:45%">
                         <label for="nome">Nome:</label>
-                        <input type="text" name="nome" class="form-control">
+                        <input type="text" id="nome" name="nome" class="form-control" onchange="verificaNome()">
                     </div>
                     <div style="width:45%">
                         <label for="programa">Programa: </label>
-                        <select class="form-control" onchange="atualiza_filtros(), atualiza_candidatos()"
+                        <select class="form-control" onchange="verificaPrograma()" name="programa" id="programa">
                                 name="programa"
                                 id="programa">
                             <option selected disabled value="">Escolha o programa</option>
@@ -102,7 +102,7 @@
             </div>
         </div>
 
-        <div class="container-fluid card" style="margin-top:15px;width:75%;display:none">
+        <div id="candidatos" class="container-fluid card" style="margin-top:15px;width:75%;display:none">
             <div class="card-body" style="padding: 8px">
 
                 <p class="m-0 fw-bold"
@@ -121,7 +121,7 @@
 
             </div>
         </div>
-        <div class="container-fluid card" style="width: 20%;float:right; border: none">
+        <div id="cancelar" class="container-fluid card" style="width: 20%;float:right; border: none">
             <button class="btn mb-btn" onclick="history.back();"
                     style="padding-left: 10px;padding-right: 10px;margin-right: 20px">
                 <i class="fa-solid fa-times"></i> Cancelar
