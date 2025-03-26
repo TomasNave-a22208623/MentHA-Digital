@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-na$-w8_c3tft+qg_btbia6x^p2z@-d(8d(a*qrhwaq3d%lfxl8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1','jupiter.ulusofona.pt', 'menthadigital.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1','0.0.0.0','jupiter.ulusofona.pt', 'menthadigital.com']
 
 import os
 
@@ -92,12 +92,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+from dotenv import load_dotenv
+
+# Carrega as variáveis do .env
+load_dotenv()
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': os.getenv('POSTGRES_PORT'),
     }
 }
+
+
 
 
 # Password validation

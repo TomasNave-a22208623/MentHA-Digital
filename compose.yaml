@@ -1,0 +1,37 @@
+services:
+  dbpostgresql:
+    image: postgres:12.9
+    container_name: dbpostgresql
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    networks:
+      - mentha_network
+
+  dbpostgresql_init:
+    image: postgres:12.9
+    container_name: dbpostgresql_init
+    command: psql -h dbpostgresql -d mentha -U leda -f dump_file.sql 
+    volumes:
+      - ./dump_file.sql:/dump_file.sql
+    env_file:
+      - .env
+    networks:
+      - mentha_network
+    depends_on:
+      dbpostgresql:
+        condition: service_started
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    networks:
+      - mentha_network
+    depends_on:
+      dbpostgresql:
+        condition: service_started
+
+networks:
+  mentha_network:
+    driver: bridge
