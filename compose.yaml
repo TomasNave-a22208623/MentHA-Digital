@@ -28,6 +28,8 @@ services:
       - "8000:8000"
     networks:
       - mentha_network
+    env_file:
+      - .env
     depends_on:
       dbpostgresql:
         condition: service_started
