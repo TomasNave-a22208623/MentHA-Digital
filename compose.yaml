@@ -27,21 +27,26 @@ services:
     networks:
       - mentha_network
     depends_on:
-      - dbpostgresql
+      dbpostgresql:
+        condition: service_healthy
 
   web:
     build: .
     container_name: django_web
     ports:
       - "8000:8000"
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/code
+      - .:/app
     env_file:
       - .env
     networks:
       - mentha_network
     depends_on:
-      - dbpostgresql
+      dbpostgresql:
+        condition: service_healthy
+      dbpostgresql_init:
+        condition: service_started
 
 networks:
   mentha_network:
