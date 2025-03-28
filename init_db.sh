@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/bash -e
+
 set -e
 
 until psql -h dbpostgresql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c '\q'; do

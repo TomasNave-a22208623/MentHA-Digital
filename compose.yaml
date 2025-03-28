@@ -20,8 +20,8 @@ services:
     image: postgres:12.9
     container_name: dbpostgresql_init
     volumes:
-      - ./dump_file.sql:/dump_file.sql
       - ./init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
+      - ./dump_file.sql:/dump_file.sql
     env_file:
       - .env
     networks:
