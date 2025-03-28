@@ -6,34 +6,46 @@ services:
       - .env
     ports:
       - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - mentha_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   dbpostgresql_init:
     image: postgres:12.9
     container_name: dbpostgresql_init
-    command: psql -h dbpostgresql -d mentha -U leda -f dump_file.sql 
     volumes:
       - ./dump_file.sql:/dump_file.sql
+      - ./init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
     env_file:
       - .env
     networks:
       - mentha_network
     depends_on:
-      dbpostgresql:
-        condition: service_started
+      - dbpostgresql
+
   web:
     build: .
+    container_name: django_web
     ports:
       - "8000:8000"
-    networks:
-      - mentha_network
+    volumes:
+      - .:/code
     env_file:
       - .env
+    networks:
+      - mentha_network
     depends_on:
-      dbpostgresql:
-        condition: service_started
+      - dbpostgresql
 
 networks:
   mentha_network:
     driver: bridge
+
+volumes:
+  postgres_data:
