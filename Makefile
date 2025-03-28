@@ -1,5 +1,5 @@
 start_no_cache:
-	docker compose up --no-deps --build 
+	docker compose up --build --force-recreate
 
 start:
 	docker compose up
