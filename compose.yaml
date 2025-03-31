@@ -20,7 +20,6 @@ services:
     image: postgres:12.9
     container_name: dbpostgresql_init
     volumes:
-      - ./init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
       - ./dump_file.sql:/dump_file.sql
     env_file:
       - .env
@@ -29,6 +28,12 @@ services:
     depends_on:
       dbpostgresql:
         condition: service_healthy
+    command: >
+      bash -c '
+      PGPASSWORD=$POSTGRES_PASSWORD psql -h dbpostgresql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = '\''public'\'' AND table_name = '\''diario_cuidador'\'');" -t | grep -q f &&
+      PGPASSWORD=$POSTGRES_PASSWORD psql -h dbpostgresql -U $POSTGRES_USER -d $POSTGRES_DB -f /dump_file.sql ||
+      echo "Database already initialized, skipping dump"
+      '
 
   web:
     build: .
