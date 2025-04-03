@@ -19,21 +19,19 @@ services:
   dbpostgresql_init:
     image: postgres:12.9
     container_name: dbpostgresql_init
+    command: psql -h dbpostgresql -d mentha -U leda -f dump_file.sql 
     volumes:
       - ./dump_file.sql:/dump_file.sql
+    environment:
+      PGPASSWORD: AiraeZeech6Bis
     env_file:
       - .env
     networks:
       - mentha_network
     depends_on:
       dbpostgresql:
-        condition: service_healthy
-    command: >
-      bash -c '
-      PGPASSWORD=$POSTGRES_PASSWORD psql -h dbpostgresql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = '\''public'\'' AND table_name = '\''diario_cuidador'\'');" -t | grep -q f &&
-      PGPASSWORD=$POSTGRES_PASSWORD psql -h dbpostgresql -U $POSTGRES_USER -d $POSTGRES_DB -f /dump_file.sql ||
-      echo "Database already initialized, skipping dump"
-      '
+        condition: service_started
+    
 
   web:
     build: .
