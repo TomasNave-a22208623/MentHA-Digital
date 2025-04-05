@@ -1,4 +1,4 @@
-# 🧠 MentHA – Guia de Execução e Desenvolvimento
+# 🧠 MentHA – Guia de Instalação e Execução 
 
 ## 🔧 Requisitos de Software
 
