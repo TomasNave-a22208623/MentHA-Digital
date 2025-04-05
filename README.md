@@ -67,3 +67,23 @@ Serviço principal da aplicação Django.
 Constrói a imagem com base no Dockerfile, instala as dependências (via pip), executa as migrações e inicia o servidor de desenvolvimento.
 Inclui as três apps: diario, mentha e protocolo.
 
+---
+
+## 🔄 Configurar Projeto Localmente com Docker Compose
+
+### 1. Clonar o Repositório
+
+```git clone <link_do_repositorio>```
+
+```cd <diretorio_do_projeto>```
+
+```code .```
+
+![image](https://github.com/user-attachments/assets/f491478c-76ff-4fb3-a57e-04256f589e29)
+
+### 2. Preparar os Ficheiros
+
+Certifique-se de que está presente:
+•	docker-compose.yml
+•	dump_file.sql
+
