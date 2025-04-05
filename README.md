@@ -80,11 +80,27 @@ Inclui as três apps: diario, mentha e protocolo.
 - ```code .```
 
 ![image](https://github.com/user-attachments/assets/f491478c-76ff-4fb3-a57e-04256f589e29)
+
 ### 2. Preparar os Ficheiros
 Certifique-se de que está presente:
 -	docker-compose.yml
 - dump_file.sql
+- 
 ### 3. Criar Ficheiros `.env`
+Colocar no ficheiro estas informações:
+```
+POSTGRES_USER=leda
+POSTGRES_PASSWORD=AiraeZeech6Bis
+POSTGRES_DB=mentha
+
+PGUSER=leda
+PGPASSWORD=AiraeZeech6Bis
+PGDB=mentha
+
+POSTGRES_HOST=dbpostgresql
+POSTGRES_PORT=5432
+```
+![image](https://github.com/user-attachments/assets/434e44ea-11b4-4b21-826f-99aa77b982b1)
 
 
 
