@@ -87,3 +87,5 @@ Certifique-se de que está presente:
 -	docker-compose.yml
 - dump_file.sql
 
+### 3. Criar Ficheiros `.env`
+
