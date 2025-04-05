@@ -73,17 +73,18 @@ Inclui as três apps: diario, mentha e protocolo.
 
 ### 1. Clonar o Repositório
 
-```git clone <link_do_repositorio>```
+- ```git clone <link_do_repositorio>```
 
-```cd <diretorio_do_projeto>```
+- ```cd <diretorio_do_projeto>```
 
-```code .```
+- ```code .```
 
 ![image](https://github.com/user-attachments/assets/f491478c-76ff-4fb3-a57e-04256f589e29)
 
 ### 2. Preparar os Ficheiros
 
 Certifique-se de que está presente:
-•	docker-compose.yml
-•	dump_file.sql
+
+-	docker-compose.yml
+- dump_file.sql
 
