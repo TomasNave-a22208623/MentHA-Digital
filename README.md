@@ -1,129 +1,170 @@
-# protocolo_de_avaliacao
+🧠 MentHA – Guia de Execução e Desenvolvimento
 
-📝 Ficheiro de Bugs
-======
-https://shorturl.at/qAJN8
+🔧 Requisitos de Software
+•	Python 3.11 ou superior
+•	Docker e Docker Compose instalados
+•	Git instalado
+•	Sistema operativo: Linux, macOS ou Windows
+________________________________________
+🏗️Arquitetura Geral do Projeto
+O projeto consiste num website construído com Django, que integra três aplicações distintas:
+•	diario/: Aplicação responsável pelo registo de atividades (integra MentHA COG e MentHA CARE).
+•	mentha/: Website principal do projeto MentHA.
+•	protocolo/: Aplicação dedicada à avaliação neuropsicológica (MentHA EVAL – "Protocolo MentHA").
+Diretório principal:
+/raiz_do_projeto
+│-- diario/              # Aplicação MentHA COG e CARE
+│-- mentha/              # Website MentHA
+│-- protocolo/           # Protocolo MentHA EVAL
+│-- manage.py
+│-- requirements.txt     # Dependências do projeto Python
+│-- compose.yml          # Configuração do Docker Compose
+│-- Dockerfile           # Instruções de build da imagem da aplicação
+│-- dump_file.sql        # Script de importação inicial da base de dados
+│-- .env                 # Variáveis de ambiente (DB, Django, etc.)
+Base de Dados
+A base de dados utilizada é PostgreSQL, gerida por meio de um container Docker.
+Na primeira execução, é automaticamente carregado um ficheiro dump_file.sql com dados previamente definidos, garantindo que o projeto arranca com uma base de dados populada e funcional.
 
-⚙️ Requisitios
-======
-1. Python 3.10 ou superior
-
-🔧 Deployment
-======
-1. Abrir o cmd
-2. Fazer cd para o dir onde está o "requirements.txt"
-3. Correr o comando "pip install -r requirements.txt"
-4. Fazer cd para o dir onde está o manage.py
-5. Correr o comando "py manage.py runserver"
-6. Abrir http://127.0.0.1:8000/ no browser
-7. Fazer login com as credenciais user:"superuser" pw:"super123"
-
-🔌 Sockets
-======
-(Se o requirements.txt não estiver atualizado)
-Se os sockets não estiverem instalados corretamente, quando um dinamizador muda o exercício partilhado, a aplicação não vai ser atualizada no ecrã dos participantes.
-Para isso precisamos de uma versão específica do package 'channels'
-```
-pip install channels==3.0.5
-```
-📶 Acesso Online
-======
-
-1. Abrir o Link https://menthadigital.com/
-2. Fazer login com as credenciais user:"superuser" pw:"super123"
-
-🔖 Acesso à VM
-======
-
-#### acesso
-
-acesso ao servidor onde está o menthadigital.com:
-* dns: jupiter.ulusofona.pt
-* ip: 193.137.75.199
-* ports: 80[http],443[https],8822[ssh]
-* user: ***
-* password: ***
-
-#### usar Putty
-
-passos:
-1. fazer push para o master no gitHub
-2. login no servidor
-3. fazer pull
-4. fazer source/env/bin/activate
-    * makemigrations
-    * migrate
-5. sudo systemctl restart gunicorn
-6. login a psql com admin da máquina (leda)
-
-#### psql 
-
-https://stackoverflow.com/questions/12720967/how-can-i-change-a-postgresql-user-password
-
-manipular base de dados:
-* sudo -u postgres psql
-* postgres=# create database mydb;
-* postgres=# create user myuser with encrypted password 'mypass';
-* postgres=# grant all privileges on database mydb to myuser;
+________________________________________
+⚙️ Serviços Docker Compose
+A aplicação é orquestrada com Docker Compose, permitindo levantar todos os componentes do projeto com um único comando. Este sistema garante que os serviços necessários são iniciados na ordem correta e com as dependências satisfeitas.
+Funções principais do Docker Compose no projeto:
+1.	Inicia e configura a base de dados PostgreSQL com persistência de dados.
+2.	Executa um script SQL inicial (dump_file.sql) para carregar dados base na primeira execução.
+3.	Constrói a imagem da aplicação Django, instala dependências, aplica migrações e lança o servidor.
+4.	Garante a ordem de arranque correta entre os serviços (ex: o servidor Django só arranca após a base de dados estar disponível).
+Serviços definidos:
+•	dbpostgresql
+Executa o container oficial do PostgreSQL, com base nas variáveis de ambiente definidas no .env.
+Um volume persistente (postgres_data) assegura que os dados são mantidos entre reinícios.
+•	dbpostgresql_init
+Container temporário responsável por importar o ficheiro dump_file.sql com dados iniciais para a base de dados.
+Este serviço depende do dbpostgresql e apenas é executado após a base de dados estar operacional.
+•	web
+Serviço principal da aplicação Django.
+Constrói a imagem com base no Dockerfile, instala as dependências (via pip), executa as migrações e inicia o servidor de desenvolvimento.
+Inclui as três apps: diario, mentha e protocolo.
 
 
-🔖 Logs
+________________________________________
+🔄 Configurar Projeto Localmente com Docker Compose
+1. Clonar o Repositório
+git clone <link_do_repositorio>
+cd <diretorio_do_projeto>
+code .
+ 
+2. Preparar os Ficheiros
+Certifique-se de que está presente:
+•	docker-compose.yml
+•	dump_file.sql
+3. Criar Ficheiros .env
+Colocar no ficheiro estas informações:
+POSTGRES_USER=leda
+POSTGRES_PASSWORD=AiraeZeech6Bis
+POSTGRES_DB=mentha
 
+PGUSER=leda
+PGPASSWORD=AiraeZeech6Bis
+PGDB=mentha
+
+POSTGRES_HOST=dbpostgresql
+POSTGRES_PORT=5432
+ 
+4. Inicializar os Serviços pela Primeira Vez (um a um)
+Este passo é necessário apenas uma vez, para criar e preparar os serviços. Esta configuração inicial faz o seguinte:
+•	Cria os containers necessários (base de dados, app Django)
+•	Importa os dados iniciais da base de dados (dump_file.sql)
+•	Inicia o servidor de desenvolvimento Django com as aplicações integradas
+de dados , exportados os dados do ficheiro dump_file.sql e iniciado o projeto django localmente
+a) Iniciar a base de dados
+docker-compose up dbpostgresql
+ 
+Isto vai criar e executar o container da base de dados PostgreSQL. Os dados são armazenados num volume persistente (chamado postgres_data), que garante que a base de dados mantém a sua informação mesmo após paragens ou reinícios do container.
+b) Importar ficheiro SQL
+docker-compose up dbpostgresql_init
+ 
+Este é um container temporário que se liga ao container da base de dados e importa o conteúdo do dump_file.sql. Este passo só é necessário na primeira execução do projeto ou caso se deseje resetar a base de dados.
+
+c) Iniciar a aplicação Django
+docker-compose up web
+ 
+Este serviço constrói a imagem da aplicação Django, instala as dependências, aplica migrações e inicia o servidor de desenvolvimento. Inclui as apps diario, mentha e protocolo.
+d) Verificar conteiners
+No Docker desktop verificar se todos os conteiners foram criados , e verificar se os conteiners dbpostgresql e Web estão ativos
+ 
+O container dbpostgresql_init é temporário e termina automaticamente após importar os dados.
+e) Verificar volume
+•	O volume postgres_data pode ser visualizado no Docker Desktop (seção "Volumes").
+•	Este volume guarda todos os dados da base de dados PostgreSQL e não é apagado ao parar os containers, garantindo persistência entre sessões.
+
+ 
+f) Abrir a aplicação no browser
+ 
+Trocar o http por : localhost:8000
+ 
+Login:
+Username: superuser
+Password: superMentHA
+5. Inicializar Todos os Serviços de Uma Vez
+Este passo deve ser efetuado sempre para inicializar o website, após a primeira vez que se faça o passo 4, o passo 4 nunca mais volta a ser preciso ser efetuado.
+Sempre que se quiser inicializar o website faz -se:
+docker-compose up
+Este comando levanta todos os serviços de forma automática: base de dados e aplicação Django. A importação do dump_file.sql não será repetida, pois o container dbpostgresql_init apenas corre uma vez.
+6. Observação
+O serviço web está configurado para atualizar ao serem feitas alterações no código, ou seja ao serem feitas alterações ao código basta fazer refresh na pagina.
+7. Comandos Úteis Adicionais (para Desenvolvimento)
+-Reiniciar Tudo com Build (força nova instalação de dependências, útil após editar o Dockerfile ou requirements.txt)
+docker-compose up –build
+- Limpar Recursos Docker Não Utilizados
+docker system prune -a
+Este comando:
+•	Remove todos os containers parados
+•	Remove todas as imagens não utilizadas (não referenciadas por nenhum container ativo)
+•	Remove volumes não utilizados
+•	Liberta espaço em disco
+Uso recomendado:
+•	Quando estás com problemas de espaço
+•	Quando queres limpar completamente o ambiente Docker
+•	Após muitos testes e builds antigos
+
+________________________________________
+🚀 Deploy no Servidor (Produção)
+Acesso à VM
+•	DNS: jupiter.ulusofona.pt
+•	IP: 193.137.75.199
+•	Portas: 80 (http), 443 (https), 8822 (ssh)
+•	Login via SSH com Putty ou terminal
+Passos para Deploy
+1.	Fazer push para a branch master no GitHub
+2.	Aceder à VM via SSH
+3.	Fazer pull do código:
+git pull origin master
+4.	Ativar o ambiente virtual:
+source env/bin/activate
+5.	Migrar a base de dados:
+python manage.py makemigrations
+python manage.py migrate
+6.	Reiniciar o servidor:
+sudo systemctl restart gunicorn
+Logs do Servidor
 sudo systemctl status gunicorn
+________________________________________
+🌐 Acesso Online (Versão Produção)
+Site: https://menthadigital.com/
+Credenciais:
+Username: superuser
+Password: super123
+________________________________________
+🌱Workflow de Git
+No relatório de TFC de 2025/2026 está presente um capítulo que explica o que workflow que adotamos no git. Este workflow é baseado no método usado em empresas em projetos grandes para evitar problemas de controlo de versões. É recomendada a leitura deste capítulo e utilização deste workflow.
+________________________________________
+📄 Documentação
+No relatório de TFC de 2025/2026 está presente um capítulo que explica o estilo de documentação utilizado. É recomendado a continuidade de utilização deste estilo de documentação , visto que ajuda bastante no desenvolvimento do projeto.
+________________________________________
+📝 Observações Importantes
+•	Ficheiro requirements.txt:
+Todas as bibliotecas Python utilizadas no projeto devem estar listadas neste ficheiro. Sempre que uma nova biblioteca for instalada (ex: via pip install), é obrigatório atualizar o requirements.txt.
+Isto garante que o ambiente de produção, bem como qualquer outro ambiente de desenvolvimento, possa instalar exatamente as mesmas dependências do projeto original.
+________________________________________
 
-
-
-🔖 Passar DB para PSQL
-======
-
-1. Se quisermos importar dados da bd antiga em sqlite, temos de exportar a bd em UTF-8, senão vai dar erro de encoding,  para isso fazemos: 
-```
-python manage.py -Xutf8 dumpdata > <nome_ficheiro>.json
-```
-2. Instalar psycogpg2 (package adaptador de PostgreSQL para Django)
-```
-pip install psycopg2
-```
-3. Editar a variável DATABASES no settings.py para:
-```
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': ‘<nome_bd>’,
-        'USER': '<username_bd>',
-        'PASSWORD': '<password>',
-        'HOST': '<ip_bd>',
-        'PORT': '<port_bd>',
-    }
-}
-```
-4. Como demos expor da bd em UTF-8 vamos ter caracteres estranhos no lugar de de caracteres portuguêses.
-5. Para corrigir todos os caracteres errados em todos os modelos da bd, fazemos um dicionario onde metemos como chave o char errado e como valor char correto
-6. Para isto usamos tb smart_str() para dar para correr em linux senão vai dar erro de encoding
-```
-from django.utils.encoding import smart_str
-
-char_map = {
-    smart_str("<char_errado>", encoding='utf-8', strings_only=True, errors='strict'): smart_str("<char_correto>", encoding='utf-8', strings_only=True, errors='strict'),
-}
-```
-7. Depois definimos uma função para substituir esses caracteres num texto recebido
-```
-def replace_chr(text):
-    if text is not None:
-        smart_txt = smart_str(text, encoding='utf-8', strings_only=True, errors='strict')
-        for incorrect_char, correct_char in char_map.items():
-            smart_txt = text.replace(incorrect_char, correct_char)
-        return smart_txt
-    return text 
-```
-8. Executar o environment e abrir a python shell
-```
-source bin/activate
-python manage.py shell
-```
-9. Importar o que for necessário (onde está a funçao decode() e executá-la) p.ex, se a funçao estiver no views.py:
-```
-from mentha.views import * 
-decode()
-```
