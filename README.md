@@ -73,7 +73,7 @@ Inclui as três apps: diario, mentha e protocolo.
 
 ### 1. Clonar o Repositório
 
-- ```git clone <link_do_repositorio>```
+- ```git clone [<link_do_repositorio>](https://github.com/MentHA-ULHT/mentha_digital/)```
 
 - ```cd <diretorio_do_projeto>```
 
