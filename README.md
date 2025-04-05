@@ -85,7 +85,7 @@ Inclui as três apps: diario, mentha e protocolo.
 Certifique-se de que está presente:
 -	docker-compose.yml
 - dump_file.sql
-- 
+
 ### 3. Criar Ficheiros `.env`
 Colocar no ficheiro estas informações:
 ```
@@ -102,6 +102,16 @@ POSTGRES_PORT=5432
 ```
 ![image](https://github.com/user-attachments/assets/434e44ea-11b4-4b21-826f-99aa77b982b1)
 
+### 4. Inicializar os Serviços pela Primeira Vez (um a um)
+Este passo é necessário apenas uma vez, para criar e preparar os serviços. Esta configuração inicial faz o seguinte:
+- Cria os containers necessários (base de dados, app Django)
+- Importa os dados iniciais da base de dados (dump_file.sql)
+- Inicia o servidor de desenvolvimento Django com as aplicações integradas
+#### a) Iniciar a base de dados
+```docker-compose up dbpostgresql```
+![image](https://github.com/user-attachments/assets/68ef3362-7c83-468d-873e-6915df994ace)
+
+Isto vai criar e executar o container da base de dados PostgreSQL. Os dados são armazenados num volume persistente (chamado postgres_data), que garante que a base de dados mantém a sua informação mesmo após paragens ou reinícios do container.
 
 
 
