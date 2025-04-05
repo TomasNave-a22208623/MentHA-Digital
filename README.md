@@ -125,7 +125,7 @@ Isto vai criar e executar o container da base de dados PostgreSQL. Os dados são
 
 ![image](https://github.com/user-attachments/assets/9d7f9a1b-7915-4581-810c-824a6f4abddb)
 
-Este é um container temporário que se liga ao container da base de dados e importa o conteúdo do dump_file.sql. Este passo só é necessário na primeira execução do projeto ou caso se deseje resetar a base de dados.
+Este é um container temporário que se liga ao container da base de dados e importa o conteúdo do dump_file.sql. Este passo só é necessário na primeira execução do projeto ou caso queira se dar reset à base de dados.
 
 #### c) Iniciar a aplicação Django
 ```docker compose up web```
@@ -177,7 +177,7 @@ Este comando levanta todos os serviços de forma automática: base de dados e ap
 
 ### 6. Observação
 
-O serviço web está configurado para atualizar ao serem feitas alterações no código, ou seja ao serem feitas alterações ao código basta fazer refresh na pagina.
+O serviço web está configurado para atualizar ao serem feitas alterações no código, ou seja ao serem feitas alterações ao código basta fazer refresh na página.
 
 ---
 
@@ -247,7 +247,7 @@ Credenciais:
 
 ## 🌱 Workflow de Git
 
-No relatório de TFC de 2025/2026 está presente um capítulo que explica o que workflow que adotamos no git. Este workflow é baseado no método usado em empresas em projetos grandes para evitar problemas de controlo de versões. É recomendada a leitura deste capítulo e utilização deste workflow.
+No relatório de TFC de 2025/2026 está presente um capítulo que explica o que workflow que adotamos no git. Este workflow é baseado no método usado em empresas com projetos grandes para evitar problemas de controlo de versões. É recomendada a leitura deste capítulo e utilização deste workflow.
 
 ---
 
