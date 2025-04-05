@@ -257,7 +257,7 @@ No relatório de TFC de 2025/2026 está presente um capítulo que explica o esti
 
 ---
 
-## Observações Importantes
+## 📝 Observações Importantes
 
 ### Ficheiro requirements.txt:
 
