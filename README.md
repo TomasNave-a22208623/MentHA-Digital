@@ -71,6 +71,8 @@ Inclui as três apps: diario, mentha e protocolo.
 
 ## 🔄 Configurar Projeto Localmente com Docker Compose
 
+--
+
 ### 1. Clonar o Repositório
 
 - ```git clone <link_do_repositorio>```
@@ -81,10 +83,14 @@ Inclui as três apps: diario, mentha e protocolo.
 
 ![image](https://github.com/user-attachments/assets/f491478c-76ff-4fb3-a57e-04256f589e29)
 
+--
+
 ### 2. Preparar os Ficheiros
 Certifique-se de que está presente:
 -	docker-compose.yml
 - dump_file.sql
+
+--
 
 ### 3. Criar Ficheiros `.env`
 Colocar no ficheiro estas informações:
@@ -102,17 +108,69 @@ POSTGRES_PORT=5432
 ```
 ![image](https://github.com/user-attachments/assets/434e44ea-11b4-4b21-826f-99aa77b982b1)
 
+--
+
 ### 4. Inicializar os Serviços pela Primeira Vez (um a um)
 Este passo é necessário apenas uma vez, para criar e preparar os serviços. Esta configuração inicial faz o seguinte:
 - Cria os containers necessários (base de dados, app Django)
 - Importa os dados iniciais da base de dados (dump_file.sql)
 - Inicia o servidor de desenvolvimento Django com as aplicações integradas
 #### a) Iniciar a base de dados
-```docker-compose up dbpostgresql```
+```docker compose up dbpostgresql```
 
 ![image](https://github.com/user-attachments/assets/68ef3362-7c83-468d-873e-6915df994ace)
 
 Isto vai criar e executar o container da base de dados PostgreSQL. Os dados são armazenados num volume persistente (chamado postgres_data), que garante que a base de dados mantém a sua informação mesmo após paragens ou reinícios do container.
+
+#### b) Importar ficheiro SQL
+```docker compose up dbpostgresql_init```
+
+![image](https://github.com/user-attachments/assets/9d7f9a1b-7915-4581-810c-824a6f4abddb)
+
+Este é um container temporário que se liga ao container da base de dados e importa o conteúdo do dump_file.sql. Este passo só é necessário na primeira execução do projeto ou caso se deseje resetar a base de dados.
+
+#### c) Iniciar a aplicação Django
+```docker compose up web```
+
+![image](https://github.com/user-attachments/assets/feaade1e-94e6-4a5b-88eb-d6ff4a0bba11)
+
+Este serviço constrói a imagem da aplicação Django, instala as dependências, aplica migrações e inicia o servidor de desenvolvimento. Inclui as apps diario, mentha e protocolo.
+
+#### d) Verificar conteiners
+No Docker desktop verificar se todos os conteiners foram criados , e verificar se os conteiners dbpostgresql e Web estão ativos
+
+![image](https://github.com/user-attachments/assets/4a840f02-9d1d-48d2-947c-c9b35582d980)
+
+O container dbpostgresql_init é temporário e termina automaticamente após importar os dados.
+
+#### e) Verificar volume
+
+- O volume postgres_data pode ser visualizado no Docker Desktop (seção "Volumes").
+- Este volume guarda todos os dados da base de dados PostgreSQL e não é apagado ao parar os containers, garantindo persistência entre sessões.
+
+![image](https://github.com/user-attachments/assets/86a4d558-572c-4447-88fa-8aaf4a9e8438)
+
+
+#### f) Abrir a aplicação no browser
+
+![image](https://github.com/user-attachments/assets/c41c7772-3730-4933-baf7-3c4e4f41ec6a)
+
+Trocar o http por : localhost:8000
+
+![image](https://github.com/user-attachments/assets/e4855d2a-4c9b-4064-ba5c-03c63462dcfa)
+
+Login:
+- Username: superuser
+- Password: superMentHA
+
+--
+
+### 5. Inicializar Todos os Serviços de Uma Vez
+
+
+
+
+
 
 
 
