@@ -80,13 +80,12 @@ Inclui as três apps: diario, mentha e protocolo.
 - ```code .```
 
 ![image](https://github.com/user-attachments/assets/f491478c-76ff-4fb3-a57e-04256f589e29)
-
 ### 2. Preparar os Ficheiros
 Certifique-se de que está presente:
 -	docker-compose.yml
 - dump_file.sql
-
 ### 3. Criar Ficheiros `.env`
+
 
 
 
