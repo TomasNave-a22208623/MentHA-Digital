@@ -19,7 +19,16 @@ O projeto consiste num website construído com Django, que integra três aplica�
 
 ### Diretório principal:
 ```
-/raiz_do_projeto ├── diario/ # Aplicação MentHA COG e CARE ├── mentha/ # Website MentHA ├── protocolo/ # Protocolo MentHA EVAL ├── manage.py ├── requirements.txt # Dependências do projeto Python ├── compose.yml # Configuração do Docker Compose ├── Dockerfile # Instruções de build da imagem da aplicação ├── dump_file.sql # Script de importação inicial da base de dados └── .env # Variáveis de ambiente (DB, Django, etc.)
+/raiz_do_projeto
+├── diario/ # Aplicação MentHA COG e CARE
+├── mentha/ # Website MentHA
+├── protocolo/ # Protocolo MentHA EVAL
+├── manage.py
+├── requirements.txt # Dependências do projeto Python
+├── compose.yml # Configuração do Docker Compose
+├── Dockerfile # Instruções de build da imagem da aplicação
+├── dump_file.sql # Script de importação inicial da base de dados
+└── .env # Variáveis de ambiente (DB, Django, etc.)
 ```
 
 ### Base de Dados:
