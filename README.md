@@ -109,6 +109,7 @@ Este passo é necessário apenas uma vez, para criar e preparar os serviços. Es
 - Inicia o servidor de desenvolvimento Django com as aplicações integradas
 #### a) Iniciar a base de dados
 ```docker-compose up dbpostgresql```
+
 ![image](https://github.com/user-attachments/assets/68ef3362-7c83-468d-873e-6915df994ace)
 
 Isto vai criar e executar o container da base de dados PostgreSQL. Os dados são armazenados num volume persistente (chamado postgres_data), que garante que a base de dados mantém a sua informação mesmo após paragens ou reinícios do container.
