@@ -84,7 +84,6 @@ Inclui as três apps: diario, mentha e protocolo.
 ### 2. Preparar os Ficheiros
 
 Certifique-se de que está presente:
-
 -	docker-compose.yml
 - dump_file.sql
 
