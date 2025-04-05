@@ -158,17 +158,111 @@ Trocar o http por : localhost:8000
 ![image](https://github.com/user-attachments/assets/e4855d2a-4c9b-4064-ba5c-03c63462dcfa)
 
 Login:
-- Username: superuser
-- Password: superMentHA
+- Username: Ver no Grupo do WhatsApp
+- Password: Ver no Grupo do WhatsApp
 
 ---
 
 ### 5. Inicializar Todos os Serviços de Uma Vez
 
+Este passo deve ser efetuado sempre para inicializar o website, após a primeira vez que se faça o passo 4, o passo 4 nunca mais volta a ser preciso ser efetuado.
 
+Sempre que se quiser inicializar o website faz -se:
 
+```docker-compose up```
 
+Este comando levanta todos os serviços de forma automática: base de dados e aplicação Django. A importação do dump_file.sql não será repetida, pois o container dbpostgresql_init apenas corre uma vez.
 
+---
 
+### 6. Observação
 
+O serviço web está configurado para atualizar ao serem feitas alterações no código, ou seja ao serem feitas alterações ao código basta fazer refresh na pagina.
+
+### 7. Comandos Úteis Adicionais (para Desenvolvimento)
+
+#### Reiniciar Tudo com Build (força nova instalação de dependências, útil após editar o Dockerfile ou requirements.txt)
+
+```docker-compose up –build```
+
+#### Limpar Recursos Docker Não Utilizados
+
+```docker system prune -a```
+
+Este comando:
+
+- Remove todos os containers parados
+- Remove todas as imagens não utilizadas (não referenciadas por nenhum container ativo)
+- Remove volumes não utilizados
+- Liberta espaço em disco
+
+Uso recomendado:
+
+-	Quando estás com problemas de espaço
+-	Quando queres limpar completamente o ambiente Docker
+-	Após muitos testes e builds antigos
+
+--- 
+
+## 🚀 Deploy no Servidor (Produção)
+
+### Acesso à VM
+
+* DNS: jupiter.ulusofona.pt
+* IP: 193.137.75.199
+* Portas: 80 (http), 443 (https), 8822 (ssh)
+* user: ***
+* password: ***
+
+### Passos para Deploy
+
+1.	Fazer push para a branch master no GitHub
+2.	Aceder à VM via SSH
+3.	Fazer pull do código:
+```git pull origin master```
+4.	Ativar o ambiente virtual:
+```source env/bin/activate```
+5.	Migrar a base de dados:
+```
+python manage.py makemigrations
+python manage.py migrate
+```
+6.	Reiniciar o servidor:
+```sudo systemctl restart gunicorn```
+
+---
+
+## 🌐 Acesso Online (Versão Produção)
+
+Site: https://menthadigital.com/
+
+Credenciais:
+
+- Username: Ver no Grupo do WhatsApp
+- Password: Ver no Grupo do WhatsApp
+
+---
+
+## 🌱 Workflow de Git
+
+No relatório de TFC de 2025/2026 está presente um capítulo que explica o que workflow que adotamos no git. Este workflow é baseado no método usado em empresas em projetos grandes para evitar problemas de controlo de versões. É recomendada a leitura deste capítulo e utilização deste workflow.
+
+---
+
+## 📄 Documentação
+
+No relatório de TFC de 2025/2026 está presente um capítulo que explica o estilo de documentação utilizado. É recomendado a continuidade de utilização deste estilo de documentação, visto que ajuda bastante no desenvolvimento do projeto.
+
+---
+
+## Observações Importantes
+
+### Ficheiro requirements.txt:
+
+Todas as bibliotecas Python utilizadas no projeto devem estar listadas neste ficheiro. Sempre que uma nova biblioteca for instalada (ex: via pip install), é obrigatório atualizar o requirements.txt.
+Isto garante que o ambiente de produção, bem como qualquer outro ambiente de desenvolvimento, possa instalar exatamente as mesmas dependências do projeto original.
+
+### Alterações gerais ao projeto:
+
+Sempre que forem feitas alteracoes que influenciem este processo de instalação local do projeto , deploy para o servidor , alterações da arquitetura geral do projeto e tecnologias utilizadas este ficheiro deve ser atualizado , para dessa forma o guia de instalação ficar em conformidade com o estado atual do projeto.
 
