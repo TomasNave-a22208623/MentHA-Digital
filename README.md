@@ -52,9 +52,11 @@ A aplicação é orquestrada com Docker Compose, permitindo levantar todos os co
 •	dbpostgresql
 Executa o container oficial do PostgreSQL, com base nas variáveis de ambiente definidas no .env.
 Um volume persistente (postgres_data) assegura que os dados são mantidos entre reinícios.
+
 •	dbpostgresql_init
 Container temporário responsável por importar o ficheiro dump_file.sql com dados iniciais para a base de dados.
 Este serviço depende do dbpostgresql e apenas é executado após a base de dados estar operacional.
+
 •	web
 Serviço principal da aplicação Django.
 Constrói a imagem com base no Dockerfile, instala as dependências (via pip), executa as migrações e inicia o servidor de desenvolvimento.
