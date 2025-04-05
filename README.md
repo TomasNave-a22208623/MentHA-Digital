@@ -179,6 +179,8 @@ Este comando levanta todos os serviços de forma automática: base de dados e ap
 
 O serviço web está configurado para atualizar ao serem feitas alterações no código, ou seja ao serem feitas alterações ao código basta fazer refresh na pagina.
 
+---
+
 ### 7. Comandos Úteis Adicionais (para Desenvolvimento)
 
 #### Reiniciar Tudo com Build (força nova instalação de dependências, útil após editar o Dockerfile ou requirements.txt)
