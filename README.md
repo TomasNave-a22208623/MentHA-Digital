@@ -71,8 +71,6 @@ Inclui as três apps: diario, mentha e protocolo.
 
 ## 🔄 Configurar Projeto Localmente com Docker Compose
 
---
-
 ### 1. Clonar o Repositório
 
 - ```git clone <link_do_repositorio>```
@@ -83,14 +81,14 @@ Inclui as três apps: diario, mentha e protocolo.
 
 ![image](https://github.com/user-attachments/assets/f491478c-76ff-4fb3-a57e-04256f589e29)
 
---
+---
 
 ### 2. Preparar os Ficheiros
 Certifique-se de que está presente:
 -	docker-compose.yml
 - dump_file.sql
 
---
+---
 
 ### 3. Criar Ficheiros `.env`
 Colocar no ficheiro estas informações:
@@ -108,7 +106,7 @@ POSTGRES_PORT=5432
 ```
 ![image](https://github.com/user-attachments/assets/434e44ea-11b4-4b21-826f-99aa77b982b1)
 
---
+---
 
 ### 4. Inicializar os Serviços pela Primeira Vez (um a um)
 Este passo é necessário apenas uma vez, para criar e preparar os serviços. Esta configuração inicial faz o seguinte:
@@ -163,7 +161,7 @@ Login:
 - Username: superuser
 - Password: superMentHA
 
---
+---
 
 ### 5. Inicializar Todos os Serviços de Uma Vez
 
