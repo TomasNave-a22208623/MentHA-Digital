@@ -33,7 +33,7 @@ O projeto consiste num website construído com Django, que integra três aplica�
 
 ### Base de Dados:
 
-A base de dados utilizada é PostgreSQL, gerida por meio de um container Docker.
+A base de dados utilizada é PostgreSQL, gerida por um container Docker.
 Na primeira execução, é automaticamente carregado um ficheiro dump_file.sql com dados previamente definidos, garantindo que o projeto arranca com uma base de dados populada e funcional.
 
 ---
