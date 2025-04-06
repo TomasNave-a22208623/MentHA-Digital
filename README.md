@@ -247,13 +247,13 @@ Credenciais:
 
 ## 🌱 Workflow de Git
 
-No relatório de TFC de 2025/2026 está presente um capítulo que explica o que workflow que adotamos no git. Este workflow é baseado no método usado em empresas com projetos grandes para evitar problemas de controlo de versões. É recomendada a leitura deste capítulo e utilização deste workflow.
+No relatório de TFC de 2024/2025 está presente um capítulo que explica o que workflow que adotamos no git. Este workflow é baseado no método usado em empresas com projetos grandes para evitar problemas de controlo de versões. É recomendada a leitura deste capítulo e utilização deste workflow.
 
 ---
 
 ## 📄 Documentação
 
-No relatório de TFC de 2025/2026 está presente um capítulo que explica o estilo de documentação utilizado. É recomendado a continuidade de utilização deste estilo de documentação, visto que ajuda bastante no desenvolvimento do projeto.
+No relatório de TFC de 2024/2025 está presente um capítulo que explica o estilo de documentação utilizado. É recomendado a continuidade de utilização deste estilo de documentação, visto que ajuda bastante no desenvolvimento do projeto.
 
 ---
 
