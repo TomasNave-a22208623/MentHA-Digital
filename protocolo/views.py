@@ -4135,184 +4135,185 @@ def export_risk_to_csv(request):
 
     for participante in Participante.objects.all():
         instituicao = participante.referenciacao if participante.referenciacao else 'Instituicao nao Associada'  # Caso não tenha instituição
-        partes = ParteDoUtilizador.objects.filter(participante=participante, part__name='MentHA-Risk').order_by('-data', '-time').first()
+        for partes in ParteDoUtilizador.objects.filter(participante=participante, part__name='MentHA-Risk').order_by('-data', '-time'):
+        # partes = ParteDoUtilizador.objects.filter(participante=participante, part__name='MentHA-Risk').order_by('-data', '-time')
         
-        if partes:
-            try:
-                risk = partes.risk
+            if partes:
+                try:
+                    risk = partes.risk
 
-                if risk.altura != 0:
-                    altura = risk.altura 
-                else :
-                    altura = 'null'
+                    if risk.altura != 0:
+                        altura = risk.altura 
+                    else :
+                        altura = 'null'
 
-                if risk.horas_jejum!= 0:
-                    horas_jejum = risk.horas_jejum
-                else :
-                    horas_jejum = 'null'
+                    if risk.horas_jejum!= 0:
+                        horas_jejum = risk.horas_jejum
+                    else :
+                        horas_jejum = 'null'
 
-                if risk.pressao_arterial_diastolica != 0:
-                    pressao_arterial_diastolica = risk.pressao_arterial_diastolica
-                else:
-                    pressao_arterial_diastolica = 'null'
-            
-                if risk.pressao_arterial != 0:
-                    pressao_arterial = risk.pressao_arterial
-                else:
-                    pressao_arterial ='null'
-
-                if risk.colestrol_total != 0:
-                    colestrol_total = risk.colestrol_total
-                else:
-                    colestrol_total= 'null'
-            
-                if risk.tg != 0:
-                    tg = risk.tg
-                else:
-                    tg = 'null'
-
-                if risk.ldl != 0:
-                    ldl = risk.ldl
-                else:
-                    ldl = 'null'
-
-                if risk.cholhdl != 0:
-                    cholhdl = risk.cholhdl
-                else:
-                    cholhdl = 'null'
-
-                if risk.ifcc_hba1 != 0:
-                    ifcc_hba1 = risk.ifcc_hba1
-                else:
-                    ifcc_hba1 = 'null'
+                    if risk.pressao_arterial_diastolica != 0:
+                        pressao_arterial_diastolica = risk.pressao_arterial_diastolica
+                    else:
+                        pressao_arterial_diastolica = 'null'
                 
-                if risk.ngsp_hba1 != 0:
-                    ngsp_hba1 = risk.ngsp_hba1
-                else:
-                    ngsp_hba1 ='null'  
+                    if risk.pressao_arterial != 0:
+                        pressao_arterial = risk.pressao_arterial
+                    else:
+                        pressao_arterial ='null'
 
-                if risk.eag_hba1 != 0:
-                    eag_hba1 = risk.eag_hba1
-                else:
-                    eag_hba1 = 'null'
-
-                if risk.batimentos != 0:
-                    batimentos = risk.batimentos
-                else:
-                    batimentos = 'null'
+                    if risk.colestrol_total != 0:
+                        colestrol_total = risk.colestrol_total
+                    else:
+                        colestrol_total= 'null'
                 
-                if risk.colestrol_hdl != 0:
-                    colestrol_hdl = risk.colestrol_hdl
-                else:
-                    colestrol_hdl = 'null'
+                    if risk.tg != 0:
+                        tg = risk.tg
+                    else:
+                        tg = 'null'
+
+                    if risk.ldl != 0:
+                        ldl = risk.ldl
+                    else:
+                        ldl = 'null'
+
+                    if risk.cholhdl != 0:
+                        cholhdl = risk.cholhdl
+                    else:
+                        cholhdl = 'null'
+
+                    if risk.ifcc_hba1 != 0:
+                        ifcc_hba1 = risk.ifcc_hba1
+                    else:
+                        ifcc_hba1 = 'null'
+                    
+                    if risk.ngsp_hba1 != 0:
+                        ngsp_hba1 = risk.ngsp_hba1
+                    else:
+                        ngsp_hba1 ='null'  
+
+                    if risk.eag_hba1 != 0:
+                        eag_hba1 = risk.eag_hba1
+                    else:
+                        eag_hba1 = 'null'
+
+                    if risk.batimentos != 0:
+                        batimentos = risk.batimentos
+                    else:
+                        batimentos = 'null'
+                    
+                    if risk.colestrol_hdl != 0:
+                        colestrol_hdl = risk.colestrol_hdl
+                    else:
+                        colestrol_hdl = 'null'
+                    
+                    if risk.colestrol_nao_hdl != 1:
+                        colestrol_nao_hdl = risk.colestrol_nao_hdl
+                    else:
+                        colestrol_nao_hdl = 'null'
+                                    
+                    if risk.anos_diabetes != 0:
+                        anos_diabetes = risk.anos_diabetes
+                    else:
+                        anos_diabetes = 'null'
+
+                    if risk.pat_id != 'PID00000':
+                        pat_id = risk.pat_id
+                    else:
+                        pat_id = 'null'
+                    
+                    if risk.pat_id_v2 != 'PID00000':
+                        pat_id_v2 = risk.pat_id_v2
+                    else:
+                        pat_id_v2 = 'null'
+
                 
-                if risk.colestrol_nao_hdl != 1:
-                    colestrol_nao_hdl = risk.colestrol_nao_hdl
-                else:
-                    colestrol_nao_hdl = 'null'
-                                
-                if risk.anos_diabetes != 0:
-                    anos_diabetes = risk.anos_diabetes
-                else:
-                    anos_diabetes = 'null'
-
-                if risk.pat_id != 'PID00000':
-                    pat_id = risk.pat_id
-                else:
-                    pat_id = 'null'
-                
-                if risk.pat_id_v2 != 'PID00000':
-                    pat_id_v2 = risk.pat_id_v2
-                else:
-                    pat_id_v2 = 'null'
-
-            
-                writer.writerow([ 
-                             participante.nome,
-                             instituicao,
-                             partes.data,
-                             partes.time,
-                             risk.sexo,
-                             risk.idade,
-                             risk.peso,
-                             altura,
-                             risk.imc,
-                             pressao_arterial,
-                             colestrol_total,
-                             colestrol_hdl,
-                             colestrol_nao_hdl,
-                             risk.hemoglobina_gliciada,
-                             eag_hba1,
-                             ifcc_hba1,
-                             ngsp_hba1,
-                             horas_jejum,
-                             risk.doenca_cognitiva,
-                             risk.pre_diabetico,
-                             risk.pergunta_cardiovascular,
-                             risk.fumador,
-                             risk.diabetes,
-                             anos_diabetes,
-                             risk.avc,
-                             risk.enfarte,
-                             risk.doenca_rins,
-                             risk.doenca_pernas,
-                             risk.hipercolestrol,
-                             tg,
-                             ldl,
-                             cholhdl,
-                             batimentos,
-                             pressao_arterial_diastolica,
-                             risk.risco_de_enfarte,
-                             pat_id,
-                             pat_id_v2])
+                    writer.writerow([ 
+                                participante.nome,
+                                instituicao,
+                                partes.data,
+                                partes.time,
+                                risk.sexo,
+                                risk.idade,
+                                risk.peso,
+                                altura,
+                                risk.imc,
+                                pressao_arterial,
+                                colestrol_total,
+                                colestrol_hdl,
+                                colestrol_nao_hdl,
+                                risk.hemoglobina_gliciada,
+                                eag_hba1,
+                                ifcc_hba1,
+                                ngsp_hba1,
+                                horas_jejum,
+                                risk.doenca_cognitiva,
+                                risk.pre_diabetico,
+                                risk.pergunta_cardiovascular,
+                                risk.fumador,
+                                risk.diabetes,
+                                anos_diabetes,
+                                risk.avc,
+                                risk.enfarte,
+                                risk.doenca_rins,
+                                risk.doenca_pernas,
+                                risk.hipercolestrol,
+                                tg,
+                                ldl,
+                                cholhdl,
+                                batimentos,
+                                pressao_arterial_diastolica,
+                                risk.risco_de_enfarte,
+                                pat_id,
+                                pat_id_v2])
 
 
-            except ParteDoUtilizador.risk.RelatedObjectDoesNotExist:
-                # Caso não exista relação entre um risk e o utilizador, preenche com valores padrão
-                writer.writerow([participante.nome, instituicao] + ['risk nao associado'] * 39)  
-                continue  # Pula para o próximo participante
+                except ParteDoUtilizador.risk.RelatedObjectDoesNotExist:
+                    # Caso não exista relação entre um risk e o utilizador, preenche com valores padrão
+                    writer.writerow([participante.nome, instituicao] + ['risk nao associado'] * 39)  
+                    continue  # Pula para o próximo participante
 
 
-        else:
-            # Caso não tenha avaliação 'Risk', preenche com valores padrão
-            writer.writerow([participante.nome,
-                            'null',  # Data Questionario
-                            'null',  # Hora Questionario
-                            'null',  # Sexo
-                            'null',  # Idade
-                            'null',  # Peso
-                            'null',  # Altura
-                            'null',  # IMC
-                            'null',  # Pressão Arterial
-                            'null',  # Colesterol Total
-                            'null',  # Colesterol HDL
-                            'null',  # Colesterol Não HDL
-                            'null',  # Hemoglobina Gliciada
-                            'null',  # EAG HBA1
-                            'null',  # IFCC HBA1
-                            'null',  # NGSP HBA1
-                            'null',  # Horas Jejum
-                            'null',  # Doença Cognitiva
-                            'null',  # Pré-Diabetico
-                            'null',  # Pergunta Cardiovascular
-                            'null',  # Fumador
-                            'null',  # Diabetes
-                            'null',  # Anos de Diabetes
-                            'null',  # AVC
-                            'null',  # Enfarte
-                            'null',  # Doença nos Rins
-                            'null',  # Doença nas Pernas
-                            'null',  # Hipercolesterol
-                            'null',  # Comentários
-                            'null',  # Comentários 2
-                            'null',  # Recomendações
-                            'null',  # TG
-                            'null',  # LDL
-                            'null',  # CHOL-HDL
-                            'null'  # Batimentos
-                            'null',  # Pressão Arterial Diastólica
-                            'null',  # Risco de Enfarte
-                            'null',  # Pat ID
-                            'null'])  # Pat ID V2
+            else:
+                # Caso não tenha avaliação 'Risk', preenche com valores padrão
+                writer.writerow([participante.nome,
+                                'null',  # Data Questionario
+                                'null',  # Hora Questionario
+                                'null',  # Sexo
+                                'null',  # Idade
+                                'null',  # Peso
+                                'null',  # Altura
+                                'null',  # IMC
+                                'null',  # Pressão Arterial
+                                'null',  # Colesterol Total
+                                'null',  # Colesterol HDL
+                                'null',  # Colesterol Não HDL
+                                'null',  # Hemoglobina Gliciada
+                                'null',  # EAG HBA1
+                                'null',  # IFCC HBA1
+                                'null',  # NGSP HBA1
+                                'null',  # Horas Jejum
+                                'null',  # Doença Cognitiva
+                                'null',  # Pré-Diabetico
+                                'null',  # Pergunta Cardiovascular
+                                'null',  # Fumador
+                                'null',  # Diabetes
+                                'null',  # Anos de Diabetes
+                                'null',  # AVC
+                                'null',  # Enfarte
+                                'null',  # Doença nos Rins
+                                'null',  # Doença nas Pernas
+                                'null',  # Hipercolesterol
+                                'null',  # Comentários
+                                'null',  # Comentários 2
+                                'null',  # Recomendações
+                                'null',  # TG
+                                'null',  # LDL
+                                'null',  # CHOL-HDL
+                                'null'  # Batimentos
+                                'null',  # Pressão Arterial Diastólica
+                                'null',  # Risco de Enfarte
+                                'null',  # Pat ID
+                                'null'])  # Pat ID V2
 
     return response
