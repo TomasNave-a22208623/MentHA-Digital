@@ -4102,7 +4102,7 @@ def profile_cuidador_view(request, cuidador_id):
 #    Descrição:
 #        Essa função é usada para gerar um csv e exporta-lo. Este csv contem por linha:
 #        - participante
-#        - e os dados relativos ao questionário Risk mais recente feito pelo participante.
+#        - e os dados relativos ao questionário Risk feitos pelos participante.
 #    
 #        O csv é gerado com o nome "relatorio_risk.csv" e é baixado automaticamente.
 #       
