@@ -388,37 +388,76 @@ def parte_ativa(request, sg_id):
     return render(request, 'diario/parte_ativa.html', contexto)
 
 
+
+
+#-------------------------------------------------------------------------------------------------------------------#
+#                                                                                                               
+#                 ======================( View new_group )======================
+#                                                                                                               
+#    Última Alteração: 2025-03-16
+#                                                                                                               
+#    Descrição:                                                                                                 
+#        Essa função é usada para criar um novo grupo, associando cuidadores ou participantes, dependendo do   
+#        programa selecionado (CARE ou COG). Permite que dinamizadores, mentores ou administradores criem o    
+#        grupo e associem membros a ele, além de criar sessões e partes do grupo.                              
+#                                                                                                               
+#        O grupo é salvo com informações como referenciação, localização e escolaridade mais frequente, e as   
+#        sessões correspondentes são criadas automaticamente.                                                  
+#                                                                                                               
+#    Módulo: `MentHA COG e MentHA CARE`                                                      
+#    Relacionado com: `templates/diario/new_group_remake.html` e `static/diario/js/cria_grupo.js`                                              
+#                                                                                                               
+#    Observações:                                                                                               
+#        - Sempre que forem feitas alterações nos modelos de `Cuidador`, `Participante`, `Grupo` ou `Sessão`,  
+#          esta função deve ser atualizada para garantir que a lógica de associação de membros e criação de    
+#          sessões funcione corretamente.                                                                       
+#        - A lógica de filtragem para participantes e cuidadores depende de campos como `doenças`,             
+#          `localização`, `escolaridade` e `referenciação`. Qualquer alteração nesses campos pode afetar os    
+#          filtros.                                                                                             
+#        - O formulário `GrupoForm` deve ser compatível com os campos necessários para criar o grupo.           
+#                                                                                                               
+#    ⚠️- Aviso Importante:                                                                                       
+#        O formulário `new_group` **não é submetido de forma convencional**. O botão de submit utiliza um       
+#        script JavaScript localizado em:                                                                       
+#        `/mentha_digital/diario/static/diario/js/cria_grupo.js`                                                
+#                                                                                                               
+#        Esse script manipula a submissão via `fetch()`, enviando dados por meio de um POST assíncrono.        
+#        Por isso, alterações na view devem ser compatíveis com a lógica desse script, e de todos os scripts usados
+#        no template para a criação da tabela dinamica do formulario.                        
+#                                                                                                               
+#-------------------------------------------------------------------------------------------------------------------#
+
+
 @login_required(login_url='diario:login')
 @check_user_able_to_see_page('Todos')
 def new_group(request):
+    # Obtém os grupos associados ao utilizador
     grupos, sg, is_participante, is_cuidador = get_grupos(request.user)
+
+    # Verifica se há uma próxima sessão agendada
     tem_proxima, datas = get_proxima_sessao(grupos)
+
+    # Variáveis auxiliares
     flag = None
     referenciacao = None
 
+    # Inicializa o formulário de criação de grupo
+    formGrupo = GrupoForm(request.POST or None)
+
+    # Obtém o papel do utilizador logado (dinamizador, mentor ou administrador)
     dinamizador = DinamizadorConvidado.objects.filter(user=request.user).first()
     mentor = Mentor.objects.filter(user=request.user).first()
     administrador = Administrador.objects.filter(user=request.user).first()
 
+    # Define a referência com base no papel do utilizador
     if dinamizador:
         referenciacao = dinamizador.reference
-
-    if mentor:
+    elif mentor:
         referenciacao = mentor.reference
-
-    if administrador:
+    elif administrador:
         referenciacao = administrador.reference
 
-    formGrupo = GrupoForm(request.POST or None)
-    if formGrupo.is_valid():
-        formGrupo.save()
-        if formGrupo.programa == "COG":
-            flag = "cog"
-        elif formGrupo.programa == "CARE":
-            flag = "care"
-        return HttpResponseRedirect(reverse('diario:dashboard_Care', flag))
-
-    # Obter campos para filtar por (CARE)
+    # Filtragem de cuidadores (para o programa CARE)
     cuidadores = Cuidador.objects.all()
     filtrados_care = cuidadores.filter(grupo=None)
 
@@ -433,7 +472,7 @@ def new_group(request):
         'Referenciações': list(dict.fromkeys({cuidador.referenciacao for cuidador in cuidadores})),
     }
 
-    # Obter campos para filtrar por (COG)
+    # Filtragem de participantes (para o programa COG)
     participantes = Participante.objects.all()
     filtrados_cog = participantes.filter(grupo=None)
 
@@ -441,12 +480,7 @@ def new_group(request):
     for participante in participantes:
         conjunto_doencas.update(participante.diagnosticos.all())
 
-    # conjunto_referencias = set()
-    # for participante in participantes:
-    #     conjunto_referencias.update(set(cuidador.obter_reference))
-
     lista_pesquisa_participantes = {
-        # 'Diagnósticos': list(dict.fromkeys({diagnostico for diagnostico in participante.diagnosticos.all() for participante in participantes})),
         'Diagnósticos': conjunto_doencas,
         'Localizações': list(dict.fromkeys({participante.localizacao for participante in participantes if participante.localizacao and len(participante.localizacao) > 1})),
         'Escolaridades': list(dict.fromkeys({participante.escolaridade for participante in participantes})),
@@ -454,76 +488,85 @@ def new_group(request):
         'GDS': list(dict.fromkeys({participante.nivel_gds for participante in participantes})),
     }
 
-    selecoes = {}
+    # Salvar grupo ao submeter o formulário
+    if formGrupo.is_valid():
+        g = formGrupo.save(commit=False)
+        g.referenciacao = referenciacao
+        g.save()
 
-    if request.POST:
-        if len(request.POST.get('nome')) > 0:
-            g = Grupo(
-                nome=request.POST.get('nome'),
-                programa=request.POST.get('programa'),
-            )
-            g.save()
-            if request.POST.get('programa') == 'CARE':
-                for id in request.POST.get('participantes').split(','):
+        # Associa cuidadores ou participantes ao grupo com base no programa
+        participantes_ids = request.POST.get('participantes', '').split(',')
+        if g.programa == 'CARE':
+            for id in participantes_ids:
+                if id:
                     c = Cuidador.objects.get(id=id)
                     g.cuidadores.add(c)
-
-            elif request.POST.get('programa') == 'COG':
-                for id in request.POST.get('participantes').split(','):
+        elif g.programa == 'COG':
+            for id in participantes_ids:
+                if id:
                     p = Participante.objects.get(id=id)
                     g.participantes.add(p)
-            g.save()
 
-            g.referenciacao = referenciacao
+        # Salva o grupo
+        g.save()
 
-            g.localizacao = g.localizacao_most_frequent
-            g.escolaridade = g.escolaridade_most_frequent
-            g.save()
-
-            # Criar as partes e sessoes para este grupo
-            for sessao in Sessao.objects.filter(programa=g.programa).all():
-                sessao_grupo = SessaoDoGrupo(grupo=g, sessao=sessao)
-                sessao_grupo.save()
-                if g.programa == 'CARE':
-                    for parte in sessao.partes.all():
-                        parte_grupo = ParteGrupo.objects.create(
-                            sessaoGrupo=sessao_grupo,
-                            parte=parte
-                        )
-                        parte_grupo.save()
-                elif g.programa == 'COG':
-                    for exercicio in sessao.exercicios.all():
-                        parte_grupo = ParteGrupo.objects.create(
-                            sessaoGrupo=sessao_grupo,
-                            exercicio=exercicio
-                        )
-                        parte_grupo.save()
-        
+        # Adiciona o grupo ao dinamizador, mentor ou administrador
         if dinamizador:
             dinamizador.grupo.add(g)
             dinamizador.save()
-
         if mentor:
             mentor.grupo.add(g)
             mentor.save()
+
+        # Criação automática de sessões e partes do grupo
+        for sessao in Sessao.objects.filter(programa=g.programa).all():
+            sessao_grupo = SessaoDoGrupo(grupo=g, sessao=sessao)
+            sessao_grupo.save()
+            if g.programa == 'CARE':
+                for parte in sessao.partes.all():
+                    parte_grupo = ParteGrupo.objects.create(
+                        sessaoGrupo=sessao_grupo,
+                        parte=parte
+                    )
+                    parte_grupo.save()
+            elif g.programa == 'COG':
+                for exercicio in sessao.exercicios.all():
+                    parte_grupo = ParteGrupo.objects.create(
+                        sessaoGrupo=sessao_grupo,
+                        exercicio=exercicio
+                    )
+                    parte_grupo.save()
         
-        return redirect('diario:dashboard_Care')
+        # Atribuir campos ManyToMany ao grupo (localização, escolaridade, etc.)
+        grupo = Grupo.objects.get(id=g.id)
+        grupo.localizacao = grupo.localizacao_most_frequent
+        grupo.escolaridade = grupo.escolaridade_most_frequent
+        grupo.nivelGDS = grupo.calcular_gds_medio
+        grupo.save()
+
+        # Define a flag com base no programa
+        if g.programa == "COG":
+            flag = "cog"
+        elif g.programa == "CARE":
+            flag = "care"
+    
 
 
+    # Contexto para renderizar no template
     contexto = {
-        'tem_proxima': tem_proxima,
-        'grupos': Grupo.objects.all(),
-        'referenciacao': referenciacao,
-        'cuidadores': Cuidador.objects.filter(grupo=None),
-        'formGrupo': formGrupo,
-        'lista_pesquisa_cuidadores': lista_pesquisa_cuidadores,
-        'lista_pesquisa_participantes': lista_pesquisa_participantes,
-        'filtrados_care': filtrados_care,
-        'filtrados_cog': filtrados_cog,
-        'selecoes': selecoes,
-        'grupos_permissoes_care': request.user.groups.filter(name__in=['Administrador', 'Mentor']),
-        'grupos_permissoes_cog': request.user.groups.filter(name__in=['Administrador', 'Dinamizador']),
+        'tem_proxima': tem_proxima,  # Indica se há próxima sessão agendada
+        'grupos': Grupo.objects.all(),  # Lista de todos os grupos
+        'referenciacao': referenciacao,  # Referência (Organização associada)
+        'cuidadores': Cuidador.objects.filter(grupo=None),  # Cuidadores não associados a grupo
+        'formGrupo': formGrupo,  # Formulário do grupo
+        'lista_pesquisa_cuidadores': lista_pesquisa_cuidadores,  # Filtros para cuidadores
+        'lista_pesquisa_participantes': lista_pesquisa_participantes,  # Filtros para participantes
+        'filtrados_care': filtrados_care,  # Cuidadores filtrados
+        'filtrados_cog': filtrados_cog,  # Participantes filtrados
+        'grupos_permissoes_care': request.user.groups.filter(name__in=['Administrador', 'Mentor']),  # Permissões CARE
+        'grupos_permissoes_cog': request.user.groups.filter(name__in=['Administrador', 'Dinamizador']),  # Permissões COG
     }
+
     return render(request, 'diario/new_group_remake.html', contexto)
 
 
