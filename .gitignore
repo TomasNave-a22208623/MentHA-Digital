@@ -144,3 +144,4 @@ GitHub.sublime-settings
 
 # Ignore Django migrations
 **/migrations/
+.qodo

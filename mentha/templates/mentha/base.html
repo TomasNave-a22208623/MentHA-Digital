@@ -29,7 +29,7 @@
 
     <!-- css styles -->
     {% load static %}
-    <link rel="stylesheet" href="{% static 'mentha/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'mentha/stylesbase.css' %}">
 
 
     <script>
@@ -88,6 +88,54 @@
                     });
                 return false;
             }
+
+            const dropdownTrigger = document.getElementById('projeto-dropdown');
+            const projetoMenu = document.getElementById('projeto-menu');
+            const iconDown = dropdownTrigger.querySelector('.chevron-down');
+            const iconUp = dropdownTrigger.querySelector('.chevron-up');
+
+            dropdownTrigger.onclick = (e) => {
+                e.stopPropagation(); // Evita fechar logo ao clicar
+
+                const isVisible = projetoMenu.style.display === 'block';
+
+                projetoMenu.style.display = isVisible ? 'none' : 'block';
+                iconDown.style.display = isVisible ? 'inline' : 'none';
+                iconUp.style.display = isVisible ? 'none' : 'inline';
+            };
+
+            document.addEventListener('click', () => {
+                projetoMenu.style.display = 'none';
+                iconDown.style.display = 'inline';
+                iconUp.style.display = 'none';
+            });
+
+
+            const dropdownTriggerProg = document.getElementById('programas-dropdown');
+            const projetoMenuProg = document.getElementById('programas-menu');
+            const iconDownProg = dropdownTriggerProg.querySelector('.chevron-down-programas');
+            const iconUpProg = dropdownTriggerProg.querySelector('.chevron-up-programas');
+
+            dropdownTriggerProg.onclick = (e) => {
+                e.stopPropagation(); // Evita fechar logo ao clicar
+
+                const isVisible = projetoMenuProg.style.display === 'block';
+
+                projetoMenuProg.style.display = isVisible ? 'none' : 'block';
+                iconDownProg.style.display = isVisible ? 'inline' : 'none';
+                iconUpProg.style.display = isVisible ? 'none' : 'inline';
+            };
+
+            document.addEventListener('click', () => {
+                projetoMenuProg.style.display = 'none';
+                iconDownProg.style.display = 'inline';
+                iconUpProg.style.display = 'none';
+            });
+
+
+
+
+
 
             document.querySelector('#a-projeto').onclick = () => {
                 fetch("{% url 'mentha:projeto' %}")
@@ -212,6 +260,11 @@
                                     document.querySelector('#login .branco .titulo').innerHTML = `Olá ${nome}!`;
 
                                     document.querySelector('#login .branco .texto').innerHTML = `Seja bem-vindo ao MentHA Digital.<br><br>`;
+
+                                    const userInfo = document.querySelector('#user-info');
+                                    const userNameSpan = document.querySelector('#user-name');
+                                    userNameSpan.textContent = nome;
+                                    userInfo.style.display = 'flex';
                                     
                                     fetch("{% url 'mentha:app-list' %}")
                                     .then(response => response.text())
@@ -232,7 +285,7 @@
 
 
             document.querySelector('#a-logout').onclick = () => {
-                fetch()
+                fetch("{% url 'mentha:login' %}")
                     .then(response => response.text())
                     .then(text => {
                         // document.querySelector('#content').innerHTML = text;
@@ -241,6 +294,8 @@
                         // document.querySelector('#a-videoconferencia').style.display = 'none'
                         document.querySelector('#a-logout').style.display = 'none'
                         document.querySelector('#a-login').style.display = 'block'
+
+                        document.querySelector('#user-info').style.display = 'none';
 
                         // let a = document.querySelector('#a-logout');
                         // a.style.color = 'white';
@@ -251,7 +306,7 @@
                 return false;
             }
 
-            document.querySelector('.a-aplicacoes').onclick = () => {
+            document.querySelector('#a-aplicacoes').onclick = () => {
 
                 fetch("{% url 'mentha:aplicacoes' %}")
                     .then(response => response.text())
@@ -281,6 +336,28 @@
                     });
                 return false;
             }
+
+
+            document.querySelector('#a-mentha-cog').onclick = () => {
+                fetchPrograma("{% url 'mentha:mentha-cog' %}");
+                return false;
+            }
+
+            document.querySelector('#a-mentha-care').onclick = () => {
+                fetchPrograma("{% url 'mentha:mentha-care' %}");
+                return false;
+            }
+
+            document.querySelector('#a-mentha-eval').onclick = () => {
+                fetchPrograma("{% url 'mentha:protocolo-mentha' %}");
+                return false;
+            }
+
+
+
+
+
+
 
 
             document.querySelector('#a-contacto').onclick = () => {
@@ -432,28 +509,7 @@
                 return false;
             }
 
-            window.onscroll = () => {
-
-                let header = document.querySelector('header');
-
-                if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
-                    header.style.opacity = 0.7;
-                    header.style.backgroundColor = 'black';
-                } else {
-                    header.style.opacity = 1;
-                    header.style.backgroundColor = '';
-                }
-
-                let footer = document.querySelector('footer');
-
-                if (document.body.scrollTop > 1 || document.documentElement.scrollTop > 10) {
-                    footer.style.opacity = 0.7;
-                    footer.style.backgroundColor = 'black';
-                } else {
-                    footer.style.opacity = 1;
-                    footer.style.backgroundColor = '';
-                }
-            };
+            
 
         });
     </script>
@@ -478,67 +534,68 @@
                 <img src="{% static 'mentha/logos/mentha_wb.png' %}" alt="MentHA: mental health and aging">
             </div> -->
 
-            <nav class="menu-area navbar navbar-expand-lg  navbar-dark bg-dark" style="background-color:inherit !important; height:10px;" style="z-index:2;">
-            
-
-            <div class="container-fluid" style="width:98vw; display:flex; flex-direction: row; justify-content: space-between;">
-
-                <a class="navbar-brand"><img src="{% static 'mentha/logos/mentha_wb.png' %}" alt="MentHA: mental health and aging"></a>
-                <button class="navbar-toggler" style="border-color:white; margin: 30px;" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon navbar-light"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent" style="margin-right:30px;">
-                    <ul class="navbar-nav mb-2 mb-lg-0" style="margin-left:auto">
- 
-                    <li>
-                        <a id='a-noticias' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Noticias</a>
-                    </li>
-                                            
-                    <li class="nav-item">
-                        <a aria-current="page" id='a-home' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Home</a>
-                    </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Projeto
-                        </a>
-                        <ul class="dropdown-menu">
-                        <li style="margin:0 !important;"><a class="dropdown-item" id='a-projeto' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Apresentação</a></li>
-                        <!-- <li><a class="dropdown-item a-aplicacoes" href="">Programas</a></li> -->
-                        <!-- <li style="margin:0 !important;"><hr class="dropdown-divider"></li> -->
-                        <li style="margin:0 !important;"><a class="dropdown-item" id='a-parceiros' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Parceiros</a></li>
-                        <li style="margin:0 !important;"><a class="dropdown-item" id='a-equipa' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Equipa</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a class="a-aplicacoes" href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Programas</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a id='a-contacto' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Contactos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a id='a-login' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Login</a>
-                    
-                        <a id='a-logout' href="" data-bs-toggle="collapse"  data-bs-target="#navbarSupportedContent">Logout</a>
-                    </li>
-                    </ul>
-                    
+            <nav>
+                <div class="content-fluid">
+                    <img class="content" src="{% static 'mentha/logos/mentha_wbgray.png' %}" />
+                    <div class="content-wrapper">
+                        <div class="div">
+                            <div class="link-text" id="a-home" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">Home Page</div>
+                            <div class="nav-link-dropdown" id="projeto-dropdown">
+                                <div class="link-text">Projeto</div>
+                                <img class="chevron-down" src="{% static 'mentha/icones/vectorDown.png' %}" />
+                                <img class="chevron-up" src="{% static 'mentha/icones/vectorUp.png' %}" style="display: none;" />
+                                <div class="dropdown-content" id="projeto-menu">
+                                    <div class="dropdown-item" id="a-projeto">Apresentação</div>
+                                    <div class="dropdown-item" id="a-parceiros">Parceiros</div>
+                                    <div class="dropdown-item" id="a-equipa">Equipa</div>
+                                </div>
+                            </div>
+                            <div class="nav-programas-dropdown" id="programas-dropdown">                  
+                            <div class="link-text">Programas</div>
+                            <img class="chevron-down-programas" src="{% static 'mentha/icones/vectorDown.png' %}" />
+                            <img class="chevron-up-programas" src="{% static 'mentha/icones/vectorUp.png' %}" style="display: none;" />
+                            <div class="menu" id="programas-menu">
+                                <div class="menu-item" id="a-mentha-cog">
+                                    <img src="{% static 'diario/img/cogPreto.svg' %}" style="width:24px;display:inline-block;color: #333; padding-right:8px;"></i>
+                                  <div class="contentProgramas">
+                                    <div class="text-wrapper">MentHA COG</div>
+                                    <p class="divProgramas">Programa de Estimulação Cognitiva</p>
+                                  </div>
+                                </div>
+                                <div class="menu-item" id="a-mentha-eval">
+                                    <i class="fa-solid fa-user-check"style="width:24px;display:inline-block;color: #333;"></i>
+                                  <div class="contentProgramas">
+                                    <div class="text-wrapper">MentHA EVAL</div>
+                                    <p class="divProgramas">Protocolo de Avaliação Neuropsicológica</p>
+                                  </div>
+                                </div>
+                                <div class="menu-item" id="a-mentha-care">
+                                    <i class="fa-solid fa-user-doctor"style="width:24px;display:inline-block;color: #333;"></i>
+                                  <div class="contentProgramas">
+                                    <div class="text-wrapper">MentHA CARE</div>
+                                    <p class="divProgramas">Programa de Acompanhamento Psicoeducativo</p>
+                                  </div>
+                                </div>
+                                <div class="menu-item" id="a-aplicacoes">
+                                    <i class="fa-solid fa-list"style="width:24px;display:inline-block;color: #333;"></i>
+                                  <div class="contentProgramas">
+                                    <div class="text-wrapper">Programas</div>
+                                    <p class="divProgramas">Saiba mais sobre os nossos programas</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>  
+                            <div class="link-text" id="a-contacto" href="" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">Contactos</div>
+                            <div class="link-text" id="a-noticias" href="" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">Noticias</div>
+                        </div>
+                        <button class="button" id="a-login" href="" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">Login</button>
+                        <button class="button" id="a-logout" href="" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" style="color: #333;">Logout</button>
+                        <div class="user-info" id="user-info" style="display: none;">
+                            <img src="{% static 'mentha/icones/doctor.png' %}" alt="User Icon" class="user-icon" />
+                            <span class="user-name" id="user-name">Utilizador</span>
+                          </div>
+                    </div>
                 </div>
-                </div>
-
-                <!-- <a id='a-home' href="">MentHA</a>
-                <a id='a-noticias' href="">Notícias</a>
-                <a id='a-projeto' href="">Projeto</a>
-                <a id='a-aplicacoes' href="">Programas</a>
-                <a id='a-parceiros' href="">Parceiros</a>
-                <a id='a-equipa' href="">Equipa</a>
-                <span style="display:none;">
-                    <a id='a-videoconferencia' href="">Zoom</a>
-                </span>
-                <a id='a-contacto' href="">Contacto</a> -->
-                
-                
             </nav>
         </header>
         <article id="content">
@@ -547,46 +604,7 @@
 
         </article>
 
-        <footer>
-
-            <div>
-                <span>Promotor: </span>
-                <a href="https://www.ulusofona.pt/" target="_blank">
-                    <img src="{% static 'mentha/parceiros_sm/ulht.jpg' %}" alt="">
-                </a>
-                <a href="http://copelabs.ulusofona.pt/index.php/about/siti-in-a-nutshell" target="_blank">
-                    <img src="{% static 'mentha/parceiros_sm/copelabs.jpg' %}" alt="">
-                </a>
-                <a href="https://cisis.ulusofona.pt/" target="_blank">
-                    <img src="{% static 'mentha/parceiros_sm/cisis.jpeg' %}" alt="">
-                </a>
-
-            </div>
-            <div class="dgs">
-                <span>Financiador: </span>
-                <a href="https://www.dgs.pt/" target="_blank">
-                    <img src="{% static 'mentha/parceiros_sm/dgs_footer.png' %}" alt="">
-                </a>
-            </div>
-            <div class="parceirosfooter">
-                <span>Parceiros:</span>
-                <img src="{% static 'mentha/parceiros_sm/adebe.png' %}" alt="">
-
-                <img src="{% static 'mentha/parceiros_sm/asmal_footer.png' %}" alt="">
-
-                <img src="{% static 'mentha/parceiros_sm/cvp.jpg' %}" alt="">
-
-                <img src="{% static 'mentha/parceiros_sm/elo.png' %}" alt="">
-
-                <img src="{% static 'mentha/parceiros_sm/familiarmente.jpg' %}" alt="">
-
-                <img src="{% static 'mentha/parceiros_sm/gira.png' %}" alt="">
-
-                <img src="{% static 'mentha/parceiros_sm/crinabel.png' %}" alt="">
-
-                <img src="{% static 'mentha/parceiros_sm/apdp.png' %}" alt="">
-            </div>
-        </footer>
+        
     </main>
 
 </body>
