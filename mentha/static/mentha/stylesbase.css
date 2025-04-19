@@ -250,7 +250,7 @@ nav {
   }
 
   .menu {
-    display: inline-flex;
+    display: none;
     flex-direction: column;
     align-items: flex-start;
     padding: 24px;
@@ -436,8 +436,8 @@ nav {
 
 .espacolista,
 div.hero {
-    height: calc(100vh - 7em - 5em);
-    width: 100vw;
+    height: calc(100vh - 7em - 7em);
+    width: 100%;
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -446,7 +446,7 @@ div.hero {
     display: flex;
     padding: 3em 0;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .espacolista {
@@ -458,25 +458,368 @@ div.hero {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    padding: 10vw;
+    align-items: flex-start;
+    padding: 5vw;
 }
 
 .slogan .tituloSlogan {
-    font-weight: 600;
-    font-size: 4em;
+    font-weight: 700;
+    font-size: 96px;
     color: #4EB4BE;
-    text-align: center;
+    text-align: left;
+    font-family: "Roboto-Bold", Helvetica;
+    margin-bottom: 1px;
+
 }
 
 .slogan .textoSlogan {
-    font-size: 1.5em;
-    font-style: italic;
+    font-size: 35px;
     color: whitesmoke;
-    line-height: 2;
-    text-align: center;
+    line-height: 1.5;
+    text-align: left;
     max-width: 40ch;
+    font-family: "Roboto-Bold", Helvetica;
+    font-weight: 500;
+    margin-bottom: 1px;
 }
+
+
+/**-------------------------------------------------------Home (footer)---------------------------------------------**/
+
+.footer-logo {
+  display: flex;
+  justify-content: space-between; /* espaçamento entre os blocos */
+  align-items: center;
+  padding: 20px 200px;
+  background-color: white;
+  width: 100%;
+  height: 7em;
+  box-sizing: border-box;
+  flex-wrap: wrap; /* em ecrãs pequenos, permite quebra */
+}
+
+.footer-block {
+  display: flex;
+  align-items: center;
+  gap: 30px; /* espaço entre o texto e a imagem */
+  min-width: 200px;
+  flex: 1;
+  height: 5em;
+  justify-content: flex-start;
+}
+
+.footer-logo .footer-block:nth-child(2) {
+  justify-content: center;
+}
+
+.footer-logo .footer-block:nth-child(3) {
+  justify-content: flex-end;
+}
+
+.footer-logo .heading {
+  font-size: 1em;
+  color: #000000;
+  font-weight: 700;
+  font-family: "Microsoft Sans Serif", Helvetica;
+  white-space: nowrap;
+}
+
+.footer-logo .logo {
+  max-height: 4em;
+  width: auto;
+}
+
+.logo-carousel {
+  overflow: hidden;
+  width: 12em;
+  max-height: 4em;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.logo-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  will-change: transform;
+}
+
+.logo-carousel .logo {
+  flex-shrink: 0;
+  width: 12em;
+  height: 3.5em;
+}
+
+
+
+/**--------------------------------------------Home (Info)-----------------------------------------------------------**/
+
+
+.info {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  /* padding responsivo: mínimo 40px, ideal 10vw, máximo 140px */
+  padding: clamp(40px, 10vw, 70px) clamp(20px, 5vw, 80px);
+  width: 100%;
+  gap: clamp(30px, 5vw, 80px);
+  background-color: white;
+}
+
+/* Título + texto lado a lado (desktop) */
+.info .section-title {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 160px;      /* menor gap para não “quebrar” em telas médias */
+  flex-wrap: wrap; /* permite quebrar em múltiplas linhas se necessário */
+}
+
+/* Coluna do título */
+.info .column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+
+/* Título com cor e peso */
+.info .heading {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 700;
+  font-size: 2.9em;
+  color: #4EB4BE;
+  margin-bottom: 1px;
+}
+
+/* Wrapper do texto */
+.info .text-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; /* centraliza em telas estreitas */
+  gap: 14px;
+  flex: 1;
+  width: 100%;
+}
+
+/* Parágrafo de corpo */
+.info .text {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 400;
+  font-size: 22px;
+  color: #000;
+  line-height: 1.5;   /* valor relativo para responsividade */
+  text-align: center;
+  user-select: none;  /* previne seleção indesejada */
+  margin-bottom: 1px;
+}
+
+/* Media Queries para tablets e mobile */
+@media (max-width: 1024px) {
+  .info .heading {
+    font-size: 2.2em;
+  }
+  .info .section-title {
+    gap: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .info {
+    padding: clamp(30px, 8vw, 100px) clamp(15px, 4vw, 60px);
+    gap: clamp(20px, 4vw, 60px);
+  }
+
+  .info .section-title {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .info .heading {
+    font-size: 1.8em;
+  }
+}
+
+@media (max-width: 480px) {
+  .info {
+    padding: clamp(20px, 6vw, 80px) clamp(10px, 3vw, 40px);
+    gap: clamp(15px, 3vw, 40px);
+  }
+
+  .info .heading {
+    font-size: 1.5em;
+  }
+
+  .info .text {
+    font-size: 18px;
+  }
+}
+
+
+/**--------------------------------------------Home (Videos)-----------------------------------------------------------**/
+
+.container-video {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 120px 120px;
+  width: 100%;
+  background-image: url("/static/mentha/icones/backgroudMent1.png");
+  background-size: cover;
+  position: relative;
+  overflow: hidden;
+  background-position: 50% 50%;
+}
+
+.container-video .content {
+  flex-wrap: wrap;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 64px 64px;
+  display: flex;
+}
+
+.container-video .row-wrapper{
+  display: flex;
+  align-items: flex-start;
+  gap: 100px;
+  width: 100%;
+  align-self: stretch;
+}
+
+.container-video .row {
+  display: flex;
+  width: 100%;
+  align-items: flex-end;
+  gap: 48px;
+  flex: 0 0 auto;
+}
+
+.container-video .column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  flex: 1;
+  flex-grow: 1;
+}
+
+.container-video .video {
+  align-self: stretch;
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+}
+
+.container-video .div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  align-self: stretch;
+  flex: 0 0 auto;
+}
+
+.container-video .content-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  width: 100%;
+  align-self: stretch;
+  flex: 0 0 auto;
+}
+
+.container-video .heading {
+  font-family: "Arial-Bond", Helvetica;
+  font-weight: 700;
+  font-size: 24px;
+  color: black;
+  align-self: stretch;
+  line-height: 33.6px;
+  min-height: calc(3 * 33.6px);
+  margin-bottom: 5px;
+}
+
+.container-video .text {
+  font-family: "Arial-Bond", Helvetica;
+  font-weight: 700;
+  font-size: 16px;
+  color: white;
+  line-height: 28px;   /* valor relativo para responsividade */
+  align-self: stretch;
+  min-height: calc(5 * 28px);
+  margin-bottom: 5px;
+}
+
+.container-video .action{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  align-self: stretch;
+  width: 100%;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.container-video .button {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.container-video .text-wrapper{
+  all: unset;
+  box-sizing: border-box;
+  width: fit-content;
+  font-family: "Arial-Bond", Helvetica;
+  white-space: nowrap;
+  font-weight: 700;      /* de 100 (mais fino) até 900 (mais grosso) */
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.container-video .icon-chevron-right{
+  width: 14px;
+  height: 14px;
+}
+
+.container-video .action:hover{
+  color: black;
+  border-bottom: 3px solid black;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**--------------------------------------------Antigo-----------------------------------------------------------**/
+
 
 
 .next {

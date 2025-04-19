@@ -54,7 +54,102 @@
             }
 
             /**** getCookie *******************************************/
+    
+            function inicializarScripts() {
+                function startInfiniteCarousel(carouselId, interval = 3000) {
+                    const carousel = document.getElementById(carouselId);
+                    if (!carousel) return;
 
+                    const track = carousel.querySelector('.logo-track');
+                    const logos = track.querySelectorAll('img');
+                    const logoWidth = 12; // em
+
+                    let index = 0;
+                    const total = logos.length;
+
+                    // Evitar clonar novamente se já tiverem sido clonados
+                    if (!carousel.dataset.initialized) {
+                        logos.forEach(logo => {
+                            const clone = logo.cloneNode(true);
+                            track.appendChild(clone);
+                        });
+                        carousel.dataset.initialized = "true";
+                    }
+
+                    function moveCarousel() {
+                        index++;
+                        track.style.transition = 'transform 0.5s ease-in-out';
+                        track.style.transform = `translateX(-${index * logoWidth}em)`;
+
+                        if (index === total) {
+                            setTimeout(() => {
+                                track.style.transition = 'none';
+                                track.style.transform = 'translateX(0)';
+                                index = 0;
+                            }, 500);
+                        }
+                    }
+
+                    setInterval(moveCarousel, interval);
+                }
+
+                startInfiniteCarousel("promotor-carousel", 3000);
+                startInfiniteCarousel("parcerias-carousel", 2500);
+        
+            }
+
+            
+            
+            inicializarScripts(); // inicializa scripts de animação do carrossel quando a pagina é iniciada
+            
+
+
+            function ligarEventListenersPrograma() {
+                // Mentha Care
+                const linkNavegacaoCare = document.querySelector('#a-mentha-care');
+                const botaoVerMaisCare = document.querySelector('#ver-mais-mentha-care');
+                if (linkNavegacaoCare) {
+                    linkNavegacaoCare.addEventListener('click', function () {
+                        fetchPrograma("{% url 'mentha:mentha-care' %}");
+                    });
+                }
+                if (botaoVerMaisCare) {
+                    botaoVerMaisCare.addEventListener('click', function () {
+                        fetchPrograma("{% url 'mentha:mentha-care' %}");
+                    });
+                }
+
+                // Mentha Cog
+                const menthaCog = document.querySelector('#a-mentha-cog');
+                const botaoVerMaisCog = document.querySelector('#ver-mais-mentha-cog');
+                if (menthaCog) {
+                    menthaCog.onclick = () => {
+                        fetchPrograma("{% url 'mentha:mentha-cog' %}");
+                        return false;
+                    };
+                }
+                if (botaoVerMaisCog) {
+                    botaoVerMaisCog.addEventListener('click', function () {
+                        fetchPrograma("{% url 'mentha:mentha-cog' %}");
+                    });
+                }
+
+                // Mentha Eval
+                const menthaEval = document.querySelector('#a-mentha-eval');
+                const botaoVerMaisEval = document.querySelector('#ver-mais-mentha-eval');
+                if (menthaEval) {
+                    menthaEval.onclick = () => {
+                        fetchPrograma("{% url 'mentha:protocolo-mentha' %}");
+                        return false;
+                    };
+                }
+                if (botaoVerMaisEval) {
+                    botaoVerMaisEval.addEventListener('click', function () {
+                        fetchPrograma("{% url 'mentha:protocolo-mentha' %}");
+                    });
+                }
+            }
+            ligarEventListenersPrograma();
 
             document.querySelector('#a-home').onclick = () => {
                 fetch("{% url 'mentha:home' %}")
@@ -63,11 +158,9 @@
                         document.querySelector('#content').innerHTML = text;
                         document.querySelector('html').scrollTop = 0;
 
-                        // let a = document.querySelector('#a-home');
-                        // a.style.borderbottom = '1px solid white';
-                        // a.style.color = 'white';
-                        // a.style.textDecoration = 'none';
-
+                        
+                        inicializarScripts(); // inicializa scripts de animação do carrossel quando entramos na home page
+                        ligarEventListenersPrograma();
                     });
                 return false;
             }
@@ -338,20 +431,7 @@
             }
 
 
-            document.querySelector('#a-mentha-cog').onclick = () => {
-                fetchPrograma("{% url 'mentha:mentha-cog' %}");
-                return false;
-            }
-
-            document.querySelector('#a-mentha-care').onclick = () => {
-                fetchPrograma("{% url 'mentha:mentha-care' %}");
-                return false;
-            }
-
-            document.querySelector('#a-mentha-eval').onclick = () => {
-                fetchPrograma("{% url 'mentha:protocolo-mentha' %}");
-                return false;
-            }
+        
 
 
 

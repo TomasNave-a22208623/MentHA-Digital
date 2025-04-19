@@ -1,4 +1,7 @@
+
 <div id="home">
+
+    {% load static %}
 
     <div class="hero">
         <div class="slogan">
@@ -8,78 +11,112 @@
                 cuidadores.</p>
         </div>
     </div>
-    <div class="hero" style="height: 5em;"></div>
-
-    <section id="content">
-        <div class="slogan">
-            <p class="tituloSlogan">Videos MentHA Digital</p>
-            <div class="app-item">
-                <p class="tituloSlogan">MentHA COG</p>
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/8EtfSZjOR80" frameborder="0" allowfullscreen></iframe>
-            </div>
-            <div class="app-item">
-                <p class="tituloSlogan">Protocolo MentHA</p>
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/kdsiPTCYAt4" frameborder="0" allowfullscreen></iframe>
-            </div>
-            <div class="app-item">
-                <p class="tituloSlogan">MentHA Care</p>
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/Q8_5ScUwlAg" frameborder="0" allowfullscreen></iframe>
+    <div class="footer-logo">
+        <div class="footer-block">
+            <div class="heading">Promotor:</div>
+                <div class="logo-carousel" id="promotor-carousel">
+                    <div class="logo-track">
+                    <img class="logo" src="{% static 'mentha/parceiros/lusofona.png' %}" alt="Logo Promotor">
+                    <img class="logo" src="{% static 'mentha/parceiros/copelabs.png' %}" alt="Logo Promotor">
+                    <img class="logo" src="{% static 'mentha/parceiros/cisis.png' %}" alt="Logo Promotor">
+                </div>
             </div>
         </div>
-    </section>
-
-    <div class="branco">
-        <div class="texto">
-            {% load static %}
-            <!-- <div><img src="{% static 'mentha/logos/mentha_cinza_azul_medio.png' %}" width="50%" alt="">
+        <div class="footer-block">
+            <div class="heading">Financiador:</div>
+            <img class="logo" src="{% static 'mentha/parceiros/dgs_footer.png' %}" alt="Logo Financiador">
+        </div>
+        <div class="footer-block">
+            <div class="heading">Parcerias:</div>
+            <div class="logo-carousel" id="parcerias-carousel">
+                <div class="logo-track">
+                    <img class="logo" src="{% static 'mentha/parceiros/gira.png' %}" alt="Logo Parcerias">
+                    <img class="logo" src="{% static 'mentha/parceiros/adeb.png' %}" alt="Logo Parcerias">
+                    <img class="logo" src="{% static 'mentha/parceiros/cvp.png' %}" alt="Logo Parcerias">
+                    <img class="logo" src="{% static 'mentha/parceiros/crinabel.png' %}" alt="Logo Parcerias">
+                    <img class="logo" src="{% static 'mentha/parceiros/elo.png' %}" alt="Logo Parcerias">
+                    <img class="logo" src="{% static 'mentha/parceiros/asmal.png' %}" alt="Logo Parcerias">
+                    <img class="logo" src="{% static 'mentha/parceiros/familiarmente.png' %}" alt="Logo Parcerias">
+                    <img class="logo" src="{% static 'mentha/parceiros/apdp.png' %}" alt="Logo Parcerias">
+                </div>
             </div>
-            <br> -->
-            <p>O projeto MentHA Digital é promovido pela <b>Universidade
-                    Lusófona</b>.</p>
+        </div>
+    </div>
 
-            <p>É uma iniciativa conjunta de investigadores do <b>ICS</b> (Instituto de Serviço Social) e do
-                <b>DEISI-COPELABS</b> (Dep.
-                de Eng. Informática e Sistemas de Informação). </p>
+    <div class="info">
+        <div class="section-title">
+            <div class="column">
+                <p class="heading">Descubra as nossas aplicações: Melhorando a saúde mental e o bem-estar </p>
+            </div>
+            <div class="text-wrapper">
+                <p class="text">
+                    O projeto MentHA visa melhorar a qualidade de vida de adultos mais velhos com défices cognitivos e doenças mentais crónicas, assim como a de seus cuidadores informais, promovendo o acesso remoto a intervenções psicoeducativas, protocolos de avaliação neuropsicológica e programas de estimulação cognitiva
+                </p>
+            </div>    
+        </div>
+    </div>
 
-            <p><b>Ganhou um concurso da Direção Geral da Saaúde (DGS)</b> a financiamento público, no âmbito do
-                Programa Nacional para a Saúde Mental (DGS-N-21-39-7).
-            </p>
+    <div class="container-video">
+        <div class="content">
+            <div class="row-wrapper">
+                <div class="column">
+                    <iframe class="video" src="https://www.youtube.com/embed/8EtfSZjOR80" frameborder="0" allowfullscreen></iframe>
+                    <div class="div">
+                        <div class="content-text">
+                            <p class="heading">MentHA COG: Programa de Estimulação Cognitiva </p>
+                            <p class="text">
+                                Programa de estimulação cognitiva, projetado para mitigar o declínio cognitivo em adultos mais velhos que apresentam sinais de demência ou comprometimento neuropsicológico
+                            </p>
+                        </div>
+                        <div class="action">
+                            <button id="ver-mais-mentha-cog" class="button">
+                                <span class="text-wrapper">Ver mais</span>
+                                <img class="icon-chevron-right" src="{% static 'mentha/icones/vectorRight.png' %}" >
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <iframe class="video" src="https://www.youtube.com/embed/kdsiPTCYAt4" frameborder="0" allowfullscreen></iframe>
+                    <div class="div">
+                        <div class="content-text">
+                            <p class="heading">MentHA EVAL: Avaliação Neuropsicológica </p>
+                            <p class="text">
+                                Ferramenta de avaliação neuropsicológica desenvolvida para monitorizar e validar os efeitos do programa de Estimulação Cognitiva MentHA-COG
+                            </p>
+                        </div>
+                        <div class="action">
+                            <button id="ver-mais-mentha-eval" class="button">
+                                <span class="text-wrapper">Ver mais</span>
+                                <img class="icon-chevron-right" src="{% static 'mentha/icones/vectorRight.png' %}" >
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <iframe class="video" src="https://www.youtube.com/embed/x-1f6qATk-U?si=nBLJMUAV3K4DDNVi" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    <div class="div">
+                        <div class="content-text">
+                            <p class="heading">MentHA CARE: Programa de Apoio Psicoeducativo para Cuidadores</p>
+                            <p class="text">
+                                Programa psicoeducativo inovador, desenhado para apoiar cuidadores informais e formais na gestão dos desafios associados ao cuidado de pessoas com comprometimentos neuropsicológicos
+                            </p>
+                        </div>
+                        <div class="action">
+                            <button id="ver-mais-mentha-care" class="button">
+                                <span class="text-wrapper">Ver mais</span>
+                                <img class="icon-chevron-right" src="{% static 'mentha/icones/vectorRight.png' %}" >
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-            <p>Decorre entre março 2022 e e fevereiro 2023.</p>
+            </div>
         </div>
     </div>
 
 
 
-    <div class="hero" style="height: 20em;">
-
-        <div class="slogan">
-            <p class="tituloSlogan" style="font-size:2em;">Prevenir e retardar perdas cognitivas</p>
-        </div>
-
-        <div class="next">
-            <span class="material-symbols-outlined">expand_more</span>
-        </div>
-    </div>
-
-
-    <div class="blue">
-        <div class="titulo">Plataforma Web</div>
-        <div class="texto">
-            <p>Integrará várias aplicações:</p>
-            <ul type="i">
-                <li><b>MentHA COG:</b> programa de estimulação cognitiva para ajudar a retardar perdas
-                    cognitivas em
-                    adultos mais velhos com princípios de demência.
-                </li>
-                <li><b>Protocolo MentHA:</b> de avaliação neuropsicológica, para validação do treino
-                    cognitivo.</li>
-                <li><b>MentHA CARE:</b> programa de acompanhamento psicoeducativo dos seus cuidadores
-                    informais e
-                    formais.</li>
-            </ul>
-        </div>
-    </div>
 
     <div class="hero"  style="height: 30em;">
         <div class="slogan">
