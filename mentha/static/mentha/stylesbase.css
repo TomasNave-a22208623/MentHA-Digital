@@ -803,20 +803,122 @@ div.hero {
   border-bottom: 3px solid black;
 }
 
+/**--------------------------------------------Parceiros-----------------------------------------------------------**/
 
+.parcerias {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 7% 7% 7% 0%;
+  gap: 4rem;
+  background-color: white;
+  width: 100%;
+  box-sizing: border-box;
+}
 
+.parcerias .container {
+  display: flex;
+  /**flex-wrap: wrap;**/
+  justify-content: space-between;
+  gap: 6rem;
+  width: 90%;
+  box-sizing: border-box;
+  margin-left: 0;
+  margin-right: 0;
+}
 
+.parcerias .content {
+  width: 1rem;
+  min-height: 500px;
+  background-color: #68bfc7;
+  border-radius: 12px;
+}
 
+.parcerias .div {
+  flex: 1 1 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: flex-start;
+  margin-right: 10rem;
+}
 
+.parcerias .content-2 {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
 
+.parcerias .heading {
+  font-family: "Microsoft Sans Serif", Helvetica, sans-serif;
+  font-weight: 700;
+  color: #68bfc7;
+  font-size: 3rem;
+  line-height: 3rem;
+}
 
+.parcerias .text {
+  font-family: "Microsoft Sans Serif", Helvetica, sans-serif;
+  font-weight: 400;
+  color: black;
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+}
 
+.parcerias .actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
 
+.parcerias .button {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid black;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
+.parcerias .button:hover {
+  background-color: #f0f0f0;
+}
 
+.parcerias .text-wrapper {
+  font-family: "Microsoft Sans Serif", Helvetica, sans-serif;
+  font-weight: 400;
+  color: black;
+  font-size: 1.125rem;
+  line-height: 1.125rem;
+  white-space: nowrap;
+}
 
+.parcerias .column {
+  flex: 1 1 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: center;
+}
 
+.parcerias .row,
+.parcerias .img-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 8em;
+}
 
+.parcerias .image {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  max-height: 6em;
+}
 
 /**--------------------------------------------Antigo-----------------------------------------------------------**/
 

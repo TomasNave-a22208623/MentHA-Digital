@@ -151,6 +151,34 @@
             }
             ligarEventListenersPrograma();
 
+            function ligarEventListenersParceiros() {
+                const botao1 = document.querySelector('#a-parceiros');
+                const botao2 = document.querySelector('#saber-mais-parcerias');
+
+                const acaoParceiros = () => {
+                    fetch("{% url 'mentha:parceiros' %}")
+                        .then(response => response.text())
+                        .then(text => {
+                            document.querySelector('#content').innerHTML = text;
+                            document.querySelector('html').scrollTop = 0;
+
+                            document.querySelectorAll('#parceiros .subtitulo').forEach(d => {
+                                d.onclick = () => {
+                                    let texto = d.nextElementSibling;
+                                    texto.style.display = (texto.style.display === 'block') ? 'none' : 'block';
+                                };
+                            });
+                        });
+
+                    return false;
+                };
+
+                if (botao1) botao1.onclick = acaoParceiros;
+                if (botao2) botao2.onclick = acaoParceiros;
+            }
+
+            ligarEventListenersParceiros();
+
             document.querySelector('#a-home').onclick = () => {
                 fetch("{% url 'mentha:home' %}")
                     .then(response => response.text())
@@ -161,6 +189,7 @@
                         
                         inicializarScripts(); // inicializa scripts de animação do carrossel quando entramos na home page
                         ligarEventListenersPrograma();
+                        ligarEventListenersParceiros();
                     });
                 return false;
             }
@@ -563,31 +592,6 @@
 
 
 
-            document.querySelector('#a-parceiros').onclick = () => {
-                fetch("{% url 'mentha:parceiros' %}")
-                    .then(response => response.text())
-                    .then(text => {
-                        document.querySelector('#content').innerHTML = text;
-                        document.querySelector('html').scrollTop = 0;
-
-                        // let a = document.querySelector('#a-parceiros');
-                        // a.style.color = 'white';
-                        // a.style.textDecoration = 'none';
-
-                        document.querySelectorAll('#parceiros .subtitulo').forEach(d => {
-                            d.onclick = () => {
-                                let texto = d.nextElementSibling;
-
-                                if (texto.style.display == 'block') {
-                                    texto.style.display = 'none';
-                                } else {
-                                    texto.style.display = 'block';
-                                }
-                            }
-                        });
-                    });
-                return false;
-            }
 
             
 
