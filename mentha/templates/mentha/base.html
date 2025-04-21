@@ -95,6 +95,9 @@
 
                 startInfiniteCarousel("promotor-carousel", 3000);
                 startInfiniteCarousel("parcerias-carousel", 2500);
+
+                startInfiniteCarousel("promotor-carousel-fim", 3000);
+                startInfiniteCarousel("parcerias-carousel-fim", 2500);
         
             }
 
@@ -179,6 +182,30 @@
 
             ligarEventListenersParceiros();
 
+            function ligarEventListenersProjeto() {
+                const botao1 = document.querySelector('#a-projeto');
+                const botao2 = document.querySelector('#ver-mais-projeto');
+
+                const acaoProjeto = () => {
+                    fetch("{% url 'mentha:projeto' %}")
+                        .then(response => response.text())
+                        .then(text => {
+                            document.querySelector('#content').innerHTML = text;
+                            document.querySelector('html').scrollTop = 0;
+
+                        });
+
+                    return false;
+                };
+
+                if (botao1) botao1.onclick = acaoProjeto;
+                if (botao2) botao2.onclick = acaoProjeto;
+            }
+
+            ligarEventListenersProjeto();
+
+
+
             document.querySelector('#a-home').onclick = () => {
                 fetch("{% url 'mentha:home' %}")
                     .then(response => response.text())
@@ -190,6 +217,7 @@
                         inicializarScripts(); // inicializa scripts de animação do carrossel quando entramos na home page
                         ligarEventListenersPrograma();
                         ligarEventListenersParceiros();
+                        ligarEventListenersProjeto();
                     });
                 return false;
             }
@@ -210,6 +238,7 @@
                     });
                 return false;
             }
+            
 
             const dropdownTrigger = document.getElementById('projeto-dropdown');
             const projetoMenu = document.getElementById('projeto-menu');
@@ -259,20 +288,6 @@
 
 
 
-            document.querySelector('#a-projeto').onclick = () => {
-                fetch("{% url 'mentha:projeto' %}")
-                    .then(response => response.text())
-                    .then(text => {
-                        document.querySelector('#content').innerHTML = text;
-                        document.querySelector('html').scrollTop = 0;
-
-                        // let a = document.querySelector('#a-projeto');
-                        // a.style.color = 'white';
-                        // a.style.borderbottom = '1px solid white';
-                        // a.style.textDecoration = 'none';
-                    });
-                return false;
-            }
 
 
             function fetchPrograma(programa) {

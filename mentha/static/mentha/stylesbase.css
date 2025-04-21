@@ -920,6 +920,458 @@ div.hero {
   max-height: 6em;
 }
 
+/**--------------------------------------------Enquadramento-----------------------------------------------------------**/
+
+.enquadramento {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 120px 64px;
+  width: 100%;
+  gap: 80px;
+  background-image: url("/static/mentha/icones/backgroudMent1.png");
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+.enquadramento .container {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 80px;
+  align-self: stretch;
+  flex: 0 0 auto;
+}
+
+.enquadramento .image-enquadramento {
+  object-fit: cover;
+  flex: 1;
+  flex-grow: 1;
+  height: 640px;
+}
+
+.enquadramento .content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  flex: 1;
+  flex-grow: 1;
+}
+
+.enquadramento .heading {
+  font-family: "Roboto-Bold", Helvetica;
+  font-weight: 700;
+  font-size: 3.2rem;
+  color: white;
+  line-height: 3rem;
+  align-self: stretch;
+}
+
+.enquadramento .text {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 400;
+  color: black;
+  font-size: 1.3rem;
+  line-height: 1.8rem;
+  align-self: stretch;
+} 
+
+.enquadramento .text-wrapper {
+  color: black;
+}
+
+.enquadramento .span{
+  color: white;
+}
+
+
+/**--------------------------------------------Objetivos-----------------------------------------------------------**/
+
+
+.objetivos {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  /* padding responsivo: mínimo 40px, ideal 10vw, máximo 140px */
+  padding: clamp(40px, 10vw, 70px) clamp(20px, 5vw, 80px);
+  width: 100%;
+  background-color: white;
+}
+
+/* Título + texto lado a lado (desktop) */
+.objetivos .section-title {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;      /* menor gap para não “quebrar” em telas médias */
+  flex-wrap: wrap; /* permite quebrar em múltiplas linhas se necessário */
+}
+
+/* Coluna do título */
+.objetivos .column {
+  display: flex;
+  align-items: flex-start;
+  gap: 60px;
+  flex: 1;
+}
+
+/* Título com cor e peso */
+.objetivos .heading {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 700;
+  font-size: 5em;
+  color: #4EB4BE;
+  flex: 0 0 auto;
+}
+
+/* Wrapper do texto */
+.objetivos .text-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* centraliza em telas estreitas */
+  gap: 60px;
+  width: 100%;
+}
+
+/* Parágrafo de corpo */
+.objetivos .text {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 400;
+  font-size: 20px;
+  color: #000;
+  line-height: 1.5;   /* valor relativo para responsividade */
+  user-select: none;  /* previne seleção indesejada */
+  margin-bottom: 1px;
+}
+
+.objetivos .text-black {
+  color: black;
+}
+
+.objetivos .span{
+  color: #68bfc7;
+}
+
+.objetivos .action{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  align-self: center;
+  width: 62%;
+  flex: 0 0 auto;
+  cursor: pointer;
+  margin-top: 40px;
+}
+
+.objetivos .button {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.objetivos .text-wrapper-ver-mais{
+  all: unset;
+  box-sizing: border-box;
+  width: fit-content;
+  font-family: "Arial-Bond", Helvetica;
+  white-space: nowrap;
+  font-weight: 700;      /* de 100 (mais fino) até 900 (mais grosso) */
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.objetivos .icon-chevron-right{
+  width: 14px;
+  height: 14px;
+}
+
+.objetivos .action:hover{
+  color: #68bfc7;
+  border-bottom: 3px solid #68bfc7;
+}
+
+
+/**--------------------------------------------Expectativas-----------------------------------------------------------**/
+
+.expectativas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 140px 15px;
+  width: 100%;
+  gap: 80px;
+  background-color: white;
+  
+}
+
+.expectativas .container {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 80px;
+  align-self: stretch;
+  flex: 0 1 auto;
+}
+
+.expectativas .image-expectativas {
+  object-fit: cover;
+  flex: 1;
+  flex-grow: 1;
+  height: 640px;
+  margin-right: 30px;
+}
+
+.expectativas .content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  flex: 1;
+  flex-grow: 1;
+}
+
+.expectativas .div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  flex: 1;
+  flex-grow: 1;
+  align-self: stretch;
+}
+
+.expectativas .heading {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 700;
+  font-size: 2.5rem;
+  color: #68bfc7;
+  line-height: 3.1rem;
+  align-self: stretch;
+}
+
+.expectativas .text {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 400;
+  color: black;
+  font-size: 1.1rem;
+  line-height: 1.8rem;
+  align-self: stretch;
+}
+
+.expectativas .text-wrapper {
+  color: black;
+}
+
+.expectativas .span{
+  color: #68bfc7;
+}
+
+.expectativas .row-wrapper{
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  align-self: stretch;
+}
+
+.expectativas .row {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 25px;
+  flex: 0 0 auto;
+  align-self: stretch;
+  padding: 8px 0px;
+}
+
+.expectativas .list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  align-self: stretch;
+  flex: 1;
+  flex-grow: 1;
+}
+
+.expectativas .heading-list-item {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: black;
+  line-height: 2rem;
+}
+
+.expectativas .content-2 {
+  width: 1rem;
+  min-height: 600px;
+  background-color: #68bfc7;
+  border-radius: 12px;
+}
+
+/**--------------------------------------------Inpacto-----------------------------------------------------------**/
+
+.impacto {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 15px;
+  width: 100%;
+  gap: 80px;
+  background-image: url("/static/mentha/icones/backgroudMent1.png");
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+.impacto .container {
+  display: flex;
+  width: 100%;
+  min-height: 600px;
+  align-items: center;
+  gap: 40px;
+  align-self: stretch;
+  flex: 0 1 auto;
+}
+
+.impacto .content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  flex: 1;
+  flex-grow: 1;
+}
+
+.impacto .div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 100%;
+}
+
+.impacto .div-2 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 100%;
+}
+
+.impacto .tagline-wrapper {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.impacto .tagline {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 700;
+  font-size: 1rem;
+  color: black;
+  line-height: 1.4rem;
+  align-self: stretch;
+  width: fit-content;
+  white-space: nowrap;
+}
+
+.impacto .content-2 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
+  gap: 24px;
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+.impacto .heading {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 700;
+  font-size: 2.5rem;
+  color: white;
+  line-height: 3rem;
+  align-self: stretch;
+}
+
+.impacto .text {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 700;
+  color: black;
+  font-size: 1rem;
+  line-height: 1.8rem;
+  align-self: stretch;
+}
+
+
+.impacto .row {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 25px;
+  flex: 0 0 auto;
+  align-self: stretch;
+  padding: 8px 0px;
+}
+
+.impacto .list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  align-self: stretch;
+  flex: 1;
+  flex-grow: 1;
+}
+
+.impacto .text-wrapper {
+  font-family: "Microsoft Sans Serif", Helvetica;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: white;
+  line-height: 2rem;
+}
+
+.impacto .icon {
+  width: 35px;
+  height: 35px;
+  color: black;
+}
+
+.impacto .image {
+  object-fit: cover;
+  flex: 1;
+  flex-grow: 1;
+  height: 600px;
+  margin-right: 30px;
+}
+
+
+
+
+
+
+
+
+
+
+
 /**--------------------------------------------Antigo-----------------------------------------------------------**/
 
 
