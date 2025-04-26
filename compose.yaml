@@ -23,7 +23,7 @@ services:
     volumes:
       - ./dump_file.sql:/dump_file.sql
     environment:
-      PGPASSWORD: AiraeZeech6Bis
+      PGPASSWORD: ${POSTGRES_PASSWORD}
     env_file:
       - .env
     networks:
