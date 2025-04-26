@@ -98,10 +98,10 @@ POSTGRES_PASSWORD=Password pedir grupo whatsApp
 POSTGRES_DB=mentha
 
 PGUSER=leda
-PGPASSWORD=
+PGPASSWORD=Password pedir grupo whatsApp
 PGDB=mentha
 
-POSTGRES_HOST=Password pedir grupo whatsApp
+POSTGRES_HOST=dbpostgresql
 POSTGRES_PORT=5432
 ```
 
