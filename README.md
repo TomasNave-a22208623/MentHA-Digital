@@ -94,17 +94,16 @@ Certifique-se de que está presente:
 Colocar no ficheiro estas informações:
 ```
 POSTGRES_USER=leda
-POSTGRES_PASSWORD=AiraeZeech6Bis
+POSTGRES_PASSWORD=Password pedir grupo whatsApp
 POSTGRES_DB=mentha
 
 PGUSER=leda
-PGPASSWORD=AiraeZeech6Bis
+PGPASSWORD=
 PGDB=mentha
 
-POSTGRES_HOST=dbpostgresql
+POSTGRES_HOST=Password pedir grupo whatsApp
 POSTGRES_PORT=5432
 ```
-![image](https://github.com/user-attachments/assets/434e44ea-11b4-4b21-826f-99aa77b982b1)
 
 ---
 
