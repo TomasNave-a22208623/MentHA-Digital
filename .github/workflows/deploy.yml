@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    name: Run Django Tests
+    name: Run Testes Django
     runs-on: ubuntu-latest
 
     services:
@@ -29,7 +29,7 @@ jobs:
       POSTGRES_DB: mentha_test
       POSTGRES_USER: mentha
       POSTGRES_PASSWORD: mentha123
-      POSTGRES_HOST: localhost
+      POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
 
     steps:
