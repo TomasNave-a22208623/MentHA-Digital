@@ -55,7 +55,7 @@ jobs:
           python manage.py test
 
   deploy:
-    name: Deploy to Production Server
+    name: Deploy para Produção (Servidor)
     runs-on: ubuntu-latest
     needs: test  
 
