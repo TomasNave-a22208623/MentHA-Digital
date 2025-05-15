@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      dbpostgresql:  # nome do serviço precisa ser igual ao valor usado em POSTGRES_HOST
+      dbpostgresql:  
         image: postgres:13
         env:
           POSTGRES_DB: mentha_test
@@ -29,7 +29,7 @@ jobs:
       POSTGRES_DB: mentha_test
       POSTGRES_USER: mentha
       POSTGRES_PASSWORD: mentha123
-      POSTGRES_HOST: dbpostgresql  # precisa ser igual ao nome definido acima
+      POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
 
     steps:
