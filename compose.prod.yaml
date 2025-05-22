@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  dbpostgresql:
+    image: postgres:12.9
+    container_name: dbpostgresql_prod
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./dump_file.sql:/docker-entrypoint-initdb.d/dump_file.sql
+    networks:
+      - mentha_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: django_web_prod
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    networks:
+      - mentha_network
+    depends_on:
+      dbpostgresql:
+        condition: service_healthy
+
+  nginx:
+    build:
+      context: ./gateway
+    container_name: nginx_gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static_volume:/static
+      - media_volume:/media
+    depends_on:
+      - web
+    networks:
+      - mentha_network
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+networks:
+  mentha_network:
+    driver: bridge
