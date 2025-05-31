@@ -17,7 +17,7 @@ DEBUG = DJANGO_ENV != "production"
 SECRET_KEY = os.getenv('SECRET_KEY', 'insecure-default-key')
 
 
-# ALLOWED HOSTS
+# ALLOWED HOSTS 
 if DEBUG:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 else:

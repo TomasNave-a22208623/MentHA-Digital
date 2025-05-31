@@ -21,6 +21,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
+      args:
+        DJANGO_ENV: production
     container_name: django_web_prod
     ports:
       - "8000:8000"

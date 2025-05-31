@@ -5,6 +5,9 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+ARG DJANGO_ENV=production
+ENV DJANGO_ENV=${DJANGO_ENV}
+
 RUN apt-get update && apt-get install -y gcc libpq-dev
 
 COPY requirements.txt .
