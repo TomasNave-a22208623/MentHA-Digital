@@ -21,7 +21,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'insecure-default-key')
 if DEBUG:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 else:
-    ALLOWED_HOSTS = ['jupiter.ulusofona.pt', 'menthadigital.com']
+    ALLOWED_HOSTS = ['jupiter.ulusofona.pt', 'menthadigital.com' , 'menthadigital.pt']
 
 
 # MEDIA
