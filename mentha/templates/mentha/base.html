@@ -106,6 +106,61 @@
             inicializarScripts(); // inicializa scripts de animação do carrossel quando a pagina é iniciada
             
 
+            
+
+            function atualizaEstadoLogin(logado, nomeUsuario = '') {
+                const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+                // Desktop
+                const loginDesktop = document.getElementById('a-login');
+                const logoutDesktop = document.getElementById('a-logout');
+                const userInfoDesktop = document.getElementById('user-info');
+                const userNameDesktop = document.getElementById('user-name');
+
+                // Mobile
+                const loginMobile = document.getElementById('m-login');
+                const logoutMobile = document.getElementById('m-logout');
+                const userInfoMobile = document.getElementById('m-user-info');
+                const userNameMobile = document.getElementById('m-user-name');
+
+                if (isMobile) {
+                    // Atualiza só elementos mobile
+                    if (logado) {
+                        loginMobile.style.display = 'none';
+                        logoutMobile.style.display = 'block';
+                        userInfoMobile.style.display = 'flex';
+                        userNameMobile.textContent = nomeUsuario;
+                    } else {
+                        loginMobile.style.display = 'block';
+                        logoutMobile.style.display = 'none';
+                        userInfoMobile.style.display = 'none';
+                    }
+
+                    // Esconde desktop
+                    loginDesktop.style.display = 'none';
+                    logoutDesktop.style.display = 'none';
+                    userInfoDesktop.style.display = 'none';
+
+                } else {
+                    // Atualiza só elementos desktop
+                    if (logado) {
+                        loginDesktop.style.display = 'none';
+                        logoutDesktop.style.display = 'block';
+                        userInfoDesktop.style.display = 'flex';
+                        userNameDesktop.textContent = nomeUsuario;
+                    } else {
+                        loginDesktop.style.display = 'block';
+                        logoutDesktop.style.display = 'none';
+                        userInfoDesktop.style.display = 'none';
+                    }
+
+                    // Esconde mobile
+                    loginMobile.style.display = 'none';
+                    logoutMobile.style.display = 'none';
+                    userInfoMobile.style.display = 'none';
+                }
+            }
+
 
             function ligarEventListenersPrograma() {
                 // Mentha Care
@@ -389,26 +444,18 @@
                             .then(text => {
                                 
                                 if(text == 'ok') {   
-                                    // document.querySelector('#a-videoconferencia').style.display = 'block';
-                                    document.querySelector('#a-logout').style.display = 'block';
-                                    document.querySelector('#a-login').style.display = 'none';  
-                                    
                                     var nome = document.querySelector('#form-login [name="username"]').value;
-                                    document.querySelector('#login .branco .titulo').innerHTML = `Olá ${nome}!`;
+                                    atualizaEstadoLogin(true, nome);
 
+                                    document.querySelector('#login .branco .titulo').innerHTML = `Olá ${nome}!`;
                                     document.querySelector('#login .branco .texto').innerHTML = `Seja bem-vindo ao MentHA Digital.<br><br>`;
 
-                                    const userInfo = document.querySelector('#user-info');
-                                    const userNameSpan = document.querySelector('#user-name');
-                                    userNameSpan.textContent = nome;
-                                    userInfo.style.display = 'flex';
-                                    
                                     fetch("{% url 'mentha:app-list' %}")
                                     .then(response => response.text())
                                     .then(text => {
                                         document.querySelector('.app-list').innerHTML = text;
-                                    })
-                                }
+                                    });
+}
                                 else {
                                     const mensagem = document.querySelector('#login #mensagem')
                                     mensagem.innerHTML = "Credenciais inválidas";
@@ -425,22 +472,10 @@
                 fetch("{% url 'mentha:login' %}")
                     .then(response => response.text())
                     .then(text => {
-                        // document.querySelector('#content').innerHTML = text;
                         document.querySelector('html').scrollTop = 0;
-
-                        // document.querySelector('#a-videoconferencia').style.display = 'none'
-                        document.querySelector('#a-logout').style.display = 'none'
-                        document.querySelector('#a-login').style.display = 'block'
-
-                        document.querySelector('#user-info').style.display = 'none';
-
-                        // let a = document.querySelector('#a-logout');
-                        // a.style.color = 'white';
-                        // a.style.borderbottom = '1px solid white';
-                        // a.style.textDecoration = 'none';
-
+                        atualizaEstadoLogin(false);
                     });
-                return false;
+            return false;
             }
 
             document.querySelector('#a-aplicacoes').onclick = () => {
@@ -637,6 +672,9 @@
                 <div class="content-fluid">
                     <img class="content" src="{% static 'mentha/logos/mentha_wbgray.png' %}" />
                     <div class="content-wrapper">
+                        <div class="hamburger" id="hamburger-button" aria-label="Abrir menu">
+                            <span style="font-size: 1.8rem;">&#9776;</span> <!-- símbolo ☰ -->
+                        </div>
                         <div class="div">
                             <div class="link-text" id="a-home" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">Home Page</div>
                             <div class="nav-link-dropdown" id="projeto-dropdown">
@@ -696,6 +734,24 @@
                     </div>
                 </div>
             </nav>
+            <div class="mobile-menu" id="mobile-menu">
+                <div class="link-text" id="m-a-home">Home Page</div>
+                <div class="link-text" id="m-a-projeto">Projeto</div>
+                <div class="link-text" id="m-a-parceiros">Parceiros</div>
+                <div class="link-text" id="m-a-equipa">Equipa</div>
+                <div class="link-text" id="m-a-contacto">Contactos</div>
+                <div class="link-text" id="m-a-noticias">Notícias</div>
+                <div class="link-text" id="m-a-aplicacoes">Programas</div>
+                <div class="link-text" id="m-a-cog">MentHA COG</div>
+                <div class="link-text" id="m-a-eval">MentHA EVAL</div>
+                <div class="link-text" id="m-a-care">MentHA CARE</div>
+                <button class="button" id="m-login">Login</button>
+                <button class="button" id="m-logout">Logout</button>
+                <div class="user-info" id="m-user-info" style="display:none; align-items: center; padding: 0.5rem 1rem;">
+                    <img src="{% static 'mentha/icones/doctor.png' %}" alt="User Icon" class="user-icon" style="width:24px; height:24px; margin-right: 8px;" />
+                    <span class="user-name" id="m-user-name">Utilizador</span>
+                </div>
+            </div>
         </header>
         <article id="content">
 
@@ -705,6 +761,84 @@
 
         
     </main>
+    <script>
+       const hamburgerButton = document.getElementById("hamburger-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        hamburgerButton.onclick = (e) => {
+            e.stopPropagation(); // evitar fecho imediato
+            mobileMenu.style.display = mobileMenu.style.display === "flex" ? "none" : "flex";
+        };
+
+        // Fecha o menu se clicares fora
+        document.addEventListener("click", (e) => {
+            if (!mobileMenu.contains(e.target) && e.target !== hamburgerButton) {
+                mobileMenu.style.display = "none";
+            }
+        });
+
+        // Cada link móvel aciona o clique do link original
+        document.querySelectorAll(".mobile-link").forEach(link => {
+            link.onclick = () => {
+                const targetId = link.dataset.target;
+                const originalLink = document.getElementById(targetId);
+                if (originalLink) {
+                    originalLink.click();
+                }
+                mobileMenu.style.display = "none";
+            };
+        });
+
+    document.getElementById('m-a-home').onclick = () => {
+        document.getElementById('a-home').click();
+        mobileMenu.style.display = "none";
+    };
+    document.getElementById('m-a-projeto').onclick = () => {
+        document.getElementById('a-projeto').click();
+        mobileMenu.style.display = "none";
+    };
+    document.getElementById('m-a-parceiros').onclick = () => {
+        document.getElementById('a-parceiros').click();
+        mobileMenu.style.display = "none";
+    };
+    document.getElementById('m-a-equipa').onclick = () => {
+        document.getElementById('a-equipa').click();
+        mobileMenu.style.display = "none";
+    };
+    document.getElementById('m-a-contacto').onclick = () => {
+        document.getElementById('a-contacto').click();
+        mobileMenu.style.display = "none";
+    };
+    document.getElementById('m-a-noticias').onclick = () => {
+        document.getElementById('a-noticias').click();
+        mobileMenu.style.display = "none";
+    };
+    document.getElementById('m-a-cog').onclick = () => {
+        document.getElementById('a-mentha-cog').click();
+        mobileMenu.style.display = "none";
+    };
+    document.getElementById('m-a-eval').onclick = () => {
+        document.getElementById('a-mentha-eval').click();
+        mobileMenu.style.display = "none";
+    };
+    document.getElementById('m-a-care').onclick = () => {
+        document.getElementById('a-mentha-care').click();
+        mobileMenu.style.display = "none";
+    };
+    document.getElementById('m-a-aplicacoes').onclick = () => {
+        document.getElementById('a-aplicacoes').click();
+        mobileMenu.style.display = "none";
+    };
+
+    document.getElementById('m-login').onclick = () => {
+        document.getElementById('a-login').click();
+        mobileMenu.style.display = "none";
+    };
+    document.getElementById('m-logout').onclick = () => {
+        document.getElementById('a-logout').click();
+        mobileMenu.style.display = "none";
+    };
+    </script>
 
 </body>
 

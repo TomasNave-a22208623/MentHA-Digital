@@ -39,8 +39,11 @@ nav {
   /* Conteúdo dentro do nav */
   nav .content {
     height: auto;
-    max-height: 73px;
-    padding: 0 2rem;
+    max-height: 60px; /* ↓ reduzida para responsividade */
+    padding: 0 1rem;
+    width: auto;
+    max-width: 80%; /* impede que ultrapasse o espaço */
+    object-fit: contain;
   }
   
   /* Container principal com elementos de navegação */
@@ -163,6 +166,7 @@ nav {
     height: 2rem;
     border-radius: 50%;
   }
+
   
   /* Responsividade */
   @media (max-width: 1200px) {
@@ -343,74 +347,203 @@ nav {
     padding-right: 10px; 
     white-space: nowrap;
   }
+
+.hamburger {
+  display: none !important;
+}
+
+/* Estilo do menu móvel */
+.mobile-menu {
+  display: none;
+  position: fixed;  /* para ocupar toda a viewport e não só dentro do nav */
+  top: 60px;        /* abaixo da navbar (altura da navbar) */
+  left: 0;
+  width: 100vw;     /* largura total da viewport */
+  height: calc(100vh - 60px); /* altura total menos a navbar */
+  background-color: #fffafa;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 2rem 0;
+  z-index: 9999;
+  flex-direction: column;
+  align-items: center; /* centraliza horizontalmente */
+  overflow-y: auto; /* se a lista for longa, permite scroll vertical */
+}
+
+/* Mostrar menu */
+.mobile-menu.active {
+  display: flex;
+}
+
+/* Itens do menu centrados e espaços iguais */
+.mobile-menu .link-text,
+.mobile-menu .button {
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  font-size: 1.2rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  color: #333;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+/* Último item não tem border */
+.mobile-menu .link-text:last-child,
+.mobile-menu .button:last-child {
+  border-bottom: none;
+}
+
+/* Hover simples e suave */
+.mobile-menu .link-text:hover,
+.mobile-menu .button:hover {
+  background-color: #e0f2f5;
+  color: #00585c;
+  border-radius: 8px;
+}
+
+/* Botões Login/Logout estilizados */
+.mobile-menu .button {
+  background-color: #68bfc7;
+  border: 1px solid #68bfc7;
+  color: white;
+  border-radius: 1rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.mobile-menu .button:hover {
+  background-color: #4f9b9e;
+  border-color: #4f9b9e;
+}
   
   @media (max-width: 768px) {
-    nav {
-      flex-direction: column;
-      align-items: center;
-      height: auto;
-    }
-  
-    nav .content-wrapper {
-      align-items: center;
-    }
-  
-    nav .div {
-      flex-direction: column;
-      align-items: center;
-      gap: 0.75rem;
-      width: 100%;
-    }
-  
-    nav .div-2 {
-      flex-direction: column;
-      align-items: center;
-      gap: 0.75rem;
-      width: 100%;
-    }
-  
-    nav .button {
-      width: 100%;
-      padding: 0.75rem 0;
-      margin-top: 1rem;
-    }
+  nav {
+    flex-direction: row; /* manter horizontal */
+    padding: 0 1rem;
+    height: 60px;
+  }
+
+  nav .content-wrapper {
+    flex: 1;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  nav .div {
+    display: none; /* esconder menu normal no tablet, vamos mostrar no telemóvel */
+  }
+
+  nav .button {
+    display: none;
   }
   
-  @media (max-width: 480px) {
-    nav {
-      padding: 0.5rem;
-      height: auto;
-    }
-  
-    nav .content {
-      width: 40vw;
-    }
-  
-    nav .div {
-      flex-direction: column;
-      gap: 1rem;
-    }
-  
-    nav .div-2 {
-      flex-direction: column;
-      gap: 1rem;
-    }
-  
-    nav .link-text {
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-  
-    nav .button {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 0.9rem;
-    }
-  
-    nav .text-wrapper {
-      font-size: 1rem;
-    }
+  /* Logo reduzida */
+  nav .content {
+    max-height: 50px;
+    width: auto;
   }
+  
+  .hamburger {
+    display: flex !important;
+  }
+  /* Opcional: ajustar links se mostrar */
+}
+
+/* --- Telemóvel: max-width 480px --- */
+@media (max-width: 480px) {
+  nav {
+    position: relative;
+    padding: 0 1rem;
+    height: 60px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  nav .content-wrapper {
+    padding: 0 1rem;
+  }
+
+  nav .content {
+    max-height: 40px;
+    max-width: 50%;
+  }
+
+  /* Esconder menu original e botões */
+  nav .div,
+  nav .button,
+  nav .user-info {
+    display: none;
+  }
+
+  #a-login {
+    display: none;
+  }
+
+  /* Mostrar botão hamburguer */
+  nav .hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    font-size: 1.8rem;
+    margin-left: auto;
+    z-index: 1100;
+  }
+
+  /* Menu móvel escondido por padrão */
+  nav .mobile-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #fffafa;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    width: 220px;
+    flex-direction: column;
+    padding: 1rem;
+    z-index: 1000;
+  }
+
+  nav .mobile-menu.active {
+    display: flex;
+  }
+
+  nav .mobile-menu .link-text,
+  nav .mobile-menu .dropdown-item {
+    font-size: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+  }
+
+  nav .mobile-menu .link-text:last-child,
+  nav .mobile-menu .dropdown-item:last-child {
+    border-bottom: none;
+  }
+
+  nav .mobile-menu .button {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 1rem;
+    background-color: #68bfc7;
+    border: 1px solid #68bfc7;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  nav .mobile-menu .button:hover {
+    background-color: #4f9b9e;
+  }
+}
 
 
 
@@ -464,7 +597,7 @@ div.hero {
 
 .slogan .tituloSlogan {
     font-weight: 700;
-    font-size: 96px;
+    font-size: clamp(2rem, 6vw, 96px);
     color: #4EB4BE;
     text-align: left;
     font-family: "Roboto-Bold", Helvetica;
@@ -473,7 +606,7 @@ div.hero {
 }
 
 .slogan .textoSlogan {
-    font-size: 35px;
+    font-size: clamp(1rem, 3.5vw, 35px);
     color: whitesmoke;
     line-height: 1.5;
     text-align: left;
@@ -484,28 +617,46 @@ div.hero {
 }
 
 
+@media (max-width: 480px) {
+
+
+  div.hero {
+    height: calc(110vh - 7em - 7em);
+}
+
+  .slogan .tituloSlogan,
+  .slogan .textoSlogan {
+    text-align: center;
+  }
+
+  .slogan {
+    align-items: center;
+  }
+}
+
 /**-------------------------------------------------------Home (footer)---------------------------------------------**/
 
 .footer-logo {
   display: flex;
-  justify-content: space-between; /* espaçamento entre os blocos */
+  justify-content: space-evenly;
   align-items: center;
-  padding: 20px 200px;
+  padding: clamp(1em, 4vw, 2em) clamp(1em, 5vw, 6em); /* padding vertical e horizontal responsivo */
   background-color: white;
   width: 100%;
-  height: 7em;
   box-sizing: border-box;
-  flex-wrap: wrap; /* em ecrãs pequenos, permite quebra */
+  flex-wrap: wrap;
+  gap: clamp(1em, 4vw, 2em);
+  min-height: clamp(5em, 12vh, 10em); /* <- altura mínima flexível */
 }
-
 .footer-block {
+  flex: 0 1 340px;
+  max-width: 400px; /* <- controla o crescimento excessivo */
   display: flex;
   align-items: center;
-  gap: 30px; /* espaço entre o texto e a imagem */
-  min-width: 200px;
-  flex: 1;
-  height: 5em;
-  justify-content: flex-start;
+  gap: clamp(10px, 3vw, 30px);
+  justify-content: center;
+  flex-wrap: wrap;
+  text-align: center;
 }
 
 .footer-logo .footer-block:nth-child(2) {
@@ -517,7 +668,7 @@ div.hero {
 }
 
 .footer-logo .heading {
-  font-size: 1em;
+  font-size: clamp(0.8rem, 1.2vw, 1em); /* responsivo */
   color: #000000;
   font-weight: 700;
   font-family: "Microsoft Sans Serif", Helvetica;
@@ -525,14 +676,14 @@ div.hero {
 }
 
 .footer-logo .logo {
-  max-height: 4em;
-  width: auto;
+  height: clamp(2.5em, 3.5vw, 3.5em);
+  width: clamp(6em, 10vw, 12em);
 }
 
 .logo-carousel {
   overflow: hidden;
-  width: 12em;
-  max-height: 4em;
+  width: clamp(6em, 10vw, 12em); /* igual ao logo */
+  height: clamp(2.5em, 3.5vw, 3.5em); /* igual ao logo */
   position: relative;
   display: flex;
   align-items: center;
@@ -546,118 +697,136 @@ div.hero {
 
 .logo-carousel .logo {
   flex-shrink: 0;
-  width: 12em;
-  height: 3.5em;
+  width: clamp(6em, 10vw, 12em);
+  height: clamp(2.5em, 3.5vw, 3.5em);
 }
 
 
+@media (max-width: 480px) {
+  .logo-carousel {         /* largura total do container */
+    max-width: 280px;    /* limite máximo para o carousel */
+    overflow: hidden;    /* esconde o que passar */
+    margin: 0 auto;      /* centraliza horizontalmente */
+  }
+
+  .logo-track {
+    display: flex;
+    width: 100%;  
+    transition: transform 0.5s ease-in-out;
+    will-change: transform;       /* largura igual container */
+    /* NÃO definir transition ou transform se não tiver JS */
+  }
+
+  .logo {
+    flex: 0 0 100%;      /* cada logo ocupa 100% do container */
+    max-width: 100%;
+    height: auto;
+  }
+
+  .footer-logo .footer-block {
+    justify-content: center !important;
+  }
+
+  .footer-logo .heading {
+  display: none;
+}
+
+.footer-logo {
+  flex-wrap: nowrap;
+  
+}
+  
+  
+}
 
 /**--------------------------------------------Home (Info)-----------------------------------------------------------**/
-
 
 .info {
   display: inline-flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  /* padding responsivo: mínimo 40px, ideal 10vw, máximo 140px */
-  padding: clamp(40px, 10vw, 70px) clamp(20px, 5vw, 80px);
+  padding: clamp(30px, 8vw, 100px) clamp(20px, 5vw, 80px);
   width: 100%;
-  gap: clamp(30px, 5vw, 80px);
+  gap: clamp(20px, 5vw, 60px);
   background-color: white;
 }
 
-/* Título + texto lado a lado (desktop) */
 .info .section-title {
   display: flex;
   width: 100%;
   align-items: center;
   justify-content: center;
-  gap: 160px;      /* menor gap para não “quebrar” em telas médias */
-  flex-wrap: wrap; /* permite quebrar em múltiplas linhas se necessário */
+  gap: clamp(2em, 10vw, 10em); /* responsivo */
+  flex-wrap: wrap;
 }
 
-/* Coluna do título */
 .info .column {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 16px;
+  gap: 1em;
   flex: 1;
 }
 
-/* Título com cor e peso */
 .info .heading {
   font-family: "Microsoft Sans Serif", Helvetica;
   font-weight: 700;
-  font-size: 2.9em;
+  font-size: clamp(1.5rem, 3vw, 2.9rem); /* <- mais responsivo */
   color: #4EB4BE;
   margin-bottom: 1px;
+  text-align: left;
 }
 
-/* Wrapper do texto */
 .info .text-wrapper {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center; /* centraliza em telas estreitas */
-  gap: 14px;
+  align-items: center;
+  gap: 1em;
   flex: 1;
   width: 100%;
 }
 
-/* Parágrafo de corpo */
 .info .text {
   font-family: "Microsoft Sans Serif", Helvetica;
   font-weight: 400;
-  font-size: 22px;
+  font-size: clamp(1rem, 2vw, 1.1rem); /* 16px–22px */
   color: #000;
-  line-height: 1.5;   /* valor relativo para responsividade */
+  line-height: 1.5;
   text-align: center;
-  user-select: none;  /* previne seleção indesejada */
+  user-select: none;
   margin-bottom: 1px;
 }
 
+
 /* Media Queries para tablets e mobile */
-@media (max-width: 1024px) {
-  .info .heading {
-    font-size: 2.2em;
-  }
-  .info .section-title {
-    gap: 60px;
-  }
-}
 
-@media (max-width: 768px) {
-  .info {
-    padding: clamp(30px, 8vw, 100px) clamp(15px, 4vw, 60px);
-    gap: clamp(20px, 4vw, 60px);
-  }
-
-  .info .section-title {
-    flex-direction: column;
-    gap: 40px;
-  }
-
-  .info .heading {
-    font-size: 1.8em;
-  }
-}
 
 @media (max-width: 480px) {
+
   .info {
-    padding: clamp(20px, 6vw, 80px) clamp(10px, 3vw, 40px);
+    padding: clamp(20px, 1vw, 80px) clamp(10px, 8vw, 40px);
     gap: clamp(15px, 3vw, 40px);
   }
 
+  .info .section-title {
+  display: contents;
+}
+
+  /* Centro do título */
   .info .heading {
-    font-size: 1.5em;
+    text-align: center;
+    font-size: clamp(0.9rem, 1.3vw, 1rem);
   }
 
+  /* Textos ligeiramente menores */
   .info .text {
-    font-size: 18px;
+    font-size: clamp(0.9rem, 1.8vw, 1rem); /* reduz um pouco o tamanho */
   }
+
+
 }
 
 
@@ -668,30 +837,30 @@ div.hero {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 120px 120px;
+  padding: clamp(40px, 8vw, 120px);
   width: 100%;
   background-image: url("/static/mentha/icones/backgroudMent1.png");
   background-size: cover;
+  background-position: 50% 50%;
   position: relative;
   overflow: hidden;
-  background-position: 50% 50%;
 }
 
 .container-video .content {
-  flex-wrap: wrap;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 5vw, 4rem);
   width: 100%;
   align-items: center;
   justify-content: center;
-  gap: 64px 64px;
-  display: flex;
 }
 
-.container-video .row-wrapper{
+.container-video .row-wrapper {
   display: flex;
-  align-items: flex-start;
-  gap: 100px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(2rem, 5vw, 6rem);
   width: 100%;
-  align-self: stretch;
 }
 
 .container-video .row {
@@ -703,83 +872,75 @@ div.hero {
 }
 
 .container-video .column {
+  flex: 1 1 300px;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 32px;
-  flex: 1;
-  flex-grow: 1;
+  gap: 1.5rem;
 }
 
 .container-video .video {
-  align-self: stretch;
   width: 100%;
-  height: 260px;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: 8px;
   object-fit: cover;
 }
 
 .container-video .div {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  gap: 1rem;
   width: 100%;
-  align-self: stretch;
-  flex: 0 0 auto;
 }
 
 .container-video .content-text {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  flex: 1;
+  gap: 0.75rem;
   width: 100%;
-  align-self: stretch;
-  flex: 0 0 auto;
 }
 
 .container-video .heading {
-  font-family: "Arial-Bond", Helvetica;
+  font-family: "Arial-Bold", Helvetica;
   font-weight: 700;
-  font-size: 24px;
+  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
   color: black;
-  align-self: stretch;
-  line-height: 33.6px;
-  min-height: calc(3 * 33.6px);
-  margin-bottom: 5px;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
 }
 
 .container-video .text {
-  font-family: "Arial-Bond", Helvetica;
-  font-weight: 700;
-  font-size: 16px;
+  font-family: "Arial", Helvetica;
+  font-weight: 400;
+  font-size: clamp(1rem, 2vw, 1.125rem);
   color: white;
-  line-height: 28px;   /* valor relativo para responsividade */
-  align-self: stretch;
-  min-height: calc(5 * 28px);
-  margin-bottom: 5px;
+  line-height: 1.6;
+  text-align: left;
+  margin-bottom: 0.5rem;
 }
 
-.container-video .action{
+.container-video .action {
   display: flex;
   align-items: center;
-  gap: 8px;
-  width: 100%;
-  align-self: stretch;
-  width: 100%;
-  flex: 0 0 auto;
+  gap: 0.5rem;
   cursor: pointer;
 }
 
+
 .container-video .button {
   all: unset;
-  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  flex: 0 0 auto;
+  gap: 0.5rem;
+  font-family: "Arial-Bold", Helvetica;
+  font-weight: 700;
+  font-size: clamp(1rem, 1.8vw, 1.125rem);
+  color: black;
+  border-bottom: 2px solid transparent;
+  transition: border 0.3s ease, color 0.3s ease;
 }
 
 .container-video .text-wrapper{
@@ -793,14 +954,14 @@ div.hero {
   line-height: 1.5;
 }
 
-.container-video .icon-chevron-right{
-  width: 14px;
-  height: 14px;
+.container-video .button:hover {
+  color: black;
+  border-bottom: 2px solid black;
 }
 
-.container-video .action:hover{
-  color: black;
-  border-bottom: 3px solid black;
+.container-video .icon-chevron-right {
+  width: 1rem;
+  height: 1rem;
 }
 
 /**--------------------------------------------Parceiros-----------------------------------------------------------**/
@@ -854,16 +1015,16 @@ div.hero {
   font-family: "Microsoft Sans Serif", Helvetica, sans-serif;
   font-weight: 700;
   color: #68bfc7;
-  font-size: 3rem;
-  line-height: 3rem;
+  font-size: clamp(1.8rem, 3vw, 3rem);
+  line-height: clamp(2.2rem, 3.5vw, 3.5rem);
 }
 
 .parcerias .text {
   font-family: "Microsoft Sans Serif", Helvetica, sans-serif;
   font-weight: 400;
   color: black;
-  font-size: 1.125rem;
-  line-height: 1.5rem;
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  line-height: clamp(1.4rem, 2.5vw, 1.8rem);
 }
 
 .parcerias .actions {
@@ -891,8 +1052,8 @@ div.hero {
   font-family: "Microsoft Sans Serif", Helvetica, sans-serif;
   font-weight: 400;
   color: black;
-  font-size: 1.125rem;
-  line-height: 1.125rem;
+  font-size: clamp(1rem, 1.8vw, 1.125rem);
+  line-height: clamp(1.2rem, 2vw, 1.5rem);
   white-space: nowrap;
 }
 
@@ -918,6 +1079,76 @@ div.hero {
   height: auto;
   object-fit: contain;
   max-height: 6em;
+}
+
+@media (max-width: 480px) {
+  .parcerias {
+    padding: 10% 5%; /* reduzir um pouco o padding */
+    gap: 2.5rem;
+  }
+
+  .parcerias .container {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.1rem;
+    width: 100%;
+  }
+
+  .parcerias .content {
+    display: none; /* esconde o bloco azul decorativo para poupar espaço */
+  }
+
+  .parcerias .div {
+    flex: 1 1 100px;
+    margin-right: 0;
+    align-items: center; /* centraliza conteúdo textual */
+    text-align: center;
+  }
+
+  .parcerias .content-2 {
+    width: 100%;
+    gap: 0.1rem;
+  }
+
+  .parcerias .heading {
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+  }
+
+  .parcerias .text {
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
+    max-width: 90%;
+    margin: 0 auto;
+  }
+
+  .parcerias .actions {
+    justify-content: center;
+  }
+
+  .parcerias .button {
+    padding: 0.75rem 2rem;
+  }
+
+  .parcerias .column {
+    flex: 1 1 250px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    width: 100%;
+  }
+
+  .parcerias .row,
+  .parcerias .img-wrapper {
+    width: 45%; /* duas logos por linha */
+    height: auto;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .parcerias .image {
+    max-height: 4.5em;
+    width: auto;
+  }
 }
 
 /**--------------------------------------------Enquadramento-----------------------------------------------------------**/
@@ -946,9 +1177,11 @@ div.hero {
 
 .enquadramento .image-enquadramento {
   object-fit: cover;
-  flex: 1;
-  flex-grow: 1;
-  height: 640px;
+  width: clamp(280px, 42vw, 640px);   /* largura responsiva */
+  height: clamp(280px, 42vw, 640px);  /* altura responsiva igual à largura */
+  max-width: 640px;
+  max-height: 640px;
+  flex-shrink: 0;
 }
 
 .enquadramento .content {
@@ -956,16 +1189,17 @@ div.hero {
   flex-direction: column;
   align-items: flex-start;
   gap: 24px;
-  flex: 1;
-  flex-grow: 1;
+  flex: 1 1 auto;
+  max-width: clamp(280px, 200vw, 640px); /* largura responsiva */
+  width: 100%;
 }
 
 .enquadramento .heading {
   font-family: "Roboto-Bold", Helvetica;
   font-weight: 700;
-  font-size: 3.2rem;
   color: white;
-  line-height: 3rem;
+  font-size: clamp(1.8rem, 3.2vw, 3.2rem);
+  line-height: clamp(2rem, 4.2vw, 3rem);
   align-self: stretch;
 }
 
@@ -973,8 +1207,8 @@ div.hero {
   font-family: "Microsoft Sans Serif", Helvetica;
   font-weight: 400;
   color: black;
-  font-size: 1.3rem;
-  line-height: 1.8rem;
+  font-size: clamp(1rem, 2.5vw, 1.1rem);
+  line-height: clamp(1.4rem, 3vw, 1.8rem);
   align-self: stretch;
 } 
 
@@ -986,6 +1220,46 @@ div.hero {
   color: white;
 }
 
+@media (max-width: 480px) {
+  .enquadramento {
+    padding: 60px 24px;
+    gap: 40px;
+    background-position: center;
+  }
+
+  .enquadramento .container {
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .enquadramento .image-enquadramento {
+    width: clamp(200px, 80vw, 300px);
+    height: auto;
+  }
+
+  .enquadramento .content {
+    align-items: center;
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .enquadramento .heading {
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
+    line-height: 1.4;
+  }
+
+  .enquadramento .text {
+    font-size: clamp(0.95rem, 4vw, 1.05rem);
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .enquadramento .text-wrapper,
+  .enquadramento .span {
+    display: inline;
+  }
+}
 
 /**--------------------------------------------Objetivos-----------------------------------------------------------**/
 
@@ -1023,7 +1297,7 @@ div.hero {
 .objetivos .heading {
   font-family: "Microsoft Sans Serif", Helvetica;
   font-weight: 700;
-  font-size: 5em;
+  font-size: clamp(2rem, 5vw, 5em);
   color: #4EB4BE;
   flex: 0 0 auto;
 }
@@ -1041,7 +1315,7 @@ div.hero {
 .objetivos .text {
   font-family: "Microsoft Sans Serif", Helvetica;
   font-weight: 400;
-  font-size: 20px;
+  font-size: clamp(1rem, 2vw, 1.15rem);
   color: #000;
   line-height: 1.5;   /* valor relativo para responsividade */
   user-select: none;  /* previne seleção indesejada */
@@ -1084,7 +1358,7 @@ div.hero {
   font-family: "Arial-Bond", Helvetica;
   white-space: nowrap;
   font-weight: 700;      /* de 100 (mais fino) até 900 (mais grosso) */
-  font-size: 18px;
+  font-size: clamp(0.9rem, 1.5vw, 1.125rem);
   line-height: 1.5;
 }
 
@@ -1097,6 +1371,58 @@ div.hero {
   color: #68bfc7;
   border-bottom: 3px solid #68bfc7;
 }
+
+@media (max-width: 480px) {
+  .objetivos {
+    padding: clamp(30px, 6vw, 50px) clamp(15px, 4vw, 30px);
+    align-items: center;
+  }
+
+  .objetivos .section-title {
+    flex-direction: column;
+    gap: 40px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .objetivos .column {
+    align-items: center;
+    gap: 30px;
+  }
+
+  .objetivos .heading {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    text-align: center;
+  }
+
+  .objetivos .text-wrapper {
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .objetivos .text {
+    font-size: clamp(0.9rem, 4vw, 1.05rem);
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .objetivos .action {
+    width: auto;
+    margin-top: 0;
+  }
+
+  .objetivos .text-wrapper-ver-mais {
+    font-size: 0.95rem;
+  }
+
+  .objetivos .icon-chevron-right {
+    width: 12px;
+    height: 12px;
+  }
+}
+
 
 
 /**--------------------------------------------Expectativas-----------------------------------------------------------**/
@@ -1123,9 +1449,11 @@ div.hero {
 
 .expectativas .image-expectativas {
   object-fit: cover;
-  flex: 1;
-  flex-grow: 1;
-  height: 640px;
+  width: clamp(280px, 42vw, 640px);   /* largura responsiva */
+  height: clamp(280px, 42vw, 640px);  /* altura responsiva igual à largura */
+  max-width: 640px;
+  max-height: 640px;
+  flex-shrink: 0;
   margin-right: 30px;
 }
 
@@ -1134,8 +1462,9 @@ div.hero {
   flex-direction: column;
   align-items: flex-start;
   gap: 24px;
-  flex: 1;
-  flex-grow: 1;
+  flex: 1 ;
+  max-width: clamp(280px, 200vw, 640px);
+  width: 100%;
 }
 
 .expectativas .div {
@@ -1151,9 +1480,9 @@ div.hero {
 .expectativas .heading {
   font-family: "Microsoft Sans Serif", Helvetica;
   font-weight: 700;
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  line-height: clamp(1.8rem, 3.5vw, 3.1rem);
   color: #68bfc7;
-  line-height: 3.1rem;
   align-self: stretch;
 }
 
@@ -1161,8 +1490,8 @@ div.hero {
   font-family: "Microsoft Sans Serif", Helvetica;
   font-weight: 400;
   color: black;
-  font-size: 1.1rem;
-  line-height: 1.8rem;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  line-height: clamp(1.3rem, 2.5vw, 1.8rem);
   align-self: stretch;
 }
 
@@ -1207,9 +1536,9 @@ div.hero {
 .expectativas .heading-list-item {
   font-family: "Microsoft Sans Serif", Helvetica;
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  line-height: clamp(1.3rem, 2.5vw, 2rem);
   color: black;
-  line-height: 2rem;
 }
 
 .expectativas .content-2 {
@@ -1219,6 +1548,73 @@ div.hero {
   border-radius: 12px;
 }
 
+@media (max-width: 480px) {
+  .expectativas {
+    padding: 60px 20px;
+    gap: 40px;
+  }
+
+  .expectativas .container {
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .expectativas .image-expectativas {
+    width: clamp(200px, 80vw, 300px);
+    height: clamp(200px, 80vw, 300px);
+    margin-right: 0;
+  }
+
+  .expectativas .content {
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    max-width: 100%;
+  }
+
+  .expectativas .div {
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .expectativas .heading {
+    font-size: clamp(1.3rem, 5vw, 2rem);
+    line-height: 1.4;
+  }
+
+  .expectativas .text {
+    font-size: clamp(0.9rem, 4vw, 1rem);
+    line-height: 1.6;
+  }
+
+  .expectativas .row-wrapper {
+    align-items: center;
+  }
+
+  .expectativas .row {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-left: 0;
+  }
+
+  .expectativas .list-item {
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .expectativas .heading-list-item {
+    font-size: clamp(1rem, 4vw, 1.3rem);
+    line-height: 1.4;
+  }
+
+  .expectativas .content-2 {
+    display: none;
+  }
+}
 /**--------------------------------------------Inpacto-----------------------------------------------------------**/
 
 .impacto {
@@ -1303,9 +1699,9 @@ div.hero {
 .impacto .heading {
   font-family: "Microsoft Sans Serif", Helvetica;
   font-weight: 700;
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  line-height: clamp(1.8rem, 4.5vw, 3rem);
   color: white;
-  line-height: 3rem;
   align-self: stretch;
 }
 
@@ -1313,8 +1709,8 @@ div.hero {
   font-family: "Microsoft Sans Serif", Helvetica;
   font-weight: 700;
   color: black;
-  font-size: 1rem;
-  line-height: 1.8rem;
+  font-size: clamp(0.85rem, 2.2vw, 1rem);
+  line-height: clamp(1.3rem, 2.8vw, 1.8rem);
   align-self: stretch;
 }
 
@@ -1343,9 +1739,9 @@ div.hero {
 .impacto .text-wrapper {
   font-family: "Microsoft Sans Serif", Helvetica;
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 3vw, 1.2rem);
+  line-height: clamp(1.6rem, 3.5vw, 2rem);
   color: white;
-  line-height: 2rem;
 }
 
 .impacto .icon {
@@ -1358,12 +1754,86 @@ div.hero {
   object-fit: cover;
   flex: 1;
   flex-grow: 1;
-  height: 600px;
+  width: clamp(280px, 40vw, 600px);
+  height: clamp(280px, 40vw, 600px);
+  max-height: 600px;
   margin-right: 30px;
 }
 
 
+@media (max-width: 480px) {
+  .impacto {
+    padding: 60px 20px;
+    gap: 40px;
+  }
 
+  .impacto .container {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 40px;
+    min-height: auto;
+  }
+
+  .impacto .image {
+    width: clamp(200px, 80vw, 320px);
+    height: clamp(200px, 80vw, 320px);
+    margin-right: 0;
+  }
+
+  .impacto .content {
+    align-items: center;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .impacto .div {
+    align-items: center;
+    text-align: center;
+  }
+
+  .impacto .div-2 {
+    gap: 20px;
+    align-items: center;
+  }
+
+  .impacto .tagline {
+    font-size: 0.95rem;
+    line-height: 1.3rem;
+  }
+
+  .impacto .heading {
+    font-size: clamp(1.3rem, 6vw, 2rem);
+    line-height: 1.4;
+  }
+
+  .impacto .text {
+    font-size: clamp(0.9rem, 4.5vw, 1rem);
+    line-height: 1.6;
+  }
+
+  .impacto .row {
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    margin-left: 0;
+  }
+
+  .impacto .list-item {
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .impacto .text-wrapper {
+    font-size: clamp(1rem, 4.5vw, 1.2rem);
+    line-height: 1.5;
+  }
+
+  .impacto .icon {
+    width: 30px;
+    height: 30px;
+  }
+}
 
 
 
