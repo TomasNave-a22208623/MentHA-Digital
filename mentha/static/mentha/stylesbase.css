@@ -607,7 +607,7 @@ div.hero {
 
 .slogan .textoSlogan {
     font-size: clamp(1rem, 3.5vw, 35px);
-    color: whitesmoke;
+    color: black; /*whitesmoke */
     line-height: 1.5;
     text-align: left;
     max-width: 40ch;
