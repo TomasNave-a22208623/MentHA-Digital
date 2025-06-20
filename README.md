@@ -46,29 +46,41 @@ O projeto MentHA Digital está preparado para funcionar em dois ambientes distin
 
 ## 🧪 Ambiente de Desenvolvimento
 
-Este ambiente é ideal para programadores e equipas em fase de implementação, testes ou validação local.
+Este ambiente permite correr a aplicação localmente com dados de teste, facilitando o desenvolvimento iterativo, debug e validações funcionais sem risco para os dados de produção.
 
 ### 🐳 Docker & Orquestração
 
-Utiliza o ficheiro compose.yaml.
+Este ambiente é orquestrado através do ficheiro compose.yaml, que define três serviços principais que trabalham em conjunto para simular o funcionamento completo da aplicação:
 
-Executa três serviços principais:
+1. dbpostgresql
+- É o serviço responsável pela execução da base de dados PostgreSQL.
+- Utiliza a imagem oficial postgres:12.9.
+- Os dados são armazenados num volume persistente Docker chamado postgres_data, garantindo que a informação não se perde entre reinícios do container.
 
-dbpostgresql: base de dados PostgreSQL persistente, com volume postgres_data.
+2. dbpostgresql_init
+- Serviço temporário que tem como função importar automaticamente o dump de dados de teste (dump_tests.sql) para a base de dados PostgreSQL.
+- Usa a mesma imagem oficial postgres:12.9.
+- Monta o ficheiro dump_tests.sql do sistema local para dentro do container.
 
-dbpostgresql_init: container temporário que importa automaticamente o ficheiro dump_tests.sql com dados anónimos e falsos, ideais para desenvolvimento.
-
-web: serviço Django que aplica automaticamente as migrações, inclui hot reload (runserver) e carrega as três aplicações (diario, mentha, protocolo).
+3. web
+- Serviço principal que executa a aplicação Django.
+- Constrói a imagem localmente com base no Dockerfile.
+- Aplica automaticamente todas as migrações necessárias para garantir que o esquema da base de dados está atualizado.
+- Inicia o servidor de desenvolvimento Django (runserver) com suporte a hot reload, facilitando o desenvolvimento ágil.
 
 ### 🧠 Funcionalidades adicionais
 
-Suporte a live reload através do volume .:/app.
+- Live Reload (Hot Reload):
+O código local está ligado ao container via volume (.:/app). Assim, quando alteras ficheiros, o servidor Django reinicia automaticamente. Isto permite ver as mudanças imediatamente sem reiniciar manualmente.
 
-Variáveis de ambiente isoladas no ficheiro .env.
+- Variáveis de Ambiente:
+As configurações específicas do ambiente estão no ficheiro .env, separado do código. Facilita alterar dados sensíveis sem mexer no código-fonte.
 
-Total isolamento de dados de produção, garantindo segurança e liberdade para testes destrutivos.
+- Isolamento da Produção:
+O ambiente de desenvolvimento usa dados anónimos (dump_tests.sql), garantindo que testes não afetem dados reais.
 
-Compatível com ferramentas de debugging (ex: VSCode Debugger, logs verbose).
+- Debugging Simplificado:
+Logs detalhados e compatibilidade com ferramentas como VSCode Debugger facilitam a deteção e correção de erros.
 
 ---
 
