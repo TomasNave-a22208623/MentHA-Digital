@@ -334,9 +334,8 @@ scp root@IP_DO_SERVIDOR:/backups/dump_20250620.sql ./backups/
 #### 📁 Pasta de Backups
 Por padrão, a pasta /backups não está criada automaticamente, mas é altamente recomendada criar no servido. Esta pasta deve ser usada para:
 
-Guardar versões anteriores dos dumps (ex: dump_YYYYMMDD.sql)
-
-Facilitar a recuperação rápida da base de dados em caso de falha ou corrupção de dados
+- Guardar versões anteriores dos dumps (ex: dump_YYYYMMDD.sql)
+- Facilitar a recuperação rápida da base de dados em caso de falha ou corrupção de dados
 
 ⚠️ Cria esta pasta manualmente se ainda não existir:
 mkdir backups 
