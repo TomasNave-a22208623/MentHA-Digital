@@ -307,7 +307,7 @@ A base de dados de produção usa um dump específico chamado `dump_file.sql`. E
 
 ---
 
-###✅ Importar dump de produção no servidor
+### ✅ Importar dump de produção no servidor
 Para importar o ficheiro dump_file.sql:
 
 Envia o ficheiro para o servidor (exemplo com SCP):
@@ -323,7 +323,7 @@ docker-compose up --build
 ```
 O volume do PostgreSQL será criado ou reescrito, e o dump será carregado automaticamente.
 
-###📥 Exportar dump da produção (Backup)
+### 📥 Exportar dump da produção (Backup)
 Para criar um backup da base de dados de produção diretamente no servidor:
 
 ```
@@ -335,12 +335,12 @@ pg_dump -U leda -d mentha > /backups/dump_YYYYMMDD.sql
 Substitui YYYYMMDD pela data atual, ex: dump_20250620.sql.
 ```
 
-####⬇️ Transferir o backup para a tua máquina local:
+#### ⬇️ Transferir o backup para a tua máquina local:
 ```bash
 scp root@IP_DO_SERVIDOR:/backups/dump_20250620.sql ./backups/
 ```
 
-###📁 Pasta de Backups
+### 📁 Pasta de Backups
 Existe uma pasta /backups tanto no servidor como (opcionalmente) no projeto local. Esta pasta serve para:
 
 Guardar versões anteriores dos dumps (dump_YYYYMMDD.sql)
