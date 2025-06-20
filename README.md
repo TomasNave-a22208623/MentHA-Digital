@@ -340,6 +340,7 @@ Por padrão, a pasta /backups não está criada automaticamente, mas é altament
 ⚠️ Cria esta pasta manualmente se ainda não existir:
 mkdir backups 
 
+---
 
 ## 🌱 Workflow de Git
 
