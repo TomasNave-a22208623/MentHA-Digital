@@ -298,8 +298,6 @@ A base de dados de produção usa um dump específico chamado `dump_file.sql`. E
 
 > ⚠️ Este ficheiro para ser colocado no servidor da lusofona no futuro tem de ser pedido ao professor
 
----
-
 #### ✅ Importar dump de produção no servidor
 Para importar o ficheiro dump_file.sql:
 
