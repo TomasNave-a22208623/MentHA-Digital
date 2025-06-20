@@ -334,15 +334,14 @@ scp root@IP_DO_SERVIDOR:/backups/dump_20250620.sql ./backups/
 ```
 
 #### 📁 Pasta de Backups
-Existe uma pasta /backups tanto no servidor como (opcionalmente) no projeto local. Esta pasta serve para:
+Por padrão, a pasta /backups não está criada automaticamente, mas é altamente recomendada criar no servido. Esta pasta deve ser usada para:
 
-Guardar versões anteriores dos dumps (dump_YYYYMMDD.sql)
+Guardar versões anteriores dos dumps (ex: dump_YYYYMMDD.sql)
 
-Armazenar backups manuais ou automáticos
+Facilitar a recuperação rápida da base de dados em caso de falha ou corrupção de dados
 
-Facilitar recuperação em caso de falha de dados
-
-
+⚠️ Cria esta pasta manualmente se ainda não existir:
+mkdir backups 
 
 
 ## 🌱 Workflow de Git
