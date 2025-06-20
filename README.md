@@ -280,6 +280,7 @@ pg_dump -U leda -d mentha > /dump_tests.sql
 
 # 3. No terminal do host, copia o dump para a máquina local
 docker cp dbpostgresql:/dump_tests.sql ./dump_tests.sql
+```
 
 ✅ Garante que o ficheiro exportado está em UTF-8 sem BOM antes de reutilizá-lo ou partilhá-lo com outros.
 
