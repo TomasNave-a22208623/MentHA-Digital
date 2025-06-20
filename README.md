@@ -118,9 +118,19 @@ O ambiente é gerido pelo ficheiro `compose.prod.yaml`, que define três serviç
 
 ### 🔐 Segurança e Boas Práticas
 
-- As variáveis sensíveis, como `SECRET_KEY`, credenciais de base de dados e outras configurações, estão definidas no ficheiro `.env` no servidor, garantindo que não estão expostas no código-fonte.
-- O NGINX oferece uma camada extra de proteção, filtrando e controlando o tráfego antes de chegar à aplicação.
-- O uso do Gunicorn como servidor WSGI profissional assegura melhor gestão de múltiplos pedidos simultâneos e maior eficiência em produção.
+Para garantir a segurança da aplicação em produção, especialmente em relação às credenciais e dados sensíveis, adotamos as seguintes práticas:
+
+- **Variáveis de Ambiente para Configurações Sensíveis**  
+  As informações confidenciais, como a `SECRET_KEY` do Django (usada para criptografia interna e proteção da sessão), as credenciais da base de dados, e outras configurações críticas, são armazenadas exclusivamente em variáveis de ambiente definidas num ficheiro `.env` no servidor de produção.  
+  Isto evita que estas chaves sejam incluídas diretamente no código-fonte ou no repositório Git, protegendo-as de acessos não autorizados e facilitando a sua atualização sem necessidade de alterar o código.
+
+- **Camada de proteção via NGINX**  
+  O NGINX funciona como reverse proxy e firewall, filtrando requisições maliciosas, aplicando cabeçalhos de segurança HTTP e servindo conteúdos estáticos, reduzindo a exposição da aplicação e melhorando o desempenho.
+
+- **Servidor WSGI profissional (Gunicorn)**  
+  O Gunicorn oferece uma gestão eficiente das conexões, permitindo lidar com múltiplos pedidos simultâneos, garantindo estabilidade e escalabilidade em produção.
+
+---
 
 ## 🔁 CI/CD com GitHub Actions
 
@@ -150,23 +160,9 @@ A infraestrutura do projeto está totalmente integrada num pipeline automatizado
 - **Velocidade e fiabilidade:** Permite lançar atualizações rapidamente com menor risco de falhas em produção.
 - **Isolamento dos ambientes:** Os testes correm num ambiente separado, evitando interferência nos dados reais.
 
-### 🔐 Segurança e Boas Práticas
-
-Para garantir a segurança da aplicação em produção, especialmente em relação às credenciais e dados sensíveis, adotamos as seguintes práticas:
-
-- **Variáveis de Ambiente para Configurações Sensíveis**  
-  As informações confidenciais, como a `SECRET_KEY` do Django (usada para criptografia interna e proteção da sessão), as credenciais da base de dados, e outras configurações críticas, são armazenadas exclusivamente em variáveis de ambiente definidas num ficheiro `.env` no servidor de produção.  
-  Isto evita que estas chaves sejam incluídas diretamente no código-fonte ou no repositório Git, protegendo-as de acessos não autorizados e facilitando a sua atualização sem necessidade de alterar o código.
-
-- **Camada de proteção via NGINX**  
-  O NGINX funciona como reverse proxy e firewall, filtrando requisições maliciosas, aplicando cabeçalhos de segurança HTTP e servindo conteúdos estáticos, reduzindo a exposição da aplicação e melhorando o desempenho.
-
-- **Servidor WSGI profissional (Gunicorn)**  
-  O Gunicorn oferece uma gestão eficiente das conexões, permitindo lidar com múltiplos pedidos simultâneos, garantindo estabilidade e escalabilidade em produção.
-
 ---
 
-## 🔄 Configuração local de Ambiente de Desenvolvimento 
+## 🖥️ Configuração local de Ambiente de Desenvolvimento 
 
 Esta secção detalha o processo completo para configurar o ambiente de desenvolvimento localmente, desde a preparação inicial até à execução da aplicação localmente, garantindo que todos os serviços essenciais estão corretamente configurados e a funcionar.
 
