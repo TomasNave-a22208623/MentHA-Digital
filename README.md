@@ -150,9 +150,7 @@ A infraestrutura do projeto está totalmente integrada num pipeline automatizado
 - **Velocidade e fiabilidade:** Permite lançar atualizações rapidamente com menor risco de falhas em produção.
 - **Isolamento dos ambientes:** Os testes correm num ambiente separado, evitando interferência nos dados reais.
 
----
-
-## 🔐 Segurança e Boas Práticas
+### 🔐 Segurança e Boas Práticas
 
 Para garantir a segurança da aplicação em produção, especialmente em relação às credenciais e dados sensíveis, adotamos as seguintes práticas:
 
