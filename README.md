@@ -290,10 +290,6 @@ docker cp dbpostgresql:/dump_tests.sql ./dump_tests.sql
 3. Clica na codificação e, se necessário, converte para `UTF-8`.
 4. **Muito importante**: se vires `UTF-8 with BOM`, clica e escolhe **Reopen with Encoding > UTF-8** (sem BOM) e guarda novamente.
 
-**Na linha de comandos (Linux/macOS)**:
-```bash
-file dump_tests.sql
-```
 🔄 Como converter para UTF-8 sem BOM
 
 Windows (PowerShell):
