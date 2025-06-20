@@ -244,7 +244,7 @@ Credenciais:
 
 ---
 
-## 🗃️ Gestão de Backups e Bases de Dados 
+## 🗃️ Bases de Dados 
 
 ### 🧪 Ambiente de Testes
 
