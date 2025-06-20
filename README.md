@@ -267,7 +267,7 @@ pg_dump -U leda -d mentha > /dump_tests.sql
 docker cp dbpostgresql:/dump_tests.sql ./dump_tests.sql
 
 -- 4. Agora podes partilhar o ficheiro dump_tests.sql com colegas ou guardá-lo para futuras importações.
-
+```
 
 ### 🧪 Importar um novo dump de testes
 
