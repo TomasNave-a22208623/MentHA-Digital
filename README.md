@@ -244,6 +244,95 @@ Credenciais:
 
 ---
 
+## Gestão de Backups e Bases de Dados (Produção vs Testes)
+
+---
+
+### 🗄️ Ambiente de Testes
+
+Em ambiente de testes, a base de dados usada é carregada a partir de um ficheiro `dump_tests.sql`, localizado na raiz do projeto. Este ficheiro contém dados **anónimos/dummy** utilizados apenas para desenvolvimento, testes ou apresentações.
+
+#### ▶️ Como atualizar o dump de testes
+
+Caso tenhas feito alterações na base de dados e queiras exportar um novo dump atualizado para partilhar com colegas, segue estes passos:
+
+```bash
+-- 1. Acede ao container da base de dados:
+docker exec -it dbpostgresql bash
+
+-- 2. Dentro do container, exporta o dump para um ficheiro dentro do container:
+pg_dump -U leda -d mentha > /dump_tests.sql
+
+-- 3. Abre um outro terminal no host e copia o ficheiro para o sistema local:
+docker cp dbpostgresql:/dump_tests.sql ./dump_tests.sql
+
+-- 4. Agora podes partilhar o ficheiro dump_tests.sql com colegas ou guardá-lo para futuras importações.
+
+
+### 🧪 Importar um novo dump de testes
+
+Para usar um novo dump de testes:
+
+- Substitui o ficheiro `dump_tests.sql` na raiz do projeto pelo novo dump.
+- Verifica que o ficheiro está em **UTF-8 sem BOM** para evitar erros de encoding.
+- Reinicia os serviços Docker para carregar o dump:
+
+```bash
+-- Para garantir que os volumes antigos são removidos e o dump é importado
+docker-compose down -v
+
+-- Sobe os serviços novamente, o dump será carregado automaticamente
+docker-compose up --build
+
+## 🚀 Ambiente de Produção
+
+A base de dados de produção usa um dump específico chamado `dump_file.sql`. Este ficheiro contém dados reais e sensíveis, **não deve ser alterado ou sobrescrito localmente sem autorização**.
+
+> ⚠️ Este ficheiro só pode ser fornecido e gerado pelo professor/responsável do projeto.
+
+---
+
+### 📥 Como colocar o dump de produção no servidor
+
+Para carregar o dump no servidor de produção, coloca o ficheiro `dump_file.sql` manualmente dentro do volume montado pelo PostgreSQL. Normalmente, será no diretório do projeto ou numa pasta dedicada no servidor.
+
+Exemplo para enviar via SCP:
+
+```bash
+scp dump_file.sql root@IP_DO_SERVIDOR:/caminho/para/o/projeto/
+
+Esta pasta serve para:
+
+Guardar versões antigas ou específicas dos dumps.
+
+Armazenar exportações periódicas feitas manualmente ou por scripts automáticos (cron jobs).
+
+Facilitar a recuperação rápida em caso de falha ou corrupção de dados.
+
+###💾 Exportar o dump da base de dados de produção (Backup)
+Para exportar um backup da base de dados de produção diretamente do servidor:
+
+1. Acede ao container do PostgreSQL
+docker exec -it dbpostgresql bash
+
+2. Exporta o dump para a pasta de backups
+pg_dump -U leda -d mentha > /backups/dump_YYYYMMDD.sql
+
+3. (Opcional) Copia o backup para o teu computador local
+scp root@IP_DO_SERVIDOR:/backups/dump_YYYYMMDD.sql ./backups/
+Substitui YYYYMMDD pela data atual para organização.
+
+###🛡️ Nota de Segurança Importante
+Nunca comites dumps da base de dados de produção em repositórios Git, mesmo que estejam listados no .gitignore.
+
+Partilha dumps reais apenas por canais seguros, e sempre com autorização do professor ou responsável técnico.
+
+Mantém backups regulares para garantir integridade e facilidade de recuperação.
+
+
+
+
+
 ## 🌱 Workflow de Git
 
 No relatório de TFC de 2024/2025 está presente um capítulo que explica o que workflow que adotamos no git. Este workflow é baseado no método usado em empresas com projetos grandes para evitar problemas de controlo de versões. É recomendada a leitura deste capítulo e utilização deste workflow.
