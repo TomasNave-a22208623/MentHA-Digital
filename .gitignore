@@ -13,6 +13,7 @@ media
 
 # Backup files # 
 *.bak 
+dump_file.sql
 
 # If you are using PyCharm # 
 # User-specific stuff

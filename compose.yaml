@@ -19,9 +19,9 @@ services:
   dbpostgresql_init:
     image: postgres:12.9
     container_name: dbpostgresql_init
-    command: psql -h dbpostgresql -d mentha -U leda -f dump_file.sql 
+    command: psql -h dbpostgresql -d mentha -U leda -f dump_tests.sql 
     volumes:
-      - ./dump_file.sql:/dump_file.sql
+      - ./dump_tests.sql:/dump_tests.sql
     environment:
       PGPASSWORD: ${POSTGRES_PASSWORD}
     env_file:
