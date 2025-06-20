@@ -46,41 +46,42 @@ O projeto MentHA Digital está preparado para funcionar em dois ambientes distin
 
 ## 🧪 Ambiente de Desenvolvimento
 
-Este ambiente permite correr a aplicação localmente com dados de teste, facilitando o desenvolvimento iterativo, debug e validações funcionais sem risco para os dados de produção.
+Este ambiente destina-se a programadores e equipas durante a fase de implementação, testes e validação local da aplicação. Permite um ciclo de desenvolvimento rápido e seguro, com dados anónimos, hot reload e isolamento completo da produção.
 
-### 🐳 Docker & Orquestração
+### 🐳 Arquitetura e Serviços Docker
 
-Este ambiente é orquestrado através do ficheiro compose.yaml, que define três serviços principais que trabalham em conjunto para simular o funcionamento completo da aplicação:
+O ambiente é orquestrado através do ficheiro `compose.yaml`, que define três serviços principais que trabalham em conjunto para simular o funcionamento completo da aplicação:
 
-1. dbpostgresql
-- É o serviço responsável pela execução da base de dados PostgreSQL.
-- Utiliza a imagem oficial postgres:12.9.
-- Os dados são armazenados num volume persistente Docker chamado postgres_data, garantindo que a informação não se perde entre reinícios do container.
+1. **dbpostgresql**  
+   - Serviço responsável pela execução da base de dados PostgreSQL.  
+   - Utiliza a imagem oficial `postgres:12.9`.  
+   - Os dados são armazenados num volume persistente Docker chamado `postgres_data`, garantindo persistência entre reinícios.
 
-2. dbpostgresql_init
-- Serviço temporário que tem como função importar automaticamente o dump de dados de teste (dump_tests.sql) para a base de dados PostgreSQL.
-- Usa a mesma imagem oficial postgres:12.9.
-- Monta o ficheiro dump_tests.sql do sistema local para dentro do container.
+2. **dbpostgresql_init**  
+   - Serviço temporário responsável por importar automaticamente o dump de dados de teste (`dump_tests.sql`) para a base de dados.  
+   - Usa a mesma imagem oficial `postgres:12.9`.  
+   - Monta o ficheiro `dump_tests.sql` do sistema local para dentro do container, permitindo inicialização com dados anónimos.
 
-3. web
-- Serviço principal que executa a aplicação Django.
-- Constrói a imagem localmente com base no Dockerfile.
-- Aplica automaticamente todas as migrações necessárias para garantir que o esquema da base de dados está atualizado.
-- Inicia o servidor de desenvolvimento Django (runserver) com suporte a hot reload, facilitando o desenvolvimento ágil.
+3. **web**  
+   - Serviço principal que executa a aplicação Django.  
+   - Constrói a imagem localmente com base no `Dockerfile`.  
+   - Aplica automaticamente todas as migrações para manter o esquema da base de dados atualizado.  
+   - Inicia o servidor de desenvolvimento Django (`runserver`) com suporte a hot reload, facilitando um desenvolvimento ágil.
 
-### 🧠 Funcionalidades adicionais
+### 🧠 Funcionalidades Adicionais
 
-- Live Reload (Hot Reload):
-O código local está ligado ao container via volume (.:/app). Assim, quando alteras ficheiros, o servidor Django reinicia automaticamente. Isto permite ver as mudanças imediatamente sem reiniciar manualmente.
+- **Live Reload (Hot Reload):**  
+  O código local está ligado ao container via volume (`.:/app`). Sempre que alteras ficheiros, o servidor Django reinicia automaticamente, permitindo visualizar as mudanças em tempo real, sem necessidade de reiniciar manualmente.
 
-- Variáveis de Ambiente:
-As configurações específicas do ambiente estão no ficheiro .env, separado do código. Facilita alterar dados sensíveis sem mexer no código-fonte.
+- **Variáveis de Ambiente:**  
+  Todas as configurações específicas do ambiente estão definidas no ficheiro `.env`, separado do código-fonte. Isto facilita a alteração de dados sensíveis sem comprometer o código.
 
-- Isolamento da Produção:
-O ambiente de desenvolvimento usa dados anónimos (dump_tests.sql), garantindo que testes não afetem dados reais.
+- **Isolamento da Produção:**  
+  O ambiente utiliza um dump de dados anónimos (`dump_tests.sql`), garantindo que os testes locais não interferem nem comprometem dados reais de produção.
 
-- Debugging Simplificado:
-Logs detalhados e compatibilidade com ferramentas como VSCode Debugger facilitam a deteção e correção de erros.
+- **Debugging Simplificado:**  
+  Logs detalhados e compatibilidade com ferramentas como o VSCode Debugger permitem uma deteção e resolução de erros mais eficiente.
+
 
 ---
 
