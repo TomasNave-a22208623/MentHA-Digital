@@ -569,7 +569,7 @@ nav {
 
 .espacolista,
 div.hero {
-    height: calc(100vh - 7em - 7em);
+    height: calc(100vh - 6em - 7em);
     width: 100%;
     background-repeat: no-repeat;
     background-position: center;
