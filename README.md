@@ -162,7 +162,7 @@ A infraestrutura do projeto está totalmente integrada num pipeline automatizado
 
 ---
 
-## 🖥️ Configuração local de Ambiente de Desenvolvimento 
+## 🖥️ Configuração local do Ambiente de Desenvolvimento 
 
 Esta secção detalha o processo completo para configurar o ambiente de desenvolvimento localmente, desde a preparação inicial até à execução da aplicação localmente, garantindo que todos os serviços essenciais estão corretamente configurados e a funcionar.
 
