@@ -20,52 +20,104 @@ O projeto consiste num website construído com Django, que integra três aplica�
 ### Diretório principal:
 ```
 /raiz_do_projeto
-├── diario/ # Aplicação MentHA COG e CARE
-├── mentha/ # Website MentHA
-├── protocolo/ # Protocolo MentHA EVAL
+├── diario/                  # MentHA COG & CARE
+├── mentha/                 # Frontend principal
+├── protocolo/              # MentHA EVAL
+├── gateway/                # Configuração NGINX
 ├── manage.py
-├── requirements.txt # Dependências do projeto Python
-├── compose.yml # Configuração do Docker Compose
-├── Dockerfile # Instruções de build da imagem da aplicação
-├── dump_file.sql # Script de importação inicial da base de dados
-└── .env # Variáveis de ambiente (DB, Django, etc.)
+├── requirements.txt
+├── Dockerfile              # Para desenvolvimento
+├── Dockerfile.prod         # Para produção (Gunicorn)
+├── compose.yaml            # Docker Compose (dev)
+├── compose.prod.yaml       # Docker Compose (prod)
+├── dump_tests.sql          # Dump de testes (dados dummy)
+└── .env                    # Variáveis de ambiente (dev/prod)
 ```
 
-### Base de Dados:
 
-A base de dados utilizada é PostgreSQL, gerida por um container Docker.
-Na primeira execução, é automaticamente carregado um ficheiro dump_file.sql com dados previamente definidos, garantindo que o projeto arranca com uma base de dados populada e funcional.
 
 ---
 
-## ⚙️ Serviços Docker Compose
+## 🔀 Ambientes do Projeto
 
-A aplicação é orquestrada com Docker Compose, permitindo levantar todos os componentes do projeto com um único comando. Este sistema garante que os serviços necessários são iniciados na ordem correta e com as dependências satisfeitas.
+O projeto MentHA Digital está preparado para funcionar em dois ambientes distintos, com infraestruturas adaptadas a cada caso:
 
-### Funções principais do Docker Compose no projeto:
+---
 
-1.	Inicia e configura a base de dados PostgreSQL com persistência de dados.
-2.	Executa um script SQL inicial (dump_file.sql) para carregar dados base na primeira execução.
-3.	Constrói a imagem da aplicação Django, instala dependências, aplica migrações e lança o servidor.
-4.	Garante a ordem de arranque correta entre os serviços (ex: o servidor Django só arranca após a base de dados estar disponível).
+## 🧪 Ambiente de Desenvolvimento
 
-### Serviços definidos:
+Este ambiente é ideal para programadores e equipas em fase de implementação, testes ou validação local.
 
-`dbpostgresql`:
+### 🐳 Docker & Orquestração
 
-Executa o container oficial do PostgreSQL, com base nas variáveis de ambiente definidas no .env.
-Um volume persistente (postgres_data) assegura que os dados são mantidos entre reinícios.
+Utiliza o ficheiro compose.yaml.
 
-`dbpostgresql_init`:
+Executa três serviços principais:
 
-Container temporário responsável por importar o ficheiro dump_file.sql com dados iniciais para a base de dados.
-Este serviço depende do dbpostgresql e apenas é executado após a base de dados estar operacional.
+dbpostgresql: base de dados PostgreSQL persistente, com volume postgres_data.
 
-`web`:
+dbpostgresql_init: container temporário que importa automaticamente o ficheiro dump_tests.sql com dados anónimos e falsos, ideais para desenvolvimento.
 
-Serviço principal da aplicação Django.
-Constrói a imagem com base no Dockerfile, instala as dependências (via pip), executa as migrações e inicia o servidor de desenvolvimento.
-Inclui as três apps: diario, mentha e protocolo.
+web: serviço Django que aplica automaticamente as migrações, inclui hot reload (runserver) e carrega as três aplicações (diario, mentha, protocolo).
+
+### 🧠 Funcionalidades adicionais
+
+Suporte a live reload através do volume .:/app.
+
+Variáveis de ambiente isoladas no ficheiro .env.
+
+Total isolamento de dados de produção, garantindo segurança e liberdade para testes destrutivos.
+
+Compatível com ferramentas de debugging (ex: VSCode Debugger, logs verbose).
+
+---
+
+## 🚀 Ambiente de Produção
+Este ambiente é utilizado em contexto de deploy real, com foco em segurança, estabilidade e performance.
+
+### 🐳 Docker & Orquestração
+Utiliza o ficheiro compose.prod.yaml.
+
+Contém três serviços principais:
+
+dbpostgresql: container da base de dados PostgreSQL, com volume persistente.
+
+web: serviço Django executado com Gunicorn como WSGI server.
+
+nginx: reverse proxy containerizado, responsável por:
+
+servir ficheiros estáticos (/static/) e media (/media/)
+
+redirecionar as requisições HTTP para o Gunicorn
+
+aplicar headers de segurança e compressão
+
+## 🔁 CI/CD com GitHub Actions
+A infraestrutura de deploy está integrada num pipeline automatizado:
+
+Workflow deploy.yml (CI/CD)
+Fase de Testes:
+
+Executa testes Django automaticamente em cada push para main.
+
+Base de dados mentha_test é criada num container isolado no GitHub Runner.
+
+Fase de Deploy:
+
+Faz SCP dos ficheiros do projeto para o servidor remoto.
+
+Gera dinamicamente o ficheiro .env no servidor com segredos armazenados no GitHub Secrets.
+
+Executa os seguintes comandos no servidor:
+
+docker-compose -f compose.prod.yaml down
+
+docker-compose -f compose.prod.yaml up -d --build
+
+python manage.py collectstatic --noinput
+
+
+
 
 ---
 
