@@ -33,9 +33,6 @@ O projeto consiste num website construído com Django, que integra três aplica�
 ├── dump_tests.sql          # Dump de testes (dados dummy)
 └── .env                    # Variáveis de ambiente (dev/prod)
 ```
-
-
-
 ---
 
 ## 🔀 Ambientes do Projeto
@@ -86,55 +83,94 @@ O ambiente é orquestrado através do ficheiro `compose.yaml`, que define três 
 ---
 
 ## 🚀 Ambiente de Produção
-Este ambiente é utilizado em contexto de deploy real, com foco em segurança, estabilidade e performance.
+
+Este ambiente corresponde à infraestrutura utilizada para o deploy real da aplicação, disponível ao público. O foco principal é garantir **segurança**, **estabilidade**, **performance** e **escalabilidade** para o sistema em produção.
+
+### 🏗️ Visão Geral
+
+O ambiente de produção é uma configuração mais robusta e otimizada, que inclui:
+
+- Execução da aplicação Django com um servidor WSGI profissional (Gunicorn) para melhor desempenho e gestão de múltiplos pedidos simultâneos.
+- Utilização de um **reverse proxy** (NGINX) containerizado, que serve ficheiros estáticos e media de forma eficiente, além de proteger e otimizar as comunicações HTTP.
+- Base de dados PostgreSQL com armazenamento persistente e saudável.
+- Configurações específicas de ambiente que garantem a separação total da lógica e dados de desenvolvimento.
 
 ### 🐳 Docker & Orquestração
-Utiliza o ficheiro compose.prod.yaml.
 
-Contém três serviços principais:
+O ambiente é gerido pelo ficheiro `compose.prod.yaml`, que define três serviços essenciais:
 
-dbpostgresql: container da base de dados PostgreSQL, com volume persistente.
+1. **dbpostgresql**  
+   - Container da base de dados PostgreSQL, responsável por armazenar todos os dados da aplicação.  
+   - Usa um volume Docker persistente para garantir que os dados se mantêm seguros entre reinícios e atualizações do container.  
+   - Inclui um mecanismo de healthcheck para monitorar a disponibilidade do serviço.
 
-web: serviço Django executado com Gunicorn como WSGI server.
+2. **web**  
+   - Serviço principal que executa a aplicação Django utilizando o servidor **Gunicorn**, um servidor WSGI leve e eficiente, indicado para produção.  
+   - Recebe as requisições encaminhadas pelo NGINX e responde com conteúdos dinâmicos da aplicação.  
+   - Aplica migrações e configurações otimizadas para o ambiente de produção.  
+   - Não expõe funcionalidades de hot reload, garantindo estabilidade.
 
-nginx: reverse proxy containerizado, responsável por:
+3. **nginx**  
+   - Reverse proxy containerizado que atua como intermediário entre os clientes e o serviço Django.  
+   - Serve diretamente ficheiros estáticos (`/static/`) e media (`/media/`) para otimizar a entrega de conteúdo e reduzir carga no servidor de aplicação.  
+   - Aplica headers de segurança importantes (ex: Content Security Policy, X-Frame-Options) e compressão (gzip) para melhorar performance e segurança.  
+   - Encaminha requisições HTTP para o serviço `web` (Gunicorn), mantendo a arquitetura limpa e modular.  
 
-servir ficheiros estáticos (/static/) e media (/media/)
+### 🔐 Segurança e Boas Práticas
 
-redirecionar as requisições HTTP para o Gunicorn
-
-aplicar headers de segurança e compressão
+- As variáveis sensíveis, como `SECRET_KEY`, credenciais de base de dados e outras configurações, estão definidas no ficheiro `.env` no servidor, garantindo que não estão expostas no código-fonte.
+- O NGINX oferece uma camada extra de proteção, filtrando e controlando o tráfego antes de chegar à aplicação.
+- O uso do Gunicorn como servidor WSGI profissional assegura melhor gestão de múltiplos pedidos simultâneos e maior eficiência em produção.
 
 ## 🔁 CI/CD com GitHub Actions
-A infraestrutura de deploy está integrada num pipeline automatizado:
 
-Workflow deploy.yml (CI/CD)
-Fase de Testes:
+A infraestrutura do projeto está totalmente integrada num pipeline automatizado de CI/CD (Continuous Integration / Continuous Deployment) usando o GitHub Actions. Isto permite que, sempre que um código novo é enviado para o repositório (push para a branch `main`), todo o processo de testes e deployment seja executado de forma automática e controlada, garantindo qualidade e rapidez.
 
-Executa testes Django automaticamente em cada push para main.
+### Fluxo do Workflow `deploy.yml`
 
-Base de dados mentha_test é criada num container isolado no GitHub Runner.
+1. **Fase de Testes (CI)**
+   - Cada vez que ocorre um push para a branch principal (`main`), o GitHub Actions inicia uma pipeline de testes.
+   - Nesta fase, é criado um ambiente isolado com um container PostgreSQL temporário (`mentha_test`) para simular a base de dados durante os testes.
+   - A aplicação Django executa os seus testes automatizados, validando que todas as funcionalidades principais estão corretas e que não existem regressões.
+   - Apenas se todos os testes forem aprovados, o workflow avança para a próxima fase.
 
-Fase de Deploy:
+2. **Fase de Deploy (CD)**
+   - Depois dos testes serem bem sucedidos, a pipeline inicia o deploy automático da aplicação para o servidor remoto.
+   - Os ficheiros do projeto são copiados via SCP (Secure Copy Protocol) para o diretório do servidor destinado ao projeto.
+   - O ficheiro `.env` é gerado dinamicamente no servidor, utilizando segredos (como chaves secretas e credenciais) guardados em segurança no GitHub Secrets, garantindo que informações sensíveis nunca ficam expostas no código-fonte público.
+   - O workflow executa comandos SSH no servidor para:
+     - Parar quaisquer serviços Docker em execução (`docker-compose -f compose.prod.yaml down`), garantindo uma atualização limpa.
+     - Recriar e iniciar os serviços em modo destacado, reconstruindo as imagens se necessário (`docker-compose -f compose.prod.yaml up -d --build`).
+     - Executar a coleta dos ficheiros estáticos da aplicação Django (`python manage.py collectstatic --noinput`), preparando-os para serem servidos pelo NGINX.
 
-Faz SCP dos ficheiros do projeto para o servidor remoto.
+### Benefícios deste CI/CD automatizado
 
-Gera dinamicamente o ficheiro .env no servidor com segredos armazenados no GitHub Secrets.
-
-Executa os seguintes comandos no servidor:
-
-docker-compose -f compose.prod.yaml down
-
-docker-compose -f compose.prod.yaml up -d --build
-
-python manage.py collectstatic --noinput
-
-
-
+- **Automação total:** O processo de testes, build e deploy ocorre sem intervenção manual, reduzindo erros humanos.
+- **Segurança reforçada:** As credenciais e segredos ficam guardados de forma segura no GitHub e nunca no repositório.
+- **Velocidade e fiabilidade:** Permite lançar atualizações rapidamente com menor risco de falhas em produção.
+- **Isolamento dos ambientes:** Os testes correm num ambiente separado, evitando interferência nos dados reais.
 
 ---
 
-## 🔄 Configurar Projeto Localmente com Docker Compose
+## 🔐 Segurança e Boas Práticas
+
+Para garantir a segurança da aplicação em produção, especialmente em relação às credenciais e dados sensíveis, adotamos as seguintes práticas:
+
+- **Variáveis de Ambiente para Configurações Sensíveis**  
+  As informações confidenciais, como a `SECRET_KEY` do Django (usada para criptografia interna e proteção da sessão), as credenciais da base de dados, e outras configurações críticas, são armazenadas exclusivamente em variáveis de ambiente definidas num ficheiro `.env` no servidor de produção.  
+  Isto evita que estas chaves sejam incluídas diretamente no código-fonte ou no repositório Git, protegendo-as de acessos não autorizados e facilitando a sua atualização sem necessidade de alterar o código.
+
+- **Camada de proteção via NGINX**  
+  O NGINX funciona como reverse proxy e firewall, filtrando requisições maliciosas, aplicando cabeçalhos de segurança HTTP e servindo conteúdos estáticos, reduzindo a exposição da aplicação e melhorando o desempenho.
+
+- **Servidor WSGI profissional (Gunicorn)**  
+  O Gunicorn oferece uma gestão eficiente das conexões, permitindo lidar com múltiplos pedidos simultâneos, garantindo estabilidade e escalabilidade em produção.
+
+---
+
+## 🔄 Configuração local de Ambiente de Desenvolvimento 
+
+Esta secção detalha o processo completo para configurar o ambiente de desenvolvimento localmente, desde a preparação inicial até à execução da aplicação localmente, garantindo que todos os serviços essenciais estão corretamente configurados e a funcionar.
 
 ### 1. Clonar o Repositório
 
