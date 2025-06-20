@@ -296,7 +296,7 @@ Get-Content dump_tests.sql | Set-Content -Encoding utf8 dump_tests_clean.sql
 
 A base de dados de produção usa um dump específico chamado `dump_file.sql`. Este ficheiro contém dados reais e sensíveis, 
 
-> ⚠️ Este ficheiro só pode ser fornecido e gerado pelo professor/responsável do projeto.
+> ⚠️ Este ficheiro para ser colocado no servidor da lusofona no futuro tem de ser pedido ao professor
 
 ---
 
