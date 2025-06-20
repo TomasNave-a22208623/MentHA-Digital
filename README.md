@@ -270,14 +270,7 @@ O serviço dbpostgresql_init irá executar automaticamente o psql -f dump_tests.
 Caso queiras gerar um novo ficheiro `dump_tests.sql` a partir da base de dados atual (por exemplo, para partilhar com colegas), segue os passos abaixo:
 
 ```bash
-# 1. Acede ao container da base de dados
-docker exec -it dbpostgresql bash
-
-# 2. Exporta a base de dados para um ficheiro dentro do container
-pg_dump -U leda -d mentha > /dump_tests.sql
-
-# 3. No terminal do host, copia o dump para a máquina local
-docker cp dbpostgresql:/dump_tests.sql ./dump_tests.sql
+docker exec dbpostgresql pg_dump -U leda -d mentha > dump_testsNovo.sql
 ```
 
 ✅ Garante que o ficheiro exportado está em UTF-8 sem BOM antes de reutilizá-lo ou partilhá-lo com outros.
