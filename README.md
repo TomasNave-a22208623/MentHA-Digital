@@ -246,8 +246,6 @@ Credenciais:
 
 ## 🗃️ Gestão de Backups e Bases de Dados (Produção vs Testes)
 
----
-
 ### 🧪 Ambiente de Testes
 
 O ambiente de testes utiliza a base de dados definida no ficheiro `dump_tests.sql`, localizado na raiz do projeto. Este ficheiro contém dados **anónimos ou simulados**, próprios para desenvolvimento, debugging e testes.
