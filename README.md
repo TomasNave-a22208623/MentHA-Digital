@@ -244,91 +244,115 @@ Credenciais:
 
 ---
 
-## Gestão de Backups e Bases de Dados (Produção vs Testes)
+## 🗃️ Gestão de Backups e Bases de Dados (Produção vs Testes)
 
 ---
 
-### 🗄️ Ambiente de Testes
+### 🧪 Ambiente de Testes
 
-Em ambiente de testes, a base de dados usada é carregada a partir de um ficheiro `dump_tests.sql`, localizado na raiz do projeto. Este ficheiro contém dados **anónimos/dummy** utilizados apenas para desenvolvimento, testes ou apresentações.
+O ambiente de testes utiliza a base de dados definida no ficheiro `dump_tests.sql`, localizado na raiz do projeto. Este ficheiro contém dados **anónimos ou simulados**, próprios para desenvolvimento, debugging e testes.
 
-#### ▶️ Como atualizar o dump de testes
+#### ✅ Importar dump de testes
 
-Caso tenhas feito alterações na base de dados e queiras exportar um novo dump atualizado para partilhar com colegas, segue estes passos:
+Para carregar um novo dump de testes no ambiente de desenvolvimento:
+
+1. **Substitui** o ficheiro `dump_tests.sql` na raiz do projeto.
+2. **Confirma** que está codificado em `UTF-8` **sem BOM** (sem Byte Order Mark).
+3. **Reinicia os serviços Docker** com remoção dos volumes para forçar a importação:
 
 ```bash
--- 1. Acede ao container da base de dados:
+# Apaga volumes antigos e força importação do novo dump
+docker-compose down -v
+docker-compose up --build
+```
+O serviço dbpostgresql_init irá executar automaticamente o psql -f dump_tests.sql.
+
+#### 📤 Exportar novo dump de testes
+
+Caso queiras gerar um novo ficheiro `dump_tests.sql` a partir da base de dados atual (por exemplo, para partilhar com colegas), segue os passos abaixo:
+
+```bash
+# 1. Acede ao container da base de dados
 docker exec -it dbpostgresql bash
 
--- 2. Dentro do container, exporta o dump para um ficheiro dentro do container:
+# 2. Exporta a base de dados para um ficheiro dentro do container
 pg_dump -U leda -d mentha > /dump_tests.sql
 
--- 3. Abre um outro terminal no host e copia o ficheiro para o sistema local:
+# 3. No terminal do host, copia o dump para a máquina local
 docker cp dbpostgresql:/dump_tests.sql ./dump_tests.sql
 
--- 4. Agora podes partilhar o ficheiro dump_tests.sql com colegas ou guardá-lo para futuras importações.
+✅ Garante que o ficheiro exportado está em UTF-8 sem BOM antes de reutilizá-lo ou partilhá-lo com outros.
+
+🔎 Como verificar se o ficheiro está em UTF-8 sem BOM
+
+**No VSCode**:
+1. Abre o ficheiro `dump_tests.sql`.
+2. No canto inferior direito, verifica a codificação (ex: `UTF-8`, `UTF-16 LE`, etc.).
+3. Clica na codificação e, se necessário, converte para `UTF-8`.
+4. **Muito importante**: se vires `UTF-8 with BOM`, clica e escolhe **Reopen with Encoding > UTF-8** (sem BOM) e guarda novamente.
+
+**Na linha de comandos (Linux/macOS)**:
+```bash
+file dump_tests.sql
+```
+🔄 Como converter para UTF-8 sem BOM
+
+Windows (PowerShell):
+
+```powershell
+Get-Content dump_tests.sql | Set-Content -Encoding utf8 dump_tests_clean.sql
 ```
 
-### 🧪 Importar um novo dump de testes
-
-Para usar um novo dump de testes:
-
-- Substitui o ficheiro `dump_tests.sql` na raiz do projeto pelo novo dump.
-- Verifica que o ficheiro está em **UTF-8 sem BOM** para evitar erros de encoding.
-- Reinicia os serviços Docker para carregar o dump:
-
-```bash
--- Para garantir que os volumes antigos são removidos e o dump é importado
-docker-compose down -v
-
--- Sobe os serviços novamente, o dump será carregado automaticamente
-docker-compose up --build
 
 ## 🚀 Ambiente de Produção
 
-A base de dados de produção usa um dump específico chamado `dump_file.sql`. Este ficheiro contém dados reais e sensíveis, **não deve ser alterado ou sobrescrito localmente sem autorização**.
+A base de dados de produção usa um dump específico chamado `dump_file.sql`. Este ficheiro contém dados reais e sensíveis, 
 
 > ⚠️ Este ficheiro só pode ser fornecido e gerado pelo professor/responsável do projeto.
 
 ---
 
-### 📥 Como colocar o dump de produção no servidor
+###✅ Importar dump de produção no servidor
+Para importar o ficheiro dump_file.sql:
 
-Para carregar o dump no servidor de produção, coloca o ficheiro `dump_file.sql` manualmente dentro do volume montado pelo PostgreSQL. Normalmente, será no diretório do projeto ou numa pasta dedicada no servidor.
-
-Exemplo para enviar via SCP:
+Envia o ficheiro para o servidor (exemplo com SCP):
 
 ```bash
-scp dump_file.sql root@IP_DO_SERVIDOR:/caminho/para/o/projeto/
+scp dump_file.sql root@IP_DO_SERVIDOR:/caminho/do/projeto/
+```
+Garante que o nome do ficheiro no servidor é exatamente dump_file.sql.
 
-Esta pasta serve para:
+```bash
+docker-compose down -v
+docker-compose up --build
+```
+O volume do PostgreSQL será criado ou reescrito, e o dump será carregado automaticamente.
 
-Guardar versões antigas ou específicas dos dumps.
+###📥 Exportar dump da produção (Backup)
+Para criar um backup da base de dados de produção diretamente no servidor:
 
-Armazenar exportações periódicas feitas manualmente ou por scripts automáticos (cron jobs).
-
-Facilitar a recuperação rápida em caso de falha ou corrupção de dados.
-
-###💾 Exportar o dump da base de dados de produção (Backup)
-Para exportar um backup da base de dados de produção diretamente do servidor:
-
-1. Acede ao container do PostgreSQL
+```
+# 1. Acede ao container da base de dados
 docker exec -it dbpostgresql bash
 
-2. Exporta o dump para a pasta de backups
+# 2. Gera um novo dump com data para organização
 pg_dump -U leda -d mentha > /backups/dump_YYYYMMDD.sql
+Substitui YYYYMMDD pela data atual, ex: dump_20250620.sql.
+```
 
-3. (Opcional) Copia o backup para o teu computador local
-scp root@IP_DO_SERVIDOR:/backups/dump_YYYYMMDD.sql ./backups/
-Substitui YYYYMMDD pela data atual para organização.
+####⬇️ Transferir o backup para a tua máquina local:
+```bash
+scp root@IP_DO_SERVIDOR:/backups/dump_20250620.sql ./backups/
+```
 
-###🛡️ Nota de Segurança Importante
-Nunca comites dumps da base de dados de produção em repositórios Git, mesmo que estejam listados no .gitignore.
+###📁 Pasta de Backups
+Existe uma pasta /backups tanto no servidor como (opcionalmente) no projeto local. Esta pasta serve para:
 
-Partilha dumps reais apenas por canais seguros, e sempre com autorização do professor ou responsável técnico.
+Guardar versões anteriores dos dumps (dump_YYYYMMDD.sql)
 
-Mantém backups regulares para garantir integridade e facilidade de recuperação.
+Armazenar backups manuais ou automáticos
 
+Facilitar recuperação em caso de falha de dados
 
 
 
