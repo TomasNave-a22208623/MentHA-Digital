@@ -467,7 +467,7 @@ Este ambiente foi criado para testar o processo de deploy, infraestrutura, CI/CD
 
 Acesso à plataforma:
 
-- URL: https://menthadigital.com/
+- URL: https://menthadigital.pt/
 - Credenciais: Ver no Grupo do WhatsApp
 
 ### 🏛️ Servidor da Lusófona (Versão Oficial, Desatualizada)
@@ -480,6 +480,11 @@ O objetivo principal para as equipas futuras será migrar a infraestrutura está
 - **IP:** 193.137.75.199
 - **Utilizador:** ***
 - **Password:** ***
+
+Acesso à plataforma:
+
+- URL: https://menthadigital.com/
+- Credenciais: Ver no Grupo do WhatsApp
 
 ---
 
