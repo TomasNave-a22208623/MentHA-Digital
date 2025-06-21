@@ -399,8 +399,8 @@ Uso recomendado:
 
 --- 
 
-### 🚀 Deploy no Servidor (Produção)
-Este guia mostra-te como ligar a infraestrutura de produção a uma nova VM (Ubuntu).
+### 🚀 Guia de adaptação da pipeline de Deploy no Servidor (Produção) a uma nova VM
+Este guia mostra como ligar a infraestrutura de produção a uma nova VM (Ubuntu).
 
 ### ✅ 1. Pré-requisitos na Nova VM (Ubuntu)
 
@@ -460,7 +460,7 @@ mv dump_file.sql backups/
 Atualmente, o projeto MentHA Digital encontra-se em dois ambientes distintos em producao:
 
 ### 🧪 Ambiente de Staging (Versão Atualizada e Estável)
-A versão mais recente e funcional do projeto encontra-se em https://menthadigital.com/, alojada numa VM da DigitalOcean.
+A versão mais recente e funcional do projeto encontra-se alojada numa VM da DigitalOcean.
 Este ambiente foi criado para testar o processo de deploy, infraestrutura, CI/CD e validação geral do MVP com dados reais.
 
 ✅ Esta é a versão mais atualizada do projeto, com deploy automatizado via GitHub Actions e base de dados configurada.
@@ -473,6 +473,7 @@ Acesso à plataforma:
 ### 🏛️ Servidor da Lusófona (Versão Oficial, Desatualizada)
 O servidor oficial da Universidade Lusófona está atualmente com uma versão antiga do projeto.
 O objetivo principal para as equipas futuras será migrar a infraestrutura estável da DigitalOcean para este servidor, usando a pipeline de CI/CD existente.
+O passo a passo para adptar a pipeline existente á VM da Lusófona encontra se explicada
 
 **Dados da VM da Lusófona:**
 
