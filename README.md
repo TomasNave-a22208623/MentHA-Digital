@@ -162,6 +162,105 @@ A infraestrutura do projeto está totalmente integrada num pipeline automatizado
 
 ---
 
+## 🗃️ Bases de Dados 
+
+### 🧪 Ambiente de Testes
+
+O ambiente de testes utiliza a base de dados definida no ficheiro `dump_tests.sql`, localizado na raiz do projeto. Este ficheiro contém dados **anónimos ou simulados**, próprios para desenvolvimento, debugging e testes.
+
+#### ✅ Importar dump de testes
+
+Para carregar um novo dump de testes no ambiente de desenvolvimento:
+
+1. **Substitui** o ficheiro `dump_tests.sql` na raiz do projeto.
+2. **Confirma** que está codificado em `UTF-8` **sem BOM** (sem Byte Order Mark).
+3. **Reinicia os serviços Docker** com remoção dos volumes para forçar a importação:
+
+```bash
+# Apaga volumes antigos e força importação do novo dump
+docker-compose down -v
+docker-compose up --build
+```
+O serviço dbpostgresql_init irá executar automaticamente o psql -f dump_tests.sql.
+
+#### 📤 Exportar novo dump de testes
+
+Caso queiras gerar um novo ficheiro `dump_tests.sql` a partir da base de dados atual (por exemplo, para partilhar com colegas), segue os passos abaixo:
+
+```bash
+docker exec dbpostgresql pg_dump -U leda -d mentha > dump_testsNovo.sql
+```
+
+✅ Garante que o ficheiro exportado está em UTF-8 sem BOM antes de reutilizá-lo ou partilhá-lo com outros.
+
+🔎 Como verificar se o ficheiro está em UTF-8 sem BOM
+
+**No VSCode**:
+1. Abre o ficheiro `dump_tests.sql`.
+2. No canto inferior direito, verifica a codificação (ex: `UTF-8`, `UTF-16 LE`, etc.).
+3. Clica na codificação e, se necessário, converte para `UTF-8`.
+4. **Muito importante**: se vires `UTF-8 with BOM`, clica e escolhe **Reopen with Encoding > UTF-8** (sem BOM) e guarda novamente.
+
+**🔄 Como converter para UTF-8 sem BOM**
+
+**Windows (PowerShell):**
+
+```powershell
+Get-Content dump_tests.sql | Set-Content -Encoding utf8 dump_tests_clean.sql
+```
+
+
+### 🚀 Ambiente de Produção
+
+A base de dados de produção usa um dump específico chamado `dump_file.sql`. Este ficheiro contém dados reais e sensíveis, 
+
+> ⚠️ Este ficheiro para ser colocado no servidor da lusofona no futuro tem de ser pedido ao professor
+
+#### ✅ Importar dump de produção no servidor
+Para importar o ficheiro dump_file.sql:
+
+Envia o ficheiro para o servidor (exemplo com SCP):
+
+```bash
+scp dump_file.sql root@IP_DO_SERVIDOR:/caminho/do/projeto/
+```
+Garante que o nome do ficheiro no servidor é exatamente dump_file.sql.
+
+```bash
+docker-compose down -v
+docker-compose up --build
+```
+O volume do PostgreSQL será criado ou reescrito, e o dump será carregado automaticamente.
+
+#### 📥 Exportar dump da produção (Backup)
+Para criar um backup da base de dados de produção diretamente no servidor:
+
+```
+# 1. Acede ao container da base de dados
+docker exec -it dbpostgresql bash
+
+# 2. Gera um novo dump com data para organização
+pg_dump -U leda -d mentha > /backups/dump_YYYYMMDD.sql
+Substitui YYYYMMDD pela data atual, ex: dump_20250620.sql.
+```
+
+#### ⬇️ Transferir o backup para a tua máquina local:
+```bash
+scp root@IP_DO_SERVIDOR:/backups/dump_20250620.sql ./backups/
+```
+
+#### 📁 Pasta de Backups
+Por padrão, a pasta /backups não está criada automaticamente, mas é altamente recomendada criar no servido. Esta pasta deve ser usada para:
+
+- Guardar versões anteriores dos dumps (ex: dump_YYYYMMDD.sql)
+- Facilitar a recuperação rápida da base de dados em caso de falha ou corrupção de dados
+
+⚠️ Cria esta pasta manualmente se ainda não existir:
+mkdir backups 
+
+
+---
+
 ## 🖥️ Configuração local do Ambiente de Desenvolvimento 
 
 Esta secção detalha o processo completo para configurar o ambiente de desenvolvimento localmente, desde a preparação inicial até à execução da aplicação localmente, garantindo que todos os serviços essenciais estão corretamente configurados e a funcionar.
@@ -381,104 +480,6 @@ O objetivo principal para as equipas futuras será migrar a infraestrutura está
 - **IP:** 193.137.75.199
 - **Utilizador:** ***
 - **Password:** ***
-
----
-
-## 🗃️ Bases de Dados 
-
-### 🧪 Ambiente de Testes
-
-O ambiente de testes utiliza a base de dados definida no ficheiro `dump_tests.sql`, localizado na raiz do projeto. Este ficheiro contém dados **anónimos ou simulados**, próprios para desenvolvimento, debugging e testes.
-
-#### ✅ Importar dump de testes
-
-Para carregar um novo dump de testes no ambiente de desenvolvimento:
-
-1. **Substitui** o ficheiro `dump_tests.sql` na raiz do projeto.
-2. **Confirma** que está codificado em `UTF-8` **sem BOM** (sem Byte Order Mark).
-3. **Reinicia os serviços Docker** com remoção dos volumes para forçar a importação:
-
-```bash
-# Apaga volumes antigos e força importação do novo dump
-docker-compose down -v
-docker-compose up --build
-```
-O serviço dbpostgresql_init irá executar automaticamente o psql -f dump_tests.sql.
-
-#### 📤 Exportar novo dump de testes
-
-Caso queiras gerar um novo ficheiro `dump_tests.sql` a partir da base de dados atual (por exemplo, para partilhar com colegas), segue os passos abaixo:
-
-```bash
-docker exec dbpostgresql pg_dump -U leda -d mentha > dump_testsNovo.sql
-```
-
-✅ Garante que o ficheiro exportado está em UTF-8 sem BOM antes de reutilizá-lo ou partilhá-lo com outros.
-
-🔎 Como verificar se o ficheiro está em UTF-8 sem BOM
-
-**No VSCode**:
-1. Abre o ficheiro `dump_tests.sql`.
-2. No canto inferior direito, verifica a codificação (ex: `UTF-8`, `UTF-16 LE`, etc.).
-3. Clica na codificação e, se necessário, converte para `UTF-8`.
-4. **Muito importante**: se vires `UTF-8 with BOM`, clica e escolhe **Reopen with Encoding > UTF-8** (sem BOM) e guarda novamente.
-
-**🔄 Como converter para UTF-8 sem BOM**
-
-**Windows (PowerShell):**
-
-```powershell
-Get-Content dump_tests.sql | Set-Content -Encoding utf8 dump_tests_clean.sql
-```
-
-
-### 🚀 Ambiente de Produção
-
-A base de dados de produção usa um dump específico chamado `dump_file.sql`. Este ficheiro contém dados reais e sensíveis, 
-
-> ⚠️ Este ficheiro para ser colocado no servidor da lusofona no futuro tem de ser pedido ao professor
-
-#### ✅ Importar dump de produção no servidor
-Para importar o ficheiro dump_file.sql:
-
-Envia o ficheiro para o servidor (exemplo com SCP):
-
-```bash
-scp dump_file.sql root@IP_DO_SERVIDOR:/caminho/do/projeto/
-```
-Garante que o nome do ficheiro no servidor é exatamente dump_file.sql.
-
-```bash
-docker-compose down -v
-docker-compose up --build
-```
-O volume do PostgreSQL será criado ou reescrito, e o dump será carregado automaticamente.
-
-#### 📥 Exportar dump da produção (Backup)
-Para criar um backup da base de dados de produção diretamente no servidor:
-
-```
-# 1. Acede ao container da base de dados
-docker exec -it dbpostgresql bash
-
-# 2. Gera um novo dump com data para organização
-pg_dump -U leda -d mentha > /backups/dump_YYYYMMDD.sql
-Substitui YYYYMMDD pela data atual, ex: dump_20250620.sql.
-```
-
-#### ⬇️ Transferir o backup para a tua máquina local:
-```bash
-scp root@IP_DO_SERVIDOR:/backups/dump_20250620.sql ./backups/
-```
-
-#### 📁 Pasta de Backups
-Por padrão, a pasta /backups não está criada automaticamente, mas é altamente recomendada criar no servido. Esta pasta deve ser usada para:
-
-- Guardar versões anteriores dos dumps (ex: dump_YYYYMMDD.sql)
-- Facilitar a recuperação rápida da base de dados em caso de falha ou corrupção de dados
-
-⚠️ Cria esta pasta manualmente se ainda não existir:
-mkdir backups 
 
 ---
 
