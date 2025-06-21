@@ -300,7 +300,7 @@ Uso recomendado:
 
 --- 
 
-### 🚀 Deploy Automático da Infraestrutura de Produção com GitHub Actions
+### 🚀 Deploy no Servidor (Produção)
 Este guia mostra-te como ligar a infraestrutura de produção a uma nova VM (Ubuntu).
 
 ### ✅ 1. Pré-requisitos na Nova VM (Ubuntu)
@@ -357,42 +357,30 @@ mv dump_file.sql backups/
 
 --- 
 
-## 🚀 Deploy no Servidor (Produção)
+## 🌍 Infraestrutura de Produção – Acesso e Contexto
+Atualmente, o projeto MentHA Digital encontra-se em dois ambientes distintos em producao:
 
-### Acesso à VM Lusofona
+### 🧪 Ambiente de Staging (Versão Atualizada e Estável)
+A versão mais recente e funcional do projeto encontra-se em https://menthadigital.com/, alojada numa VM da DigitalOcean.
+Este ambiente foi criado para testar o processo de deploy, infraestrutura, CI/CD e validação geral do MVP com dados reais.
 
-* DNS: jupiter.ulusofona.pt
-* IP: 193.137.75.199
-* Portas: 80 (http), 443 (https), 8822 (ssh)
-* user: ***
-* password: ***
+✅ Esta é a versão mais atualizada do projeto, com deploy automatizado via GitHub Actions e base de dados configurada.
 
-### Passos para Deploy
+Acesso à plataforma:
 
-1.	Fazer push para a branch master no GitHub
-2.	Aceder à VM via SSH
-3.	Fazer pull do código:
-```git pull origin master```
-4.	Ativar o ambiente virtual:
-```source env/bin/activate```
-5.	Migrar a base de dados:
-```
-python manage.py makemigrations
-python manage.py migrate
-```
-6.	Reiniciar o servidor:
-```sudo systemctl restart gunicorn```
+- URL: https://menthadigital.com/
+- Credenciais: Ver no Grupo do WhatsApp
 
----
+### 🏛️ Servidor da Lusófona (Versão Oficial, Desatualizada)
+O servidor oficial da Universidade Lusófona está atualmente com uma versão antiga do projeto.
+O objetivo principal para as equipas futuras será migrar a infraestrutura estável da DigitalOcean para este servidor, usando a pipeline de CI/CD existente.
 
-## 🌐 Acesso Online (Versão Produção)
+**Dados da VM da Lusófona:**
 
-Site: https://menthadigital.com/
-
-Credenciais:
-
-- Username: Ver no Grupo do WhatsApp
-- Password: Ver no Grupo do WhatsApp
+- **DNS:** jupiter.ulusofona.pt
+- **IP:** 193.137.75.199
+- **Utilizador:** ***
+- **Password:** ***
 
 ---
 
