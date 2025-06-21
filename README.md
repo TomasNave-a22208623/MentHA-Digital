@@ -300,9 +300,66 @@ Uso recomendado:
 
 --- 
 
+### 🚀 Deploy Automático da Infraestrutura de Produção com GitHub Actions
+Este guia mostra-te como ligar a infraestrutura de produção a uma nova VM (Ubuntu).
+
+### ✅ 1. Pré-requisitos na Nova VM (Ubuntu)
+
+```
+# Atualizar e instalar Docker
+sudo apt update && sudo apt install docker.io -y
+sudo systemctl enable docker && sudo systemctl start docker
+
+# Instalar Docker Compose v2
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+### 🔐 2. Atualizar Secrets no GitHub
+No repositório, vai a Settings > Secrets and variables > Actions > Repository secrets e atualiza estes valores:
+
+- **SERVER_HOST** - IP ou domínio da nova VM
+- **SERVER_USER** - Nome do utilizador SSH da VM (ex: root, ubuntu)
+- **SERVER_SSH_KEY** - Chave privada SSH (sem password)
+
+⚠️ O .env será gerado automaticamente na VM com estes secrets!
+
+### 📦 3. Preparar o Dump Inicial (uma só vez)
+Como a pipeline não envia o dump_file.sql, precisas de o colocar manualmente apenas na primeira vez:
+```
+# Envia o ficheiro para a VM
+scp dump_file.sql user@ip_da_vm:~/mentha_project/
+```
+
+### 📂 4. Importar o Dump Manualmente (Primeira Vez)
+Só precisas de fazer isto uma vez na VM nova:
+
+```
+# Aceder ao container da base de dados
+docker exec -it dbpostgresql bash
+
+# Importar o dump
+psql -U leda -d mentha -f /code/dump_file.sql
+```
+
+### 🔁 5. Reiniciar os Serviços (só se alterares manualmente o dump)
+```
+cd ~/mentha_project
+docker-compose -f compose.prod.yaml down
+docker-compose -f compose.prod.yaml up -d --build
+```
+### 🗃️ 7. Criar Pasta de Backups
+```
+cd ~/mentha_project
+mkdir backups
+mv dump_file.sql backups/
+```
+
+--- 
+
 ## 🚀 Deploy no Servidor (Produção)
 
-### Acesso à VM
+### Acesso à VM Lusofona
 
 * DNS: jupiter.ulusofona.pt
 * IP: 193.137.75.199
