@@ -467,7 +467,7 @@ Este ambiente foi criado para testar o processo de deploy, infraestrutura, CI/CD
 
 Acesso à plataforma:
 
-- URL: https://menthadigital.pt/
+- URL: http://menthadigital.pt/
 - Credenciais: Ver no Grupo do WhatsApp
 
 ### 🏛️ Servidor da Lusófona (Versão Oficial, Desatualizada)
