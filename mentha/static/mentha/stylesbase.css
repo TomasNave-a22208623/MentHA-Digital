@@ -598,7 +598,7 @@ div.hero {
 .slogan .tituloSlogan {
     font-weight: 700;
     font-size: clamp(2rem, 6vw, 96px);
-    color: white;
+    color: #4EB4BE;
     text-align: left;
     font-family: "Roboto-Bold", Helvetica;
     margin-bottom: 1px;
