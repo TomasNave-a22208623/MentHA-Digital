@@ -1,5 +1,12 @@
 # 🧠 MentHA – Guia de Instalação e Execução 
 
+
+
+
+
+
+<img width="1906" height="902" alt="image" src="https://github.com/user-attachments/assets/1286e3cd-10b3-4e46-bb7a-1e9ac8547f2c" />
+
 ## 🔧 Requisitos de Software
 
 - Python 3.11 ou superior  
